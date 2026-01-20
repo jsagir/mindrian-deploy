@@ -1,0 +1,11 @@
+# Mindrian - Multi-Bot PWS Platform
+# Core Dependencies
+
+# Chainlit UI
+chainlit>=2.0.0
+
+# Google Gemini
+google-genai>=1.0.0
+
+# Utilities
+python-dotenv>=1.0.0
