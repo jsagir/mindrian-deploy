@@ -559,22 +559,7 @@ async def main(message: cl.Message):
         await msg.update()
 
 
-# === File Upload Handler ===
-@cl.on_audio_chunk
-async def on_audio_chunk(chunk: cl.AudioChunk):
-    """Handle audio input chunks for voice messages."""
-    if chunk.isStart:
-        buffer = cl.user_session.get("audio_buffer", b"")
-        cl.user_session.set("audio_buffer", buffer + chunk.data)
-    else:
-        buffer = cl.user_session.get("audio_buffer", b"")
-        cl.user_session.set("audio_buffer", buffer + chunk.data)
-
-
-@cl.on_audio_end
-async def on_audio_end(elements: list):
-    """Process completed audio input."""
-    audio_buffer = cl.user_session.get("audio_buffer", b"")
-    if audio_buffer:
-        await cl.Message(content="🎤 Audio received! (Transcription coming soon)").send()
-        cl.user_session.set("audio_buffer", b"")
+# === Audio Handlers ===
+# Note: Audio handling is now managed by Chainlit's built-in speech-to-text
+# which is configured in .chainlit/config.toml under [features.speech_to_text]
+# The browser handles transcription and sends text directly to on_message
