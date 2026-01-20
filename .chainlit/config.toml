@@ -18,13 +18,6 @@ allow_origins = ["*"]
 # follow_symlink = false
 
 [features]
-# Spontaneous file upload feature
-# Enables users to attach files to messages
-spontaneous_file_upload = true
-
-# Enables audio recording and transcription
-audio = true
-
 # Enables editing of sent messages
 edit_message = true
 
@@ -34,11 +27,26 @@ prompt_playground = false
 # Enable Chat History
 unsafe_allow_html = false
 
-# Enable MCP (Model Context Protocol) support
-mcp = true
-
 # Enable multi-modal support (images, files in messages)
 multi_modal = true
+
+[features.spontaneous_file_upload]
+enabled = true
+accept = ["*/*"]
+max_files = 5
+max_size_mb = 20
+
+[features.audio]
+enabled = true
+min_decibels = -45
+initial_silence_timeout = 3000
+silence_timeout = 1500
+max_duration = 15000
+chunk_duration = 1000
+sample_rate = 24000
+
+[features.mcp]
+enabled = true
 
 [features.speech_to_text]
 enabled = true
