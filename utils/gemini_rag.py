@@ -4,8 +4,13 @@ Handles file upload and caching for workshop materials
 """
 
 import os
+import sys
 import json
 from pathlib import Path
+
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from google import genai
 from google.genai import types
 
