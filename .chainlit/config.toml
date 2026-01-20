@@ -1,0 +1,84 @@
+[project]
+# Whether to enable telemetry (default: true)
+enable_telemetry = true
+
+# List of environment variables to be provided by each user to use the app.
+user_env = []
+
+# Duration (in seconds) during which the session is saved when the connection is lost
+session_timeout = 3600
+
+# Enable third parties caching (e.g LangChain cache)
+cache = false
+
+# Authorized origins
+allow_origins = ["*"]
+
+# Follow symlink for asset mount (see https://github.com/Chainlit/chainlit/issues/317)
+# follow_symlink = false
+
+[features]
+# Spontaneous file upload feature
+# Enables users to attach files to messages
+spontaneous_file_upload = true
+
+# Enables audio recording and transcription
+audio = true
+
+# Enables editing of sent messages
+edit_message = true
+
+# Enable feedback buttons (thumbs up/down)
+prompt_playground = false
+
+# Enable Chat History
+unsafe_allow_html = false
+
+# Enable MCP (Model Context Protocol) support
+mcp = true
+
+# Enable multi-modal support (images, files in messages)
+multi_modal = true
+
+[features.speech_to_text]
+enabled = true
+provider = "browser"
+
+[features.text_to_speech]
+enabled = true
+provider = "browser"
+
+[UI]
+# Name of the app and chatbot.
+name = "Mindrian"
+
+# Show the readme while the thread is empty.
+show_readme_as_default = true
+
+# Description of the app and target audience.
+description = "Multi-Bot PWS Platform - Larry Core + Specialized Workshop Bots"
+
+# Large size content are by default collapsed for a cleaner ui
+default_collapse_content = true
+
+# The default value for the expand messages settings.
+default_expand_messages = false
+
+# Hide the chain of thought details from the user in the UI.
+hide_cot = false
+
+# Link to your github repo. This will add a github button in the UI's header.
+github = "https://github.com/jsagir/mindrian-deploy"
+
+# Override default MUI light theme. (Check theme.ts for full theme configuration options)
+[UI.theme]
+    [UI.theme.light]
+        background = "#fafafa"
+        paper = "#ffffff"
+
+    [UI.theme.dark]
+        background = "#1a1a2e"
+        paper = "#16213e"
+
+[meta]
+generated_by = "2.9.5"
