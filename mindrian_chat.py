@@ -48,6 +48,15 @@ from prompts import (
     ACKOFF_WORKSHOP_PROMPT
 )
 
+# === RAG Cache Support ===
+try:
+    from utils.gemini_rag import get_cache_name
+    RAG_ENABLED = True
+except ImportError:
+    RAG_ENABLED = False
+    def get_cache_name(workshop_id):
+        return None
+
 # === Workshop Phase Definitions ===
 WORKSHOP_PHASES = {
     "tta": [
@@ -322,6 +331,7 @@ async def start():
 
     cl.user_session.set("history", [])
     cl.user_session.set("bot", bot)
+    cl.user_session.set("bot_id", chat_profile or "larry")
     cl.user_session.set("current_phase", 0)
 
     # Initialize phases for workshop bots
@@ -494,12 +504,26 @@ async def main(message: cl.Message):
     await msg.send()
 
     try:
+        # Check for cached context (RAG) for this bot
+        bot_id = cl.user_session.get("bot_id", "larry")
+        cache_name = get_cache_name(bot_id) if RAG_ENABLED else None
+
+        if cache_name:
+            # Use cached context with RAG materials
+            config = types.GenerateContentConfig(
+                cached_content=cache_name,
+            )
+            print(f"🔍 Using RAG cache: {cache_name}")
+        else:
+            # Fall back to regular system instruction
+            config = types.GenerateContentConfig(
+                system_instruction=bot["system_prompt"],
+            )
+
         response_stream = client.models.generate_content_stream(
             model="gemini-3-flash-preview",
             contents=contents,
-            config=types.GenerateContentConfig(
-                system_instruction=bot["system_prompt"],
-            ),
+            config=config,
         )
 
         full_response = ""
