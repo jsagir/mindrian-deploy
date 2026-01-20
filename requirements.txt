@@ -16,9 +16,9 @@ plotly>=5.18.0
 # MCP Tools
 tavily-python>=0.5.0
 
-# Data Persistence (optional - for PostgreSQL)
-# sqlalchemy>=2.0.0
-# psycopg2-binary>=2.9.0
+# Data Persistence (PostgreSQL)
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0
 
 # Audio Processing (optional)
 # openai-whisper>=20231117

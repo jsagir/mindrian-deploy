@@ -1,7 +1,7 @@
 """
 Mindrian - Multi-Bot PWS Platform
 Larry Core + Specialized Tool Workshop Bots
-Enhanced with Task Lists, Action Buttons, File Upload, Charts, and more
+Enhanced with Task Lists, Action Buttons, File Upload, Charts, Data Persistence
 """
 
 import os
@@ -18,8 +18,25 @@ from google.genai import types
 # === Config ===
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("GOOGLE_AI_API_KEY")
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 client = genai.Client(api_key=GOOGLE_API_KEY)
+
+# === Data Persistence Setup ===
+if DATABASE_URL:
+    try:
+        from chainlit.data.sql_alchemy import SQLAlchemyDataLayer
+
+        # Initialize SQLAlchemy data layer for conversation persistence
+        cl.data._data_layer = SQLAlchemyDataLayer(
+            conninfo=DATABASE_URL,
+            ssl_require=True
+        )
+        print("✅ Data persistence enabled with PostgreSQL")
+    except Exception as e:
+        print(f"⚠️ Data persistence disabled: {e}")
+else:
+    print("ℹ️ Data persistence disabled (no DATABASE_URL)")
 
 # === System Prompts ===
 from prompts import (
