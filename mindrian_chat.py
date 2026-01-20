@@ -44,7 +44,8 @@ from prompts import (
     TTA_WORKSHOP_PROMPT,
     JTBD_WORKSHOP_PROMPT,
     SCURVE_WORKSHOP_PROMPT,
-    REDTEAM_PROMPT
+    REDTEAM_PROMPT,
+    ACKOFF_WORKSHOP_PROMPT
 )
 
 # === Workshop Phase Definitions ===
@@ -84,6 +85,16 @@ WORKSHOP_PHASES = {
         {"name": "Competition & Alternatives", "status": "pending"},
         {"name": "Failure Modes", "status": "pending"},
         {"name": "Strengthening", "status": "pending"},
+    ],
+    "ackoff": [
+        {"name": "Team Onboarding", "status": "ready"},
+        {"name": "Direction Choice", "status": "pending"},
+        {"name": "Data Level", "status": "pending"},
+        {"name": "Information Level", "status": "pending"},
+        {"name": "Knowledge Level", "status": "pending"},
+        {"name": "Understanding Level", "status": "pending"},
+        {"name": "Wisdom Level", "status": "pending"},
+        {"name": "Validation & Action", "status": "pending"},
     ],
 }
 
@@ -187,6 +198,39 @@ My job is to find the holes in your thinking before the market does. I'm going t
 This isn't about being negative — it's about making your idea bulletproof.
 
 **What idea, plan, or assumption do you want me to attack?**"""
+    },
+    "ackoff": {
+        "name": "Ackoff's Pyramid (DIKW)",
+        "icon": "🔺",
+        "description": "Workshop: Climb the DIKW pyramid to validate understanding",
+        "system_prompt": ACKOFF_WORKSHOP_PROMPT,
+        "has_phases": True,
+        "welcome": """🔺 **Ackoff's Pyramid Workshop**
+### The DIKW Validation Method
+
+Hello. I'm Larry Aronhime.
+
+Before we do anything else, I need to understand who I'm working with.
+
+The DIKW Pyramid helps you climb from raw **Data** → **Information** → **Knowledge** → **Understanding** → **Wisdom**.
+
+Or, if you already have a solution, we'll **climb down** to validate it's actually grounded in reality.
+
+**Tell me about yourself/your team:**
+
+1️⃣ **Who am I talking to?**
+   → Individual or team? What roles?
+
+2️⃣ **What's your domain?**
+   → Industry, organization, product area?
+
+3️⃣ **What's at stake?**
+   → What happens if you get this wrong?
+
+4️⃣ **What's your timeline?**
+   → When do you need to act?
+
+I'm listening."""
     }
 }
 
@@ -262,6 +306,11 @@ async def chat_profiles():
             markdown_description=BOTS["redteam"]["description"],
             icon=BOTS["redteam"]["icon"],
         ),
+        cl.ChatProfile(
+            name="ackoff",
+            markdown_description=BOTS["ackoff"]["description"],
+            icon=BOTS["ackoff"]["icon"],
+        ),
     ]
 
 
@@ -331,6 +380,12 @@ async def on_show_example(action: cl.Action):
         ],
         "redteam": [
             "Example assumption attack: 'You assume customers will pay $50/month. What if they only pay $20? What if there's a free alternative? What if the problem you're solving isn't painful enough to pay for at all?'",
+        ],
+        "ackoff": [
+            "Example of the Camera Test: 'The line was long' is interpretation. '47 people in line at 12:15' is data. Could a camera record it? If not, it's interpretation, not observation.",
+            "Example of pattern vs causation: 'Users leave when prices increase' is a pattern. 'Price increases CAUSE users to leave' is a causal claim we haven't verified yet. Don't confuse correlation with causation.",
+            "Example of the 5 Whys: Why do customers complain? → Wait times. Why long wait times? → Understaffed. Why understaffed? → Budget cuts. Why budget cuts? → Revenue down. Why revenue down? → Product-market fit issues. There's your root cause.",
+            "Example climb-down validation: Your solution traces cleanly to data—or it doesn't. If there's a gap at the Knowledge level, you're building on assumption, not evidence. That's when projects fail.",
         ],
     }
 

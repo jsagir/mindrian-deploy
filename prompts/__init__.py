@@ -4,11 +4,13 @@ from .tta_workshop import TTA_WORKSHOP_PROMPT
 from .jtbd_workshop import JTBD_WORKSHOP_PROMPT
 from .scurve_workshop import SCURVE_WORKSHOP_PROMPT
 from .redteam import REDTEAM_PROMPT
+from .ackoff_workshop import ACKOFF_WORKSHOP_PROMPT
 
 __all__ = [
     "LARRY_RAG_SYSTEM_PROMPT",
     "TTA_WORKSHOP_PROMPT",
     "JTBD_WORKSHOP_PROMPT",
     "SCURVE_WORKSHOP_PROMPT",
-    "REDTEAM_PROMPT"
+    "REDTEAM_PROMPT",
+    "ACKOFF_WORKSHOP_PROMPT",
 ]
