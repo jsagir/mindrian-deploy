@@ -812,4 +812,29 @@ The **Problem Worth Solving** methodology was developed by Professor Lawrence Ar
 
 ---
 
+---
+
+## Developer Documentation
+
+- **[CLAUDE.md](./CLAUDE.md)** - Quick reference for AI assistants (Claude Code, etc.)
+- **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Comprehensive development guide
+
+### Adding New Agents Checklist
+
+When adding a new bot, follow ALL these steps:
+
+1. Create system prompt in `prompts/`
+2. Export in `prompts/__init__.py`
+3. Add to `BOTS` dict
+4. Add to `WORKSHOP_PHASES` (if applicable)
+5. Add to `STARTERS` dict
+6. Add to `chat_profiles()`
+7. **Add to `AGENT_TRIGGERS`** (enables dynamic switching)
+8. **Add switch callback** (`switch_to_newbot`)
+9. Create SVG icons (optional)
+
+**Missing steps 7-8 = Dynamic agent switching won't work!**
+
+---
+
 Built with Chainlit + Google Gemini + Gemini File Search RAG + Supabase + ElevenLabs
