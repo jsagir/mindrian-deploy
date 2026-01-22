@@ -1137,11 +1137,41 @@ async def main(message: cl.Message):
     if session_id and session_id in stop_events:
         stop_events[session_id].clear()
 
-    # Check for file attachments
+    # Process file attachments (PDF, DOCX, TXT, etc.)
+    file_context = ""
     if message.elements:
+        from utils.file_processor import process_uploaded_file, format_file_context
+
         for element in message.elements:
-            if hasattr(element, 'path'):
-                await cl.Message(content=f"Received file: **{element.name}**").send()
+            if hasattr(element, 'path') and element.path:
+                # Extract text from uploaded file
+                async with cl.Step(name=f"Processing: {element.name}", type="tool") as file_step:
+                    file_step.input = f"Extracting content from {element.name}"
+
+                    content, metadata = process_uploaded_file(element.path, element.name)
+
+                    if metadata.get("error"):
+                        file_step.output = f"Error: {metadata['error']}"
+                        await cl.Message(content=f"Could not process **{element.name}**: {metadata['error']}").send()
+                    else:
+                        file_type = metadata.get("type", "file")
+                        char_count = metadata.get("char_count", 0)
+                        file_step.output = f"Extracted {char_count:,} characters from {file_type}"
+
+                        # Add to context for LLM
+                        file_context += format_file_context(element.name, content, metadata)
+
+                        # Notify user
+                        info_msg = f"**{element.name}** processed"
+                        if file_type == "pdf":
+                            info_msg += f" ({metadata.get('pages_extracted')}/{metadata.get('total_pages')} pages)"
+                        elif file_type == "docx":
+                            info_msg += f" ({metadata.get('paragraphs')} paragraphs)"
+
+                        if metadata.get("truncated"):
+                            info_msg += " *(truncated for length)*"
+
+                        await cl.Message(content=info_msg).send()
 
     # Build contents for Gemini
     contents = []
@@ -1165,9 +1195,15 @@ async def main(message: cl.Message):
     elif detail_level >= 8:
         detail_instruction = "\n[USER PREFERENCE: Provide comprehensive, detailed explanations.]"
 
+    # Combine user message with file context and other context
+    full_user_message = message.content
+    if file_context:
+        full_user_message += f"\n\n{file_context}"
+    full_user_message += phase_context + detail_instruction
+
     contents.append(types.Content(
         role="user",
-        parts=[types.Part(text=message.content + phase_context + detail_instruction)]
+        parts=[types.Part(text=full_user_message)]
     ))
 
     # Create streaming message
