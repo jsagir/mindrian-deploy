@@ -35,37 +35,97 @@ class QualityScore:
     timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
 
 
-# PWS Worthiness Criteria from Neo4j schema
-PWS_WORTHINESS_CRITERIA = {
-    "market_size": {
-        "name": "Market Size",
-        "description": "How many people/organizations are affected?",
-        "weight": 0.15,
-        "indicators": ["users", "customers", "market", "population", "scale", "millions", "billions"]
+# ============================================================
+# PWS PROBLEM CLASSIFICATION CRITERIA (From Neo4j Schema)
+# The TRUE measurement for PWS assessment
+# ============================================================
+
+# Problem Definition Clarity (Undefined → Ill-Defined → Well-Defined)
+PROBLEM_DEFINITION_CRITERIA = {
+    "well_defined": {
+        "name": "Well-Defined Problem",
+        "description": "Specific, measurable problem with binary/falsifiable outcomes, clear user segments, and bounded scope",
+        "indicators": ["specific", "measurable", "testable", "falsifiable", "bounded", "clear scope", "defined user", "success criteria"],
+        "score_boost": 30,  # Well-defined problems get higher quality scores
     },
-    "future_urgency": {
-        "name": "Future Urgency",
-        "description": "How urgent will this problem become in the target timeframe?",
-        "weight": 0.15,
-        "indicators": ["urgent", "timeline", "deadline", "growing", "accelerating", "trend"]
+    "ill_defined": {
+        "name": "Ill-Defined Problem",
+        "description": "General direction identified but lacks specificity and testability. Emerging opportunities that need clarification",
+        "indicators": ["general direction", "emerging", "unclear", "needs clarification", "partial understanding", "ambiguous"],
+        "score_boost": 15,
     },
-    "solvability": {
-        "name": "Solvability",
-        "description": "Can this problem be solved with foreseeable capabilities?",
-        "weight": 0.20,
-        "indicators": ["solution", "approach", "method", "technology", "feasible", "achievable"]
+    "undefined": {
+        "name": "Undefined Problem",
+        "description": "Broad opportunity space with future-back thinking and scattered observations. Starting point for exploration",
+        "indicators": ["future", "opportunity space", "scattered", "exploration", "what if", "might be", "could be"],
+        "score_boost": 5,
     },
-    "expertise_match": {
-        "name": "Expertise Match",
-        "description": "Does the team have or can acquire relevant capabilities?",
-        "weight": 0.15,
-        "indicators": ["team", "skills", "capability", "experience", "expertise", "competency"]
+}
+
+# Complexity/Wickedness Assessment (Simple → Complex → Wicked)
+COMPLEXITY_WICKEDNESS_CRITERIA = {
+    "simple": {
+        "name": "Simple/Tame Problem",
+        "description": "Clear cause and effect, best practices available, straightforward resolution",
+        "indicators": ["obvious", "straightforward", "clear solution", "best practice", "standard", "routine"],
+        "cynefin": "Clear",
     },
-    "impact_potential": {
-        "name": "Impact Potential",
-        "description": "If solved, what is the magnitude of positive change?",
-        "weight": 0.20,
-        "indicators": ["impact", "change", "improvement", "benefit", "outcome", "transformation"]
+    "complicated": {
+        "name": "Complicated Problem",
+        "description": "Requires expertise to analyze, good practices exist, cause-effect discoverable",
+        "indicators": ["requires expertise", "analysis needed", "multiple factors", "specialist", "technical"],
+        "cynefin": "Complicated",
+    },
+    "complex": {
+        "name": "Complex Problem",
+        "description": "Emergent behavior, cause-effect only visible in retrospect, probe-sense-respond needed",
+        "indicators": ["emergent", "unpredictable", "probe", "experiment", "iterate", "adaptive", "evolving"],
+        "cynefin": "Complex",
+    },
+    "wicked": {
+        "name": "Wicked Problem",
+        "description": "No stopping rule, solutions create new problems, stakeholder conflicts, contested definitions",
+        "indicators": ["wicked", "no clear solution", "stakeholder conflict", "contested", "ripple effects", "unintended consequences", "political"],
+        "cynefin": "Chaotic/Complex",
+    },
+}
+
+# Wicked Problem Characteristics (Rittel & Webber)
+WICKED_CHARACTERISTICS = {
+    "no_definitive_formulation": {
+        "name": "No Definitive Formulation",
+        "description": "The problem cannot be definitively stated - understanding the problem IS the problem",
+        "indicators": ["hard to define", "changes when examined", "different perspectives", "contested framing"],
+    },
+    "no_stopping_rule": {
+        "name": "No Stopping Rule",
+        "description": "There's no way to know when the problem is 'solved' - work continues indefinitely",
+        "indicators": ["never done", "ongoing", "continuous", "no end point", "perpetual"],
+    },
+    "solutions_not_true_false": {
+        "name": "Solutions Not True/False",
+        "description": "Solutions are good/bad, not true/false - subjective judgment required",
+        "indicators": ["subjective", "judgment", "trade-off", "depends on perspective", "stakeholder dependent"],
+    },
+    "no_immediate_test": {
+        "name": "No Immediate Test",
+        "description": "Cannot immediately test if a solution works - effects unfold over time",
+        "indicators": ["long-term", "delayed effects", "unintended", "ripple", "downstream"],
+    },
+    "one_shot_operation": {
+        "name": "One-Shot Operation",
+        "description": "Every solution attempt counts - cannot undo and try again",
+        "indicators": ["irreversible", "can't undo", "path dependent", "committed", "no going back"],
+    },
+    "unique": {
+        "name": "Essentially Unique",
+        "description": "Every wicked problem is essentially unique despite surface similarities",
+        "indicators": ["unique", "unprecedented", "novel context", "no precedent", "first time"],
+    },
+    "symptom_of_another": {
+        "name": "Symptom of Another Problem",
+        "description": "The problem is a symptom of another problem - nested problems",
+        "indicators": ["symptom", "root cause", "underlying", "deeper issue", "surface level"],
     },
 }
 
@@ -153,20 +213,116 @@ def get_neo4j_driver():
         return None
 
 
+def classify_problem_definition(text: str) -> Dict:
+    """
+    Classify a problem by its definition clarity level.
+    Returns: {"level": "well_defined"|"ill_defined"|"undefined", "confidence": 0-100, "evidence": []}
+    """
+    text_lower = text.lower()
+    scores = {}
+
+    for level, criteria in PROBLEM_DEFINITION_CRITERIA.items():
+        matches = [ind for ind in criteria["indicators"] if ind in text_lower]
+        scores[level] = len(matches)
+
+    # Determine best match
+    best_level = max(scores, key=scores.get)
+    total_matches = sum(scores.values())
+    confidence = (scores[best_level] / max(1, total_matches)) * 100 if total_matches > 0 else 50
+
+    return {
+        "level": best_level,
+        "confidence": round(confidence, 1),
+        "evidence": [ind for ind in PROBLEM_DEFINITION_CRITERIA[best_level]["indicators"] if ind in text_lower],
+        "description": PROBLEM_DEFINITION_CRITERIA[best_level]["description"]
+    }
+
+
+def classify_problem_complexity(text: str) -> Dict:
+    """
+    Classify a problem by its complexity/wickedness level.
+    Returns: {"level": "simple"|"complicated"|"complex"|"wicked", "confidence": 0-100, "evidence": []}
+    """
+    text_lower = text.lower()
+    scores = {}
+
+    for level, criteria in COMPLEXITY_WICKEDNESS_CRITERIA.items():
+        matches = [ind for ind in criteria["indicators"] if ind in text_lower]
+        scores[level] = len(matches)
+
+    # Determine best match
+    best_level = max(scores, key=scores.get)
+    total_matches = sum(scores.values())
+    confidence = (scores[best_level] / max(1, total_matches)) * 100 if total_matches > 0 else 50
+
+    return {
+        "level": best_level,
+        "confidence": round(confidence, 1),
+        "cynefin_domain": COMPLEXITY_WICKEDNESS_CRITERIA[best_level]["cynefin"],
+        "evidence": [ind for ind in COMPLEXITY_WICKEDNESS_CRITERIA[best_level]["indicators"] if ind in text_lower],
+        "description": COMPLEXITY_WICKEDNESS_CRITERIA[best_level]["description"]
+    }
+
+
+def assess_wickedness(text: str) -> Dict:
+    """
+    Assess how many wicked problem characteristics are present.
+    Returns: {"wickedness_score": 0-100, "characteristics_found": [], "is_wicked": bool}
+    """
+    text_lower = text.lower()
+    found_characteristics = []
+
+    for char_id, char_info in WICKED_CHARACTERISTICS.items():
+        matches = [ind for ind in char_info["indicators"] if ind in text_lower]
+        if matches:
+            found_characteristics.append({
+                "id": char_id,
+                "name": char_info["name"],
+                "evidence": matches
+            })
+
+    # Wickedness score based on how many characteristics are present
+    total_characteristics = len(WICKED_CHARACTERISTICS)
+    wickedness_score = (len(found_characteristics) / total_characteristics) * 100
+
+    return {
+        "wickedness_score": round(wickedness_score, 1),
+        "characteristics_found": found_characteristics,
+        "characteristics_count": len(found_characteristics),
+        "total_possible": total_characteristics,
+        "is_wicked": len(found_characteristics) >= 3  # 3+ characteristics = wicked
+    }
+
+
+def get_problem_classification_matrix(text: str) -> str:
+    """
+    Get the full problem classification (Definition x Complexity matrix).
+    Returns classification like "Ill-Defined + Complex" or "Well-Defined + Simple"
+    """
+    definition = classify_problem_definition(text)
+    complexity = classify_problem_complexity(text)
+
+    # Map to matrix cell
+    def_label = definition["level"].replace("_", "-").title()
+    comp_label = complexity["level"].title()
+
+    return f"{def_label} + {comp_label}"
+
+
 async def fetch_pws_criteria_from_neo4j() -> Dict:
-    """Fetch PWS quality criteria from Neo4j schema."""
+    """Fetch PWS problem classification criteria from Neo4j schema."""
     driver = get_neo4j_driver()
     if not driver:
-        return PWS_WORTHINESS_CRITERIA  # Fall back to static
+        return PROBLEM_DEFINITION_CRITERIA  # Fall back to static
 
     criteria = {}
     try:
         with driver.session() as session:
-            # Fetch WorthinessCriteria nodes
+            # Fetch ProblemType nodes for classification criteria
             result = session.run("""
-                MATCH (wc:WorthinessCriteria)
-                WHERE wc.name IS NOT NULL
-                RETURN wc.name as name, wc.description as description
+                MATCH (pt:ProblemType)
+                WHERE pt.name IS NOT NULL AND pt.description IS NOT NULL
+                RETURN pt.name as name, pt.description as description
             """)
 
             for record in result:
@@ -200,11 +356,11 @@ async def fetch_pws_criteria_from_neo4j() -> Dict:
 
     except Exception as e:
         print(f"Neo4j criteria fetch error: {e}")
-        return PWS_WORTHINESS_CRITERIA
+        return PROBLEM_DEFINITION_CRITERIA
     finally:
         driver.close()
 
-    return criteria if criteria else PWS_WORTHINESS_CRITERIA
+    return criteria if criteria else PROBLEM_DEFINITION_CRITERIA
 
 
 def score_dimension(
@@ -268,7 +424,8 @@ def score_response(
     user_message: str = "",
     bot_id: str = "larry",
     phase: str = "",
-    include_voice_scoring: bool = True
+    include_voice_scoring: bool = True,
+    include_problem_classification: bool = True
 ) -> QualityScore:
     """
     Score an AI response against PWS methodology standards.
@@ -279,6 +436,7 @@ def score_response(
         bot_id: The bot that generated the response
         phase: Current workshop phase
         include_voice_scoring: Whether to include Larry voice scoring
+        include_problem_classification: Whether to classify the problem being discussed
 
     Returns:
         QualityScore with detailed breakdown
@@ -331,6 +489,151 @@ def score_response(
         improvement_suggestions=improvements[:5],  # Top 5
         strengths=strengths[:5],  # Top 5
         pws_alignment=pws_alignment
+    )
+
+
+def assess_conversation_quality(
+    conversation_text: str,
+    user_problem: str = "",
+    ai_responses: List[str] = None
+) -> Dict:
+    """
+    Comprehensive PWS quality assessment including problem classification and wickedness.
+
+    This is the TRUE PWS measurement based on:
+    1. Problem Classification (Undefined → Ill-Defined → Well-Defined)
+    2. Complexity/Wickedness Assessment (Simple → Complicated → Complex → Wicked)
+
+    Args:
+        conversation_text: Full conversation or problem description
+        user_problem: The user's stated problem (if separate)
+        ai_responses: List of AI responses to evaluate
+
+    Returns:
+        Comprehensive assessment dict
+    """
+    # Analyze the problem being discussed
+    combined_text = f"{user_problem} {conversation_text}"
+
+    # 1. Problem Definition Classification
+    definition_class = classify_problem_definition(combined_text)
+
+    # 2. Complexity/Wickedness Assessment
+    complexity_class = classify_problem_complexity(combined_text)
+
+    # 3. Detailed Wickedness Analysis
+    wickedness = assess_wickedness(combined_text)
+
+    # 4. Get the matrix classification
+    matrix_class = get_problem_classification_matrix(combined_text)
+
+    # 5. Score AI responses if provided
+    response_scores = []
+    if ai_responses:
+        for response in ai_responses:
+            score = score_response(response, user_problem)
+            response_scores.append(score.overall_score)
+
+    avg_response_score = sum(response_scores) / len(response_scores) if response_scores else None
+
+    # 6. Generate PWS recommendations based on classification
+    recommendations = generate_pws_recommendations(
+        definition_class["level"],
+        complexity_class["level"],
+        wickedness["is_wicked"]
+    )
+
+    return {
+        "problem_classification": {
+            "definition": definition_class,
+            "complexity": complexity_class,
+            "matrix_position": matrix_class,
+            "wickedness": wickedness,
+        },
+        "cynefin_domain": complexity_class["cynefin_domain"],
+        "is_wicked_problem": wickedness["is_wicked"],
+        "response_quality": {
+            "average_score": avg_response_score,
+            "individual_scores": response_scores,
+        } if response_scores else None,
+        "recommendations": recommendations,
+        "appropriate_approach": get_appropriate_approach(
+            definition_class["level"],
+            complexity_class["level"]
+        ),
+    }
+
+
+def generate_pws_recommendations(definition_level: str, complexity_level: str, is_wicked: bool) -> List[str]:
+    """Generate PWS methodology recommendations based on problem classification."""
+    recommendations = []
+
+    # Definition-based recommendations
+    if definition_level == "undefined":
+        recommendations.extend([
+            "Use Trending to the Absurd (TTA) to explore future scenarios",
+            "Apply future-back thinking to identify potential problems",
+            "Focus on observation and data gathering before framing",
+        ])
+    elif definition_level == "ill_defined":
+        recommendations.extend([
+            "Apply Jobs to Be Done (JTBD) to understand underlying needs",
+            "Use the Camera Test to distinguish data from interpretation",
+            "Iterate on problem framing with stakeholder input",
+        ])
+    else:  # well_defined
+        recommendations.extend([
+            "Validate assumptions with the PWS Triple Validation (Real? Win? Worth?)",
+            "Apply S-Curve analysis for timing decisions",
+            "Use Red Teaming to stress-test your solution",
+        ])
+
+    # Complexity-based recommendations
+    if is_wicked or complexity_level == "wicked":
+        recommendations.extend([
+            "Accept there's no 'solution' - aim for improvement",
+            "Map stakeholder conflicts explicitly",
+            "Use iterative probe-sense-respond approach",
+            "Document assumptions - they will change",
+        ])
+    elif complexity_level == "complex":
+        recommendations.extend([
+            "Run safe-to-fail experiments",
+            "Expect emergent patterns - don't over-plan",
+            "Use Cynefin Complex domain practices",
+        ])
+    elif complexity_level == "complicated":
+        recommendations.extend([
+            "Engage domain experts for analysis",
+            "Break down into analyzable components",
+            "Use structured frameworks methodically",
+        ])
+
+    return recommendations[:6]  # Top 6 most relevant
+
+
+def get_appropriate_approach(definition_level: str, complexity_level: str) -> str:
+    """Get the appropriate PWS approach based on problem classification."""
+    approaches = {
+        ("undefined", "simple"): "Exploration with TTA, minimal risk in experimentation",
+        ("undefined", "complicated"): "Expert-guided exploration, scenario planning",
+        ("undefined", "complex"): "Future-back thinking, multiple scenario development",
+        ("undefined", "wicked"): "Stakeholder mapping + TTA, accept ongoing evolution",
+
+        ("ill_defined", "simple"): "JTBD analysis, quick validation cycles",
+        ("ill_defined", "complicated"): "JTBD + expert analysis, structured discovery",
+        ("ill_defined", "complex"): "Iterative JTBD, probe-sense-respond",
+        ("ill_defined", "wicked"): "Multi-stakeholder JTBD, conflict resolution focus",
+
+        ("well_defined", "simple"): "Direct solution development, standard practices",
+        ("well_defined", "complicated"): "S-Curve positioning, expert-driven solution",
+        ("well_defined", "complex"): "Agile/adaptive implementation, continuous learning",
+        ("well_defined", "wicked"): "Red Team validation, anticipate second-order effects",
+    }
+
+    return approaches.get(
+        (definition_level, complexity_level),
+        "Apply PWS methodology iteratively, reassess classification as you learn"
     )
 
 

@@ -97,56 +97,107 @@ stop_events = {}    # For cancellation support
 @cl.action_callback("...")    # Button click handlers
 ```
 
-### Adding a New Bot/Agent
+### Adding a New Bot/Agent - COMPLETE CHECKLIST
 
-**⚠️ CRITICAL: Follow ALL 9 steps. Missing steps 7-8 will break dynamic agent switching!**
+**⚠️ USE THE GENERATOR SCRIPT: `python scripts/generate_agent.py newbot "New Bot Name"`**
 
-1. **Create system prompt** in `prompts/new_bot.py`:
+This creates all boilerplate automatically. If doing manually, follow ALL steps below.
+
+---
+
+#### TIER 1: Core Setup (Required)
+
+| # | Task | File | Status |
+|---|------|------|--------|
+| 1 | Create system prompt | `prompts/newbot.py` | ☐ |
+| 2 | Export prompt | `prompts/__init__.py` | ☐ |
+| 3 | Add to BOTS dict | `mindrian_chat.py` | ☐ |
+| 4 | Add chat profile | `mindrian_chat.py` → `chat_profiles()` | ☐ |
+| 5 | Add starters (4 required) | `mindrian_chat.py` → `STARTERS` | ☐ |
+
+#### TIER 2: Workshop Features (If has_phases=True)
+
+| # | Task | File | Status |
+|---|------|------|--------|
+| 6 | Define workshop phases | `mindrian_chat.py` → `WORKSHOP_PHASES` | ☐ |
+| 7 | Add video URLs per phase | `utils/media.py` → `WORKSHOP_VIDEOS` | ☐ |
+| 8 | Add audiobook chapters | `utils/media.py` → `AUDIOBOOK_CHAPTERS` | ☐ |
+
+#### TIER 3: Dynamic Features (Required for Full Integration)
+
+| # | Task | File | Status |
+|---|------|------|--------|
+| 9 | Add agent trigger keywords | `mindrian_chat.py` → `AGENT_TRIGGERS` | ☐ |
+| 10 | Add switch callback | `mindrian_chat.py` → `@cl.action_callback` | ☐ |
+| 11 | Add dynamic examples | `utils/dynamic_examples.py` | ☐ |
+| 12 | Add quality scoring criteria | `utils/quality_scorer.py` (optional) | ☐ |
+
+#### TIER 4: Knowledge Base (For RAG-enabled bots)
+
+| # | Task | File/Location | Status |
+|---|------|---------------|--------|
+| 13 | Upload workshop materials | Gemini File Search → `T2_Tools/` | ☐ |
+| 14 | Add case studies | Neo4j → `CaseStudy` nodes | ☐ |
+| 15 | Create Gemini cache | `utils/gemini_rag.py` → `setup_X_cache()` | ☐ |
+
+---
+
+### Detailed Implementation Guide
+
+#### Step 1: Create System Prompt
 ```python
-NEW_BOT_PROMPT = """
-You are [name], specialized in [methodology].
+# prompts/newbot.py
+NEWBOT_PROMPT = """
+You are [Name], a PWS methodology expert specializing in [methodology].
+
+## Your Role
+[Describe the bot's expertise and approach]
+
+## Workshop Phases (if applicable)
+1. Phase 1: [Name] - [Description]
+2. Phase 2: [Name] - [Description]
 ...
+
+## Key Concepts
+- [Concept 1]: [Brief explanation]
+- [Concept 2]: [Brief explanation]
+
+## Interaction Style
+- Ask probing questions (Socratic method)
+- Never jump to solutions before understanding the problem
+- Always ground responses in PWS methodology
 """
 ```
 
-2. **Export in `prompts/__init__.py`**:
+#### Step 2: Export Prompt
 ```python
-from .new_bot import NEW_BOT_PROMPT
+# prompts/__init__.py
+from .newbot import NEWBOT_PROMPT
 ```
 
-3. **Add to BOTS dict** in `mindrian_chat.py`:
+#### Step 3: Add to BOTS Dict
 ```python
+# mindrian_chat.py
 BOTS["newbot"] = {
     "name": "New Bot Name",
     "icon": "🆕",
-    "description": "What this bot does",
-    "system_prompt": NEW_BOT_PROMPT,
-    "has_phases": True,  # or False for non-workshop bots
-    "welcome": "Welcome message..."
+    "description": "One-line description for chat profile",
+    "system_prompt": NEWBOT_PROMPT,
+    "has_phases": True,  # True for workshops, False for general
+    "welcome": """**🆕 Welcome to New Bot Workshop!**
+
+I'll guide you through [methodology]. We'll work through [X] phases:
+
+1. **Phase 1** - [Brief description]
+2. **Phase 2** - [Brief description]
+
+Let's begin! [Opening question]"""
 }
 ```
 
-4. **Add phases** (if workshop bot):
+#### Step 4: Add Chat Profile
 ```python
-WORKSHOP_PHASES["newbot"] = [
-    {"name": "Phase 1", "status": "ready"},
-    {"name": "Phase 2", "status": "pending"},
-    # ...
-]
-```
-
-5. **Add starters**:
-```python
-STARTERS["newbot"] = [
-    cl.Starter(label="Option 1", message="...", icon="/public/icons/icon.svg"),
-    cl.Starter(label="Option 2", message="...", icon="/public/icons/icon.svg"),
-    cl.Starter(label="Option 3", message="...", icon="/public/icons/icon.svg"),
-    cl.Starter(label="Option 4", message="...", icon="/public/icons/icon.svg"),
-]
-```
-
-6. **Add chat profile** in `chat_profiles()`:
-```python
+# mindrian_chat.py → chat_profiles()
 cl.ChatProfile(
     name="newbot",
     markdown_description=BOTS["newbot"]["description"],
@@ -154,27 +205,177 @@ cl.ChatProfile(
 ),
 ```
 
-7. **⚠️ REQUIRED: Add agent trigger keywords** in `AGENT_TRIGGERS` dict:
+#### Step 5: Add Starters (4 Required)
 ```python
-AGENT_TRIGGERS = {
-    # ... existing agents ...
-    "newbot": {
-        "keywords": ["keyword1", "keyword2", "relevant phrase"],
-        "description": "Short description for suggestion button"
-    },
+# mindrian_chat.py → STARTERS
+STARTERS["newbot"] = [
+    cl.Starter(
+        label="Start Workshop",
+        message="I'm ready to begin the [methodology] workshop",
+        icon="/public/icons/start.svg"
+    ),
+    cl.Starter(
+        label="Explain Methodology",
+        message="Explain how [methodology] works",
+        icon="/public/icons/info.svg"
+    ),
+    cl.Starter(
+        label="Show Example",
+        message="Show me an example of [methodology] in action",
+        icon="/public/icons/example.svg"
+    ),
+    cl.Starter(
+        label="Apply to My Problem",
+        message="I have a problem I want to analyze with [methodology]",
+        icon="/public/icons/apply.svg"
+    ),
+]
+```
+
+#### Step 6: Define Workshop Phases
+```python
+# mindrian_chat.py → WORKSHOP_PHASES
+WORKSHOP_PHASES["newbot"] = [
+    {"name": "Introduction", "status": "ready"},
+    {"name": "Phase 1 Name", "status": "pending"},
+    {"name": "Phase 2 Name", "status": "pending"},
+    {"name": "Synthesis", "status": "pending"},
+]
+```
+
+#### Step 7: Add Video URLs
+```python
+# utils/media.py → WORKSHOP_VIDEOS
+WORKSHOP_VIDEOS["newbot"] = {
+    "intro": "https://youtube.com/watch?v=VIDEO_ID",
+    "phase_1": "https://youtube.com/watch?v=PHASE1_ID",
+    "phase_2": "https://youtube.com/watch?v=PHASE2_ID",
+    # ... one per phase
 }
 ```
-**WHY THIS MATTERS:** The system analyzes conversation context and suggests relevant agents via buttons. Without trigger keywords, your new agent will never be suggested dynamically.
 
-8. **⚠️ REQUIRED: Add switch callback** for dynamic agent switching:
+#### Step 8: Add Audiobook Chapters
 ```python
+# utils/media.py → AUDIOBOOK_CHAPTERS
+AUDIOBOOK_CHAPTERS["newbot_topic"] = {
+    "chapter_1": {
+        "title": "Introduction to [Methodology]",
+        "url": "",  # Add URL when available
+        "duration": "15:00",
+        "keywords": ["keyword1", "keyword2"],
+        "bot_relevance": ["newbot"],
+    },
+    # ... more chapters
+}
+```
+
+#### Step 9: Add Agent Trigger Keywords ⚠️ CRITICAL
+```python
+# mindrian_chat.py → AGENT_TRIGGERS
+AGENT_TRIGGERS["newbot"] = {
+    "keywords": ["keyword1", "keyword2", "methodology name", "relevant phrase"],
+    "description": "Short description for suggestion button"
+}
+```
+**WHY:** Without this, your bot will never be suggested during conversations!
+
+#### Step 10: Add Switch Callback ⚠️ CRITICAL
+```python
+# mindrian_chat.py
 @cl.action_callback("switch_to_newbot")
 async def on_switch_to_newbot(action: cl.Action):
     await handle_agent_switch("newbot")
 ```
-**WHY THIS MATTERS:** When users click "Switch to NewBot" button during a conversation, this callback handles the switch while preserving context. Without it, the button click does nothing!
+**WHY:** Without this, the "Switch to NewBot" button won't work!
 
-9. **Create SVG icons** in `public/icons/` if needed
+#### Step 11: Add Dynamic Examples
+```python
+# utils/dynamic_examples.py → BOT_TO_METHODOLOGY
+BOT_TO_METHODOLOGY["newbot"] = ["Methodology Name", "Alternate Name", "Key Concept"]
+
+# utils/dynamic_examples.py → BOT_TO_CASE_TOPICS
+BOT_TO_CASE_TOPICS["newbot"] = ["Case Study 1", "Case Study 2", "Company Name"]
+
+# utils/dynamic_examples.py → STATIC_EXAMPLES
+STATIC_EXAMPLES["newbot"] = [
+    "**Example 1**: Description of a real-world application of the methodology...",
+    "**Example 2**: Another case study showing the methodology in action...",
+    "**Example 3**: A third example with specific details...",
+    # Add 3-5 static examples as fallback
+]
+```
+
+#### Step 12: Add Quality Scoring (Optional)
+```python
+# utils/quality_scorer.py → Add methodology-specific dimensions if needed
+NEWBOT_QUALITY_DIMENSIONS = {
+    "dimension_1": {
+        "name": "Dimension Name",
+        "description": "What this measures",
+        "weight": 0.25,
+        "positive_indicators": ["indicator1", "indicator2"],
+        "negative_indicators": ["bad_indicator1"]
+    },
+    # ...
+}
+```
+
+#### Step 13-15: Knowledge Base Setup
+
+**Upload to Gemini File Search (T2_Tools):**
+```bash
+# Use upload script or Gemini API
+python scripts/upload_workshop_materials.py newbot /path/to/materials/
+```
+
+**Add to Neo4j:**
+```cypher
+// Create case study nodes
+CREATE (cs:CaseStudy {
+    name: "Case Study Name",
+    description: "Brief description",
+    methodology: "newbot"
+})
+
+// Link to framework
+MATCH (f:Framework {name: "Methodology Name"})
+CREATE (cs)-[:APPLIED_FRAMEWORK]->(f)
+```
+
+**Create Gemini Cache:**
+```python
+# utils/gemini_rag.py
+def setup_newbot_cache():
+    from prompts.newbot import NEWBOT_PROMPT
+
+    file_paths = [
+        "/path/to/lecture.txt",
+        "/path/to/worksheet.txt",
+    ]
+
+    return create_workshop_cache(
+        workshop_id="newbot",
+        file_paths=file_paths,
+        system_instruction=NEWBOT_PROMPT,
+    )
+```
+
+---
+
+### Quick Validation Checklist
+
+After adding a new agent, verify:
+
+- [ ] Bot appears in chat profile dropdown
+- [ ] 4 conversation starters appear on empty chat
+- [ ] Welcome message displays correctly
+- [ ] Phases progress (if workshop bot)
+- [ ] "Show Example" shows diverse examples
+- [ ] "Deep Research" works
+- [ ] Agent is suggested when relevant keywords are mentioned
+- [ ] "Switch to [Bot]" button works from other bots
+- [ ] Videos play (if URLs configured)
+- [ ] Audio chapters available (if URLs configured)
 
 ---
 
