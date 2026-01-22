@@ -973,7 +973,7 @@ async def on_stop():
 
 # === User Feedback Handler ===
 @cl.on_feedback
-async def on_feedback(feedback: cl.Feedback):
+async def on_feedback(feedback):
     """
     Handle user feedback (thumbs up/down) on messages.
     Stores feedback in Supabase for QA analytics and shows confirmation.
