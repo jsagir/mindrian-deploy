@@ -371,6 +371,71 @@ chainlit run mindrian_chat.py  # stdout shows logs
 
 ---
 
+## Multi-Agent System
+
+The platform now supports multi-agent workflows where multiple agents collaborate on a single query.
+
+### Agent Types
+
+**Conversation Agents** (PWS methodology experts):
+- larry, tta, jtbd, scurve, redteam, ackoff
+- Each has a specialized system prompt
+- Provide expert perspectives
+
+**Background Agents** (with tool access):
+- `research`: Web search via Tavily, multi-query planning
+- `validation`: Camera Test, fact-checking, DIKW validation
+- `analysis`: Pattern recognition, data extraction
+
+### Triggering Multi-Agent Analysis
+
+**User-triggered:**
+1. User clicks "Multi-Agent Analysis" button
+2. Chooses analysis type (Quick/Research/Validate/Full)
+3. System runs agent pipeline
+4. Results displayed with cl.Step visualization
+
+**Preset workflows:**
+```python
+from agents.multi_agent_graph import (
+    quick_analysis,           # Router picks agents
+    research_and_explore,     # Research → TTA → Larry
+    validated_decision,       # Validation → Ackoff → Red Team
+    full_analysis_with_research  # All agents
+)
+
+result = await full_analysis_with_research("Should I pivot to AI?")
+```
+
+### Adding New Background Agents
+
+1. Create class extending `BackgroundAgent`:
+```python
+class MyAgent(BackgroundAgent):
+    def __init__(self):
+        super().__init__(name="My Agent", description="...")
+
+    async def run(self, query: str, context: dict = None) -> dict:
+        # Your tool logic here
+        return {"success": True, "result": "..."}
+```
+
+2. Register in `BACKGROUND_AGENTS`:
+```python
+BACKGROUND_AGENTS["myagent"] = MyAgent()
+```
+
+3. Use in workflows:
+```python
+result = await run_enhanced_workflow(
+    query,
+    conversation_agents=["larry"],
+    background_agents=["myagent", "research"]
+)
+```
+
+---
+
 ## Contact / Resources
 
 - **GitHub:** https://github.com/jsagir/mindrian-deploy
