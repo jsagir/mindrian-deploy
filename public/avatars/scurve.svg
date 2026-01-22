@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="48" fill="#10b981"/>
+  <path d="M20 75 Q30 75 40 60 Q50 40 60 35 Q70 30 80 30" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="45" cy="55" r="4" fill="#fff"/>
+  <text x="50" y="95" text-anchor="middle" font-size="9" fill="#fff" font-family="system-ui" font-weight="bold">S-CURVE</text>
+</svg>

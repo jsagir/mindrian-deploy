@@ -82,13 +82,19 @@ cot = "full"
 # Link to your github repo. This will add a github button in the UI's header.
 github = "https://github.com/jsagir/mindrian-deploy"
 
+# Custom logo - uses SVG files in public folder
+custom_logo = "/public/logo_light.svg"
+custom_favicon = "/public/favicon.svg"
+
 # Override default MUI light theme. (Check theme.ts for full theme configuration options)
 [UI.theme]
     [UI.theme.light]
+        primary = "#6366f1"
         background = "#fafafa"
         paper = "#ffffff"
 
     [UI.theme.dark]
+        primary = "#818cf8"
         background = "#1a1a2e"
         paper = "#16213e"
 
