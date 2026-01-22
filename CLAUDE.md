@@ -350,6 +350,50 @@ python upload_new_workshop.py
 9. **DIKW Pyramid Chart** - Plotly visualization
 10. **Synthesize & Download** - Larry synthesizes any conversation as downloadable MD
 11. **LangExtract** - Zero-latency structured data extraction with Supabase persistence
+12. **Video Tutorials** - "🎬 Watch Video" button for workshop phases
+
+---
+
+## Video Support
+
+Tutorial videos can be embedded per workshop bot and phase.
+
+### Configuring Videos
+
+Edit `WORKSHOP_VIDEOS` in `utils/media.py`:
+
+```python
+WORKSHOP_VIDEOS = {
+    "tta": {
+        "intro": "https://youtube.com/watch?v=VIDEO_ID",
+        "phase_1": "https://youtube.com/watch?v=PHASE1_ID",
+        "phase_2": "https://vimeo.com/VIDEO_ID",
+    },
+    "ackoff": {
+        "intro": "https://youtu.be/SHORT_ID",
+        # ... phases
+    },
+}
+```
+
+### Supported Video Sources
+
+- YouTube (full URL, short URL, embed)
+- Vimeo
+- Direct MP4 URLs
+- Supabase Storage URLs
+
+### Video Utility Functions
+
+```python
+from utils.media import (
+    create_video_element,      # Create video from URL or path
+    get_workshop_video,        # Get video for bot + phase
+    set_workshop_video,        # Programmatically set video URL
+    extract_youtube_id,        # Parse YouTube URLs
+    get_youtube_thumbnail,     # Get video thumbnail
+)
+```
 
 ---
 

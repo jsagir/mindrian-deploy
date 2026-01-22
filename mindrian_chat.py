@@ -793,6 +793,12 @@ async def start():
                 label="Multi-Agent Analysis",
                 description="Get perspectives from multiple PWS experts"
             ),
+            cl.Action(
+                name="watch_video",
+                payload={"action": "video"},
+                label="🎬 Watch Video",
+                description="Watch tutorial video for this phase"
+            ),
         ]
 
         # Add bot-specific chart buttons
@@ -1455,6 +1461,74 @@ async def on_show_scurve(action: cl.Action):
     await cl.Message(
         content=explanation,
         elements=[scurve_chart]
+    ).send()
+
+
+@cl.action_callback("watch_video")
+async def on_watch_video(action: cl.Action):
+    """Handle watching tutorial video for current phase."""
+    from utils.media import get_workshop_video, WORKSHOP_VIDEOS
+
+    bot = cl.user_session.get("bot", BOTS["larry"])
+    bot_id = None
+
+    # Find the bot_id from current bot
+    for bid, bdata in BOTS.items():
+        if bdata.get("name") == bot.get("name"):
+            bot_id = bid
+            break
+
+    if not bot_id:
+        bot_id = "larry"
+
+    current_phase = cl.user_session.get("current_phase", 0)
+    phases = cl.user_session.get("phases", [])
+
+    # Determine which video to show
+    phase_key = f"phase_{current_phase + 1}" if current_phase > 0 else "intro"
+
+    # Try to get the phase-specific video, fall back to intro
+    video = await get_workshop_video(bot_id, phase_key)
+
+    if not video:
+        # Check if any videos are configured for this bot
+        bot_videos = WORKSHOP_VIDEOS.get(bot_id, {})
+        configured_videos = [p for p, url in bot_videos.items() if url]
+
+        if not configured_videos:
+            await cl.Message(
+                content=f"""**No tutorial videos configured yet for {bot.get('name', 'this workshop')}.**
+
+To add videos, update `WORKSHOP_VIDEOS` in `utils/media.py`:
+
+```python
+WORKSHOP_VIDEOS["{bot_id}"] = {{
+    "intro": "https://youtube.com/watch?v=YOUR_VIDEO_ID",
+    "phase_1": "https://youtube.com/watch?v=PHASE1_VIDEO",
+    # ... more phases
+}}
+```
+
+Or set videos programmatically:
+```python
+from utils.media import set_workshop_video
+set_workshop_video("{bot_id}", "intro", "https://youtube.com/watch?v=...")
+```
+"""
+            ).send()
+        else:
+            # Some videos exist, but not for current phase
+            await cl.Message(
+                content=f"No video available for Phase {current_phase + 1}. Videos exist for: {', '.join(configured_videos)}"
+            ).send()
+        return
+
+    # Get current phase name
+    phase_name = phases[current_phase]["name"] if phases and current_phase < len(phases) else "Introduction"
+
+    await cl.Message(
+        content=f"**🎬 Tutorial Video: {phase_name}**\n\nWatch the video below for guidance on this phase:",
+        elements=[video]
     ).send()
 
 
