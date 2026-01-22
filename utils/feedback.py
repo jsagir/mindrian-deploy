@@ -1,6 +1,6 @@
 """
 Feedback Storage for Mindrian QA
-Stores user feedback (thumbs up/down, comments) in Supabase for analytics
+Stores user feedback (thumbs up/down, detailed ratings, comments) in Supabase for analytics
 """
 
 import os
@@ -17,6 +17,24 @@ _feedback_cache: Dict[str, Dict] = {}
 
 # Initialize Supabase client
 _supabase_client = None
+
+# Rating scale options (1-5 with emojis)
+RATING_SCALE = {
+    1: {"emoji": "😞", "label": "Not helpful", "description": "Response missed the point"},
+    2: {"emoji": "😕", "label": "Somewhat helpful", "description": "Partially addressed my question"},
+    3: {"emoji": "😐", "label": "Okay", "description": "Adequate but could be better"},
+    4: {"emoji": "🙂", "label": "Helpful", "description": "Good response, addressed my needs"},
+    5: {"emoji": "🤩", "label": "Excellent", "description": "Exactly what I needed!"},
+}
+
+# Quick feedback categories for detailed insights
+FEEDBACK_CATEGORIES = {
+    "accuracy": "Was the information accurate?",
+    "relevance": "Was it relevant to your question?",
+    "clarity": "Was it easy to understand?",
+    "depth": "Was it detailed enough?",
+    "actionable": "Did it give actionable insights?",
+}
 
 
 def get_supabase_client():
@@ -37,12 +55,14 @@ def get_supabase_client():
 def store_feedback(
     message_id: str,
     thread_id: str,
-    score: int,  # 1 = thumbs up, 0 = thumbs down
+    score: int,  # 0-1 for thumbs, 1-5 for detailed rating
     comment: Optional[str] = None,
     bot_id: Optional[str] = None,
     phase: Optional[str] = None,
     message_content: Optional[str] = None,
     user_message: Optional[str] = None,
+    feedback_type: str = "thumbs",  # "thumbs" or "detailed"
+    categories: Optional[Dict[str, bool]] = None,  # Category ratings
 ) -> bool:
     """
     Store user feedback in Supabase storage.
@@ -50,22 +70,36 @@ def store_feedback(
     Args:
         message_id: Chainlit message ID
         thread_id: Conversation thread ID
-        score: 1 for positive, 0 for negative
+        score: 0-1 for thumbs (0=down, 1=up), 1-5 for detailed rating
         comment: Optional user comment explaining the rating
         bot_id: Which bot generated the message (larry, tta, etc.)
         phase: Workshop phase if applicable
         message_content: The AI message that was rated (for context)
         user_message: The user's question that led to this response
+        feedback_type: "thumbs" for simple up/down, "detailed" for 1-5 scale
+        categories: Dict of category ratings (e.g., {"accuracy": True, "clarity": False})
 
     Returns:
         True if stored successfully
     """
+    # Determine rating label based on feedback type
+    if feedback_type == "detailed" and score in RATING_SCALE:
+        rating_info = RATING_SCALE[score]
+        rating_label = rating_info["label"]
+        rating_emoji = rating_info["emoji"]
+    else:
+        rating_label = "positive" if score >= 1 else "negative"
+        rating_emoji = "👍" if score >= 1 else "👎"
+
     feedback_data = {
         "message_id": message_id,
         "thread_id": thread_id,
         "score": score,
-        "rating": "positive" if score == 1 else "negative",
+        "feedback_type": feedback_type,
+        "rating": rating_label,
+        "rating_emoji": rating_emoji,
         "comment": comment,
+        "categories": categories or {},
         "bot_id": bot_id,
         "phase": phase,
         "message_preview": (message_content[:500] + "...") if message_content and len(message_content) > 500 else message_content,
@@ -79,6 +113,45 @@ def store_feedback(
 
     # Store in Supabase
     return _save_to_supabase(feedback_data)
+
+
+def get_feedback_confirmation_message(
+    score: int,
+    feedback_type: str = "thumbs",
+    comment: Optional[str] = None
+) -> str:
+    """
+    Generate a confirmation message to show in the conversation.
+
+    Args:
+        score: The rating score
+        feedback_type: "thumbs" or "detailed"
+        comment: Optional user comment
+
+    Returns:
+        Formatted confirmation message
+    """
+    if feedback_type == "detailed" and score in RATING_SCALE:
+        info = RATING_SCALE[score]
+        msg = f"**{info['emoji']} Feedback Received: {info['label']}**"
+    else:
+        emoji = "👍" if score >= 1 else "👎"
+        label = "Positive" if score >= 1 else "Negative"
+        msg = f"**{emoji} Feedback Received: {label}**"
+
+    if comment:
+        msg += f"\n\n*Your comment:* \"{comment}\""
+
+    msg += "\n\n*Thank you for helping improve Mindrian!*"
+    return msg
+
+
+def get_rating_scale_display() -> str:
+    """Get a formatted display of the rating scale for UI."""
+    lines = ["**Rate this response:**\n"]
+    for score, info in RATING_SCALE.items():
+        lines.append(f"{info['emoji']} **{score}** - {info['label']}")
+    return "\n".join(lines)
 
 
 def _save_to_supabase(feedback_data: Dict) -> bool:

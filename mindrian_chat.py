@@ -976,15 +976,17 @@ async def on_stop():
 async def on_feedback(feedback: cl.Feedback):
     """
     Handle user feedback (thumbs up/down) on messages.
-    Stores feedback in Supabase for QA analytics.
+    Stores feedback in Supabase for QA analytics and shows confirmation.
     """
     try:
-        from utils.feedback import store_feedback
+        from utils.feedback import store_feedback, get_feedback_confirmation_message
 
         # Get session context
         thread_id = cl.user_session.get("id", "unknown")
         bot_id = cl.user_session.get("chat_profile", "larry")
         phase = cl.user_session.get("current_phase")
+        phases = cl.user_session.get("phases", [])
+        phase_name = phases[phase]["name"] if phases and phase is not None and phase < len(phases) else None
 
         # Get the message content and user's last message for context
         history = cl.user_session.get("history", [])
@@ -993,7 +995,7 @@ async def on_feedback(feedback: cl.Feedback):
 
         # Find the last assistant message and user message
         for msg in reversed(history):
-            if msg.get("role") == "assistant" and message_content is None:
+            if msg.get("role") in ["assistant", "model"] and message_content is None:
                 message_content = msg.get("content", "")[:500]
             if msg.get("role") == "user" and user_message is None:
                 user_message = msg.get("content", "")[:200]
@@ -1007,15 +1009,154 @@ async def on_feedback(feedback: cl.Feedback):
             score=feedback.value,  # 1 = thumbs up, 0 = thumbs down
             comment=feedback.comment,
             bot_id=bot_id,
-            phase=phase,
+            phase=phase_name,
             message_content=message_content,
             user_message=user_message,
+            feedback_type="thumbs",
         )
+
+        # Show confirmation in conversation
+        confirmation = get_feedback_confirmation_message(
+            score=feedback.value,
+            feedback_type="thumbs",
+            comment=feedback.comment
+        )
+
+        # Add option for more detailed feedback
+        await cl.Message(
+            content=confirmation,
+            actions=[
+                cl.Action(
+                    name="detailed_feedback",
+                    payload={"message_id": feedback.id},
+                    label="📝 Add Detailed Feedback",
+                    description="Rate specific aspects of this response"
+                )
+            ]
+        ).send()
 
         print(f"Feedback received: {'👍' if feedback.value == 1 else '👎'} for {bot_id}")
 
     except Exception as e:
         print(f"Feedback storage error: {e}")
+
+
+@cl.action_callback("detailed_feedback")
+async def on_detailed_feedback(action: cl.Action):
+    """Show detailed feedback options with 1-5 scale."""
+    from utils.feedback import RATING_SCALE, FEEDBACK_CATEGORIES
+
+    message_id = action.payload.get("message_id", "unknown")
+
+    # Create rating buttons (1-5 scale with emojis)
+    rating_actions = [
+        cl.Action(
+            name=f"rate_{score}",
+            payload={"message_id": message_id, "score": score},
+            label=f"{info['emoji']} {score}",
+            description=info['description']
+        )
+        for score, info in RATING_SCALE.items()
+    ]
+
+    # Format the rating scale display
+    scale_display = "\n".join([
+        f"**{score}** {info['emoji']} - {info['label']}: *{info['description']}*"
+        for score, info in RATING_SCALE.items()
+    ])
+
+    await cl.Message(
+        content=f"""**📊 Rate This Response (1-5):**
+
+{scale_display}
+
+Select your rating:""",
+        actions=rating_actions
+    ).send()
+
+
+@cl.action_callback("rate_1")
+@cl.action_callback("rate_2")
+@cl.action_callback("rate_3")
+@cl.action_callback("rate_4")
+@cl.action_callback("rate_5")
+async def on_rate_detailed(action: cl.Action):
+    """Handle detailed rating submission."""
+    from utils.feedback import store_feedback, get_feedback_confirmation_message, RATING_SCALE
+
+    payload = action.payload
+    message_id = payload.get("message_id", "unknown")
+    score = payload.get("score", 3)
+
+    # Get session context
+    thread_id = cl.user_session.get("id", "unknown")
+    bot_id = cl.user_session.get("chat_profile", "larry")
+    phase = cl.user_session.get("current_phase")
+    phases = cl.user_session.get("phases", [])
+    phase_name = phases[phase]["name"] if phases and phase is not None and phase < len(phases) else None
+
+    # Get message context
+    history = cl.user_session.get("history", [])
+    message_content = None
+    user_message = None
+
+    for msg in reversed(history):
+        if msg.get("role") in ["assistant", "model"] and message_content is None:
+            message_content = msg.get("content", "")[:500]
+        if msg.get("role") == "user" and user_message is None:
+            user_message = msg.get("content", "")[:200]
+        if message_content and user_message:
+            break
+
+    # Store detailed feedback
+    store_feedback(
+        message_id=message_id,
+        thread_id=thread_id,
+        score=score,
+        bot_id=bot_id,
+        phase=phase_name,
+        message_content=message_content,
+        user_message=user_message,
+        feedback_type="detailed",
+    )
+
+    # Get rating info
+    rating_info = RATING_SCALE.get(score, {"emoji": "⭐", "label": "Unknown"})
+
+    # Show confirmation with option to add comment
+    await cl.Message(
+        content=f"""**{rating_info['emoji']} Thank you for your detailed feedback!**
+
+You rated this response: **{score}/5 - {rating_info['label']}**
+
+Your feedback helps improve Mindrian for everyone.""",
+        actions=[
+            cl.Action(
+                name="add_feedback_comment",
+                payload={"message_id": message_id, "score": score},
+                label="💬 Add a Comment",
+                description="Tell us more about your experience"
+            )
+        ]
+    ).send()
+
+    print(f"Detailed feedback: {score}/5 ({rating_info['label']}) for {bot_id}")
+
+
+@cl.action_callback("add_feedback_comment")
+async def on_add_feedback_comment(action: cl.Action):
+    """Prompt user to add a comment to their feedback."""
+    await cl.Message(
+        content="""**💬 Add Your Comment**
+
+Please type your feedback comment below. What worked well? What could be improved?
+
+*(Just send your comment as a regular message)*"""
+    ).send()
+
+    # Store that we're expecting a feedback comment
+    cl.user_session.set("expecting_feedback_comment", True)
+    cl.user_session.set("feedback_context", action.payload)
 
 
 @cl.action_callback("multi_agent_analysis")
@@ -2281,6 +2422,39 @@ Suggest 2-3 concrete, actionable next steps to move forward. Be specific."""
 @cl.on_message
 async def main(message: cl.Message):
     """Handle user messages with streaming and stop event support."""
+
+    # Check if we're expecting a feedback comment
+    if cl.user_session.get("expecting_feedback_comment"):
+        from utils.feedback import store_feedback, get_feedback_confirmation_message
+
+        feedback_context = cl.user_session.get("feedback_context", {})
+        cl.user_session.set("expecting_feedback_comment", False)
+        cl.user_session.set("feedback_context", None)
+
+        # Get session context for storing the comment
+        thread_id = cl.user_session.get("id", "unknown")
+        bot_id = cl.user_session.get("chat_profile", "larry")
+
+        # Store the comment with the previous feedback
+        store_feedback(
+            message_id=feedback_context.get("message_id", "unknown"),
+            thread_id=thread_id,
+            score=feedback_context.get("score", 3),
+            comment=message.content,
+            bot_id=bot_id,
+            feedback_type="detailed",
+        )
+
+        # Show confirmation
+        await cl.Message(
+            content=f"""**💬 Comment Added!**
+
+Thank you for your detailed feedback:
+> *"{message.content[:200]}{'...' if len(message.content) > 200 else ''}"*
+
+Your insights help us improve Mindrian!"""
+        ).send()
+        return  # Don't process as regular message
 
     bot = cl.user_session.get("bot", BOTS["larry"])
     history = cl.user_session.get("history", [])
