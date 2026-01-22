@@ -211,7 +211,54 @@ async def chat_profiles():
     ]
 ```
 
-### Step 7: Add Examples (Optional)
+### Step 7: Add Agent Trigger Keywords (REQUIRED!)
+
+**⚠️ CRITICAL: This enables dynamic "Switch to X" buttons based on conversation context.**
+
+Add to `AGENT_TRIGGERS` dict in `mindrian_chat.py`:
+
+```python
+AGENT_TRIGGERS = {
+    # ... existing agents ...
+    "mybot": {
+        "keywords": ["keyword1", "keyword2", "relevant phrase", "domain term"],
+        "description": "One-line description shown on suggestion button"
+    },
+}
+```
+
+**Why this matters:**
+- The system scans conversation for these keywords
+- When found, a "Switch to MyBot" button appears dynamically
+- Without this, your agent will NEVER be suggested mid-conversation
+
+**Good keyword examples:**
+- TTA: `["trend", "future", "extrapolate", "disruption", "10 years"]`
+- Red Team: `["assumption", "risk", "fail", "challenge", "attack"]`
+- Ackoff: `["validate", "data", "evidence", "ground truth", "dikw"]`
+
+
+### Step 8: Add Switch Callback (REQUIRED!)
+
+**⚠️ CRITICAL: This makes the "Switch to X" button actually work.**
+
+Add this callback in `mindrian_chat.py`:
+
+```python
+@cl.action_callback("switch_to_mybot")
+async def on_switch_to_mybot(action: cl.Action):
+    await handle_agent_switch("mybot")
+```
+
+**Why this matters:**
+- When user clicks "Switch to MyBot", this callback fires
+- `handle_agent_switch()` preserves context and switches the active bot
+- Without this, clicking the switch button does nothing!
+
+**The callback name MUST follow this pattern:** `switch_to_{agent_id}`
+
+
+### Step 9: Add Examples (Optional)
 
 In `on_show_example()`, add examples for your bot:
 
@@ -226,6 +273,25 @@ example_prompts = {
     ],
 }
 ```
+
+---
+
+## Checklist for Adding New Agents
+
+Use this checklist every time you add a new bot:
+
+- [ ] Step 1: System prompt created in `prompts/`
+- [ ] Step 2: Prompt exported in `prompts/__init__.py`
+- [ ] Step 3: Bot added to `BOTS` dict
+- [ ] Step 4: Phases added to `WORKSHOP_PHASES` (if applicable)
+- [ ] Step 5: Starters added to `STARTERS` dict
+- [ ] Step 6: Chat profile added in `chat_profiles()`
+- [ ] **Step 7: Agent triggers added to `AGENT_TRIGGERS`** ⚠️
+- [ ] **Step 8: Switch callback added** ⚠️
+- [ ] Step 9: Examples added (optional)
+- [ ] SVG icons created (if needed)
+
+**Missing Steps 7-8 = Dynamic switching won't work for your new agent!**
 
 ---
 

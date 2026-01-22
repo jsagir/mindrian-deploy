@@ -97,6 +97,8 @@ stop_events = {}    # For cancellation support
 
 ### Adding a New Bot/Agent
 
+**⚠️ CRITICAL: Follow ALL 9 steps. Missing steps 7-8 will break dynamic agent switching!**
+
 1. **Create system prompt** in `prompts/new_bot.py`:
 ```python
 NEW_BOT_PROMPT = """
@@ -150,7 +152,27 @@ cl.ChatProfile(
 ),
 ```
 
-7. **Create SVG icons** in `public/icons/` if needed
+7. **⚠️ REQUIRED: Add agent trigger keywords** in `AGENT_TRIGGERS` dict:
+```python
+AGENT_TRIGGERS = {
+    # ... existing agents ...
+    "newbot": {
+        "keywords": ["keyword1", "keyword2", "relevant phrase"],
+        "description": "Short description for suggestion button"
+    },
+}
+```
+**WHY THIS MATTERS:** The system analyzes conversation context and suggests relevant agents via buttons. Without trigger keywords, your new agent will never be suggested dynamically.
+
+8. **⚠️ REQUIRED: Add switch callback** for dynamic agent switching:
+```python
+@cl.action_callback("switch_to_newbot")
+async def on_switch_to_newbot(action: cl.Action):
+    await handle_agent_switch("newbot")
+```
+**WHY THIS MATTERS:** When users click "Switch to NewBot" button during a conversation, this callback handles the switch while preserving context. Without it, the button click does nothing!
+
+9. **Create SVG icons** in `public/icons/` if needed
 
 ---
 

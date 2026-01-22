@@ -33,6 +33,31 @@ stop_events: Dict[str, asyncio.Event] = {}
 # Store conversation history by user/thread to persist across bot switches
 context_store: Dict[str, Dict[str, Any]] = {}
 
+# === Agent Suggestion Keywords ===
+# Maps keywords/phrases to suggested agents
+AGENT_TRIGGERS = {
+    "tta": {
+        "keywords": ["trend", "future", "extrapolate", "absurd", "emerging", "disruption", "10 years", "what if"],
+        "description": "Explore future trends"
+    },
+    "jtbd": {
+        "keywords": ["customer", "hire", "job", "struggling", "switch", "why do people", "motivation", "emotional"],
+        "description": "Understand customer jobs"
+    },
+    "scurve": {
+        "keywords": ["technology", "timing", "too early", "too late", "adoption", "s-curve", "dominant design", "era of ferment"],
+        "description": "Analyze technology timing"
+    },
+    "redteam": {
+        "keywords": ["assumption", "risk", "fail", "challenge", "devil's advocate", "what could go wrong", "attack", "critique"],
+        "description": "Stress-test your idea"
+    },
+    "ackoff": {
+        "keywords": ["validate", "data", "wisdom", "dikw", "evidence", "ground truth", "pyramid", "understand why"],
+        "description": "Validate with DIKW"
+    },
+}
+
 # === Data Persistence Setup ===
 if DATABASE_URL:
     try:
@@ -542,6 +567,117 @@ async def get_settings_widgets():
     ]
 
 
+async def suggest_agents_from_context(
+    history: list,
+    current_bot: str,
+    max_suggestions: int = 2
+) -> list:
+    """
+    Analyze conversation context and suggest relevant agents to switch to.
+
+    Uses both keyword matching and LLM analysis for smart suggestions.
+    Returns list of cl.Action buttons for suggested agents.
+    """
+    if len(history) < 2:
+        return []
+
+    # Get recent conversation text
+    recent_text = " ".join([
+        msg.get("content", "")
+        for msg in history[-6:]
+    ]).lower()
+
+    suggestions = []
+
+    # Score each agent based on keyword matches
+    agent_scores = {}
+    for agent_id, triggers in AGENT_TRIGGERS.items():
+        if agent_id == current_bot:
+            continue  # Don't suggest current bot
+
+        score = 0
+        for keyword in triggers["keywords"]:
+            if keyword.lower() in recent_text:
+                score += 1
+
+        if score > 0:
+            agent_scores[agent_id] = {
+                "score": score,
+                "description": triggers["description"]
+            }
+
+    # Sort by score and take top suggestions
+    sorted_agents = sorted(
+        agent_scores.items(),
+        key=lambda x: x[1]["score"],
+        reverse=True
+    )[:max_suggestions]
+
+    # Create action buttons for suggestions
+    for agent_id, info in sorted_agents:
+        bot_info = BOTS.get(agent_id, {})
+        suggestions.append(cl.Action(
+            name=f"switch_to_{agent_id}",
+            payload={"agent": agent_id, "action": "switch"},
+            label=f"Switch to {bot_info.get('icon', '')} {bot_info.get('name', agent_id)}",
+            description=info["description"]
+        ))
+
+    return suggestions
+
+
+async def get_ai_agent_suggestion(history: list, current_bot: str) -> Optional[str]:
+    """
+    Use LLM to analyze conversation and suggest the best agent.
+    Returns agent_id or None.
+    """
+    if len(history) < 4:
+        return None
+
+    recent_context = "\n".join([
+        f"{msg.get('role', 'user')}: {msg.get('content', '')[:200]}"
+        for msg in history[-6:]
+    ])
+
+    agent_descriptions = "\n".join([
+        f"- {agent_id}: {BOTS.get(agent_id, {}).get('description', '')}"
+        for agent_id in BOTS.keys()
+        if agent_id != current_bot
+    ])
+
+    prompt = f"""Based on this conversation, which specialized agent would be most helpful next?
+
+CONVERSATION:
+{recent_context}
+
+AVAILABLE AGENTS:
+{agent_descriptions}
+
+CURRENT AGENT: {current_bot}
+
+Respond with ONLY the agent_id (e.g., "tta", "ackoff", "redteam") if a switch would be beneficial.
+Respond with "none" if the current agent is appropriate.
+Be conservative - only suggest a switch if it would clearly add value."""
+
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                temperature=0.1,
+                max_output_tokens=20
+            )
+        )
+        suggestion = response.text.strip().lower()
+
+        if suggestion in BOTS and suggestion != current_bot:
+            return suggestion
+    except Exception as e:
+        print(f"Agent suggestion error: {e}")
+
+    return None
+
+
 def get_context_key() -> str:
     """Generate a key for context preservation across profile switches.
     Uses user identifier if available, or falls back to a session-based key.
@@ -820,6 +956,138 @@ async def on_clear_context(action: cl.Action):
     await cl.Message(
         content=f"**Context cleared.** Starting fresh with {bot.get('name', 'Larry')}.\n\n{bot.get('welcome', 'How can I help?')}"
     ).send()
+
+
+# === Dynamic Agent Switching ===
+# These callbacks handle the context-aware "Switch to X" buttons
+
+@cl.action_callback("switch_to_tta")
+async def on_switch_to_tta(action: cl.Action):
+    await handle_agent_switch("tta")
+
+@cl.action_callback("switch_to_jtbd")
+async def on_switch_to_jtbd(action: cl.Action):
+    await handle_agent_switch("jtbd")
+
+@cl.action_callback("switch_to_scurve")
+async def on_switch_to_scurve(action: cl.Action):
+    await handle_agent_switch("scurve")
+
+@cl.action_callback("switch_to_redteam")
+async def on_switch_to_redteam(action: cl.Action):
+    await handle_agent_switch("redteam")
+
+@cl.action_callback("switch_to_ackoff")
+async def on_switch_to_ackoff(action: cl.Action):
+    await handle_agent_switch("ackoff")
+
+@cl.action_callback("switch_to_larry")
+async def on_switch_to_larry(action: cl.Action):
+    await handle_agent_switch("larry")
+
+
+async def handle_agent_switch(new_agent_id: str):
+    """
+    Handle switching to a new agent while preserving conversation context.
+    This performs an in-session switch without reloading the page.
+    """
+    current_bot_id = cl.user_session.get("bot_id", "larry")
+    history = cl.user_session.get("history", [])
+
+    if new_agent_id not in BOTS:
+        await cl.Message(content=f"Unknown agent: {new_agent_id}").send()
+        return
+
+    new_bot = BOTS[new_agent_id]
+    old_bot = BOTS.get(current_bot_id, BOTS["larry"])
+
+    # Update session with new bot
+    cl.user_session.set("bot", new_bot)
+    cl.user_session.set("bot_id", new_agent_id)
+    cl.user_session.set("previous_bot", current_bot_id)
+
+    # Add context handoff for the new bot
+    handoff = f"[CONTEXT HANDOFF: User switched from {old_bot.get('name')} to {new_bot.get('name')}. Previous conversation preserved.]"
+    cl.user_session.set("context_handoff", handoff)
+
+    # Initialize phases for new bot if it's a workshop
+    if new_agent_id in WORKSHOP_PHASES:
+        phases = [p.copy() for p in WORKSHOP_PHASES[new_agent_id]]
+        cl.user_session.set("phases", phases)
+        cl.user_session.set("current_phase", 0)
+
+        # Create task list
+        task_list = cl.TaskList()
+        task_list.name = "Workshop Progress"
+        for phase in phases:
+            status = cl.TaskStatus.READY if phase["status"] == "ready" else cl.TaskStatus.RUNNING
+            task = cl.Task(title=phase["name"], status=status)
+            await task_list.add_task(task)
+        await task_list.send()
+    else:
+        cl.user_session.set("phases", [])
+        cl.user_session.set("current_phase", 0)
+
+    # Update context store
+    context_key = get_context_key()
+    context_store[context_key] = {
+        "bot_id": new_agent_id,
+        "history": history.copy(),
+    }
+
+    # Build actions for the new bot
+    actions = []
+    if new_bot.get("has_phases"):
+        actions = [
+            cl.Action(name="show_example", payload={"action": "example"}, label="Show Example"),
+            cl.Action(name="next_phase", payload={"action": "next"}, label="Next Phase"),
+            cl.Action(name="think_through", payload={"action": "think"}, label="Think Through"),
+        ]
+
+    # Add clear context button
+    actions.append(cl.Action(
+        name="clear_context",
+        payload={"action": "clear"},
+        label="Clear Context",
+        description="Start fresh without previous history"
+    ))
+
+    # Generate a handoff response from the new bot
+    handoff_prompt = f"""You are {new_bot.get('name')}. The user just switched to you from {old_bot.get('name')}.
+
+Here's the conversation context:
+{chr(10).join([f"{m.get('role')}: {m.get('content', '')[:300]}" for m in history[-4:]])}
+
+Briefly (2-3 sentences):
+1. Acknowledge the switch
+2. Explain how YOUR perspective/methodology differs
+3. Ask a probing question that leverages your specialty
+
+Be direct and engaging. Show your unique value."""
+
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=handoff_prompt,
+            config=types.GenerateContentConfig(
+                system_instruction=new_bot.get("system_prompt", ""),
+                temperature=0.7,
+                max_output_tokens=300
+            )
+        )
+        handoff_message = response.text.strip()
+    except Exception as e:
+        handoff_message = f"I'm {new_bot.get('name')}. I've received the context from your conversation with {old_bot.get('name')}. How can I apply my expertise here?"
+
+    # Send the handoff message
+    await cl.Message(
+        content=f"**{new_bot.get('icon', '')} Switched to {new_bot.get('name')}**\n\n{handoff_message}",
+        actions=actions
+    ).send()
+
+    # Add to history
+    history.append({"role": "model", "content": handoff_message})
+    cl.user_session.set("history", history)
 
 
 @cl.action_callback("show_example")
@@ -1460,8 +1728,9 @@ The user expects you to understand the context and add your specialized value.
                 await msg.stream_token(chunk.text)
 
         # Add action buttons to response for workshop bots
+        actions = []
         if bot.get("has_phases") and not stopped:
-            msg.actions = [
+            actions = [
                 cl.Action(
                     name="show_example",
                     payload={"action": "example"},
@@ -1478,6 +1747,25 @@ The user expects you to understand the context and add your specialized value.
                     label="Think Through",
                 ),
             ]
+
+        # Add dynamic agent suggestions based on conversation context
+        if not stopped and len(history) >= 2:
+            current_bot_id = cl.user_session.get("bot_id", "larry")
+            # Include the new messages for analysis
+            updated_history = history + [
+                {"role": "user", "content": message.content},
+                {"role": "model", "content": full_response}
+            ]
+            agent_suggestions = await suggest_agents_from_context(
+                updated_history,
+                current_bot_id,
+                max_suggestions=2
+            )
+            if agent_suggestions:
+                actions.extend(agent_suggestions)
+
+        if actions:
+            msg.actions = actions
 
         await msg.update()
 
