@@ -32,9 +32,9 @@ multi_modal = true
 
 [features.spontaneous_file_upload]
 enabled = true
-accept = ["*/*"]
-max_files = 5
-max_size_mb = 20
+accept = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "text/*", "image/*", "application/json", ".md", ".csv", ".py", ".js"]
+max_files = 10
+max_size_mb = 50
 
 [features.audio]
 enabled = true
