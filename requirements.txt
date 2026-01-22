@@ -21,6 +21,9 @@ pandas>=2.0.0
 # Voice (ElevenLabs)
 elevenlabs>=1.0.0
 
+# Supabase Storage
+supabase>=2.0.0
+
 # Charts & Visualization
 plotly>=5.18.0
 
