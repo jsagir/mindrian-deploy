@@ -819,6 +819,14 @@ async def start():
             description="Download workshop summary as markdown"
         ))
 
+    # Add "Synthesize & Download" button for ALL bots (Larry synthesizes regardless of current bot)
+    actions.append(cl.Action(
+        name="synthesize_conversation",
+        payload={"action": "synthesize"},
+        label="📝 Synthesize & Download",
+        description="Larry synthesizes the entire conversation as a downloadable MD file"
+    ))
+
     # Add "Clear Context" action to all bots if there's preserved history
     if is_bot_switch or len(preserved_history) > 0:
         actions.append(cl.Action(
@@ -1470,6 +1478,117 @@ async def on_export_summary(action: cl.Action):
         ).send()
     except Exception as e:
         await cl.Message(content=f"Export error: {str(e)}").send()
+
+
+@cl.action_callback("synthesize_conversation")
+async def on_synthesize_conversation(action: cl.Action):
+    """Synthesize the entire conversation using Larry's voice and style, then export as MD file."""
+    from utils.media import create_file_download
+    from prompts import LARRY_RAG_SYSTEM_PROMPT
+    import datetime
+
+    history = cl.user_session.get("history", [])
+    bot = cl.user_session.get("bot", BOTS["larry"])
+
+    if len(history) < 2:
+        await cl.Message(content="Not enough conversation to synthesize. Have a discussion first!").send()
+        return
+
+    # Build conversation transcript for Larry to synthesize
+    transcript = ""
+    for msg in history:
+        role = msg.get("role", "user")
+        content = msg.get("content", "")
+        if role == "user":
+            transcript += f"**User:** {content}\n\n"
+        else:
+            transcript += f"**Assistant:** {content}\n\n"
+
+    try:
+        async with cl.Step(name="Larry Synthesizing Conversation", type="llm") as synth_step:
+            synth_step.input = f"Synthesizing {len(history)} messages..."
+
+            # Create synthesis prompt with Larry's voice
+            synthesis_prompt = f"""You are Larry - Prof. Lawrence Aronhime's thinking partner persona.
+
+Your task is to synthesize the following conversation into a coherent, insightful summary document.
+
+**CRITICAL: Use YOUR voice - Larry's voice - regardless of which bot the conversation was with.**
+
+Your synthesis should:
+1. Start with a brief overview of what was explored
+2. Identify the core problem or question being worked on
+3. Highlight key insights, reframes, and breakthroughs
+4. Note any assumptions that were challenged
+5. List concrete next steps or open questions
+6. End with Larry's perspective on where to go next
+
+**Your Voice Guidelines:**
+- Conversational, not academic
+- Provocative, not condescending
+- Warm but demanding
+- Use signature phrases like "Very simply...", "Here's what everyone misses...", "Think about it like this..."
+
+**Format as a clean Markdown document suitable for download.**
+
+---
+
+## CONVERSATION TO SYNTHESIZE:
+
+{transcript}
+
+---
+
+Now synthesize this conversation in Larry's voice. Create a document titled "Conversation Synthesis" with clear sections."""
+
+            # Use Gemini to generate synthesis with Larry's voice
+            client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
+
+            response = client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=synthesis_prompt,
+                config=genai.types.GenerateContentConfig(
+                    system_instruction=LARRY_RAG_SYSTEM_PROMPT[:2000],  # Use Larry's core personality
+                    temperature=0.7,
+                    max_output_tokens=4000
+                )
+            )
+
+            synthesis = response.text
+            synth_step.output = f"Generated {len(synthesis)} character synthesis"
+
+        # Create the MD file
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M")
+        filename = f"larry_synthesis_{timestamp}.md"
+
+        # Add header metadata to the synthesis
+        full_content = f"""# Larry's Conversation Synthesis
+
+**Generated:** {datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}
+**Original Bot:** {bot.get('name', 'Unknown')}
+**Messages Analyzed:** {len(history)}
+
+---
+
+{synthesis}
+
+---
+
+*Synthesized by Larry - your PWS thinking partner*
+"""
+
+        file_element = await create_file_download(
+            content=full_content,
+            filename=filename
+        )
+
+        await cl.Message(
+            content=f"**📝 Larry's Synthesis Complete!**\n\nI've distilled our conversation into key insights. Click below to download:",
+            elements=[file_element]
+        ).send()
+
+    except Exception as e:
+        await cl.Message(content=f"Synthesis error: {str(e)}").send()
 
 
 @cl.action_callback("speak_response")

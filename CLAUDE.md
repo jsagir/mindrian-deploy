@@ -348,6 +348,7 @@ python upload_new_workshop.py
 7. **Context Preservation** - Maintain history across bot switches
 8. **Stop Handler** - Graceful interruption
 9. **DIKW Pyramid Chart** - Plotly visualization
+10. **Synthesize & Download** - Larry synthesizes any conversation as downloadable MD
 
 ---
 
