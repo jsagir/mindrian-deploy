@@ -787,6 +787,12 @@ async def start():
                 label="Think It Through",
                 description="Break down the problem with sequential thinking"
             ),
+            cl.Action(
+                name="multi_agent_analysis",
+                payload={"action": "multi_agent"},
+                label="Multi-Agent Analysis",
+                description="Get perspectives from multiple PWS experts"
+            ),
         ]
 
         # Add bot-specific chart buttons
@@ -935,6 +941,184 @@ async def on_stop():
         stop_events[session_id].set()
 
     await cl.Message(content="**Stopped.** You can continue or ask something else.").send()
+
+
+@cl.action_callback("multi_agent_analysis")
+async def on_multi_agent_analysis(action: cl.Action):
+    """Trigger multi-agent analysis - let user choose the type."""
+
+    # Show options for different analysis types
+    await cl.Message(
+        content="""**Choose Multi-Agent Analysis Type:**
+
+Select the type of analysis you want:""",
+        actions=[
+            cl.Action(
+                name="ma_quick",
+                payload={"type": "quick"},
+                label="Quick Analysis",
+                description="Router picks best agents (fastest)"
+            ),
+            cl.Action(
+                name="ma_research",
+                payload={"type": "research"},
+                label="Research & Explore",
+                description="Web research → TTA → Larry"
+            ),
+            cl.Action(
+                name="ma_validate",
+                payload={"type": "validate"},
+                label="Validate Decision",
+                description="Validation → Ackoff → Red Team"
+            ),
+            cl.Action(
+                name="ma_full",
+                payload={"type": "full"},
+                label="Full Analysis",
+                description="Research → Validate → All Agents (most thorough)"
+            ),
+        ]
+    ).send()
+
+
+@cl.action_callback("ma_quick")
+async def on_ma_quick(action: cl.Action):
+    await run_multi_agent_with_type("quick")
+
+@cl.action_callback("ma_research")
+async def on_ma_research(action: cl.Action):
+    await run_multi_agent_with_type("research")
+
+@cl.action_callback("ma_validate")
+async def on_ma_validate(action: cl.Action):
+    await run_multi_agent_with_type("validate")
+
+@cl.action_callback("ma_full")
+async def on_ma_full(action: cl.Action):
+    await run_multi_agent_with_type("full")
+
+
+async def run_multi_agent_with_type(analysis_type: str):
+    """Execute the selected multi-agent analysis type."""
+    from agents.multi_agent_graph import (
+        quick_analysis,
+        research_and_explore,
+        validated_decision,
+        full_analysis_with_research,
+        AGENTS,
+        BACKGROUND_AGENTS
+    )
+
+    history = cl.user_session.get("history", [])
+
+    # Build context from recent conversation
+    recent_context = "\n".join([
+        f"{msg.get('role', 'user')}: {msg.get('content', '')[:300]}"
+        for msg in history[-6:]
+    ])
+
+    if not recent_context:
+        await cl.Message(content="No conversation context yet. Please discuss your problem first, then request multi-agent analysis.").send()
+        return
+
+    # Map types to workflows and descriptions
+    workflows = {
+        "quick": {
+            "func": quick_analysis,
+            "name": "Quick Analysis",
+            "agents": "Auto-selected by router"
+        },
+        "research": {
+            "func": research_and_explore,
+            "name": "Research & Explore",
+            "agents": "Research Agent → TTA → Larry"
+        },
+        "validate": {
+            "func": validated_decision,
+            "name": "Validate Decision",
+            "agents": "Validation Agent → Ackoff → Red Team"
+        },
+        "full": {
+            "func": full_analysis_with_research,
+            "name": "Full Analysis",
+            "agents": "Research + Validation → Larry + Red Team + Ackoff"
+        }
+    }
+
+    workflow = workflows.get(analysis_type, workflows["quick"])
+
+    try:
+        # Show progress with cl.Step
+        async with cl.Step(name=f"Multi-Agent: {workflow['name']}", type="run") as main_step:
+            main_step.input = f"Analyzing with: {workflow['agents']}"
+
+            # Execute workflow
+            async with cl.Step(name="Running Agent Pipeline", type="tool") as pipeline_step:
+                pipeline_step.input = f"Context: {recent_context[:200]}..."
+
+                result = await workflow["func"](recent_context)
+
+                pipeline_step.output = f"Completed - received responses from agents"
+
+            # Process results
+            output_parts = []
+
+            # Background agent results
+            if result.get("background_results"):
+                async with cl.Step(name="Background Agent Results", type="tool") as bg_step:
+                    bg_outputs = []
+                    for agent_id, agent_result in result["background_results"].items():
+                        if agent_result.get("success"):
+                            agent_name = BACKGROUND_AGENTS[agent_id].name
+                            if agent_id == "research":
+                                findings = agent_result.get("findings", "No findings")
+                                sources = agent_result.get("sources", [])
+                                bg_outputs.append(f"**{agent_name}:**\n{findings}")
+                                if sources:
+                                    source_list = "\n".join([f"- [{s['title']}]({s['url']})" for s in sources[:5]])
+                                    bg_outputs.append(f"\n**Sources:**\n{source_list}")
+                            elif agent_id == "validation":
+                                report = agent_result.get("validation_report", "No report")
+                                bg_outputs.append(f"**{agent_name}:**\n{report}")
+                            elif agent_id == "analysis":
+                                analysis = agent_result.get("analysis", "No analysis")
+                                bg_outputs.append(f"**{agent_name}:**\n{analysis}")
+
+                    bg_step.output = f"Processed {len(result['background_results'])} background agents"
+                    output_parts.extend(bg_outputs)
+
+            # Conversation agent responses
+            if result.get("conversation_responses"):
+                async with cl.Step(name="Expert Perspectives", type="llm") as conv_step:
+                    conv_outputs = []
+                    for agent_id, response in result["conversation_responses"].items():
+                        agent_name = AGENTS.get(agent_id, {}).get("name", agent_id)
+                        conv_outputs.append(f"### {agent_name}\n{response}")
+
+                    conv_step.output = f"Received {len(result['conversation_responses'])} expert perspectives"
+                    output_parts.extend(conv_outputs)
+
+            # Synthesis
+            synthesis = result.get("synthesis", "")
+            if synthesis:
+                output_parts.append(f"---\n\n## Synthesis\n{synthesis}")
+
+            main_step.output = "Analysis complete"
+
+        # Send final combined message
+        final_output = "\n\n".join(output_parts)
+        if not final_output:
+            final_output = "No results generated. Try providing more context in your conversation."
+
+        await cl.Message(
+            content=f"## {workflow['name']} Results\n\n{final_output}",
+            actions=[
+                cl.Action(name="multi_agent_analysis", payload={}, label="Run Another Analysis"),
+            ]
+        ).send()
+
+    except Exception as e:
+        await cl.Message(content=f"Multi-agent analysis error: {str(e)}").send()
 
 
 @cl.action_callback("clear_context")
