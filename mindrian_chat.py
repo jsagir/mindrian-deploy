@@ -2262,7 +2262,7 @@ async def on_audio_chunk(chunk: cl.InputAudioChunk):
 
 
 @cl.on_audio_end
-async def on_audio_end(elements: list):
+async def on_audio_end(elements: list = None):
     """Process complete audio and respond with ElevenLabs voice."""
     import tempfile
     import io
