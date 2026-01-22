@@ -349,6 +349,46 @@ python upload_new_workshop.py
 8. **Stop Handler** - Graceful interruption
 9. **DIKW Pyramid Chart** - Plotly visualization
 10. **Synthesize & Download** - Larry synthesizes any conversation as downloadable MD
+11. **LangExtract** - Zero-latency structured data extraction with Supabase persistence
+
+---
+
+## LangExtract - Structured Data Extraction
+
+Zero-latency extraction of structured insights from conversations, research, and documents.
+
+### Two Modes
+
+| Mode | Latency | How It Works |
+|------|---------|--------------|
+| `instant_extract()` | <5ms | Regex patterns - statistics, assumptions, questions |
+| `background_extract()` | 0ms to chat | LLM-based, runs async after response |
+
+### What Gets Extracted
+
+- **Statistics**: Percentages, money, large numbers
+- **Assumptions**: Stated and hidden assumptions
+- **Problems/Solutions**: PWS-relevant elements
+- **Questions**: Open questions raised
+- **Sources**: Citations and quotes
+- **PWS Quality Scores**: Problem clarity, data grounding, assumption awareness
+
+### Storage
+
+- **In-memory cache**: Fast access during session
+- **Supabase bucket**: Persistent storage in `extractions/` folder as JSON
+
+### Usage
+
+```python
+from tools.langextract import instant_extract, background_extract_conversation
+
+# Instant (no API calls)
+signals = instant_extract(text)
+
+# Deep (runs in background)
+structured = await background_extract_conversation(history, bot_name)
+```
 
 ---
 

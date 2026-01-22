@@ -827,6 +827,14 @@ async def start():
         description="Larry synthesizes the entire conversation as a downloadable MD file"
     ))
 
+    # Add "Extract Insights" button for ALL bots (deep structured extraction)
+    actions.append(cl.Action(
+        name="extract_insights",
+        payload={"action": "extract"},
+        label="🔍 Extract Insights",
+        description="Extract structured data: facts, assumptions, statistics, open questions"
+    ))
+
     # Add "Clear Context" action to all bots if there's preserved history
     if is_bot_switch or len(preserved_history) > 0:
         actions.append(cl.Action(
@@ -1589,6 +1597,128 @@ Now synthesize this conversation in Larry's voice. Create a document titled "Con
 
     except Exception as e:
         await cl.Message(content=f"Synthesis error: {str(e)}").send()
+
+
+@cl.action_callback("extract_insights")
+async def on_extract_insights(action: cl.Action):
+    """Extract structured insights from the conversation - stored in Supabase."""
+    from tools.langextract import (
+        instant_extract,
+        background_extract_conversation,
+        format_instant_extraction,
+        format_deep_extraction,
+        cache_extraction
+    )
+    from utils.media import create_file_download
+    import datetime
+
+    history = cl.user_session.get("history", [])
+    bot = cl.user_session.get("bot", BOTS["larry"])
+    session_id = cl.user_session.get("id", "unknown")
+
+    if len(history) < 2:
+        await cl.Message(content="Not enough conversation to analyze. Have a discussion first!").send()
+        return
+
+    # Build conversation text for extraction
+    conversation_text = ""
+    for msg in history:
+        role = "User" if msg.get("role") == "user" else "Assistant"
+        content = msg.get("content", "")
+        conversation_text += f"{role}: {content}\n\n"
+
+    try:
+        # Step 1: Instant extraction (NO latency, regex-based)
+        async with cl.Step(name="Quick Analysis", type="tool") as quick_step:
+            quick_step.input = f"Analyzing {len(history)} messages with pattern matching..."
+            instant_results = instant_extract(conversation_text)
+            quick_step.output = format_instant_extraction(instant_results)
+
+        # Show instant results immediately
+        await cl.Message(
+            content=f"**🔍 Quick Analysis Complete**\n\n{format_instant_extraction(instant_results)}\n\n*Running deep analysis...*"
+        ).send()
+
+        # Step 2: Deep LLM extraction (background, but user triggered so we show progress)
+        async with cl.Step(name="Deep Extraction", type="llm") as deep_step:
+            deep_step.input = "Extracting structured PWS elements: problems, assumptions, facts, questions..."
+
+            deep_results = await background_extract_conversation(history, bot.get("name", "larry"))
+
+            if deep_results.get("error"):
+                deep_step.output = f"Error: {deep_results['error']}"
+            else:
+                deep_step.output = f"Extracted {len(deep_results.get('key_facts', []))} facts, {len(deep_results.get('stated_assumptions', []))} assumptions"
+
+        # Cache the extraction in Supabase
+        cache_key = cache_extraction(
+            conversation_text,
+            {**instant_results, "deep": deep_results},
+            extract_type="conversation",
+            session_id=session_id
+        )
+
+        # Format the deep extraction
+        deep_formatted = format_deep_extraction(deep_results)
+
+        # Create downloadable JSON export
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M")
+        export_data = {
+            "extracted_at": datetime.datetime.now().isoformat(),
+            "bot": bot.get("name", "Unknown"),
+            "message_count": len(history),
+            "cache_key": cache_key,
+            "instant_analysis": instant_results,
+            "deep_analysis": deep_results
+        }
+
+        # Create both MD and JSON downloads
+        md_content = f"""# Conversation Extraction
+
+**Generated:** {datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}
+**Bot:** {bot.get('name', 'Unknown')}
+**Messages:** {len(history)}
+**Cache Key:** `{cache_key}` *(stored in Supabase)*
+
+---
+
+{format_instant_extraction(instant_results)}
+
+---
+
+{deep_formatted}
+
+---
+
+*Extracted by LangExtract - Zero-latency structured data extraction*
+"""
+
+        md_file = await create_file_download(
+            content=md_content,
+            filename=f"extraction_{timestamp}.md"
+        )
+
+        import json
+        json_file = await create_file_download(
+            content=json.dumps(export_data, indent=2, default=str),
+            filename=f"extraction_{timestamp}.json"
+        )
+
+        await cl.Message(
+            content=f"""**🔍 Deep Extraction Complete!**
+
+{deep_formatted}
+
+---
+
+**Stored in Supabase** with key: `{cache_key}`
+
+Download your extraction:""",
+            elements=[md_file, json_file]
+        ).send()
+
+    except Exception as e:
+        await cl.Message(content=f"Extraction error: {str(e)}").send()
 
 
 @cl.action_callback("speak_response")
