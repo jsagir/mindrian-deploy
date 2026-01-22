@@ -21,7 +21,8 @@ from google.genai import types
 # === Config ===
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("GOOGLE_AI_API_KEY")
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
-DATABASE_URL = os.getenv("DATABASE_URL")
+# Chainlit uses CHAINLIT_DATABASE_URL, fallback to DATABASE_URL for compatibility
+DATABASE_URL = os.getenv("CHAINLIT_DATABASE_URL") or os.getenv("DATABASE_URL")
 
 client = genai.Client(api_key=GOOGLE_API_KEY)
 
