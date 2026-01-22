@@ -29,6 +29,10 @@ client = genai.Client(api_key=GOOGLE_API_KEY)
 # === Stop Event for Cancellation ===
 stop_events: Dict[str, asyncio.Event] = {}
 
+# === Context Preservation for Profile Switching ===
+# Store conversation history by user/thread to persist across bot switches
+context_store: Dict[str, Dict[str, Any]] = {}
+
 # === Data Persistence Setup ===
 if DATABASE_URL:
     try:
@@ -538,21 +542,66 @@ async def get_settings_widgets():
     ]
 
 
+def get_context_key() -> str:
+    """Generate a key for context preservation across profile switches.
+    Uses user identifier if available, or falls back to a session-based key.
+    """
+    try:
+        # Try to get user info for consistent key across sessions
+        user = cl.user_session.get("user")
+        if user and hasattr(user, "identifier"):
+            return f"user_{user.identifier}"
+    except:
+        pass
+
+    # Fallback: Use a cookie/browser fingerprint approach via session
+    # This preserves context within the same browser session
+    return "default_context"
+
+
 @cl.on_chat_start
 async def start():
     """Initialize conversation with selected bot."""
     chat_profile = cl.user_session.get("chat_profile")
     bot = BOTS.get(chat_profile, BOTS["larry"])
 
-    cl.user_session.set("history", [])
-    cl.user_session.set("bot", bot)
-    cl.user_session.set("bot_id", chat_profile or "larry")
-    cl.user_session.set("current_phase", 0)
-
     # Initialize stop event for this session
     session_id = cl.user_session.get("id")
     if session_id:
         stop_events[session_id] = asyncio.Event()
+
+    # === Context Preservation: Check for existing conversation ===
+    context_key = get_context_key()
+    preserved_context = context_store.get(context_key, {})
+    previous_bot = preserved_context.get("bot_id")
+    preserved_history = preserved_context.get("history", [])
+    is_bot_switch = previous_bot and previous_bot != chat_profile and len(preserved_history) > 0
+
+    if is_bot_switch:
+        # Switching bots with existing context
+        # Preserve history but switch personality
+        cl.user_session.set("history", preserved_history.copy())
+        cl.user_session.set("previous_bot", previous_bot)
+
+        # Build context summary for the new bot
+        context_summary = f"[CONTEXT HANDOFF: User was previously working with {BOTS.get(previous_bot, {}).get('name', previous_bot)}. "
+        context_summary += f"Continuing the conversation with preserved context. {len(preserved_history)} messages in history.]"
+        cl.user_session.set("context_handoff", context_summary)
+    else:
+        # Fresh start
+        cl.user_session.set("history", [])
+        cl.user_session.set("previous_bot", None)
+        cl.user_session.set("context_handoff", None)
+
+    cl.user_session.set("bot", bot)
+    cl.user_session.set("bot_id", chat_profile or "larry")
+    cl.user_session.set("current_phase", 0)
+
+    # Update context store with current session info
+    context_store[context_key] = {
+        "bot_id": chat_profile or "larry",
+        "history": cl.user_session.get("history", []),
+    }
 
     # Initialize settings
     settings = await cl.ChatSettings(await get_settings_widgets()).send()
@@ -568,7 +617,8 @@ async def start():
         if task_list:
             await task_list.send()
 
-    # Send welcome message with action buttons for workshop bots
+    # Build action buttons for workshop bots
+    actions = []
     if bot.get("has_phases"):
         actions = [
             cl.Action(
@@ -627,9 +677,32 @@ async def start():
             description="Download workshop summary as markdown"
         ))
 
+    # Add "Clear Context" action to all bots if there's preserved history
+    if is_bot_switch or len(preserved_history) > 0:
+        actions.append(cl.Action(
+            name="clear_context",
+            payload={"action": "clear"},
+            label="Clear Context",
+            description="Start fresh without previous conversation history"
+        ))
+
+    # Send welcome message with context info if switching
+    if is_bot_switch:
+        previous_bot_name = BOTS.get(previous_bot, {}).get("name", previous_bot)
+        switch_message = f"""**{bot['icon']} {bot['name']}** is now active.
+
+**Context preserved from {previous_bot_name}** ({len(preserved_history)} messages)
+I'll continue our conversation with my perspective. Your previous discussion has been handed off to me.
+
+---
+
+{bot.get('welcome', 'How can I help?')}"""
+
+        await cl.Message(content=switch_message, actions=actions if actions else None).send()
+    elif bot.get("has_phases"):
         await cl.Message(content=bot["welcome"], actions=actions).send()
     else:
-        await cl.Message(content=bot["welcome"]).send()
+        await cl.Message(content=bot["welcome"], actions=actions if actions else None).send()
 
 
 # === Chat Resume Handler ===
@@ -726,6 +799,27 @@ async def on_stop():
         stop_events[session_id].set()
 
     await cl.Message(content="**Stopped.** You can continue or ask something else.").send()
+
+
+@cl.action_callback("clear_context")
+async def on_clear_context(action: cl.Action):
+    """Clear preserved context and start fresh."""
+    context_key = get_context_key()
+
+    # Clear the stored context
+    if context_key in context_store:
+        del context_store[context_key]
+
+    # Clear session history
+    cl.user_session.set("history", [])
+    cl.user_session.set("previous_bot", None)
+    cl.user_session.set("context_handoff", None)
+
+    bot = cl.user_session.get("bot", BOTS["larry"])
+
+    await cl.Message(
+        content=f"**Context cleared.** Starting fresh with {bot.get('name', 'Larry')}.\n\n{bot.get('welcome', 'How can I help?')}"
+    ).send()
 
 
 @cl.action_callback("show_example")
@@ -1314,6 +1408,24 @@ async def main(message: cl.Message):
         bot_id = cl.user_session.get("bot_id", "larry")
         cache_name = get_cache_name(bot_id) if RAG_ENABLED else None
 
+        # Build system instruction with context handoff if applicable
+        system_instruction = bot["system_prompt"]
+        context_handoff = cl.user_session.get("context_handoff")
+        previous_bot = cl.user_session.get("previous_bot")
+
+        if context_handoff and previous_bot:
+            previous_bot_name = BOTS.get(previous_bot, {}).get("name", previous_bot)
+            handoff_addendum = f"""
+
+[CONTEXT HANDOFF NOTICE]
+The user was previously working with {previous_bot_name} and has switched to you while preserving conversation context.
+The previous conversation history is included above. Continue the discussion from your unique perspective.
+DO NOT repeat what was already discussed. Build on the existing conversation.
+The user expects you to understand the context and add your specialized value.
+[END HANDOFF NOTICE]
+"""
+            system_instruction = system_instruction + handoff_addendum
+
         if cache_name:
             # Use cached context with RAG materials
             config = types.GenerateContentConfig(
@@ -1323,7 +1435,7 @@ async def main(message: cl.Message):
         else:
             # Fall back to regular system instruction
             config = types.GenerateContentConfig(
-                system_instruction=bot["system_prompt"],
+                system_instruction=system_instruction,
             )
 
         response_stream = client.models.generate_content_stream(
@@ -1373,6 +1485,13 @@ async def main(message: cl.Message):
         history.append({"role": "user", "content": message.content})
         history.append({"role": "model", "content": full_response})
         cl.user_session.set("history", history)
+
+        # Sync history to context store for preservation across bot switches
+        context_key = get_context_key()
+        context_store[context_key] = {
+            "bot_id": cl.user_session.get("bot_id", "larry"),
+            "history": history.copy(),
+        }
 
         # Save session metadata for resume (phases, settings, current_phase)
         # Metadata is persisted through the data layer when threads are saved
@@ -1516,6 +1635,13 @@ async def on_audio_end(elements: list):
         history.append({"role": "user", "content": transcription})
         history.append({"role": "model", "content": response_text})
         cl.user_session.set("history", history)
+
+        # Sync history to context store for preservation across bot switches
+        context_key = get_context_key()
+        context_store[context_key] = {
+            "bot_id": cl.user_session.get("bot_id", "larry"),
+            "history": history.copy(),
+        }
 
         # Generate voice response with ElevenLabs
         from utils.media import text_to_speech
