@@ -619,6 +619,14 @@ async def start():
                 description="View the technology S-curve diagram"
             ))
 
+        # Add export button for all workshop bots
+        actions.append(cl.Action(
+            name="export_summary",
+            payload={"action": "export"},
+            label="Export Summary",
+            description="Download workshop summary as markdown"
+        ))
+
         await cl.Message(content=bot["welcome"], actions=actions).send()
     else:
         await cl.Message(content=bot["welcome"]).send()
@@ -888,6 +896,72 @@ async def on_show_scurve(action: cl.Action):
     ).send()
 
 
+@cl.action_callback("export_summary")
+async def on_export_summary(action: cl.Action):
+    """Export workshop progress as downloadable markdown file."""
+    from utils.media import export_workshop_summary
+
+    bot = cl.user_session.get("bot", BOTS["larry"])
+    phases = cl.user_session.get("phases", [])
+    history = cl.user_session.get("history", [])
+    current_phase = cl.user_session.get("current_phase", 0)
+
+    if not phases:
+        await cl.Message(content="No workshop progress to export.").send()
+        return
+
+    try:
+        file_element = await export_workshop_summary(
+            bot_name=bot.get("name", "Workshop"),
+            phases=phases,
+            history=history,
+            current_phase=current_phase
+        )
+
+        await cl.Message(
+            content="**Workshop Summary exported.** Click to download:",
+            elements=[file_element]
+        ).send()
+    except Exception as e:
+        await cl.Message(content=f"Export error: {str(e)}").send()
+
+
+@cl.action_callback("speak_response")
+async def on_speak_response(action: cl.Action):
+    """Convert last response to speech using ElevenLabs."""
+    from utils.media import text_to_speech
+
+    history = cl.user_session.get("history", [])
+
+    # Get last assistant response
+    last_response = None
+    for msg in reversed(history):
+        if msg.get("role") == "model":
+            last_response = msg.get("content", "")[:2000]  # Limit for voice
+            break
+
+    if not last_response:
+        await cl.Message(content="No response to speak.").send()
+        return
+
+    async with cl.Step(name="Generating Voice", type="tool") as voice_step:
+        voice_step.input = f"Converting {len(last_response)} characters to speech..."
+
+        audio_element = await text_to_speech(last_response)
+
+        if audio_element:
+            voice_step.output = "Voice generated successfully"
+            await cl.Message(
+                content="**Larry's voice response:**",
+                elements=[audio_element]
+            ).send()
+        else:
+            voice_step.output = "ElevenLabs API key not configured"
+            await cl.Message(
+                content="Voice not available. Set ELEVENLABS_API_KEY in environment."
+            ).send()
+
+
 @cl.action_callback("deep_research")
 async def on_deep_research(action: cl.Action):
     """Handle deep research button - sequential thinking + Tavily execution with cl.Step visualization."""
@@ -997,8 +1071,24 @@ Be specific and actionable. Each query should be something Tavily can search eff
 
             research_step.output = f"Research complete: {len(all_results)} queries, {sum(len(r['results']) for r in all_results)} total sources"
 
-        # Send final synthesis as a message
-        await cl.Message(content=synthesis).send()
+        # Send final synthesis as a message with optional DataFrame
+        elements = []
+        if all_results:
+            try:
+                from utils.charts import create_research_results_dataframe
+                # Flatten all results for DataFrame
+                flat_results = []
+                for item in all_results:
+                    flat_results.extend(item.get("results", []))
+
+                if flat_results:
+                    df_element = await create_research_results_dataframe(flat_results[:10])
+                    if df_element:
+                        elements.append(df_element)
+            except Exception:
+                pass  # DataFrame is optional enhancement
+
+        await cl.Message(content=synthesis, elements=elements).send()
 
     except Exception as e:
         await cl.Message(content=f"Research error: {str(e)}").send()
@@ -1162,17 +1252,25 @@ async def main(message: cl.Message):
                         # Add to context for LLM
                         file_context += format_file_context(element.name, content, metadata)
 
-                        # Notify user
+                        # Notify user with inline PDF display if applicable
                         info_msg = f"**{element.name}** processed"
+                        elements = []
+
                         if file_type == "pdf":
                             info_msg += f" ({metadata.get('pages_extracted')}/{metadata.get('total_pages')} pages)"
+                            # Add inline PDF viewer
+                            elements.append(cl.Pdf(
+                                name=element.name,
+                                path=element.path,
+                                display="side"
+                            ))
                         elif file_type == "docx":
                             info_msg += f" ({metadata.get('paragraphs')} paragraphs)"
 
                         if metadata.get("truncated"):
                             info_msg += " *(truncated for length)*"
 
-                        await cl.Message(content=info_msg).send()
+                        await cl.Message(content=info_msg, elements=elements).send()
 
     # Build contents for Gemini
     contents = []

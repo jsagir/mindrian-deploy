@@ -1,11 +1,96 @@
 """
 Chart utilities for Mindrian
-S-Curve visualization, DIKW pyramid, and other charts
+S-Curve visualization, DIKW pyramid, DataFrames, and other charts
 """
 
 import plotly.graph_objects as go
 import numpy as np
 import chainlit as cl
+
+try:
+    import pandas as pd
+    PANDAS_AVAILABLE = True
+except ImportError:
+    PANDAS_AVAILABLE = False
+
+
+async def create_dataframe_element(
+    data: dict,
+    name: str = "data",
+    display: str = "inline"
+) -> cl.Dataframe:
+    """
+    Create a Chainlit DataFrame element for tabular display.
+
+    Args:
+        data: Dictionary with column names as keys and lists as values
+        name: Element name
+        display: "inline", "side", or "page"
+
+    Returns:
+        cl.Dataframe element
+    """
+    if not PANDAS_AVAILABLE:
+        return None
+
+    df = pd.DataFrame(data)
+    return cl.Dataframe(data=df, name=name, display=display)
+
+
+async def create_comparison_dataframe(
+    items: list,
+    criteria: list,
+    scores: list,
+    name: str = "comparison"
+) -> cl.Dataframe:
+    """
+    Create a comparison table for workshop analysis.
+
+    Args:
+        items: List of items being compared
+        criteria: List of criteria/dimensions
+        scores: 2D list of scores [item][criteria]
+        name: Element name
+
+    Returns:
+        cl.Dataframe element
+    """
+    if not PANDAS_AVAILABLE:
+        return None
+
+    data = {"Item": items}
+    for i, criterion in enumerate(criteria):
+        data[criterion] = [row[i] if i < len(row) else "" for row in scores]
+
+    df = pd.DataFrame(data)
+    return cl.Dataframe(data=df, name=name, display="inline")
+
+
+async def create_research_results_dataframe(
+    results: list,
+    name: str = "research_results"
+) -> cl.Dataframe:
+    """
+    Create a DataFrame from Tavily research results.
+
+    Args:
+        results: List of search result dicts with title, url, content
+        name: Element name
+
+    Returns:
+        cl.Dataframe element
+    """
+    if not PANDAS_AVAILABLE or not results:
+        return None
+
+    data = {
+        "Source": [r.get("title", "Unknown")[:50] for r in results],
+        "Summary": [r.get("content", "")[:100] + "..." for r in results],
+        "URL": [r.get("url", "") for r in results]
+    }
+
+    df = pd.DataFrame(data)
+    return cl.Dataframe(data=df, name=name, display="inline")
 
 
 async def create_dikw_pyramid(
