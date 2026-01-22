@@ -1398,7 +1398,143 @@ async def main(message: cl.Message):
         await msg.update()
 
 
-# === Audio Handlers ===
-# Note: Audio handling is now managed by Chainlit's built-in speech-to-text
-# which is configured in .chainlit/config.toml under [features.speech_to_text]
-# The browser handles transcription and sends text directly to on_message
+# === Audio Stream Handlers (Voice Assistant) ===
+# Real-time audio processing with ElevenLabs voice responses
+
+@cl.on_audio_start
+async def on_audio_start():
+    """Initialize audio streaming session."""
+    cl.user_session.set("audio_chunks", [])
+    cl.user_session.set("audio_mime_type", "audio/webm")
+    return True  # Accept audio stream
+
+
+@cl.on_audio_chunk
+async def on_audio_chunk(chunk: cl.InputAudioChunk):
+    """Process incoming audio chunks in real-time."""
+    audio_chunks = cl.user_session.get("audio_chunks", [])
+    audio_chunks.append(chunk.data)
+    cl.user_session.set("audio_chunks", audio_chunks)
+
+    # Store mime type from first chunk
+    if chunk.mimeType:
+        cl.user_session.set("audio_mime_type", chunk.mimeType)
+
+
+@cl.on_audio_end
+async def on_audio_end(elements: list):
+    """Process complete audio and respond with ElevenLabs voice."""
+    import tempfile
+    import io
+
+    audio_chunks = cl.user_session.get("audio_chunks", [])
+    if not audio_chunks:
+        return
+
+    # Combine audio chunks
+    audio_data = b"".join(audio_chunks)
+    cl.user_session.set("audio_chunks", [])  # Clear for next session
+
+    # Save to temp file for transcription
+    mime_type = cl.user_session.get("audio_mime_type", "audio/webm")
+    suffix = ".webm" if "webm" in mime_type else ".wav"
+
+    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as f:
+        f.write(audio_data)
+        audio_path = f.name
+
+    try:
+        # Use Gemini for transcription (it supports audio)
+        transcription = None
+
+        # Try Google Speech-to-Text via Gemini
+        try:
+            with open(audio_path, "rb") as audio_file:
+                audio_bytes = audio_file.read()
+
+            # Use Gemini to transcribe
+            response = client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=[
+                    types.Content(
+                        role="user",
+                        parts=[
+                            types.Part.from_bytes(data=audio_bytes, mime_type=mime_type),
+                            types.Part(text="Transcribe this audio exactly. Only output the transcription, nothing else.")
+                        ]
+                    )
+                ]
+            )
+            transcription = response.text.strip()
+        except Exception as e:
+            print(f"Transcription error: {e}")
+            await cl.Message(content="Could not transcribe audio. Please try again or type your message.").send()
+            return
+
+        if not transcription:
+            await cl.Message(content="No speech detected.").send()
+            return
+
+        # Show what was heard
+        await cl.Message(content=f"**You said:** {transcription}").send()
+
+        # Process as regular message
+        bot = cl.user_session.get("bot", BOTS["larry"])
+        history = cl.user_session.get("history", [])
+        current_phase = cl.user_session.get("current_phase", 0)
+        phases = cl.user_session.get("phases", [])
+
+        # Build context
+        contents = []
+        for msg in history:
+            contents.append(types.Content(
+                role=msg["role"],
+                parts=[types.Part(text=msg["content"])]
+            ))
+
+        phase_context = ""
+        if phases and current_phase < len(phases):
+            phase_context = f"\n\n[CURRENT WORKSHOP PHASE: {phases[current_phase]['name']}]"
+
+        contents.append(types.Content(
+            role="user",
+            parts=[types.Part(text=transcription + phase_context)]
+        ))
+
+        # Generate response
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=contents,
+            config=types.GenerateContentConfig(
+                system_instruction=bot["system_prompt"],
+            )
+        )
+
+        response_text = response.text
+
+        # Update history
+        history.append({"role": "user", "content": transcription})
+        history.append({"role": "model", "content": response_text})
+        cl.user_session.set("history", history)
+
+        # Generate voice response with ElevenLabs
+        from utils.media import text_to_speech
+        audio_element = await text_to_speech(response_text[:2000])
+
+        if audio_element:
+            await cl.Message(
+                content=response_text,
+                elements=[audio_element]
+            ).send()
+        else:
+            await cl.Message(content=response_text).send()
+
+    except Exception as e:
+        await cl.Message(content=f"Audio processing error: {str(e)}").send()
+    finally:
+        # Cleanup temp file
+        import os
+        try:
+            os.unlink(audio_path)
+        except:
+            pass
