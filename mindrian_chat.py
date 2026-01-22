@@ -830,6 +830,40 @@ async def start():
             label="Export Summary",
             description="Download workshop summary as markdown"
         ))
+    else:
+        # Non-workshop bots (like Larry general) also get useful actions
+        actions = [
+            cl.Action(
+                name="deep_research",
+                payload={"action": "research"},
+                label="🔍 Deep Research",
+                description="Plan and execute web research with Tavily"
+            ),
+            cl.Action(
+                name="think_through",
+                payload={"action": "think"},
+                label="🧠 Think It Through",
+                description="Break down the problem with sequential thinking"
+            ),
+            cl.Action(
+                name="multi_agent_analysis",
+                payload={"action": "multi_agent"},
+                label="👥 Multi-Agent Analysis",
+                description="Get perspectives from multiple PWS experts"
+            ),
+            cl.Action(
+                name="show_example",
+                payload={"action": "example"},
+                label="📖 Show Example",
+                description="See an example of PWS methodology"
+            ),
+            cl.Action(
+                name="listen_audiobook",
+                payload={"action": "audiobook"},
+                label="🎧 Listen to Chapter",
+                description="Listen to relevant PWS audiobook chapter"
+            ),
+        ]
 
     # Add "Synthesize & Download" button for ALL bots (Larry synthesizes regardless of current bot)
     actions.append(cl.Action(
@@ -1492,36 +1526,51 @@ Be direct and engaging. Show your unique value."""
 
 @cl.action_callback("show_example")
 async def on_show_example(action: cl.Action):
-    """Handle show example button click."""
+    """Handle show example button click - pulls diverse examples from Neo4j and File Search."""
     current_phase = cl.user_session.get("current_phase", 0)
     chat_profile = cl.user_session.get("chat_profile", "larry")
+    session_id = cl.user_session.get("id", "default")
 
-    example_prompts = {
-        "tta": [
-            "Here's an example: A team analyzing the trend of remote work might push it to the absurd: 'What if 95% of knowledge workers never set foot in an office?' This forces you to think about problems that don't exist yet.",
-            "Example trend verification: 'Remote work increased from 5% to 35% between 2019-2023 (Stanford study)' - that's evidence. 'Everyone is working remotely' is not.",
-        ],
-        "jtbd": [
-            "Example: People don't buy a drill because they want a drill. They don't even want a hole. They want to hang a picture that makes their spouse happy. The functional job is 'hang picture', but the emotional job is 'feel competent' and the social job is 'please my partner'.",
-        ],
-        "scurve": [
-            "Example: Electric vehicles in 2015 were in the Era of Ferment - many competing approaches (Tesla, Leaf, Bolt, various startups). By 2020, a dominant design emerged around lithium-ion batteries and specific form factors. Now we're in incremental improvement mode.",
-        ],
-        "redteam": [
-            "Example assumption attack: 'You assume customers will pay $50/month. What if they only pay $20? What if there's a free alternative? What if the problem you're solving isn't painful enough to pay for at all?'",
-        ],
-        "ackoff": [
-            "Example of the Camera Test: 'The line was long' is interpretation. '47 people in line at 12:15' is data. Could a camera record it? If not, it's interpretation, not observation.",
-            "Example of pattern vs causation: 'Users leave when prices increase' is a pattern. 'Price increases CAUSE users to leave' is a causal claim we haven't verified yet. Don't confuse correlation with causation.",
-            "Example of the 5 Whys: Why do customers complain? → Wait times. Why long wait times? → Understaffed. Why understaffed? → Budget cuts. Why budget cuts? → Revenue down. Why revenue down? → Product-market fit issues. There's your root cause.",
-            "Example climb-down validation: Your solution traces cleanly to data—or it doesn't. If there's a gap at the Knowledge level, you're building on assumption, not evidence. That's when projects fail.",
-        ],
-    }
+    try:
+        from utils.dynamic_examples import (
+            get_diverse_example,
+            get_shown_examples,
+            track_shown_example
+        )
 
-    examples = example_prompts.get(chat_profile, ["No specific example available for this phase."])
-    example = examples[min(current_phase, len(examples)-1)]
+        # Get recently shown examples to avoid repetition
+        exclude_recent = get_shown_examples(session_id)
 
-    await cl.Message(content=f"**📖 Example:**\n\n{example}").send()
+        # Fetch a diverse example (from Neo4j, File Search, or static)
+        example = await get_diverse_example(
+            bot_id=chat_profile,
+            phase=current_phase,
+            exclude_recent=exclude_recent
+        )
+
+        # Track this example to avoid showing it again soon
+        # Extract title for tracking (assumes **Title**: format)
+        if "**" in example:
+            title = example.split("**")[1] if len(example.split("**")) > 1 else f"example_{current_phase}"
+        else:
+            title = f"example_{current_phase}"
+        track_shown_example(session_id, title)
+
+        await cl.Message(content=f"**📖 Example:**\n\n{example}").send()
+
+    except Exception as e:
+        print(f"Dynamic example fetch error: {e}")
+        # Fallback to simple static examples
+        fallback_examples = {
+            "tta": "**Trending to the Absurd**: Push a trend to its extreme to reveal future problems. Example: 'What if 100% of workers are remote?' surfaces problems in collaboration, culture, and infrastructure.",
+            "jtbd": "**Jobs to Be Done**: People don't buy products, they hire them for a job. Example: Milkshakes are 'hired' for a boring commute, not as a dessert.",
+            "scurve": "**S-Curve Analysis**: Technologies progress through Era of Ferment → Dominant Design → Incremental Improvement. Know where your technology sits to time your innovation.",
+            "redteam": "**Red Teaming**: Attack your own assumptions before the market does. 'What if customers won't pay?' 'What if a free alternative exists?'",
+            "ackoff": "**Camera Test**: If a camera can't record it, it's interpretation, not data. '47 people in line' is data. 'Long line' is interpretation.",
+            "larry": "**PWS Methodology**: Validate the problem is worth solving BEFORE building the solution. Is it Real? Can you Win? Is it Worth it?",
+        }
+        example = fallback_examples.get(chat_profile, "No specific example available.")
+        await cl.Message(content=f"**📖 Example:**\n\n{example}").send()
 
 
 @cl.action_callback("next_phase")
