@@ -811,10 +811,91 @@ print(f"Settings: {cl.user_session.get('settings')}")
 
 ---
 
+## Future Architecture: LangGraph Integration
+
+### Current vs LangGraph Architecture
+
+**Current (Direct Chainlit + Gemini):**
+```
+Pros: Simple, fast, easy to debug, full control
+Cons: Manual agent orchestration, no complex workflows
+Best for: Single-agent conversations, simple switches
+```
+
+**LangGraph (Multi-Agent Orchestration):**
+```
+Pros: Complex workflows, automatic routing, parallel agents
+Cons: More complexity, harder debugging, extra overhead
+Best for: Multi-agent collaboration, state machines, complex workflows
+```
+
+### When to Consider LangGraph
+
+Add LangGraph if you need:
+- [ ] Agents that collaborate on a single query
+- [ ] Complex decision trees between agents
+- [ ] Parallel agent execution
+- [ ] State machine workflows (e.g., approval flows)
+- [ ] Automatic agent routing based on intent
+
+### Implementation Path (If Needed)
+
+1. **Install dependencies:**
+```bash
+pip install langgraph langchain langchain-google-genai
+```
+
+2. **Create agent graph** in `agents/graph.py`:
+```python
+from langgraph.graph import StateGraph, END
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+# Define state
+class AgentState(TypedDict):
+    messages: List[dict]
+    current_agent: str
+    context: dict
+
+# Build graph
+graph = StateGraph(AgentState)
+graph.add_node("larry", larry_agent)
+graph.add_node("redteam", redteam_agent)
+graph.add_node("router", route_agent)
+graph.add_edge("router", "larry")
+graph.add_edge("router", "redteam")
+```
+
+3. **Integrate with Chainlit:**
+```python
+from agents.graph import compiled_graph
+
+@cl.on_message
+async def main(message):
+    result = await compiled_graph.ainvoke({
+        "messages": history,
+        "input": message.content
+    })
+    # Display with cl.Step for visualization
+```
+
+### Current Recommendation
+
+**Keep current architecture** for now because:
+- Dynamic agent switching already works
+- CoT visualization with @cl.step is effective
+- Context preservation handles handoffs
+- Lower complexity = easier maintenance
+
+**Consider LangGraph later** when you need true multi-agent collaboration (e.g., "Have Larry, Red Team, and Ackoff all analyze this together").
+
+---
+
 ## Resources
 
 - **Chainlit Docs:** https://docs.chainlit.io
 - **Gemini API:** https://ai.google.dev/gemini-api/docs
+- **LangGraph Docs:** https://langchain-ai.github.io/langgraph/
+- **LangChain + Gemini:** https://python.langchain.com/docs/integrations/chat/google_generative_ai
 - **Plotly Python:** https://plotly.com/python/
 - **ElevenLabs API:** https://elevenlabs.io/docs
 - **Supabase:** https://supabase.com/docs
