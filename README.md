@@ -12,15 +12,17 @@ A conversational AI platform for Problem Worth Solving (PWS) methodology, featur
 1. [Overview](#overview)
 2. [Available Bots](#available-bots)
 3. [Features](#features)
-4. [Architecture](#architecture)
-5. [Gemini File Search / RAG](#gemini-file-search--rag)
-6. [Project Structure](#project-structure)
-7. [Quick Start](#quick-start)
-8. [Configuration](#configuration)
-9. [Deployment](#deployment)
-10. [Workshop Details](#workshop-details)
-11. [Development Guide](#development-guide)
-12. [Project History](#project-history)
+4. [New in v3.0](#new-in-v30)
+5. [Architecture](#architecture)
+6. [Gemini File Search / RAG](#gemini-file-search--rag)
+7. [Project Structure](#project-structure)
+8. [Quick Start](#quick-start)
+9. [Configuration](#configuration)
+10. [Environment Variables](#environment-variables)
+11. [Deployment](#deployment)
+12. [Workshop Details](#workshop-details)
+13. [Development Guide](#development-guide)
+14. [Project History](#project-history)
 
 ---
 
@@ -62,59 +64,182 @@ The platform uses **Gemini 3 Flash** with **Gemini File Search** (RAG) to retrie
 - **RAG Knowledge Base** - Gemini File Search with PWS course materials
 
 ### Interactive Elements
+- **Conversation Starters** - 4 clickable starter prompts per bot
+- **Chat Settings** - Configurable research depth, examples, verbosity
 - **Task Lists** - Track workshop progress through phases
 - **Action Buttons** - Navigate workshops without typing
-- **File Upload** - Attach documents to messages (max 5 files, 20MB each)
-- **Voice Input** - Speech-to-text via browser
-- **Voice Output** - Text-to-speech via browser
-- **Charts** - S-curve and comparison visualizations using Plotly
+- **File Upload** - PDF, DOCX, TXT, Markdown, Code files (max 10 files, 50MB each)
+- **Voice Input** - Real-time audio streaming with Gemini transcription
+- **Voice Output** - ElevenLabs text-to-speech with custom voice
+- **Charts & Visualizations** - DIKW Pyramid, S-Curve, DataFrames via Plotly
 
 ### Research Tools
-- **Tavily Search** - Web research for trend validation (requires `TAVILY_API_KEY`)
+- **Tavily Search** - Web research for trend validation
 - **Gemini File Search** - RAG retrieval from PWS knowledge base
+
+### Data Persistence
+- **PostgreSQL Database** - Supabase-powered conversation history
+- **Session Resume** - Continue conversations across devices and sessions
+- **Supabase Storage** - Persistent file uploads
+
+---
+
+## New in v3.0
+
+This version introduces significant enhancements to the Chainlit experience:
+
+### Chain of Thought Visualization (`@cl.step`)
+
+See HOW Larry thinks, not just what. Collapsible nested steps show intermediate reasoning in real-time:
+
+```
+▼ Planning Research [2.3s]
+  ├── Analyzing query context [0.8s]
+  ├── Formulating search strategies [1.1s]
+  └── Prioritizing sources [0.4s]
+▼ Executing Searches [5.2s]
+  ├── Search: healthcare AI trends [2.1s]
+  ├── Search: preventive care innovation [1.8s]
+  └── Synthesizing results [1.3s]
+Response generated ✓
+```
+
+**Why this matters:**
+- **Transparency** - Shows the reasoning process
+- **Educational** - Students learn PWS methodology by observing
+- **Debugging** - When errors occur, see where reasoning failed
+
+### Conversation Starters
+
+Each bot now shows 4 clickable starter prompts on empty chat:
+
+**Larry:**
+- "Help me find a problem worth solving"
+- "I have a solution - help me validate it"
+- "Explain the PWS methodology"
+- "Help me think through a decision"
+
+**Ackoff's Pyramid:**
+- "I have a solution to validate"
+- "I'm exploring a problem"
+- "Show me the DIKW pyramid"
+- "Give me an example"
+
+**Why this matters:**
+- Eliminates blank-page syndrome for new users
+- Guides users to valid workshop starting points
+- One-click engagement
+
+### Chat Settings Panel
+
+Gear icon reveals configurable options:
+
+| Setting | Type | Purpose |
+|---------|------|---------|
+| Research Depth | Select | Basic/Standard/Deep web research |
+| Show Examples | Toggle | Auto-show phase examples |
+| Response Detail | Slider | 1-10 verbosity level |
+| Workshop Mode | Select | Guided (strict phases) vs Freeform |
+
+### Session Persistence
+
+- **PostgreSQL via Supabase** - Conversations saved automatically
+- **Resume Handler** - Close browser, return later, continue where you left off
+- **Phase Progress** - Workshop progress persists across sessions
+
+### ElevenLabs Voice Integration
+
+- **Text-to-Speech** - Click speaker button for voice responses
+- **Custom Voice** - Configurable voice ID for brand consistency
+- **Audio Streaming** - Real-time voice input transcription
+
+### Document Processing
+
+Upload and analyze documents directly:
+
+| Format | Processing |
+|--------|------------|
+| PDF | Full text extraction via PyPDF2 |
+| DOCX | Word document parsing via python-docx |
+| TXT/MD | Plain text reading |
+| CSV/JSON | Data file handling |
+| Code files | .py, .js syntax preserved |
+
+### Supabase Storage
+
+Persistent file storage for:
+- Uploaded documents
+- Exported workshop summaries
+- Generated reports and assets
+
+### Stop Handler
+
+Click STOP button during generation:
+- Graceful stream termination
+- "[Response stopped]" indicator
+- Continue or ask something else
+
+### DIKW Pyramid Visualization
+
+Interactive Plotly chart of Ackoff's DIKW pyramid with:
+- Color-coded levels (Data → Wisdom)
+- Clickable for explanation
+- Inline display in chat
 
 ---
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                         MINDRIAN PLATFORM                        │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  ┌─────────────┐    ┌─────────────────────────────────────────┐ │
-│  │   Chainlit  │    │              Google Gemini               │ │
-│  │     UI      │───▶│  Model: gemini-3-flash-preview          │ │
-│  │             │    │                                          │ │
-│  │ - Profiles  │    │  ┌─────────────────────────────────────┐ │ │
-│  │ - TaskLists │    │  │        Gemini File Search           │ │ │
-│  │ - Actions   │    │  │   fileSearchStores/pwsknowledge...  │ │ │
-│  │ - Audio     │    │  │                                     │ │ │
-│  │ - Upload    │    │  │  T1_Knowledge/  Core PWS Library    │ │ │
-│  └─────────────┘    │  │  T2_Tools/      Workshop Materials  │ │ │
-│                      │  │  T3_Cases/      Case Studies        │ │ │
-│                      │  └─────────────────────────────────────┘ │ │
-│                      └─────────────────────────────────────────┘ │
-│                                                                  │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                    SYSTEM PROMPTS                           │ │
-│  │  prompts/                                                   │ │
-│  │  ├── larry_core.py        General thinking partner          │ │
-│  │  ├── tta_workshop.py      Trending to the Absurd           │ │
-│  │  ├── jtbd_workshop.py     Jobs to Be Done                   │ │
-│  │  ├── scurve_workshop.py   S-Curve Analysis                  │ │
-│  │  ├── redteam.py           Red Teaming                       │ │
-│  │  └── ackoff_workshop.py   Ackoff's Pyramid (650+ lines)    │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-│                                                                  │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                      TOOLS & UTILS                          │ │
-│  │  tools/tavily_search.py   Web research                      │ │
-│  │  utils/charts.py          Plotly chart generators           │ │
-│  │  utils/gemini_rag.py      File Search cache utilities       │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│                          MINDRIAN PLATFORM v3.0                           │
+├──────────────────────────────────────────────────────────────────────────┤
+│                                                                           │
+│  ┌─────────────────┐    ┌─────────────────────────────────────────────┐  │
+│  │    Chainlit     │    │              Google Gemini                   │  │
+│  │       UI        │───▶│  Model: gemini-3-flash-preview              │  │
+│  │                 │    │                                              │  │
+│  │ - Chat Profiles │    │  ┌─────────────────────────────────────────┐│  │
+│  │ - @cl.step      │    │  │        Gemini File Search               ││  │
+│  │ - Starters      │    │  │   fileSearchStores/pwsknowledge...      ││  │
+│  │ - Settings      │    │  │                                         ││  │
+│  │ - Audio Stream  │    │  │  T1_Knowledge/  Core PWS Library        ││  │
+│  │ - TaskLists     │    │  │  T2_Tools/      Workshop Materials      ││  │
+│  │ - Actions       │    │  │  T3_Cases/      Case Studies            ││  │
+│  │ - File Upload   │    │  └─────────────────────────────────────────┘│  │
+│  └─────────────────┘    └─────────────────────────────────────────────┘  │
+│           │                                                               │
+│           ▼                                                               │
+│  ┌─────────────────┐    ┌─────────────────────────────────────────────┐  │
+│  │    Supabase     │    │              ElevenLabs                      │  │
+│  │                 │    │                                              │  │
+│  │ - PostgreSQL DB │    │  - Text-to-Speech API                       │  │
+│  │ - Storage Bucket│    │  - Custom Voice ID                          │  │
+│  │ - Session Data  │    │  - Audio Streaming                          │  │
+│  └─────────────────┘    └─────────────────────────────────────────────┘  │
+│                                                                           │
+│  ┌─────────────────────────────────────────────────────────────────────┐ │
+│  │                       SYSTEM PROMPTS                                 │ │
+│  │  prompts/                                                            │ │
+│  │  ├── larry_core.py        General thinking partner                  │ │
+│  │  ├── tta_workshop.py      Trending to the Absurd                    │ │
+│  │  ├── jtbd_workshop.py     Jobs to Be Done                           │ │
+│  │  ├── scurve_workshop.py   S-Curve Analysis                          │ │
+│  │  ├── redteam.py           Red Teaming                               │ │
+│  │  └── ackoff_workshop.py   Ackoff's Pyramid (650+ lines)            │ │
+│  └─────────────────────────────────────────────────────────────────────┘ │
+│                                                                           │
+│  ┌─────────────────────────────────────────────────────────────────────┐ │
+│  │                      TOOLS & UTILS                                   │ │
+│  │  tools/tavily_search.py     Web research                            │ │
+│  │  utils/charts.py            Plotly visualizations + DataFrames      │ │
+│  │  utils/gemini_rag.py        File Search cache utilities             │ │
+│  │  utils/file_processor.py    PDF/DOCX/TXT extraction                 │ │
+│  │  utils/media.py             ElevenLabs TTS, exports                 │ │
+│  │  utils/storage.py           Supabase Storage integration            │ │
+│  └─────────────────────────────────────────────────────────────────────┘ │
+│                                                                           │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -147,7 +272,7 @@ pwsknowledgebase-a4rnz3u41lsn/
 │   │   ├── TrendingToAbsurd_Workbook_Exercises
 │   │   └── TrendingToAbsurd_SystemPrompt_Complete
 │   │
-│   ├── AckoffPyramid_*              (DIKW Workshop) [NEWLY ADDED]
+│   ├── AckoffPyramid_*              (DIKW Workshop)
 │   │   ├── AckoffPyramid_Lecture_DIKWValidation
 │   │   ├── AckoffPyramid_Workbook_Exercises
 │   │   ├── AckoffPyramid_SystemPrompt_Complete
@@ -175,47 +300,23 @@ pwsknowledgebase-a4rnz3u41lsn/
 | **T2_Tools** | Workshop-specific materials | 500 tok / 100 overlap | Precise retrieval for each workshop |
 | **T3_Cases** | Detailed case studies | 500 tok / 100 overlap | Real-world examples and evidence |
 
-### How RAG Works
-
-1. **User asks question** → Gemini processes with file_search tool enabled
-2. **Vector search** → Finds relevant chunks from knowledge base
-3. **Context injection** → Retrieved chunks added to prompt
-4. **Response generation** → Model answers with grounded information
-
-### Upload Scripts
-
-Located in `/home/jsagi/Mindrian/mindrian-langgraph/`:
-
-```bash
-# Upload Trending to the Absurd materials
-python upload_trending_to_absurd.py
-
-# Upload Ackoff's Pyramid materials (4 files)
-python upload_ackoff_pyramid.py
-
-# Upload Scenario Analysis materials
-python upload_scenario_analysis.py
-
-# Upload PWS Lectures
-python upload_pws_lectures.py
-```
-
-Each script uses:
-- `google.genai.Client` for API access
-- `client.file_search_stores.upload_to_file_search_store()` for uploads
-- Configurable chunk sizes (max_tokens_per_chunk, max_overlap_tokens)
-
 ---
 
 ## Project Structure
 
 ```
 mindrian-deploy/
-├── mindrian_chat.py              # Main Chainlit application (600+ lines)
+├── mindrian_chat.py              # Main Chainlit application (800+ lines)
 │   ├── BOTS dict                 # Bot configurations
+│   ├── STARTERS dict             # Conversation starters per bot
 │   ├── WORKSHOP_PHASES dict      # Phase definitions per bot
+│   ├── @cl.set_starters          # Starter buttons
+│   ├── @cl.on_settings_update    # Settings panel handler
 │   ├── @cl.on_chat_start         # Session initialization
+│   ├── @cl.on_chat_resume        # Session restoration
 │   ├── @cl.on_message            # Message handling with Gemini
+│   ├── @cl.on_stop               # Stop button handler
+│   ├── @cl.on_audio_start/chunk/end  # Audio streaming
 │   └── Action handlers           # Button callbacks
 │
 ├── prompts/                      # System prompts for each bot
@@ -233,8 +334,14 @@ mindrian-deploy/
 │
 ├── utils/                        # Utility functions
 │   ├── __init__.py
-│   ├── charts.py                 # Plotly chart generators
-│   └── gemini_rag.py             # Gemini File Search utilities
+│   ├── charts.py                 # Plotly charts + DIKW pyramid + DataFrames
+│   ├── gemini_rag.py             # Gemini File Search utilities
+│   ├── file_processor.py         # PDF/DOCX/TXT extraction
+│   ├── media.py                  # ElevenLabs TTS, exports
+│   └── storage.py                # Supabase Storage integration
+│
+├── public/                       # Static assets
+│   └── icons/                    # 21 SVG icons for starters
 │
 ├── .chainlit/
 │   └── config.toml               # Chainlit configuration (v2.9.5 format)
@@ -244,44 +351,6 @@ mindrian-deploy/
 ├── chainlit.md                   # Welcome page content
 └── README.md                     # This file
 ```
-
-### Key Files Deep Dive
-
-#### mindrian_chat.py
-
-```python
-# Bot configuration structure
-BOTS = {
-    "bot_id": {
-        "name": "Display Name",
-        "icon": "emoji_name",
-        "model": "gemini-3-flash-preview",
-        "prompt": PROMPT_CONSTANT,
-        "greeting": "Welcome message...",
-        "examples": ["Example 1", "Example 2", "Example 3"]
-    }
-}
-
-# Workshop phase structure
-WORKSHOP_PHASES = {
-    "bot_id": [
-        {"name": "Phase 1", "status": "ready"},
-        {"name": "Phase 2", "status": "pending"},
-        ...
-    ]
-}
-```
-
-#### prompts/ackoff_workshop.py (Newest Addition)
-
-650+ line comprehensive system prompt including:
-- DIKW Pyramid ASCII diagrams
-- Climb Up methodology (Data → Wisdom)
-- Climb Down validation (Wisdom → Data)
-- Challenge protocols (Camera Test, 5 Whys)
-- 6+ detailed case studies with outcomes
-- Mental models (Assumption Iceberg, Validation Tax)
-- Special protocols for pushback, gaps, skip requests
 
 ---
 
@@ -306,17 +375,7 @@ pip install -r requirements.txt
 
 ```bash
 cp .env.example .env
-```
-
-**Required variables:**
-```
-GOOGLE_API_KEY=your_google_ai_api_key
-```
-
-**Optional variables:**
-```
-TAVILY_API_KEY=your_tavily_api_key
-GEMINI_FILE_SEARCH_STORE=fileSearchStores/pwsknowledgebase-a4rnz3u41lsn
+# Edit .env with your API keys
 ```
 
 ### 4. Run Locally
@@ -326,6 +385,60 @@ chainlit run mindrian_chat.py
 ```
 
 Open http://localhost:8000
+
+---
+
+## Environment Variables
+
+### Required
+
+| Variable | Description | Get it at |
+|----------|-------------|-----------|
+| `GOOGLE_API_KEY` | Google AI API key | https://aistudio.google.com/apikey |
+
+### Recommended
+
+| Variable | Description | Get it at |
+|----------|-------------|-----------|
+| `TAVILY_API_KEY` | Web research API | https://tavily.com |
+| `CHAINLIT_DATABASE_URL` | PostgreSQL connection | See Supabase setup |
+
+### Voice (Optional)
+
+| Variable | Description | Get it at |
+|----------|-------------|-----------|
+| `ELEVENLABS_API_KEY` | Text-to-speech API | https://elevenlabs.io |
+| `ELEVENLABS_VOICE_ID` | Custom voice ID | ElevenLabs voice library |
+
+### Storage (Optional)
+
+| Variable | Description | Get it at |
+|----------|-------------|-----------|
+| `SUPABASE_URL` | Project URL | Supabase Dashboard > Settings > API |
+| `SUPABASE_SERVICE_KEY` | Service role key | Supabase Dashboard > Settings > API |
+| `SUPABASE_BUCKET` | Storage bucket name | Default: `mindrian-files` |
+
+### Example .env
+
+```bash
+# Required
+GOOGLE_API_KEY=AIzaSy...
+
+# Web Research
+TAVILY_API_KEY=tvly-...
+
+# Database (Supabase PostgreSQL)
+CHAINLIT_DATABASE_URL=postgresql://postgres:password@db.xxxx.supabase.co:5432/postgres
+
+# Voice
+ELEVENLABS_API_KEY=sk_...
+ELEVENLABS_VOICE_ID=SGh5MKvZcSYNF0SZXlAg
+
+# Storage
+SUPABASE_URL=https://xxxx.supabase.co
+SUPABASE_SERVICE_KEY=eyJ...
+SUPABASE_BUCKET=mindrian-files
+```
 
 ---
 
@@ -345,9 +458,9 @@ multi_modal = true
 
 [features.spontaneous_file_upload]
 enabled = true
-accept = ["*/*"]
-max_files = 5
-max_size_mb = 20
+accept = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "text/*", "image/*", "application/json", ".md", ".csv", ".py", ".js"]
+max_files = 10
+max_size_mb = 50
 
 [features.audio]
 enabled = true
@@ -371,8 +484,18 @@ provider = "browser"
 
 [UI]
 name = "Mindrian"
-description = "Multi-Bot PWS Platform"
+description = "Multi-Bot PWS Platform - Larry Core + Specialized Workshop Bots"
 github = "https://github.com/jsagir/mindrian-deploy"
+hide_cot = false
+cot = "full"
+
+[UI.theme.light]
+background = "#fafafa"
+paper = "#ffffff"
+
+[UI.theme.dark]
+background = "#1a1a2e"
+paper = "#16213e"
 ```
 
 ---
@@ -390,10 +513,27 @@ github = "https://github.com/jsagir/mindrian-deploy"
 - Start: `chainlit run mindrian_chat.py --host 0.0.0.0 --port $PORT -h`
 - Auto-deploy: Yes (on push to main)
 
-**Environment Variables in Render:**
-- `GOOGLE_API_KEY` (required)
-- `TAVILY_API_KEY` (optional)
-- `GEMINI_FILE_SEARCH_STORE` (optional)
+**Environment Variables in Render Dashboard:**
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `GOOGLE_API_KEY` | Yes | Google AI API key |
+| `TAVILY_API_KEY` | Recommended | Web research |
+| `CHAINLIT_DATABASE_URL` | Recommended | PostgreSQL for persistence |
+| `ELEVENLABS_API_KEY` | Optional | Voice responses |
+| `ELEVENLABS_VOICE_ID` | Optional | Custom voice |
+| `SUPABASE_URL` | Optional | File storage |
+| `SUPABASE_SERVICE_KEY` | Optional | File storage |
+| `SUPABASE_BUCKET` | Optional | Storage bucket name |
+
+### Supabase Setup
+
+1. Create project at https://supabase.com
+2. Go to **Project Settings > Database**
+3. Copy connection string (URI format)
+4. Set `CHAINLIT_DATABASE_URL` in Render
+5. (Optional) Create storage bucket `mindrian-files`
+6. (Optional) Copy service_role key for file storage
 
 ### Local Development
 
@@ -407,7 +547,7 @@ The `--watch` flag enables hot reloading.
 
 ## Workshop Details
 
-### Ackoff's Pyramid (DIKW) - Newest Workshop
+### Ackoff's Pyramid (DIKW)
 
 **Purpose:** Validate understanding before taking action
 
@@ -508,7 +648,17 @@ BOTS["new_bot"] = {
 }
 ```
 
-4. **Add phases** to `WORKSHOP_PHASES`:
+4. **Add starters** to `STARTERS` dict:
+```python
+STARTERS["new_bot"] = [
+    cl.Starter(label="Option 1", message="...", icon="/public/icons/icon1.svg"),
+    cl.Starter(label="Option 2", message="...", icon="/public/icons/icon2.svg"),
+    cl.Starter(label="Option 3", message="...", icon="/public/icons/icon3.svg"),
+    cl.Starter(label="Option 4", message="...", icon="/public/icons/icon4.svg"),
+]
+```
+
+5. **Add phases** to `WORKSHOP_PHASES`:
 ```python
 WORKSHOP_PHASES["new_bot"] = [
     {"name": "Phase 1", "status": "ready"},
@@ -517,39 +667,23 @@ WORKSHOP_PHASES["new_bot"] = [
 ]
 ```
 
-5. **Add chat profile** in `chat_profiles()` function
+6. **Add chat profile** in `chat_profiles()` function
 
-6. **Upload materials** to Gemini File Search:
-```bash
-cd /home/jsagi/Mindrian/mindrian-langgraph
-# Create upload_new_workshop.py following existing pattern
-python upload_new_workshop.py
-```
+7. **Upload materials** to Gemini File Search
 
 ### Modifying Existing Bots
 
 - Edit system prompts in `prompts/` directory
 - Phases are in `WORKSHOP_PHASES` dict
+- Starters are in `STARTERS` dict
 - Bot metadata in `BOTS` dict
 - Re-upload materials to File Search if content changes
-
-### File Search Material Updates
-
-```bash
-cd /home/jsagi/Mindrian/mindrian-langgraph
-
-# Edit upload script to add/modify files
-vim upload_ackoff_pyramid.py
-
-# Re-run upload
-python upload_ackoff_pyramid.py
-```
 
 ---
 
 ## Project History
 
-### Initial Build (v1.0)
+### v1.0 - Initial Build
 - Larry core thinking partner
 - Basic chat profiles
 - Simple system prompts
@@ -564,20 +698,51 @@ python upload_ackoff_pyramid.py
 - Gemini File Search integration
 - T1/T2/T3 tier knowledge base structure
 - Workshop materials upload scripts
+- Ackoff's Pyramid (DIKW) workshop with 650+ line prompt
 
-### Current Session - Ackoff Addition
-- **Added Ackoff's Pyramid (DIKW) workshop**
-  - 650+ line comprehensive system prompt
-  - 8-phase workshop structure
-  - 6 detailed case studies
-  - Climb Up / Climb Down methodology
-- **Uploaded 4 files to T2_Tools:**
-  - AckoffPyramid_Lecture_DIKWValidation
-  - AckoffPyramid_Workbook_Exercises
-  - AckoffPyramid_SystemPrompt_Complete
-  - AckoffPyramid_MaterialsGuide_CaseStudies (158K chars, full case study library)
-- **Fixed Chainlit v2.9.5 config** (object format for features)
-- **Updated README** with complete documentation
+### v3.0 - Chainlit Enhanced Experience (Current)
+
+**Chain of Thought Visualization:**
+- `@cl.step` decorator for nested collapsible steps
+- Real-time timing display
+- Transparent reasoning process
+
+**Conversation Starters:**
+- `@cl.set_starters` with 4 prompts per bot (24 total)
+- Custom SVG icons in `public/icons/`
+- One-click engagement
+
+**Chat Settings:**
+- Research depth (Basic/Standard/Deep)
+- Show examples toggle
+- Response detail slider (1-10)
+- Workshop mode (Guided/Freeform)
+
+**Session Persistence:**
+- PostgreSQL via Supabase
+- `@cl.on_chat_resume` handler
+- Phase progress restoration
+- `@cl.on_stop` for graceful interruption
+
+**Voice Integration:**
+- ElevenLabs text-to-speech
+- Real-time audio streaming handlers
+- Gemini transcription for voice input
+
+**Document Processing:**
+- `utils/file_processor.py` for PDF/DOCX/TXT
+- PyPDF2 and python-docx integration
+- Automatic context injection
+
+**Rich Media:**
+- DIKW pyramid visualization (Plotly)
+- DataFrame display as Plotly tables
+- Image and file exports
+
+**Supabase Storage:**
+- `utils/storage.py` for persistent uploads
+- Unique filename generation
+- MIME type detection
 
 ### Remaining Workshops to Add
 From PWS curriculum:
@@ -586,6 +751,40 @@ From PWS curriculum:
 - Reverse Salient
 - Market Timing
 - [Others from course materials]
+
+---
+
+## Dependencies
+
+```
+# Core
+chainlit>=2.9.0
+google-genai>=1.0.0
+python-dotenv>=1.0.0
+
+# Document Processing
+PyPDF2>=3.0.0
+python-docx>=1.1.0
+
+# Data & Visualization
+pandas>=2.0.0
+numpy>=1.24.0
+plotly>=5.18.0
+
+# Voice
+elevenlabs>=1.0.0
+
+# Database
+sqlalchemy[asyncio]>=2.0.0
+psycopg2-binary>=2.9.0
+asyncpg>=0.29.0
+
+# Storage
+supabase>=2.0.0
+
+# Research
+tavily-python>=0.5.0
+```
 
 ---
 
@@ -613,4 +812,4 @@ The **Problem Worth Solving** methodology was developed by Professor Lawrence Ar
 
 ---
 
-Built with Chainlit + Google Gemini + Gemini File Search RAG
+Built with Chainlit + Google Gemini + Gemini File Search RAG + Supabase + ElevenLabs
