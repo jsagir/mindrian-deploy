@@ -799,6 +799,12 @@ async def start():
                 label="🎬 Watch Video",
                 description="Watch tutorial video for this phase"
             ),
+            cl.Action(
+                name="listen_audiobook",
+                payload={"action": "audiobook"},
+                label="📖 Listen to Chapter",
+                description="Listen to relevant PWS audiobook chapter"
+            ),
         ]
 
         # Add bot-specific chart buttons
@@ -963,6 +969,53 @@ async def on_stop():
         stop_events[session_id].set()
 
     await cl.Message(content="**Stopped.** You can continue or ask something else.").send()
+
+
+# === User Feedback Handler ===
+@cl.on_feedback
+async def on_feedback(feedback: cl.Feedback):
+    """
+    Handle user feedback (thumbs up/down) on messages.
+    Stores feedback in Supabase for QA analytics.
+    """
+    try:
+        from utils.feedback import store_feedback
+
+        # Get session context
+        thread_id = cl.user_session.get("id", "unknown")
+        bot_id = cl.user_session.get("chat_profile", "larry")
+        phase = cl.user_session.get("current_phase")
+
+        # Get the message content and user's last message for context
+        history = cl.user_session.get("history", [])
+        message_content = None
+        user_message = None
+
+        # Find the last assistant message and user message
+        for msg in reversed(history):
+            if msg.get("role") == "assistant" and message_content is None:
+                message_content = msg.get("content", "")[:500]
+            if msg.get("role") == "user" and user_message is None:
+                user_message = msg.get("content", "")[:200]
+            if message_content and user_message:
+                break
+
+        # Store feedback
+        store_feedback(
+            message_id=feedback.id,
+            thread_id=thread_id,
+            score=feedback.value,  # 1 = thumbs up, 0 = thumbs down
+            comment=feedback.comment,
+            bot_id=bot_id,
+            phase=phase,
+            message_content=message_content,
+            user_message=user_message,
+        )
+
+        print(f"Feedback received: {'👍' if feedback.value == 1 else '👎'} for {bot_id}")
+
+    except Exception as e:
+        print(f"Feedback storage error: {e}")
 
 
 @cl.action_callback("multi_agent_analysis")
@@ -1529,6 +1582,149 @@ set_workshop_video("{bot_id}", "intro", "https://youtube.com/watch?v=...")
     await cl.Message(
         content=f"**🎬 Tutorial Video: {phase_name}**\n\nWatch the video below for guidance on this phase:",
         elements=[video]
+    ).send()
+
+
+@cl.action_callback("listen_audiobook")
+async def on_listen_audiobook(action: cl.Action):
+    """Handle listening to PWS audiobook chapters."""
+    from utils.media import (
+        find_relevant_chapters,
+        get_chapters_for_bot,
+        get_audiobook_chapter,
+        AUDIOBOOK_CHAPTERS
+    )
+
+    bot_id = cl.user_session.get("chat_profile", "larry")
+    history = cl.user_session.get("history", [])
+
+    # Get recent conversation context for relevance matching
+    recent_text = " ".join([
+        msg.get("content", "")
+        for msg in history[-6:]
+    ])
+
+    # Find relevant chapters based on conversation
+    relevant_chapters = find_relevant_chapters(recent_text, bot_id, max_results=3)
+
+    # If no relevant chapters found based on context, show all chapters for this bot
+    if not relevant_chapters:
+        all_chapters = get_chapters_for_bot(bot_id)
+        if not all_chapters:
+            await cl.Message(
+                content=f"""**No audiobook chapters configured yet.**
+
+To add audiobook chapters, update `AUDIOBOOK_CHAPTERS` in `utils/media.py`:
+
+```python
+from utils.media import set_audiobook_chapter
+
+set_audiobook_chapter(
+    topic="pws_foundation",
+    chapter_id="chapter_1",
+    url="https://your-supabase-url/audio/chapter1.mp3",
+    title="Introduction to PWS",
+    duration="15:00"
+)
+```
+
+Or upload audio files to Supabase Storage and add URLs to the `AUDIOBOOK_CHAPTERS` dict.
+"""
+            ).send()
+            return
+
+        # Create action buttons for all available chapters
+        chapter_actions = [
+            cl.Action(
+                name=f"play_chapter_{ch['topic']}_{ch['chapter_id']}",
+                payload={"topic": ch['topic'], "chapter_id": ch['chapter_id']},
+                label=f"▶️ {ch['title'][:30]}..." if len(ch['title']) > 30 else f"▶️ {ch['title']}",
+                description=f"Duration: {ch['duration']}"
+            )
+            for ch in all_chapters[:4]  # Limit to 4 buttons
+        ]
+
+        await cl.Message(
+            content=f"**📖 Available PWS Audiobook Chapters for {BOTS.get(bot_id, {}).get('name', 'this workshop')}:**\n\nSelect a chapter to listen:",
+            actions=chapter_actions
+        ).send()
+        return
+
+    # Show relevant chapters based on conversation context
+    chapter_info = "\n".join([
+        f"• **{ch['title']}** ({ch['duration']})"
+        for ch in relevant_chapters
+    ])
+
+    chapter_actions = [
+        cl.Action(
+            name=f"play_chapter_{ch['topic']}_{ch['chapter_id']}",
+            payload={"topic": ch['topic'], "chapter_id": ch['chapter_id']},
+            label=f"▶️ {ch['title'][:30]}..." if len(ch['title']) > 30 else f"▶️ {ch['title']}",
+            description=f"Duration: {ch['duration']}"
+        )
+        for ch in relevant_chapters
+    ]
+
+    await cl.Message(
+        content=f"""**📖 Relevant PWS Audiobook Chapters**
+
+Based on your conversation, these chapters may be helpful:
+
+{chapter_info}
+
+Select a chapter to listen:""",
+        actions=chapter_actions
+    ).send()
+
+
+@cl.action_callback("play_chapter_pws_foundation_chapter_1")
+@cl.action_callback("play_chapter_pws_foundation_chapter_2")
+@cl.action_callback("play_chapter_pws_foundation_chapter_3")
+@cl.action_callback("play_chapter_trending_to_absurd_chapter_1")
+@cl.action_callback("play_chapter_trending_to_absurd_chapter_2")
+@cl.action_callback("play_chapter_trending_to_absurd_chapter_3")
+@cl.action_callback("play_chapter_jobs_to_be_done_chapter_1")
+@cl.action_callback("play_chapter_jobs_to_be_done_chapter_2")
+@cl.action_callback("play_chapter_jobs_to_be_done_chapter_3")
+@cl.action_callback("play_chapter_s_curve_chapter_1")
+@cl.action_callback("play_chapter_s_curve_chapter_2")
+@cl.action_callback("play_chapter_s_curve_chapter_3")
+@cl.action_callback("play_chapter_ackoffs_pyramid_chapter_1")
+@cl.action_callback("play_chapter_ackoffs_pyramid_chapter_2")
+@cl.action_callback("play_chapter_ackoffs_pyramid_chapter_3")
+@cl.action_callback("play_chapter_red_teaming_chapter_1")
+@cl.action_callback("play_chapter_red_teaming_chapter_2")
+@cl.action_callback("play_chapter_red_teaming_chapter_3")
+async def on_play_chapter(action: cl.Action):
+    """Play a specific audiobook chapter."""
+    from utils.media import get_audiobook_chapter, AUDIOBOOK_CHAPTERS
+
+    payload = action.payload
+    topic = payload.get("topic")
+    chapter_id = payload.get("chapter_id")
+
+    if not topic or not chapter_id:
+        await cl.Message(content="Invalid chapter selection.").send()
+        return
+
+    # Get chapter metadata
+    chapter_info = AUDIOBOOK_CHAPTERS.get(topic, {}).get(chapter_id, {})
+    title = chapter_info.get("title", "Unknown Chapter")
+    duration = chapter_info.get("duration", "")
+
+    # Get audio element
+    audio = await get_audiobook_chapter(topic, chapter_id)
+
+    if not audio:
+        await cl.Message(
+            content=f"**Audio not available for: {title}**\n\nThe audiobook chapter URL has not been configured yet."
+        ).send()
+        return
+
+    await cl.Message(
+        content=f"**📖 Now Playing: {title}**\n\n*Duration: {duration}*",
+        elements=[audio]
     ).send()
 
 

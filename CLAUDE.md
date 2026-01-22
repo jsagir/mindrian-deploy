@@ -34,13 +34,15 @@ mindrian-deploy/
 │   ├── redteam.py           # Red Teaming
 │   └── ackoff_workshop.py   # Ackoff's Pyramid DIKW (650+ lines)
 ├── tools/                   # External tool integrations
-│   └── tavily_search.py     # Tavily web search wrapper
+│   ├── tavily_search.py     # Tavily web search wrapper
+│   └── langextract.py       # Zero-latency structured data extraction
 ├── utils/                   # Utility modules
 │   ├── charts.py            # Plotly visualizations (DIKW pyramid, S-curve, DataFrames)
 │   ├── gemini_rag.py        # Gemini File Search cache utilities
 │   ├── file_processor.py    # PDF/DOCX/TXT extraction
-│   ├── media.py             # ElevenLabs TTS, file exports
-│   └── storage.py           # Supabase Storage integration
+│   ├── media.py             # ElevenLabs TTS, videos, audiobook chapters, file exports
+│   ├── storage.py           # Supabase Storage integration
+│   └── feedback.py          # User feedback storage for QA analytics
 ├── public/icons/            # SVG icons for conversation starters
 ├── .chainlit/config.toml    # Chainlit UI configuration
 ├── requirements.txt         # Python dependencies
@@ -337,13 +339,13 @@ python upload_new_workshop.py
 
 ---
 
-## Recent Changes (v3.0)
+## Recent Changes (v3.1)
 
 1. **Chain of Thought** - `@cl.step` for transparent reasoning
 2. **Conversation Starters** - 4 per bot in STARTERS dict
 3. **Chat Settings** - Research depth, examples, verbosity
 4. **Session Persistence** - PostgreSQL via Supabase
-5. **ElevenLabs Voice** - TTS integration
+5. **ElevenLabs Voice** - TTS integration (updated with streaming SDK)
 6. **Document Processing** - PDF/DOCX extraction
 7. **Context Preservation** - Maintain history across bot switches
 8. **Stop Handler** - Graceful interruption
@@ -351,6 +353,8 @@ python upload_new_workshop.py
 10. **Synthesize & Download** - Larry synthesizes any conversation as downloadable MD
 11. **LangExtract** - Zero-latency structured data extraction with Supabase persistence
 12. **Video Tutorials** - "🎬 Watch Video" button for workshop phases
+13. **User Feedback** - Thumbs up/down with Supabase storage for QA analytics
+14. **PWS Audiobook Chapters** - "📖 Listen to Chapter" button for contextual audio content
 
 ---
 
@@ -433,6 +437,127 @@ signals = instant_extract(text)
 # Deep (runs in background)
 structured = await background_extract_conversation(history, bot_name)
 ```
+
+---
+
+## User Feedback System
+
+Capture user feedback (thumbs up/down) for QA and analytics.
+
+### How It Works
+
+1. Chainlit shows thumbs up/down buttons on AI messages (when data persistence is enabled)
+2. User clicks to rate a response
+3. Feedback is stored in Supabase for analytics
+
+### Storage
+
+Feedback is stored in `utils/feedback.py` with Supabase persistence:
+
+- **In-memory cache**: Fast access during session
+- **Supabase bucket**: Persistent storage in `feedback/{date}/{message_id}.json`
+
+### Feedback Data Structure
+
+```json
+{
+  "message_id": "abc123...",
+  "thread_id": "session_xyz",
+  "score": 1,  // 1 = thumbs up, 0 = thumbs down
+  "rating": "positive",
+  "comment": "Optional user comment",
+  "bot_id": "larry",
+  "phase": "Phase 3",
+  "message_preview": "First 500 chars of AI response...",
+  "user_message_preview": "What user asked...",
+  "timestamp": "2026-01-22T10:30:00Z",
+  "date": "2026-01-22"
+}
+```
+
+### Feedback Analytics
+
+```python
+from utils.feedback import get_feedback_stats, export_feedback_report
+
+# Get statistics
+stats = get_feedback_stats(date="2026-01-22", bot_id="larry")
+# Returns: total, positive, negative, positive_rate, by_bot, recent_negative
+
+# Export report
+report = export_feedback_report(date="2026-01-22")  # Returns markdown report
+```
+
+---
+
+## PWS Audiobook Chapters
+
+Embed audio content from PWS course materials by topic and chapter.
+
+### How It Works
+
+1. User clicks "📖 Listen to Chapter" button
+2. System analyzes conversation context for relevant chapters
+3. Shows matching chapters or all chapters for current bot
+4. User selects a chapter to play inline audio
+
+### Configuring Chapters
+
+Edit `AUDIOBOOK_CHAPTERS` in `utils/media.py`:
+
+```python
+AUDIOBOOK_CHAPTERS = {
+    "pws_foundation": {
+        "chapter_1": {
+            "title": "Introduction to Problems Worth Solving",
+            "url": "https://your-supabase-url/audio/pws_intro.mp3",
+            "duration": "15:00",
+            "keywords": ["problem", "worth solving", "introduction"],
+            "bot_relevance": ["larry"],
+        },
+        # ... more chapters
+    },
+    "trending_to_absurd": { ... },
+    "jobs_to_be_done": { ... },
+    "s_curve": { ... },
+    "ackoffs_pyramid": { ... },
+    "red_teaming": { ... },
+}
+```
+
+### Programmatic Configuration
+
+```python
+from utils.media import set_audiobook_chapter
+
+# Add or update a chapter
+set_audiobook_chapter(
+    topic="pws_foundation",
+    chapter_id="chapter_1",
+    url="https://storage.supabase.co/audio/pws_ch1.mp3",
+    title="Introduction to PWS",
+    duration="15:00",
+    keywords=["problem", "introduction"]
+)
+```
+
+### Utility Functions
+
+```python
+from utils.media import (
+    get_audiobook_chapter,           # Get audio element for a chapter
+    find_relevant_chapters,          # Find chapters matching conversation context
+    get_chapters_for_bot,            # Get all chapters for a bot
+    list_configured_audiobook_chapters,  # List all configured chapters
+)
+```
+
+### Contextual Suggestions
+
+The system automatically suggests relevant chapters based on:
+1. **Bot relevance**: Each chapter lists which bots it's relevant to
+2. **Keyword matching**: Conversation text is matched against chapter keywords
+3. **Topic mapping**: Bots are mapped to relevant topics (e.g., TTA → trending_to_absurd)
 
 ---
 
