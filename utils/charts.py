@@ -1,11 +1,150 @@
 """
 Chart utilities for Mindrian
-S-Curve visualization and other charts
+S-Curve visualization, DIKW pyramid, and other charts
 """
 
 import plotly.graph_objects as go
 import numpy as np
 import chainlit as cl
+
+
+async def create_dikw_pyramid(
+    highlight_level: str = None,
+    title: str = "Ackoff's DIKW Pyramid"
+) -> cl.Plotly:
+    """
+    Create a DIKW pyramid diagram showing the hierarchy:
+    Data → Information → Knowledge → Understanding → Wisdom
+
+    Args:
+        highlight_level: Which level to highlight ('data', 'information', 'knowledge', 'understanding', 'wisdom')
+        title: Chart title
+
+    Returns:
+        cl.Plotly element to display
+    """
+    # Define pyramid levels (from bottom to top)
+    levels = [
+        {"name": "Data", "desc": "Raw facts, observations", "color": "#90CAF9", "y": 0},
+        {"name": "Information", "desc": "Organized, contextualized data", "color": "#64B5F6", "y": 1},
+        {"name": "Knowledge", "desc": "Patterns, cause & effect", "color": "#42A5F5", "y": 2},
+        {"name": "Understanding", "desc": "Why things happen", "color": "#2196F3", "y": 3},
+        {"name": "Wisdom", "desc": "Judgment, action decisions", "color": "#1976D2", "y": 4},
+    ]
+
+    fig = go.Figure()
+
+    # Create pyramid using filled areas
+    for i, level in enumerate(levels):
+        # Calculate width (wider at bottom, narrower at top)
+        width = 5 - i * 0.8
+        y_base = i
+        y_top = i + 0.9
+
+        # Determine color (highlight if selected)
+        color = level["color"]
+        if highlight_level and level["name"].lower() == highlight_level.lower():
+            color = "#FF9800"  # Orange highlight
+
+        # Draw trapezoid for each level
+        x_coords = [-width/2, width/2, (width-0.8)/2, -(width-0.8)/2, -width/2]
+        y_coords = [y_base, y_base, y_top, y_top, y_base]
+
+        fig.add_trace(go.Scatter(
+            x=x_coords,
+            y=y_coords,
+            fill="toself",
+            fillcolor=color,
+            line=dict(color="white", width=2),
+            mode="lines",
+            name=level["name"],
+            hoverinfo="text",
+            hovertext=f"<b>{level['name']}</b><br>{level['desc']}",
+            showlegend=False,
+        ))
+
+        # Add level label
+        fig.add_annotation(
+            x=0,
+            y=y_base + 0.45,
+            text=f"<b>{level['name']}</b>",
+            showarrow=False,
+            font=dict(color="white", size=14),
+        )
+
+    # Add descriptions on the side
+    descriptions = [
+        "Can a camera record it?",
+        "What does it mean?",
+        "What patterns emerge?",
+        "Why does it happen?",
+        "What should we do?",
+    ]
+
+    for i, desc in enumerate(descriptions):
+        fig.add_annotation(
+            x=3.5,
+            y=i + 0.45,
+            text=desc,
+            showarrow=True,
+            arrowhead=2,
+            arrowsize=0.5,
+            arrowwidth=1,
+            arrowcolor="#666",
+            ax=-30,
+            ay=0,
+            font=dict(size=11, color="#666"),
+        )
+
+    # Add arrows showing direction
+    fig.add_annotation(
+        x=-4,
+        y=2,
+        text="Climb UP<br>to understand",
+        showarrow=True,
+        arrowhead=2,
+        arrowsize=1,
+        arrowwidth=2,
+        arrowcolor="#4CAF50",
+        ax=0,
+        ay=60,
+        font=dict(size=10, color="#4CAF50"),
+    )
+
+    fig.add_annotation(
+        x=-4,
+        y=3,
+        text="Climb DOWN<br>to validate",
+        showarrow=True,
+        arrowhead=2,
+        arrowsize=1,
+        arrowwidth=2,
+        arrowcolor="#F44336",
+        ax=0,
+        ay=-60,
+        font=dict(size=10, color="#F44336"),
+    )
+
+    fig.update_layout(
+        title=title,
+        xaxis=dict(
+            showgrid=False,
+            zeroline=False,
+            showticklabels=False,
+            range=[-6, 6],
+        ),
+        yaxis=dict(
+            showgrid=False,
+            zeroline=False,
+            showticklabels=False,
+            range=[-0.5, 5.5],
+        ),
+        template="plotly_white",
+        height=450,
+        margin=dict(l=20, r=20, t=50, b=20),
+    )
+
+    return cl.Plotly(name="dikw_pyramid", figure=fig, display="inline")
 
 
 async def create_scurve_chart(

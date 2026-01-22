@@ -1,7 +1,7 @@
 # Mindrian - Multi-Bot PWS Platform
-# Enhanced with Charts, MCP Tools, Data Persistence
+# Enhanced with Charts, MCP Tools, Data Persistence, Chain-of-Thought Steps
 
-# Chainlit UI
+# Chainlit UI (1.1.305+ required for nested steps support)
 chainlit>=2.9.0
 
 # Google Gemini
@@ -9,6 +9,7 @@ google-genai>=1.0.0
 
 # Utilities
 python-dotenv>=1.0.0
+numpy>=1.24.0
 
 # Charts & Visualization
 plotly>=5.18.0
@@ -16,10 +17,10 @@ plotly>=5.18.0
 # MCP Tools
 tavily-python>=0.5.0
 
-# Data Persistence (PostgreSQL)
-sqlalchemy>=2.0.0
+# Data Persistence (PostgreSQL with async support)
+sqlalchemy[asyncio]>=2.0.0
 psycopg2-binary>=2.9.0
+asyncpg>=0.29.0
 
 # Audio Processing (optional)
 # openai-whisper>=20231117
-asyncpg
