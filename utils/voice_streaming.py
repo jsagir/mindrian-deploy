@@ -40,9 +40,11 @@ MODEL_TURBO = "eleven_turbo_v2_5"      # Fastest, ~100ms latency
 MODEL_FLASH = "eleven_flash_v2_5"       # Fast, good quality
 MODEL_MULTILINGUAL = "eleven_multilingual_v2"  # Best quality, higher latency
 
-# Audio output format for browser playback
-# mp3_44100_128 is widely supported
-OUTPUT_FORMAT = "mp3_44100_128"
+# Audio output format for browser playback via send_audio_chunk()
+# MUST use PCM for Chainlit's AudioWorklet - MP3 causes noise
+# pcm_24000 = 24kHz 16-bit PCM (matches Chainlit's default sample_rate)
+OUTPUT_FORMAT = "pcm_24000"
+AUDIO_MIME_TYPE = "pcm16"  # Chainlit's expected MIME type for PCM
 
 
 @dataclass
@@ -165,10 +167,11 @@ class RealtimeVoiceStreamer:
                             await audio_queue.put(audio_bytes)
 
                             # Send directly to browser for playback
+                            # Use PCM16 format - Chainlit's AudioWorklet expects PCM, not MP3
                             try:
                                 await cl.context.emitter.send_audio_chunk(
                                     OutputAudioChunk(
-                                        mimeType="audio/mpeg",
+                                        mimeType=AUDIO_MIME_TYPE,  # "pcm16"
                                         data=audio_bytes,
                                         track=track_id
                                     )

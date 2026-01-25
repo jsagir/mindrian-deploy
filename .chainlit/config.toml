@@ -48,13 +48,13 @@ sample_rate = 24000
 [features.mcp]
 enabled = true
 
+# Speech-to-text: disabled browser STT, using Gemini via @cl.on_audio_end
 [features.speech_to_text]
-enabled = true
-provider = "browser"
+enabled = false
 
+# Text-to-speech: disabled browser TTS, using ElevenLabs via send_audio_chunk
 [features.text_to_speech]
-enabled = true
-provider = "browser"
+enabled = false
 
 [UI]
 # Name of the app and chatbot.
