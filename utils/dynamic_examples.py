@@ -21,6 +21,11 @@ BOT_TO_METHODOLOGY = {
     "redteam": ["Red Team", "Devil's Advocate", "Assumption Attack", "Bias Detection"],
     "ackoff": ["Ackoff", "DIKW", "Pyramid", "Data-Information-Knowledge-Wisdom", "Camera Test"],
     "larry": ["PWS", "Problem Worth Solving", "Innovation"],
+    "bono": ["Six Thinking Hats", "Minto Pyramid", "BONO", "Parallel Thinking", "Expert Panel"],
+    "knowns": ["Rumsfeld Matrix", "Known Unknowns", "Blind Spots", "Uncertainty Mapping"],
+    "domain": ["Domain Research", "Cross-Domain", "Multi-Domain", "Synthesis"],
+    "investment": ["Ten Questions", "Investment Thesis", "Due Diligence", "Startup Evaluation"],
+    "scenario": ["Scenario Analysis", "Scenario Planning", "2x2 Matrix", "Driving Forces", "Multiple Futures", "Shell Oil", "Presentism"],
 }
 
 # Bot to relevant case study topics
@@ -31,6 +36,11 @@ BOT_TO_CASE_TOPICS = {
     "redteam": ["Target Canada", "Boeing 737", "Theranos", "WeWork"],
     "ackoff": ["Hospital Emergency Room", "Camera Test", "Information Darkness"],
     "larry": ["Warby Parker", "Netflix", "Hospital", "Innovation"],
+    "bono": ["Strategic Planning", "Six Hats", "Expert Panel", "Minto", "MECE"],
+    "knowns": ["Rumsfeld", "Unknown Unknowns", "Risk Assessment", "Blind Spot"],
+    "domain": ["Research Synthesis", "Multi-Domain", "Cross-Industry"],
+    "investment": ["Ten Questions", "Startup Evaluation", "Due Diligence", "Investment"],
+    "scenario": ["Shell Oil", "Kodak", "Singapore Government", "Oil Crisis", "Digital Photography", "Scenario Planning"],
 }
 
 # Fallback static examples (used when dynamic fetch fails)
@@ -77,6 +87,41 @@ STATIC_EXAMPLES = {
         "**The Innovation Trinity**: Every innovation needs three things in alignment: a Problem worth solving, a Solution that addresses it, and a Business Case that makes it viable. Miss any one, and you fail.",
         "**Premature Solutioning Trap**: Most innovators fall in love with their solution before validating the problem. PWS methodology prevents this by enforcing problem-first thinking.",
         "**Is it Real? Can we Win? Is it Worth It?**: The three validation questions every innovation must answer. Real = problem exists and matters. Win = we can beat alternatives. Worth = returns justify investment.",
+    ],
+    "bono": [
+        "**Six Hats on Market Entry**: A tech company used Six Hats to evaluate expanding into healthcare. White Hat revealed $4B market size, Red Hat surfaced team anxiety about regulation, Black Hat identified compliance risks, Yellow Hat showed first-mover advantages, Green Hat generated partnership alternatives, Blue Hat synthesized into a phased approach.",
+        "**Expert Panel on Climate Tech**: For a carbon capture startup, BONO generated Dr. Chen (atmospheric chemistry), Dr. Rodriguez (energy economics), and Dr. Patel (policy). Their cross-discipline debate revealed a regulatory blind spot that became the startup's competitive advantage.",
+        "**Minto Pyramid for Board Presentation**: A founder restructured their pitch using Minto: Governing Thought ('We should expand to Asia'), Key Arguments ('Market readiness', 'Team capability', 'Financial viability'), Supporting Evidence (specific data per argument). Board approved in one meeting.",
+        "**Parallel Thinking on Product Pivot**: Instead of debating sequentially, the team used Six Hats in parallel—each member took one hat for 10 minutes. Result: comprehensive analysis in 1 hour vs. typical 4-hour debate with less coverage.",
+        "**MECE Framework**: When breaking down a problem, ensure your categories are Mutually Exclusive (no overlap) and Collectively Exhaustive (nothing missing). If your market segmentation has gaps or overlaps, your strategy will have blind spots.",
+    ],
+    "knowns": [
+        "**Rumsfeld Matrix in Action**: A fintech startup mapped their assumptions. Known Knowns: bank API exists. Known Unknowns: pricing model acceptance. Unknown Knowns: team had previous banking relationships (tacit knowledge surfaced). Unknown Unknowns: regulatory change coming in 6 months (discovered through systematic probing).",
+        "**Pre-Mortem Technique**: 'Imagine it's 2 years from now and your product failed completely. Why did it fail?' This inversion surfaced 12 blind spots the team hadn't considered, 3 of which were serious enough to change the product roadmap.",
+        "**Blind Spot Discovery**: A healthcare AI company thought they understood their market. Unknown Unknowns analysis revealed: (1) competitor had patent filed they didn't know about, (2) regulation change pending, (3) key customer was evaluating in-house solution. All three were researchable but hadn't been considered.",
+        "**Knowledge Audit Example**: Before a major decision, the team categorized: Facts (verified with sources), Assumptions (stated but unvalidated), Questions (identified gaps), Intuitions (tacit knowledge to articulate). This surfaced that 60% of their 'facts' were actually assumptions.",
+        "**Confidence Calibration**: When someone says 'I'm 90% sure the market is $10B', probe: 'What would make this wrong? What's the source? When was it validated?' Often that 90% confidence drops to 60% when examined—converting an unknown known into a known unknown.",
+    ],
+    "domain": [
+        "**15-Search Deep Dive**: For autonomous vehicles, searches covered: technical state of art, sensor technology, regulatory landscape, insurance implications, urban planning changes, ethical frameworks, competitor patents, failure post-mortems, academic research, practitioner forums, investment trends, international comparisons, consumer attitudes, infrastructure requirements, and historical precedents. Each yielded unique insights.",
+        "**Cross-Domain Synthesis**: Researching telemedicine revealed connections to: gaming (virtual presence tech), banking (identity verification), logistics (last-mile delivery of prescriptions), education (online learning UX patterns). The gaming connection led to a breakthrough in patient engagement.",
+        "**Dissenting Evidence Collection**: When researching 'AI will replace radiologists', systematic dissent collection found: false positive rates, liability concerns, integration challenges, radiologist-AI collaboration studies showing better outcomes than either alone. The dissenting evidence completely changed the strategic direction.",
+        "**Multi-Lens Analysis**: Applied to 'future of work': Disciplinary (economics, sociology, technology), Stakeholder (workers, employers, cities, governments), Temporal (historical patterns, current state, projected trajectories), Scale (individual, team, organizational, societal). Each lens revealed different insights.",
+        "**Gap Identification**: After exhaustive research on sustainable packaging, the synthesis revealed: plenty of material science research, good regulatory coverage, but almost no research on consumer behavior change or supply chain transition costs. These gaps became the team's research priorities.",
+    ],
+    "investment": [
+        "**Ten Questions Rapid Fail**: A promising-looking EdTech startup failed Question 5 (momentum): 'Usage metrics show 40% drop after week 2.' This early flag saved months of deeper due diligence. The founders hadn't solved retention, which is existential for EdTech.",
+        "**8/10 Threshold Example**: Startup passed 8 questions but failed on 'Sound valuation?' and 'Why this team?' Recommendation: Conditional GO—negotiate valuation down 30% and require addition of experienced CTO within 6 months.",
+        "**Investment Thesis Deep Dive**: After passing Ten Questions, the Business category revealed: strong problem clarity, novel technology, weak business model. The Team category showed: excellent founder-market fit, missing sales capability. These specifics shaped the term sheet requirements.",
+        "**Devil's Advocate Integration**: For every positive finding ('strong IP position'), the investment team required adversarial challenge ('Patent expires in 4 years. Competitors have workarounds filed. What's the moat beyond IP?'). This rigor prevented several bad investments.",
+        "**Systematic Due Diligence**: Using the six-category Investment Thesis framework, the team discovered a critical issue in 'Competition' that the founders had downplayed: a well-funded competitor had just pivoted into the exact same space. This changed the investment from GO to CONDITIONAL.",
+    ],
+    "scenario": [
+        "**Shell Oil (1973)**: Pierre Wack at Shell imagined scenarios where the post-war oil order collapsed. When the 1973 oil embargo struck, Shell was the only major oil company prepared—not because they predicted it, but because they had imagined the possibility. They bought refineries at rock-bottom prices while competitors scrambled.",
+        "**Kodak's Failure**: Kodak invented digital photography but couldn't imagine a future where people didn't want prints. They were trapped in presentism, optimizing for a world that was about to disappear. Their scenario planning failed because all scenarios assumed 'people want prints'—a correlated axis.",
+        "**Singapore Government**: Singapore uses scenario planning at the national level to prepare for multiple possible futures in a volatile region. They maintain 4 distinct scenarios updated every 5 years, with policy options developed for each. This is why Singapore can respond faster than most countries to disruption.",
+        "**Correlated Axes Mistake**: A tech company built scenarios around 'AI advancement' (axis 1) and 'tech job growth' (axis 2). But these are correlated—if AI advances rapidly, it likely affects job growth. They collapsed to essentially 2 scenarios instead of 4. Independent axes would be 'AI advancement' and 'regulatory stringency'.",
+        "**The 2×2 Matrix Success**: A healthcare company built scenarios around 'Telehealth adoption' (high/low) and 'Insurance reimbursement models' (fee-for-service vs. value-based). These independent axes produced 4 genuinely distinct futures, each revealing different problems worth solving.",
     ],
 }
 
@@ -209,6 +254,11 @@ async def fetch_filesearch_example(bot_id: str, phase: int = 0) -> Optional[Exam
             "redteam": f"Give me a specific red teaming or devil's advocate example that exposes hidden assumptions in a business case. Include the assumption attacked and what was revealed. Use a DIFFERENT example than Target Canada.",
             "ackoff": f"Give me a specific example of applying Ackoff's DIKW Pyramid to transform data into wisdom. Show each level of the pyramid with the example. Use a DIFFERENT example than the hospital emergency room.",
             "larry": f"Give me a specific example of validating whether a problem is 'worth solving' using PWS methodology. Include the worthiness criteria evaluation.",
+            "bono": f"Give me a specific example of using Six Thinking Hats and/or Minto Pyramid for strategic analysis. Include which hats were used and what insights emerged from each perspective. Be specific with company names and outcomes.",
+            "knowns": f"Give me a specific example of applying the Rumsfeld Matrix (Known Knowns, Known Unknowns, Unknown Knowns, Unknown Unknowns) to surface blind spots in a business decision. Include what was discovered in each quadrant.",
+            "domain": f"Give me a specific example of exhaustive multi-domain research synthesis that revealed unexpected cross-industry connections. Include the domains researched and the breakthrough insight from synthesis.",
+            "investment": f"Give me a specific example of using the Ten Questions investment framework to evaluate a startup. Include which questions the startup passed or failed and what the final recommendation was.",
+            "scenario": f"Give me a specific example of scenario analysis or scenario planning methodology. Include the 2×2 matrix axes chosen, the four scenarios generated, and what problems worth solving were revealed. Use a DIFFERENT example than Shell Oil.",
         }
 
         query = query_prompts.get(bot_id, f"Give me a specific example of {methodology} methodology applied in practice.")

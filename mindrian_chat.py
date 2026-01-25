@@ -72,6 +72,10 @@ AGENT_TRIGGERS = {
         "keywords": ["ten questions", "investment thesis", "startup", "funding", "valuation", "due diligence", "invest", "evaluation"],
         "description": "PWS Investment analysis"
     },
+    "scenario": {
+        "keywords": ["scenario", "futures", "uncertainty", "2x2 matrix", "shell oil", "presentism", "driving forces", "multiple futures", "plausible futures", "strategic planning"],
+        "description": "Multiple plausible futures"
+    },
 }
 
 # === Data Persistence Setup ===
@@ -108,7 +112,8 @@ from prompts import (
     BONO_MASTER_PROMPT,
     KNOWN_UNKNOWNS_PROMPT,
     DOMAIN_EXPLORER_PROMPT,
-    PWS_INVESTMENT_PROMPT
+    PWS_INVESTMENT_PROMPT,
+    SCENARIO_ANALYSIS_PROMPT
 )
 
 # === RAG Cache Support ===
@@ -213,6 +218,14 @@ WORKSHOP_PHASES = {
         {"name": "Thesis: Competition & Value", "status": "pending"},
         {"name": "Adversarial Review", "status": "pending"},
         {"name": "Final Recommendation", "status": "pending"},
+    ],
+    "scenario": [
+        {"name": "Introduction", "status": "ready"},
+        {"name": "Domain & Driving Forces", "status": "pending"},
+        {"name": "Uncertainty Assessment", "status": "pending"},
+        {"name": "Scenario Matrix (2×2)", "status": "pending"},
+        {"name": "Scenario Narratives", "status": "pending"},
+        {"name": "Synthesis & Implications", "status": "pending"},
     ],
 }
 
@@ -443,6 +456,26 @@ I evaluate opportunities using the PWS framework:
 **What startup, opportunity, or investment are you evaluating?**
 
 I'll systematically assess whether this is worth pursuing and why."""
+    },
+    "scenario": {
+        "name": "Scenario Analysis",
+        "icon": "/public/icons/scenario.svg",
+        "emoji": "🌐",
+        "description": "Workshop: Navigate uncertainty with multiple plausible futures",
+        "system_prompt": SCENARIO_ANALYSIS_PROMPT,
+        "has_phases": True,
+        "welcome": """🌐 **Scenario Analysis Workshop**
+### Navigating Uncertainty to Find Problems Worth Solving
+
+Hello, I'm Larry.
+
+Here's a question that should make you uncomfortable: **What if everything you believe about the future is wrong—not because you're uninformed, but because you're trapped in the present?**
+
+Scenario Analysis is your escape route from the prison of presentism. We won't predict the future—instead, we'll systematically imagine multiple plausible futures and discover what problems would matter in each.
+
+This is how Shell survived the 1973 oil crisis when every other oil company was blindsided. It's how you can find problems worth solving that others can't see.
+
+**To begin: What domain or industry do you want to explore, and what strategic question is driving your interest?**"""
     }
 }
 
@@ -542,6 +575,11 @@ async def chat_profiles():
             name="investment",
             markdown_description=BOTS["investment"]["description"],
             icon=BOTS["investment"]["icon"],
+        ),
+        cl.ChatProfile(
+            name="scenario",
+            markdown_description=BOTS["scenario"]["description"],
+            icon=BOTS["scenario"]["icon"],
         ),
     ]
 
@@ -766,6 +804,28 @@ STARTERS = {
             label="Explain the framework",
             message="Explain the Ten Questions and Investment Thesis framework.",
             icon="/public/icons/info.svg",
+        ),
+    ],
+    "scenario": [
+        cl.Starter(
+            label="Explore a domain",
+            message="I want to explore multiple plausible futures for my industry/domain: [describe it]",
+            icon="/public/icons/explore.svg",
+        ),
+        cl.Starter(
+            label="Build a 2×2 matrix",
+            message="Help me build a scenario matrix to navigate uncertainty in my strategic decision.",
+            icon="/public/icons/matrix.svg",
+        ),
+        cl.Starter(
+            label="Find hidden problems",
+            message="I want to discover problems worth solving that are invisible from my current position.",
+            icon="/public/icons/search.svg",
+        ),
+        cl.Starter(
+            label="Show Shell Oil example",
+            message="Show me how Shell used scenario planning to prepare for the 1973 oil crisis.",
+            icon="/public/icons/example.svg",
         ),
     ],
 }
@@ -1876,6 +1936,10 @@ async def on_switch_to_domain(action: cl.Action):
 @cl.action_callback("switch_to_investment")
 async def on_switch_to_investment(action: cl.Action):
     await handle_agent_switch("investment")
+
+@cl.action_callback("switch_to_scenario")
+async def on_switch_to_scenario(action: cl.Action):
+    await handle_agent_switch("scenario")
 
 
 async def handle_agent_switch(new_agent_id: str):
