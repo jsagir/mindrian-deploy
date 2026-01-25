@@ -37,12 +37,13 @@ max_files = 10
 max_size_mb = 50
 
 [features.audio]
+# Real-time voice: faster response by detecting silence quickly
 enabled = true
 min_decibels = -45
-initial_silence_timeout = 3000
-silence_timeout = 1500
-max_duration = 15000
-chunk_duration = 1000
+initial_silence_timeout = 1500  # Start listening faster (was 3000)
+silence_timeout = 800           # End recording after 0.8s silence (was 1500)
+max_duration = 30000            # Allow longer messages (30s)
+chunk_duration = 500            # Smaller chunks for faster processing
 sample_rate = 24000
 
 [features.mcp]
