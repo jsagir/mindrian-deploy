@@ -2756,85 +2756,235 @@ async def on_speak_response(action: cl.Action):
 
 @cl.action_callback("deep_research")
 async def on_deep_research(action: cl.Action):
-    """Handle deep research button - sequential thinking + Tavily execution with cl.Step visualization."""
+    """
+    Handle deep research button - Minto Pyramid + Beautiful Questions + Sequential Thinking + Tavily execution.
+
+    Flow:
+    1. SCQA Analysis (Situation, Complication, Question, Answer hypothesis)
+    2. Beautiful Questions (Why / What If / How - Warren Berger framework)
+    3. Sequential Thinking (Known/Unknown analysis with revision/branching)
+    4. Research Plan Generation (targeted queries)
+    5. Research Execution (validation, supporting, challenging queries)
+    6. Pyramid Synthesis (structured answer with evidence hierarchy)
+    """
+    import uuid
     from tools.tavily_search import search_web
+    from utils.minto_research import (
+        SequentialThinkingSession, SCQAAnalysis, ResearchPlan, ThoughtType,
+        BeautifulQuestions, SCQA_ANALYSIS_PROMPT, BEAUTIFUL_QUESTIONS_PROMPT,
+        SEQUENTIAL_THINKING_PROMPT, RESEARCH_PLAN_PROMPT, PYRAMID_SYNTHESIS_PROMPT,
+        parse_scqa_response, parse_beautiful_questions_response, parse_thoughts_response,
+        parse_research_plan_response, format_thoughts_for_prompt
+    )
 
     # Get context
     history = cl.user_session.get("history", [])
     bot = cl.user_session.get("bot", BOTS["larry"])
+    bot_name = bot.get("name", "Larry")
     chat_profile = cl.user_session.get("chat_profile", "larry")
     settings = cl.user_session.get("settings", {})
     search_depth = settings.get("research_depth", "basic")
 
     # Build context from recent conversation
     recent_context = ""
-    for msg in history[-6:]:  # Last 3 exchanges
+    for msg in history[-8:]:  # Last 4 exchanges for better context
         role = msg.get("role", "user")
-        content = msg.get("content", "")[:500]
+        content = msg.get("content", "")[:600]
         recent_context += f"{role}: {content}\n"
+
+    # Initialize session
+    session = SequentialThinkingSession(session_id=str(uuid.uuid4())[:8])
 
     try:
         # Parent step for the entire research process
-        async with cl.Step(name="Deep Research", type="run") as research_step:
-            research_step.input = f"Context: {recent_context[:200]}..."
+        async with cl.Step(name="🔬 Minto-Powered Research", type="run") as research_step:
+            research_step.input = f"Analyzing conversation for {bot_name}..."
 
-            # Step 1: Planning
-            async with cl.Step(name="Planning Research Strategy", type="llm") as plan_step:
-                planning_prompt = f"""Based on this conversation context, create a focused research plan.
+            # ═══════════════════════════════════════════════════════════════════
+            # PHASE 1: SCQA ANALYSIS (Minto Pyramid Framework)
+            # ═══════════════════════════════════════════════════════════════════
+            async with cl.Step(name="📐 SCQA Analysis (Minto Pyramid)", type="llm") as scqa_step:
+                scqa_step.input = "Identifying Situation → Complication → Question → Answer hypothesis..."
 
-CONTEXT:
-{recent_context}
+                scqa_prompt = SCQA_ANALYSIS_PROMPT.format(
+                    context=recent_context,
+                    bot_name=bot_name
+                )
 
-WORKSHOP: {chat_profile}
+                scqa_response = client.models.generate_content(
+                    model="gemini-2.0-flash",
+                    contents=scqa_prompt,
+                    config=types.GenerateContentConfig(
+                        temperature=0.3,
+                        max_output_tokens=800
+                    )
+                )
 
-Create exactly 3 search queries that would help validate or explore the key topics discussed.
-Format your response as:
+                session.scqa = parse_scqa_response(scqa_response.text)
 
-**Research Plan:**
-1. [First search query - most important]
-2. [Second search query - supporting evidence]
-3. [Third search query - alternative perspectives or challenges]
+                if session.scqa:
+                    scqa_output = f"""**SITUATION:** {session.scqa.situation[:200]}...
 
-Be specific and actionable. Each query should be something Tavily can search effectively."""
+**COMPLICATION:** {session.scqa.complication[:200]}...
 
-                plan_step.input = "Analyzing conversation context..."
+**QUESTION:** {session.scqa.question}
+
+**HYPOTHESIS** (confidence: {session.scqa.confidence:.0%}): {session.scqa.answer_hypothesis[:200]}..."""
+                    scqa_step.output = scqa_output
+                else:
+                    scqa_step.output = "SCQA extraction failed, using fallback..."
+                    session.scqa = SCQAAnalysis(
+                        situation="User exploring topic with " + bot_name,
+                        complication="Need more evidence/validation",
+                        question="What research would validate or challenge our thinking?",
+                        answer_hypothesis="Research will reveal supporting and contradicting evidence",
+                        confidence=0.5
+                    )
+
+            # ═══════════════════════════════════════════════════════════════════
+            # PHASE 2: BEAUTIFUL QUESTIONS (Why / What If / How)
+            # ═══════════════════════════════════════════════════════════════════
+            async with cl.Step(name="❓ Beautiful Questions (Berger)", type="llm") as questions_step:
+                questions_step.input = "Generating Why → What If → How questions..."
+
+                questions_prompt = BEAUTIFUL_QUESTIONS_PROMPT.format(
+                    scqa=session.scqa.to_prompt(),
+                    context=recent_context[:800]
+                )
+
+                questions_response = client.models.generate_content(
+                    model="gemini-2.0-flash",
+                    contents=questions_prompt,
+                    config=types.GenerateContentConfig(
+                        temperature=0.5,
+                        max_output_tokens=800
+                    )
+                )
+
+                session.beautiful_questions = parse_beautiful_questions_response(questions_response.text)
+
+                if session.beautiful_questions:
+                    q_output = f"""**🔴 WHY Questions:**
+{chr(10).join('- ' + q for q in session.beautiful_questions.why_questions[:3])}
+
+**🟡 WHAT IF Questions:**
+{chr(10).join('- ' + q for q in session.beautiful_questions.what_if_questions[:3])}
+
+**🟢 HOW Questions:**
+{chr(10).join('- ' + q for q in session.beautiful_questions.how_questions[:3])}"""
+                    questions_step.output = q_output
+                else:
+                    questions_step.output = "Question generation failed, using defaults..."
+                    session.beautiful_questions = BeautifulQuestions(
+                        why_questions=["Why does this problem exist?", "Why hasn't it been solved?"],
+                        what_if_questions=["What if we approached this differently?", "What if our assumptions are wrong?"],
+                        how_questions=["How might we validate this?", "How could we test our hypothesis?"]
+                    )
+
+            # ═══════════════════════════════════════════════════════════════════
+            # PHASE 3: SEQUENTIAL THINKING (with revision & branching)
+            # ═══════════════════════════════════════════════════════════════════
+            async with cl.Step(name="💭 Sequential Thinking", type="llm") as thinking_step:
+                thinking_step.input = "Breaking down research need with revision/branching..."
+
+                thinking_prompt = SEQUENTIAL_THINKING_PROMPT.format(
+                    scqa=session.scqa.to_prompt(),
+                    beautiful_questions=session.beautiful_questions.to_prompt() if session.beautiful_questions else "",
+                    num_thoughts=5
+                )
+
+                thinking_response = client.models.generate_content(
+                    model="gemini-2.0-flash",
+                    contents=thinking_prompt,
+                    config=types.GenerateContentConfig(
+                        temperature=0.4,
+                        max_output_tokens=1200
+                    )
+                )
+
+                thoughts = parse_thoughts_response(thinking_response.text, session)
+
+                # Format thoughts for display
+                thoughts_display = []
+                for t in session.thoughts:
+                    prefix = t.prefix
+                    note = ""
+                    if t.thought_type == ThoughtType.REVISION:
+                        note = f" *(revises #{t.revises_thought})*"
+                    elif t.thought_type == ThoughtType.BRANCH:
+                        note = f" *(🌿 {t.branch_id})*"
+                    thoughts_display.append(f"{prefix} **Thought {t.number}**{note}: {t.content[:150]}...")
+
+                thinking_step.output = "\n\n".join(thoughts_display)
+
+            # ═══════════════════════════════════════════════════════════════════
+            # PHASE 4: RESEARCH PLAN GENERATION
+            # ═══════════════════════════════════════════════════════════════════
+            async with cl.Step(name="📋 Research Plan", type="llm") as plan_step:
+                plan_step.input = "Generating targeted queries (validation, supporting, challenging)..."
+
+                plan_prompt = RESEARCH_PLAN_PROMPT.format(
+                    scqa=session.scqa.to_prompt(),
+                    thoughts=format_thoughts_for_prompt(session.thoughts)
+                )
 
                 plan_response = client.models.generate_content(
                     model="gemini-2.0-flash",
-                    contents=planning_prompt,
+                    contents=plan_prompt,
                     config=types.GenerateContentConfig(
                         temperature=0.3,
-                        max_output_tokens=500
+                        max_output_tokens=1000
                     )
                 )
-                research_plan = plan_response.text
-                plan_step.output = research_plan
 
-            # Extract queries from the plan
-            queries = []
-            for line in research_plan.split('\n'):
-                line = line.strip()
-                if line.startswith(('1.', '2.', '3.')):
-                    query = line[2:].strip().strip('[]').strip()
-                    if query and len(query) > 10:
-                        queries.append(query)
+                session.research_plan = parse_research_plan_response(plan_response.text)
 
-            if not queries:
-                queries = ["innovation trends 2025", "market validation methods", "problem solving frameworks"]
+                if session.research_plan:
+                    plan_output = f"""**Known Knowns:** {len(session.research_plan.known_knowns)} items
+**Known Unknowns:** {len(session.research_plan.known_unknowns)} items
+**Assumptions to Validate:** {len(session.research_plan.assumptions)} items
 
-            # Step 2: Execute searches (nested steps)
+**Queries Planned:**
+- 📊 Validation: {len(session.research_plan.validation_queries)}
+- ✅ Supporting: {len(session.research_plan.supporting_queries)}
+- ⚠️ Challenging: {len(session.research_plan.challenging_queries)}
+- 📚 Context: {len(session.research_plan.context_queries)}"""
+                    plan_step.output = plan_output
+                else:
+                    # Fallback plan
+                    session.research_plan = ResearchPlan(
+                        known_knowns=["Conversation context"],
+                        known_unknowns=["External validation needed"],
+                        assumptions=["Current thinking needs evidence"],
+                        validation_queries=[f"{session.scqa.question} statistics data evidence"],
+                        supporting_queries=[f"{session.scqa.answer_hypothesis} evidence support"],
+                        challenging_queries=[f"{session.scqa.answer_hypothesis} challenges criticism failures"],
+                        context_queries=[f"{session.scqa.situation} market trends 2025"]
+                    )
+                    plan_step.output = "Using fallback research plan..."
+
+            # ═══════════════════════════════════════════════════════════════════
+            # PHASE 5: EXECUTE TARGETED RESEARCH
+            # ═══════════════════════════════════════════════════════════════════
             all_results = []
-            async with cl.Step(name="Executing Web Searches", type="tool") as search_parent:
-                search_parent.input = f"{len(queries)} queries to execute"
+            async with cl.Step(name="🔍 Executing Research", type="tool") as search_parent:
+                queries = session.research_plan.get_all_queries()
+                search_parent.input = f"{len(queries)} targeted queries to execute"
 
-                for i, query in enumerate(queries[:3], 1):
-                    async with cl.Step(name=f"Search {i}: {query[:40]}...", type="tool") as search_step:
+                for i, q_data in enumerate(queries[:6], 1):  # Max 6 queries
+                    query = q_data["query"]
+                    query_type = q_data["type"]
+                    label = q_data["label"]
+
+                    async with cl.Step(name=f"{label}: {query[:35]}...", type="tool") as search_step:
                         search_step.input = query
                         result = search_web(query, search_depth=search_depth, max_results=3)
 
                         if result.get("results"):
                             all_results.append({
                                 "query": query,
+                                "type": query_type,
+                                "label": label,
                                 "results": result["results"],
                                 "answer": result.get("answer", "")
                             })
@@ -2842,47 +2992,90 @@ Be specific and actionable. Each query should be something Tavily can search eff
                         else:
                             search_step.output = "No results found"
 
-                search_parent.output = f"Completed {len(all_results)} successful searches"
+                search_parent.output = f"Completed {len(all_results)} searches across {len(set(r['type'] for r in all_results))} categories"
 
-            # Step 3: Synthesize results
-            async with cl.Step(name="Synthesizing Results", type="llm") as synth_step:
-                if all_results:
-                    synthesis = "## Research Results\n\n"
-                    for item in all_results:
-                        synthesis += f"### Query: {item['query']}\n"
-                        if item.get('answer'):
-                            synthesis += f"**Summary:** {item['answer'][:300]}...\n\n"
-                        for r in item['results'][:2]:
-                            synthesis += f"- [{r.get('title', 'Source')}]({r.get('url', '')})\n"
-                            synthesis += f"  {r.get('content', '')[:150]}...\n\n"
+            # ═══════════════════════════════════════════════════════════════════
+            # PHASE 6: PYRAMID SYNTHESIS
+            # ═══════════════════════════════════════════════════════════════════
+            async with cl.Step(name="🔺 Pyramid Synthesis", type="llm") as synth_step:
+                synth_step.input = "Building Minto Pyramid answer from research..."
 
-                    synth_step.output = synthesis
-                else:
-                    synthesis = "No research results found. Try being more specific about what you want to research."
-                    synth_step.output = synthesis
+                # Format results for synthesis
+                results_text = ""
+                for item in all_results:
+                    results_text += f"\n### {item['label']}: {item['query']}\n"
+                    if item.get('answer'):
+                        results_text += f"**AI Summary:** {item['answer'][:400]}\n"
+                    for r in item['results'][:2]:
+                        results_text += f"- [{r.get('title', 'Source')}]({r.get('url', '')}): {r.get('content', '')[:200]}...\n"
 
-            research_step.output = f"Research complete: {len(all_results)} queries, {sum(len(r['results']) for r in all_results)} total sources"
+                synthesis_prompt = PYRAMID_SYNTHESIS_PROMPT.format(
+                    scqa=session.scqa.to_prompt(),
+                    results=results_text
+                )
 
-        # Send final synthesis as a message with optional DataFrame
+                synthesis_response = client.models.generate_content(
+                    model="gemini-2.0-flash",
+                    contents=synthesis_prompt,
+                    config=types.GenerateContentConfig(
+                        temperature=0.5,
+                        max_output_tokens=1500
+                    )
+                )
+
+                synthesis = synthesis_response.text
+                synth_step.output = f"Pyramid synthesis complete ({len(synthesis)} chars)"
+
+            research_step.output = f"Research complete: SCQA → {len(session.thoughts)} thoughts → {len(all_results)} queries → Pyramid synthesis"
+
+        # ═══════════════════════════════════════════════════════════════════
+        # FINAL OUTPUT MESSAGE
+        # ═══════════════════════════════════════════════════════════════════
+        # Build comprehensive output
+        final_output = f"""## 🔬 Research Analysis
+
+### 📐 SCQA Framework (Minto Pyramid)
+**Question:** {session.scqa.question}
+**Hypothesis:** {session.scqa.answer_hypothesis} *(confidence: {session.scqa.confidence:.0%})*
+
+---
+
+{synthesis}
+
+---
+
+### 📊 Research Summary
+- **Validation queries:** {len([r for r in all_results if r['type'] == 'validation'])}
+- **Supporting evidence:** {len([r for r in all_results if r['type'] == 'supporting'])}
+- **Challenging evidence:** {len([r for r in all_results if r['type'] == 'challenging'])}
+- **Context queries:** {len([r for r in all_results if r['type'] == 'context'])}
+- **Total sources:** {sum(len(r['results']) for r in all_results)}
+"""
+
+        # Add DataFrame if available
         elements = []
         if all_results:
             try:
                 from utils.charts import create_research_results_dataframe
-                # Flatten all results for DataFrame
                 flat_results = []
                 for item in all_results:
+                    for r in item.get("results", []):
+                        r["query_type"] = item.get("type", "general")
                     flat_results.extend(item.get("results", []))
 
                 if flat_results:
-                    df_element = await create_research_results_dataframe(flat_results[:10])
+                    df_element = await create_research_results_dataframe(flat_results[:12])
                     if df_element:
                         elements.append(df_element)
             except Exception:
-                pass  # DataFrame is optional enhancement
+                pass
 
-        await cl.Message(content=synthesis, elements=elements).send()
+        await cl.Message(content=final_output, elements=elements).send()
 
     except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Research error: {error_details}")
         await cl.Message(content=f"Research error: {str(e)}").send()
 
 
