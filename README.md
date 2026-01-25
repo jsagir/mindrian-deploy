@@ -76,6 +76,7 @@ The platform uses **Gemini 3 Flash** with **Gemini File Search** (RAG) to retrie
 ### Research Tools
 - **Tavily Search** - Web research for trend validation
 - **Gemini File Search** - RAG retrieval from PWS knowledge base
+- **GraphRAG Lite** - Neo4j graph + vector hybrid for relationship-aware context
 
 ### Data Persistence
 - **PostgreSQL Database** - Supabase-powered conversation history
@@ -232,6 +233,8 @@ Interactive Plotly chart of Ackoff's DIKW pyramid with:
 │  ┌─────────────────────────────────────────────────────────────────────┐ │
 │  │                      TOOLS & UTILS                                   │ │
 │  │  tools/tavily_search.py     Web research                            │ │
+│  │  tools/graphrag_lite.py     Neo4j + vector hybrid context           │ │
+│  │  tools/pws_brain.py         Gemini File Search                      │ │
 │  │  utils/charts.py            Plotly visualizations + DataFrames      │ │
 │  │  utils/gemini_rag.py        File Search cache utilities             │ │
 │  │  utils/file_processor.py    PDF/DOCX/TXT extraction                 │ │
@@ -302,6 +305,76 @@ pwsknowledgebase-a4rnz3u41lsn/
 
 ---
 
+## GraphRAG Lite (Neo4j + Vector Hybrid)
+
+GraphRAG Lite combines **Gemini File Search** (semantic/vector) with **Neo4j** (graph/structural) for relationship-aware context enrichment.
+
+### Design Philosophy
+
+For conversational coaching, **less is more**. GraphRAG returns hints, not lectures.
+
+| Heavy RAG | GraphRAG Lite |
+|-----------|---------------|
+| Always retrieves | Retrieves conditionally |
+| Returns paragraphs | Returns hints |
+| Dumps frameworks | Suggests connections |
+| Makes Larry verbose | Keeps Larry conversational |
+
+**Graph's real value:** Understanding relationships between concepts so Larry can ask better questions.
+
+### When It Retrieves
+
+| Trigger | Example | Action |
+|---------|---------|--------|
+| Explicit knowledge request | "What is JTBD?" | Concept lookup |
+| Framework mention (turn 2+) | "Which framework?" | Framework suggestions |
+| Problem description | "I'm stuck on validation" | Problem context |
+| Action request | "Give me homework" | Related exercises |
+
+### Neo4j Knowledge Graph
+
+```
+Nodes: ~5,700 entities
+- Framework (150)
+- Concept (140)
+- Problem (222)
+- Tool, Technique, ProcessStep...
+
+Relationships:
+- HAS_COMPONENT, PART_OF
+- REQUIRES, SUPPORTS
+- HAS_TOOL, HAS_METHOD
+```
+
+### Example Flow
+
+```
+Turn 1:
+  User: "I'm working on a healthcare startup"
+  GraphRAG: (no retrieval - first turn, vague)
+  Larry: "What's the problem you're solving?"
+
+Turn 3:
+  User: "What framework for understanding customers?"
+  GraphRAG: "Relevant: Jobs to Be Done, Customer Discovery"
+  Larry: "There's JTBD - asking what progress they're making. Talked to any doctors yet?"
+```
+
+### Configuration
+
+Requires Neo4j environment variables:
+```bash
+NEO4J_URI=neo4j+s://your-instance.databases.neo4j.io
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=your-password
+```
+
+If not configured, GraphRAG gracefully disables itself.
+
+See `R&D/09_graphrag_lite/README.md` for full documentation.
+
+---
+
 ## Project Structure
 
 ```
@@ -330,7 +403,10 @@ mindrian-deploy/
 │
 ├── tools/                        # External tool integrations
 │   ├── __init__.py
-│   └── tavily_search.py          # Tavily web search wrapper
+│   ├── tavily_search.py          # Tavily web search wrapper
+│   ├── pws_brain.py              # Gemini File Search integration
+│   ├── graphrag_lite.py          # Neo4j + vector hybrid RAG
+│   └── neo4j_framework_discovery.py  # Neo4j graph utilities
 │
 ├── utils/                        # Utility functions
 │   ├── __init__.py

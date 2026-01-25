@@ -18,6 +18,15 @@ load_dotenv()
 from google import genai
 from google.genai import types
 
+# === GraphRAG Lite - Conditional context enrichment ===
+try:
+    from tools.graphrag_lite import enrich_for_larry, should_retrieve
+    GRAPHRAG_ENABLED = True
+    print("GraphRAG Lite enabled")
+except ImportError:
+    GRAPHRAG_ENABLED = False
+    print("GraphRAG Lite not available (Neo4j not configured)")
+
 # === Config ===
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("GOOGLE_AI_API_KEY")
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
@@ -2797,8 +2806,59 @@ async def on_deep_research(action: cl.Action):
 
     try:
         # Parent step for the entire research process
-        async with cl.Step(name="🔬 Minto-Powered Research", type="run") as research_step:
+        async with cl.Step(name="🔬 PWS Methodology Research", type="run") as research_step:
             research_step.input = f"Analyzing conversation for {bot_name}..."
+
+            # ═══════════════════════════════════════════════════════════════════
+            # PHASE 0: PWS METHODOLOGY DISCOVERY (Framework-Driven Planning)
+            # ═══════════════════════════════════════════════════════════════════
+            from tools.neo4j_framework_discovery import (
+                extract_challenge_keywords, get_default_pws_frameworks,
+                build_orchestration_plan, generate_full_orchestration_prompts
+            )
+
+            framework_plan = None
+            async with cl.Step(name="🧭 PWS Methodology Discovery", type="tool") as discovery_step:
+                discovery_step.input = "Discovering relevant PWS frameworks and methodologies..."
+
+                # Extract keywords from conversation
+                keywords = extract_challenge_keywords(recent_context)
+
+                # Get relevant frameworks (uses Neo4j internally, fallback to defaults)
+                try:
+                    # Try to query Neo4j for frameworks
+                    from tools.pws_brain import query_neo4j_for_frameworks
+                    frameworks = await query_neo4j_for_frameworks(keywords, limit=8)
+                except Exception:
+                    # Fallback to default PWS frameworks
+                    frameworks = get_default_pws_frameworks(recent_context, limit=8)
+
+                if frameworks:
+                    # Build orchestration plan
+                    framework_plan = build_orchestration_plan(recent_context, frameworks)
+
+                    discovery_output = f"""**PWS Frameworks Identified:** {len(frameworks)}
+
+**Phase 1 (Parallel):**
+{chr(10).join([f'- {fw.name} ({fw.category})' for fw in framework_plan.phase_1_parallel])}
+
+**Phase 2 (Sequential):**
+{chr(10).join([f'- {fw.name} ({fw.category})' for fw in framework_plan.phase_2_sequential])}
+
+**Phase 3 (Synthesis):**
+{chr(10).join([f'- {fw.name} ({fw.category})' for fw in framework_plan.phase_3_synthesis])}
+
+**Research Queries Planned:** {sum(len(fw.suggested_queries) for fw in frameworks)}"""
+                    discovery_step.output = discovery_output
+                else:
+                    discovery_step.output = "Using default PWS methodology approach..."
+
+            # Store framework context for later phases
+            framework_context = ""
+            if framework_plan:
+                framework_context = f"\n\nRelevant PWS Frameworks to consider:\n"
+                for fw in framework_plan.phase_1_parallel + framework_plan.phase_2_sequential:
+                    framework_context += f"- {fw.name}: {fw.mini_agent_role}\n"
 
             # ═══════════════════════════════════════════════════════════════════
             # PHASE 1: SCQA ANALYSIS (Minto Pyramid Framework)
@@ -2918,100 +2978,167 @@ async def on_deep_research(action: cl.Action):
                 thinking_step.output = "\n\n".join(thoughts_display)
 
             # ═══════════════════════════════════════════════════════════════════
-            # PHASE 4: RESEARCH PLAN GENERATION
+            # PHASE 4: RESEARCH MATRIX PLANNING (Pre-Consolidation)
             # ═══════════════════════════════════════════════════════════════════
-            async with cl.Step(name="📋 Research Plan", type="llm") as plan_step:
-                plan_step.input = "Generating targeted queries (validation, supporting, challenging)..."
+            from utils.minto_research import (
+                RESEARCH_MATRIX_PROMPT, CONSOLIDATION_PROMPT, FINAL_SYNTHESIS_PROMPT,
+                parse_research_matrix_response, consolidate_results_by_group,
+                format_consolidated_for_synthesis, ResearchMatrix
+            )
+            from tools.tavily_search import research_matrix_execution, get_search_context
 
-                plan_prompt = RESEARCH_PLAN_PROMPT.format(
+            # Include framework-specific queries from discovery phase
+            framework_queries_context = ""
+            if framework_plan:
+                framework_queries_context = "\n\nPWS FRAMEWORK-SPECIFIC QUERIES TO INCLUDE:\n"
+                for fw in framework_plan.phase_1_parallel + framework_plan.phase_2_sequential:
+                    for q in fw.suggested_queries:
+                        framework_queries_context += f"- [{fw.category}] {q}\n"
+
+            async with cl.Step(name="📋 Research Matrix Planning", type="llm") as matrix_step:
+                matrix_step.input = "Generating comprehensive research matrix (12-20 queries across categories)..."
+
+                matrix_prompt = RESEARCH_MATRIX_PROMPT.format(
                     scqa=session.scqa.to_prompt(),
-                    thoughts=format_thoughts_for_prompt(session.thoughts)
+                    beautiful_questions=session.beautiful_questions.to_prompt() if session.beautiful_questions else "",
+                    thoughts=format_thoughts_for_prompt(session.thoughts) + framework_queries_context
                 )
 
-                plan_response = client.models.generate_content(
+                matrix_response = client.models.generate_content(
                     model="gemini-2.0-flash",
-                    contents=plan_prompt,
+                    contents=matrix_prompt,
                     config=types.GenerateContentConfig(
-                        temperature=0.3,
-                        max_output_tokens=1000
+                        temperature=0.4,
+                        max_output_tokens=2000
                     )
                 )
 
-                session.research_plan = parse_research_plan_response(plan_response.text)
+                session.research_matrix = parse_research_matrix_response(matrix_response.text)
 
-                if session.research_plan:
-                    plan_output = f"""**Known Knowns:** {len(session.research_plan.known_knowns)} items
-**Known Unknowns:** {len(session.research_plan.known_unknowns)} items
-**Assumptions to Validate:** {len(session.research_plan.assumptions)} items
+                if session.research_matrix:
+                    total_queries = session.research_matrix.total_queries()
+                    groups = list(session.research_matrix.consolidation_groups.keys())
+                    matrix_output = f"""**Research Matrix Generated:**
+- 🔴 WHY queries: {len(session.research_matrix.why_queries)}
+- 🟡 WHAT IF queries: {len(session.research_matrix.what_if_queries)}
+- 🟢 HOW queries: {len(session.research_matrix.how_queries)}
+- 📊 Validation queries: {len(session.research_matrix.validation_queries)}
+- ⚠️ Challenge queries: {len(session.research_matrix.challenge_queries)}
 
-**Queries Planned:**
-- 📊 Validation: {len(session.research_plan.validation_queries)}
-- ✅ Supporting: {len(session.research_plan.supporting_queries)}
-- ⚠️ Challenging: {len(session.research_plan.challenging_queries)}
-- 📚 Context: {len(session.research_plan.context_queries)}"""
-                    plan_step.output = plan_output
+**Total: {total_queries} queries** → **{len(groups)} consolidation groups**
+
+**Groups:** {', '.join(groups[:5])}{"..." if len(groups) > 5 else ""}"""
+                    matrix_step.output = matrix_output
                 else:
-                    # Fallback plan
-                    session.research_plan = ResearchPlan(
-                        known_knowns=["Conversation context"],
-                        known_unknowns=["External validation needed"],
-                        assumptions=["Current thinking needs evidence"],
-                        validation_queries=[f"{session.scqa.question} statistics data evidence"],
-                        supporting_queries=[f"{session.scqa.answer_hypothesis} evidence support"],
-                        challenging_queries=[f"{session.scqa.answer_hypothesis} challenges criticism failures"],
-                        context_queries=[f"{session.scqa.situation} market trends 2025"]
+                    # Fallback to simple matrix
+                    session.research_matrix = ResearchMatrix(
+                        why_queries=[],
+                        what_if_queries=[],
+                        how_queries=[],
+                        validation_queries=[],
+                        challenge_queries=[],
+                        consolidation_groups={"general": "General research results"}
                     )
-                    plan_step.output = "Using fallback research plan..."
+                    matrix_step.output = "Using fallback research matrix..."
 
             # ═══════════════════════════════════════════════════════════════════
-            # PHASE 5: EXECUTE TARGETED RESEARCH
+            # PHASE 5: EXECUTE MATRIX RESEARCH (12-20 queries)
             # ═══════════════════════════════════════════════════════════════════
-            all_results = []
-            async with cl.Step(name="🔍 Executing Research", type="tool") as search_parent:
-                queries = session.research_plan.get_all_queries()
-                search_parent.input = f"{len(queries)} targeted queries to execute"
+            all_results = {"why": [], "what_if": [], "how": [], "validation": [], "challenge": []}
+            total_sources = 0
 
-                for i, q_data in enumerate(queries[:6], 1):  # Max 6 queries
-                    query = q_data["query"]
-                    query_type = q_data["type"]
-                    label = q_data["label"]
+            async with cl.Step(name="🔍 Executing Research Matrix", type="tool") as search_parent:
+                matrix = session.research_matrix
+                total_queries = matrix.total_queries() if matrix else 0
+                search_parent.input = f"Executing {total_queries} queries across 5 categories with RAG-optimized context..."
 
-                    async with cl.Step(name=f"{label}: {query[:35]}...", type="tool") as search_step:
-                        search_step.input = query
-                        result = search_web(query, search_depth=search_depth, max_results=3)
+                async def execute_category_searches(queries, category: str, label: str, emoji: str):
+                    """Execute searches for a query category."""
+                    nonlocal total_sources
+                    results = []
 
-                        if result.get("results"):
-                            all_results.append({
-                                "query": query,
-                                "type": query_type,
-                                "label": label,
-                                "results": result["results"],
-                                "answer": result.get("answer", "")
-                            })
-                            search_step.output = f"Found {len(result['results'])} results"
-                        else:
-                            search_step.output = "No results found"
+                    if not queries:
+                        return results
 
-                search_parent.output = f"Completed {len(all_results)} searches across {len(set(r['type'] for r in all_results))} categories"
+                    async with cl.Step(name=f"{emoji} {label} ({len(queries)} queries)", type="tool") as cat_step:
+                        cat_step.input = f"Searching: {', '.join([q.query[:30] + '...' for q in queries[:3]])}"
+
+                        for q in queries[:4]:  # Max 4 queries per category
+                            try:
+                                # Use get_search_context for RAG-optimized results
+                                context = get_search_context(q.query, max_results=4, max_tokens=2000)
+                                result = search_web(q.query, search_depth=search_depth, max_results=4)
+
+                                results.append({
+                                    "query": q.query,
+                                    "source_question": q.source_question,
+                                    "consolidation_group": q.consolidation_group,
+                                    "context": context,
+                                    "results": result.get("results", []),
+                                    "answer": result.get("answer", "")
+                                })
+                                total_sources += len(result.get("results", []))
+                            except Exception as e:
+                                results.append({
+                                    "query": q.query,
+                                    "error": str(e),
+                                    "results": []
+                                })
+
+                        cat_step.output = f"Found {sum(len(r.get('results', [])) for r in results)} sources"
+
+                    return results
+
+                # Execute all categories
+                if matrix:
+                    all_results["why"] = await execute_category_searches(
+                        matrix.why_queries, "why", "WHY Questions", "🔴"
+                    )
+                    all_results["what_if"] = await execute_category_searches(
+                        matrix.what_if_queries, "what_if", "WHAT IF Questions", "🟡"
+                    )
+                    all_results["how"] = await execute_category_searches(
+                        matrix.how_queries, "how", "HOW Questions", "🟢"
+                    )
+                    all_results["validation"] = await execute_category_searches(
+                        matrix.validation_queries, "validation", "Validation (Camera Test)", "📊"
+                    )
+                    all_results["challenge"] = await execute_category_searches(
+                        matrix.challenge_queries, "challenge", "Challenge (Devil's Advocate)", "⚠️"
+                    )
+
+                queries_executed = sum(len(v) for v in all_results.values())
+                search_parent.output = f"Completed {queries_executed} searches, found {total_sources} total sources"
 
             # ═══════════════════════════════════════════════════════════════════
-            # PHASE 6: PYRAMID SYNTHESIS
+            # PHASE 5.5: CONSOLIDATE BY GROUP
+            # ═══════════════════════════════════════════════════════════════════
+            async with cl.Step(name="📦 Consolidating Results", type="run") as consolidate_step:
+                consolidate_step.input = "Grouping results by consolidation theme..."
+
+                consolidated = consolidate_results_by_group(session.research_matrix, all_results)
+                session.consolidated_results = consolidated
+
+                group_summary = []
+                for group_name, results in consolidated.items():
+                    group_summary.append(f"- **{group_name}**: {results.source_count} sources from {len(results.queries_executed)} queries")
+
+                consolidate_step.output = f"**{len(consolidated)} groups:**\n" + "\n".join(group_summary)
+
+            # ═══════════════════════════════════════════════════════════════════
+            # PHASE 6: PYRAMID SYNTHESIS (Enhanced)
             # ═══════════════════════════════════════════════════════════════════
             async with cl.Step(name="🔺 Pyramid Synthesis", type="llm") as synth_step:
-                synth_step.input = "Building Minto Pyramid answer from research..."
+                synth_step.input = "Building comprehensive Minto Pyramid from consolidated research..."
 
-                # Format results for synthesis
-                results_text = ""
-                for item in all_results:
-                    results_text += f"\n### {item['label']}: {item['query']}\n"
-                    if item.get('answer'):
-                        results_text += f"**AI Summary:** {item['answer'][:400]}\n"
-                    for r in item['results'][:2]:
-                        results_text += f"- [{r.get('title', 'Source')}]({r.get('url', '')}): {r.get('content', '')[:200]}...\n"
+                # Format consolidated results for synthesis
+                consolidated_text = format_consolidated_for_synthesis(consolidated)
 
-                synthesis_prompt = PYRAMID_SYNTHESIS_PROMPT.format(
+                synthesis_prompt = FINAL_SYNTHESIS_PROMPT.format(
                     scqa=session.scqa.to_prompt(),
-                    results=results_text
+                    beautiful_questions=session.beautiful_questions.to_prompt() if session.beautiful_questions else "",
+                    consolidated_groups=consolidated_text,
+                    original_confidence=int(session.scqa.confidence * 100)
                 )
 
                 synthesis_response = client.models.generate_content(
@@ -3019,14 +3146,15 @@ async def on_deep_research(action: cl.Action):
                     contents=synthesis_prompt,
                     config=types.GenerateContentConfig(
                         temperature=0.5,
-                        max_output_tokens=1500
+                        max_output_tokens=2500
                     )
                 )
 
                 synthesis = synthesis_response.text
                 synth_step.output = f"Pyramid synthesis complete ({len(synthesis)} chars)"
 
-            research_step.output = f"Research complete: SCQA → {len(session.thoughts)} thoughts → {len(all_results)} queries → Pyramid synthesis"
+            queries_executed = sum(len(v) for v in all_results.values())
+            research_step.output = f"Research complete: SCQA → Beautiful Questions → {len(session.thoughts)} thoughts → {queries_executed} queries → {len(consolidated)} groups → Pyramid synthesis"
 
         # ═══════════════════════════════════════════════════════════════════
         # FINAL OUTPUT MESSAGE
@@ -3462,6 +3590,21 @@ Your insights help us improve Mindrian!"""
     if file_context:
         full_user_message += f"\n\n{file_context}"
     full_user_message += phase_context + detail_instruction
+
+    # === GraphRAG: Conditional context enrichment ===
+    # Only enriches when user asks "what is X", mentions frameworks, or needs grounding
+    # Returns hints (not lectures) to help Larry ask better questions
+    turn_count = len(history) // 2
+    graphrag_hint = None
+    if GRAPHRAG_ENABLED and turn_count >= 0:
+        try:
+            graphrag_hint = enrich_for_larry(message.content, turn_count)
+            if graphrag_hint:
+                # Add as invisible context hint - not shown to user
+                full_user_message += f"\n\n[GraphRAG context for Larry - use to ask better questions, not to lecture: {graphrag_hint}]"
+                print(f"GraphRAG enriched: {graphrag_hint[:100]}...")
+        except Exception as e:
+            print(f"GraphRAG error (non-fatal): {e}")
 
     # Build multimodal content (supports images + text)
     user_parts = []

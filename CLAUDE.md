@@ -556,6 +556,59 @@ python upload_new_workshop.py
 12. **Video Tutorials** - "🎬 Watch Video" button for workshop phases
 13. **User Feedback** - Thumbs up/down with Supabase storage for QA analytics
 14. **PWS Audiobook Chapters** - "📖 Listen to Chapter" button for contextual audio content
+15. **GraphRAG Lite** - Neo4j + vector hybrid for relationship-aware context enrichment
+
+---
+
+## GraphRAG Lite - Knowledge Graph Integration
+
+GraphRAG Lite combines **Gemini File Search** (semantic/vector) with **Neo4j** (graph/structural) for conversational context enrichment.
+
+### Design Philosophy
+
+For conversational coaching, **less is more**. GraphRAG returns hints, not lectures.
+
+### When It Retrieves
+
+- User asks "What is X?" → Concept lookup
+- User mentions framework (turn 2+) → Framework suggestions
+- User describes problem → Problem context + approaches
+- User asks for next steps → Related exercises
+
+### Integration
+
+Auto-enabled when Neo4j environment variables are configured:
+
+```python
+# Imported at top of mindrian_chat.py
+try:
+    from tools.graphrag_lite import enrich_for_larry
+    GRAPHRAG_ENABLED = True
+except ImportError:
+    GRAPHRAG_ENABLED = False
+
+# In @cl.on_message handler
+if GRAPHRAG_ENABLED:
+    hint = enrich_for_larry(message.content, turn_count)
+    if hint:
+        full_user_message += f"\n\n[GraphRAG context: {hint}]"
+```
+
+### Key Files
+
+- `tools/graphrag_lite.py` - Core implementation
+- `tools/pws_brain.py` - Gemini File Search integration
+- `tools/neo4j_framework_discovery.py` - Neo4j utilities
+
+### Example
+
+```
+User: "What framework should I use for customer research?"
+GraphRAG: "Relevant frameworks: Jobs to Be Done, Customer Discovery"
+Larry: "There's JTBD - asking what progress they're making. Have you talked to customers yet?"
+```
+
+See `R&D/09_graphrag_lite/README.md` for full documentation.
 
 ---
 
