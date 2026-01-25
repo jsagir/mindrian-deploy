@@ -135,16 +135,53 @@ async def settings_update(settings):
 - [ ] Custom Larry voice
 - [ ] Conversational AI agent
 
-## New: Real-Time Streaming (2026-01-25)
+## Real-Time Streaming Implementation (2026-01-25)
 
-Added `utils/elevenlabs_streaming.py` with:
+Added `utils/elevenlabs_streaming.py` with correct WebSocket BOS/EOS protocol:
+
+### Key Classes & Functions
+
 - `ElevenLabsStreamingTTS`: WebSocket-based TTS for real-time audio
-- `ElevenLabsConversationalAI`: Full conversation mode (requires Agent ID)
-- Integration in `mindrian_chat.py` audio handlers
+- `stream_gemini_to_elevenlabs()`: Direct Gemini → ElevenLabs pipeline
+- `generate_streaming_voice_response()`: Chainlit integration helper
+- `text_chunker()`: Natural boundary text splitting for prosody
 
-Flow:
+### WebSocket Protocol (BOS/EOS)
+
+```python
+# 1. BOS (Beginning of Stream) - send API key in message body
+bos_message = {
+    "text": " ",
+    "voice_settings": {"stability": 0.5, "similarity_boost": 0.8},
+    "xi_api_key": api_key,  # Key goes in message, NOT headers
+}
+await ws.send(json.dumps(bos_message))
+
+# 2. Send text chunks with trigger flag
+await ws.send(json.dumps({
+    "text": chunk,
+    "try_trigger_generation": True,  # Required for streaming
+}))
+
+# 3. EOS (End of Stream) - empty text signals completion
+await ws.send(json.dumps({"text": ""}))
+```
+
+### Configuration
+
+| Environment Variable | Default | Description |
+|---------------------|---------|-------------|
+| `ELEVENLABS_API_KEY` | Required | API key |
+| `ELEVENLABS_VOICE_ID` | `SGh5MKvZcSYNF0SZXlAg` | Larry voice |
+
+### Flow
+
 ```
 User speaks → Gemini STT → LLM Stream → TTS WebSocket → Audio chunks → Play immediately
 ```
 
 **Latency improvement:** ~3-6s → ~1-2s to first audio
+
+### Dependencies
+
+- `websockets>=12.0` (NOT aiohttp - ElevenLabs requires specific WebSocket library)
