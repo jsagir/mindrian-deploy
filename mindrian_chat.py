@@ -3857,9 +3857,77 @@ async def on_audio_chunk(chunk: cl.InputAudioChunk):
     if len(audio_chunks) == 1:
         print(f"🎤 [VOICE] First chunk: {len(chunk.data)} bytes, mime: {chunk.mimeType}")
 
-    # Store mime type from first chunk
+    # Map Chainlit MIME types to Gemini-supported types
+    # Gemini supports: audio/wav, audio/mp3, audio/aiff, audio/aac, audio/ogg, audio/flac, audio/webm
     if chunk.mimeType:
-        cl.user_session.set("audio_mime_type", chunk.mimeType)
+        raw_mime = chunk.mimeType.lower()
+
+        # Map internal/non-standard types to Gemini-compatible ones
+        mime_mapping = {
+            "pcm16": "audio/wav",           # Raw PCM → WAV
+            "pcm": "audio/wav",             # Raw PCM → WAV
+            "audio/pcm": "audio/wav",       # PCM → WAV
+            "audio/raw": "audio/wav",       # Raw → WAV
+            "audio/l16": "audio/wav",       # Linear PCM → WAV
+            "webm": "audio/webm",           # Short form
+            "wav": "audio/wav",             # Short form
+            "mp3": "audio/mp3",             # Short form
+            "ogg": "audio/ogg",             # Short form
+        }
+
+        gemini_mime = mime_mapping.get(raw_mime, raw_mime)
+
+        # Ensure it starts with audio/
+        if not gemini_mime.startswith("audio/"):
+            gemini_mime = f"audio/{gemini_mime}"
+
+        print(f"🎤 [VOICE] MIME mapping: {raw_mime} → {gemini_mime}")
+        cl.user_session.set("audio_mime_type", gemini_mime)
+
+
+def pcm16_to_wav(pcm_data: bytes, sample_rate: int = 24000, channels: int = 1) -> bytes:
+    """
+    Convert raw PCM16 audio data to WAV format with proper headers.
+
+    Chainlit 2.0+ sends audio as raw PCM16 at 24kHz.
+    Gemini requires proper container format (WAV, WebM, etc.)
+
+    Args:
+        pcm_data: Raw PCM 16-bit audio bytes
+        sample_rate: Sample rate in Hz (Chainlit default: 24000)
+        channels: Number of audio channels (1 = mono)
+
+    Returns:
+        WAV file bytes with proper RIFF header
+    """
+    import struct
+
+    # WAV file parameters
+    bits_per_sample = 16
+    byte_rate = sample_rate * channels * bits_per_sample // 8
+    block_align = channels * bits_per_sample // 8
+    data_size = len(pcm_data)
+    file_size = 36 + data_size  # Header size (44) - 8 + data
+
+    # Build WAV header
+    wav_header = struct.pack(
+        '<4sI4s4sIHHIIHH4sI',
+        b'RIFF',           # ChunkID
+        file_size,         # ChunkSize
+        b'WAVE',           # Format
+        b'fmt ',           # Subchunk1ID
+        16,                # Subchunk1Size (PCM)
+        1,                 # AudioFormat (1 = PCM)
+        channels,          # NumChannels
+        sample_rate,       # SampleRate
+        byte_rate,         # ByteRate
+        block_align,       # BlockAlign
+        bits_per_sample,   # BitsPerSample
+        b'data',           # Subchunk2ID
+        data_size          # Subchunk2Size
+    )
+
+    return wav_header + pcm_data
 
 
 @cl.on_audio_end
@@ -3901,6 +3969,13 @@ async def on_audio_end(elements: list = None):
 
     mime_type = cl.user_session.get("audio_mime_type", "audio/webm")
     print(f"🎤 [VOICE] Mime type: {mime_type}")
+
+    # Convert PCM16 to WAV for Gemini (Gemini doesn't support raw PCM)
+    if "wav" in mime_type and not audio_data[:4] == b'RIFF':
+        # Raw PCM data mapped to audio/wav - add WAV header
+        print("🎤 [VOICE] Converting raw PCM to WAV format...")
+        audio_data = pcm16_to_wav(audio_data, sample_rate=24000)
+        print(f"🎤 [VOICE] WAV conversion complete: {len(audio_data)} bytes")
 
     try:
         # === 1. TRANSCRIBE WITH GEMINI ===
