@@ -3828,23 +3828,34 @@ The user expects you to understand the context and add your specialized value.
 
 @cl.on_audio_start
 async def on_audio_start():
-    """Initialize audio streaming session."""
-    print("🎤 [AUDIO DEBUG] Audio recording started")
+    """Initialize real-time voice streaming session."""
+    import uuid
+
+    print("🎤 [VOICE] Audio recording started")
+
+    # Initialize audio collection
     cl.user_session.set("audio_chunks", [])
     cl.user_session.set("audio_mime_type", "audio/webm")
+
+    # Initialize real-time voice output track
+    track_id = str(uuid.uuid4())
+    cl.user_session.set("voice_track_id", track_id)
+    cl.user_session.set("voice_enabled", True)
+
+    print(f"🎤 [VOICE] Track ID: {track_id[:8]}...")
     return True  # Accept audio stream
 
 
 @cl.on_audio_chunk
 async def on_audio_chunk(chunk: cl.InputAudioChunk):
-    """Process incoming audio chunks in real-time."""
+    """Collect incoming audio chunks from user's microphone."""
     audio_chunks = cl.user_session.get("audio_chunks", [])
     audio_chunks.append(chunk.data)
     cl.user_session.set("audio_chunks", audio_chunks)
 
     # Debug log first chunk
     if len(audio_chunks) == 1:
-        print(f"🎤 [AUDIO DEBUG] First chunk received, size: {len(chunk.data)} bytes, mime: {chunk.mimeType}")
+        print(f"🎤 [VOICE] First chunk: {len(chunk.data)} bytes, mime: {chunk.mimeType}")
 
     # Store mime type from first chunk
     if chunk.mimeType:
@@ -3853,87 +3864,81 @@ async def on_audio_chunk(chunk: cl.InputAudioChunk):
 
 @cl.on_audio_end
 async def on_audio_end(elements: list = None):
-    """Process complete audio and respond with ElevenLabs voice."""
-    import tempfile
-    import io
+    """
+    Process complete audio and respond with REAL-TIME voice streaming.
+
+    Uses Chainlit's send_audio_chunk() to stream audio directly to browser
+    for immediate playback (not downloadable file).
+    """
+    # Import voice streaming utilities
+    try:
+        from utils.voice_streaming import (
+            RealtimeVoiceStreamer,
+            is_voice_enabled,
+            VoiceConfig,
+        )
+        VOICE_STREAMING_AVAILABLE = True
+    except ImportError as e:
+        print(f"🎤 [VOICE] Voice streaming import error: {e}")
+        VOICE_STREAMING_AVAILABLE = False
 
     audio_chunks = cl.user_session.get("audio_chunks", [])
     if not audio_chunks:
-        print("🎤 [AUDIO DEBUG] No audio chunks received - audio recording may have failed")
+        print("🎤 [VOICE] No audio chunks received")
         await cl.Message(content="⚠️ No audio detected. Please check microphone permissions and try again.").send()
         return
 
     # Combine audio chunks
     audio_data = b"".join(audio_chunks)
-    print(f"🎤 [AUDIO DEBUG] Audio recording ended. Total chunks: {len(audio_chunks)}, Total size: {len(audio_data)} bytes")
+    print(f"🎤 [VOICE] Recording complete: {len(audio_chunks)} chunks, {len(audio_data)} bytes")
     cl.user_session.set("audio_chunks", [])  # Clear for next session
 
-    # Check if audio is too small (likely no speech)
+    # Check if audio is too small
     if len(audio_data) < 1000:
-        print(f"🎤 [AUDIO DEBUG] Audio too small ({len(audio_data)} bytes) - likely no speech detected")
+        print(f"🎤 [VOICE] Audio too small ({len(audio_data)} bytes)")
         await cl.Message(content="⚠️ Audio recording too short. Please speak clearly and try again.").send()
         return
 
-    # Save to temp file for transcription
     mime_type = cl.user_session.get("audio_mime_type", "audio/webm")
-    suffix = ".webm" if "webm" in mime_type else ".wav"
-    print(f"🎤 [AUDIO DEBUG] Mime type: {mime_type}, Saving as: {suffix}")
-
-    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as f:
-        f.write(audio_data)
-        audio_path = f.name
-    print(f"🎤 [AUDIO DEBUG] Audio saved to: {audio_path}")
+    print(f"🎤 [VOICE] Mime type: {mime_type}")
 
     try:
-        # Use Gemini for transcription (it supports audio)
-        transcription = None
+        # === 1. TRANSCRIBE WITH GEMINI ===
+        print("🎤 [VOICE] Transcribing with Gemini...")
 
-        # Try Google Speech-to-Text via Gemini
-        print("🎤 [AUDIO DEBUG] Sending to Gemini for transcription...")
-        try:
-            with open(audio_path, "rb") as audio_file:
-                audio_bytes = audio_file.read()
-
-            # Use Gemini to transcribe
-            response = client.models.generate_content(
-                model="gemini-2.0-flash",
-                contents=[
-                    types.Content(
-                        role="user",
-                        parts=[
-                            types.Part.from_bytes(data=audio_bytes, mime_type=mime_type),
-                            types.Part(text="Transcribe this audio exactly. Only output the transcription, nothing else.")
-                        ]
-                    )
-                ]
-            )
-            transcription = response.text.strip()
-            print(f"🎤 [AUDIO DEBUG] Transcription successful: '{transcription[:100]}...' ({len(transcription)} chars)")
-        except Exception as e:
-            print(f"🎤 [AUDIO DEBUG] Transcription error: {e}")
-            await cl.Message(content=f"Could not transcribe audio: {str(e)[:100]}. Please try again or type your message.").send()
-            return
+        transcription_response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=[
+                types.Content(
+                    role="user",
+                    parts=[
+                        types.Part.from_bytes(data=audio_data, mime_type=mime_type),
+                        types.Part(text="Transcribe this audio exactly. Only output the transcription, nothing else.")
+                    ]
+                )
+            ]
+        )
+        transcription = transcription_response.text.strip()
+        print(f"🎤 [VOICE] Transcribed: '{transcription[:80]}...'")
 
         if not transcription:
-            print("🎤 [AUDIO DEBUG] Empty transcription returned")
             await cl.Message(content="No speech detected in the audio.").send()
             return
 
-        # Show what was heard
+        # === 2. SHOW WHAT USER SAID ===
         await cl.Message(content=f"**You said:** {transcription}").send()
 
-        # Process as regular message
+        # === 3. BUILD CONTEXT ===
         bot = cl.user_session.get("bot", BOTS["larry"])
         history = cl.user_session.get("history", [])
         current_phase = cl.user_session.get("current_phase", 0)
         phases = cl.user_session.get("phases", [])
 
-        # Build context
         contents = []
-        for msg in history:
+        for msg_item in history:
             contents.append(types.Content(
-                role=msg["role"],
-                parts=[types.Part(text=msg["content"])]
+                role=msg_item["role"],
+                parts=[types.Part(text=msg_item["content"])]
             ))
 
         phase_context = ""
@@ -3945,120 +3950,108 @@ async def on_audio_end(elements: list = None):
             parts=[types.Part(text=transcription + phase_context)]
         ))
 
-        # === REAL-TIME STREAMING: LLM → TTS ===
-        # Stream text from Gemini and convert to audio in real-time
-        from utils.media import ELEVENLABS_API_KEY
-
-        print(f"🔊 [AUDIO DEBUG] Starting streaming response with ElevenLabs: {bool(ELEVENLABS_API_KEY)}")
-
-        # Create message for streaming
+        # === 4. STREAM RESPONSE WITH REAL-TIME VOICE ===
         msg = cl.Message(content="")
         await msg.send()
 
         response_text = ""
+        track_id = cl.user_session.get("voice_track_id")
 
-        try:
-            # Try real-time streaming TTS
-            if ELEVENLABS_API_KEY:
-                from utils.elevenlabs_streaming import ElevenLabsStreamingTTS, MODEL_TURBO
+        if VOICE_STREAMING_AVAILABLE and is_voice_enabled() and track_id:
+            # === REAL-TIME BROWSER AUDIO STREAMING ===
+            print(f"🔊 [VOICE] Starting real-time streaming to browser (track: {track_id[:8]}...)")
 
-                tts = ElevenLabsStreamingTTS(model_id=MODEL_TURBO)
-                audio_chunks = []
+            streamer = RealtimeVoiceStreamer()
 
-                # Stream from Gemini
-                response_stream = client.models.generate_content_stream(
-                    model="gemini-2.0-flash",
-                    contents=contents,
-                    config=types.GenerateContentConfig(
-                        system_instruction=bot["system_prompt"],
-                    )
-                )
+            # Buffer for natural sentence chunking
+            text_buffer = ""
+            sentence_endings = {'.', '!', '?', '\n', ';', ':'}
 
-                # Collect text for TTS (we'll process in batches for lower latency)
-                text_buffer = ""
-                sentence_endings = {'.', '!', '?', '\n'}
-
-                for chunk in response_stream:
-                    if chunk.text:
-                        response_text += chunk.text
-                        text_buffer += chunk.text
-                        await msg.stream_token(chunk.text)
-
-                        # When we have a complete sentence, send to TTS
-                        if any(end in text_buffer for end in sentence_endings) and len(text_buffer) > 20:
-                            try:
-                                async for audio in tts.text_to_speech_streaming(text_buffer):
-                                    audio_chunks.append(audio)
-                            except Exception as tts_err:
-                                print(f"🔊 [AUDIO DEBUG] TTS chunk error: {tts_err}")
-                            text_buffer = ""
-
-                # Process any remaining text
-                if text_buffer.strip():
-                    try:
-                        async for audio in tts.text_to_speech_streaming(text_buffer):
-                            audio_chunks.append(audio)
-                    except Exception as tts_err:
-                        print(f"🔊 [AUDIO DEBUG] TTS final chunk error: {tts_err}")
-
-                await msg.update()
-
-                # Combine audio and attach to message
-                if audio_chunks:
-                    combined_audio = b"".join(audio_chunks)
-                    print(f"🔊 [AUDIO DEBUG] Streaming TTS complete: {len(combined_audio)} bytes")
-
-                    audio_element = cl.Audio(
-                        content=combined_audio,
-                        mime="audio/mpeg",
-                        name="response.mp3"
-                    )
-                    # Send audio as follow-up
-                    await cl.Message(
-                        content="🔊 *Voice response:*",
-                        elements=[audio_element]
-                    ).send()
-                else:
-                    print("🔊 [AUDIO DEBUG] No audio chunks generated")
-
-            else:
-                # Fallback: No ElevenLabs, just stream text
-                print("🔊 [AUDIO DEBUG] ElevenLabs not configured, text-only response")
-                response_stream = client.models.generate_content_stream(
-                    model="gemini-2.0-flash",
-                    contents=contents,
-                    config=types.GenerateContentConfig(
-                        system_instruction=bot["system_prompt"],
-                    )
-                )
-
-                for chunk in response_stream:
-                    if chunk.text:
-                        response_text += chunk.text
-                        await msg.stream_token(chunk.text)
-
-                await msg.update()
-
-        except Exception as stream_err:
-            print(f"🔊 [AUDIO DEBUG] Streaming error: {stream_err}")
-            # Fallback to non-streaming
-            response = client.models.generate_content(
+            # Start Gemini stream
+            response_stream = client.models.generate_content_stream(
                 model="gemini-2.0-flash",
                 contents=contents,
                 config=types.GenerateContentConfig(
                     system_instruction=bot["system_prompt"],
                 )
             )
-            response_text = response.text
-            await msg.stream_token(response_text)
+
+            async def gemini_text_chunks():
+                """Yield complete sentences from Gemini stream."""
+                nonlocal response_text, text_buffer
+
+                for chunk in response_stream:
+                    if chunk.text:
+                        response_text += chunk.text
+                        text_buffer += chunk.text
+
+                        # Stream text to UI immediately
+                        await msg.stream_token(chunk.text)
+
+                        # Send complete sentences to TTS
+                        if any(end in text_buffer for end in sentence_endings) and len(text_buffer) > 15:
+                            yield text_buffer
+                            text_buffer = ""
+
+                # Send remaining text
+                if text_buffer.strip():
+                    yield text_buffer
+
+            # Stream audio directly to browser
+            try:
+                async for _ in streamer.stream_text_to_browser(gemini_text_chunks(), track_id):
+                    pass  # Audio is being played in browser in real-time
+                print("🔊 [VOICE] Real-time streaming complete")
+            except Exception as stream_err:
+                print(f"🔊 [VOICE] Streaming error: {stream_err}")
+
             await msg.update()
 
-        # Update history
+        else:
+            # === FALLBACK: Text-only or downloadable audio ===
+            print("🔊 [VOICE] Fallback mode (no real-time streaming)")
+
+            from utils.media import ELEVENLABS_API_KEY
+
+            response_stream = client.models.generate_content_stream(
+                model="gemini-2.0-flash",
+                contents=contents,
+                config=types.GenerateContentConfig(
+                    system_instruction=bot["system_prompt"],
+                )
+            )
+
+            for chunk in response_stream:
+                if chunk.text:
+                    response_text += chunk.text
+                    await msg.stream_token(chunk.text)
+
+            await msg.update()
+
+            # Optional: Generate downloadable audio as fallback
+            if ELEVENLABS_API_KEY:
+                try:
+                    from utils.media import text_to_speech
+                    audio_bytes = await text_to_speech(response_text[:4000])  # Limit for API
+                    if audio_bytes:
+                        audio_element = cl.Audio(
+                            content=audio_bytes,
+                            mime="audio/mpeg",
+                            name="response.mp3"
+                        )
+                        await cl.Message(
+                            content="🔊 *Voice response:*",
+                            elements=[audio_element]
+                        ).send()
+                except Exception as tts_err:
+                    print(f"🔊 [VOICE] Fallback TTS error: {tts_err}")
+
+        # === 5. UPDATE HISTORY ===
         history.append({"role": "user", "content": transcription})
         history.append({"role": "model", "content": response_text})
         cl.user_session.set("history", history)
 
-        # Sync history to context store for preservation across bot switches
+        # Sync to context store
         context_key = get_context_key()
         bot_id = cl.user_session.get("bot_id", "larry")
         context_store[context_key] = {
@@ -4066,7 +4059,7 @@ async def on_audio_end(elements: list = None):
             "history": history.copy(),
         }
 
-        # Persist to Supabase for cross-session survival (fire-and-forget)
+        # Persist to Supabase (fire-and-forget)
         from utils.context_persistence import save_cross_bot_context
         asyncio.create_task(save_cross_bot_context(
             user_key=context_key,

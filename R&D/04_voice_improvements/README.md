@@ -135,15 +135,39 @@ async def settings_update(settings):
 - [ ] Custom Larry voice
 - [ ] Conversational AI agent
 
-## Real-Time Streaming Implementation (2026-01-25)
+## Real-Time Browser Audio Streaming (2026-01-25)
 
-Added `utils/elevenlabs_streaming.py` with correct WebSocket BOS/EOS protocol:
+Complete implementation using Chainlit's `send_audio_chunk()` for real-time browser playback.
+
+### Architecture
+
+```
+User speaks → Gemini STT → LLM Stream → ElevenLabs WebSocket → Browser Audio Playback
+                                              ↓
+                              cl.context.emitter.send_audio_chunk()
+                                              ↓
+                              OutputAudioChunk → Browser plays immediately
+```
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `utils/voice_streaming.py` | Complete real-time voice pipeline |
+| `utils/elevenlabs_streaming.py` | Low-level WebSocket TTS |
+| `mindrian_chat.py` | Audio handlers (@cl.on_audio_*) |
 
 ### Key Classes & Functions
 
-- `ElevenLabsStreamingTTS`: WebSocket-based TTS for real-time audio
+**utils/voice_streaming.py:**
+- `RealtimeVoiceStreamer`: Streams to browser via `send_audio_chunk()`
+- `VoiceConfig`: Voice settings (voice_id, model, stability)
+- `is_voice_enabled()`: Check if voice is configured
+- `stream_gemini_with_voice()`: Complete Gemini → Voice pipeline
+
+**utils/elevenlabs_streaming.py:**
+- `ElevenLabsStreamingTTS`: WebSocket-based TTS with BOS/EOS protocol
 - `stream_gemini_to_elevenlabs()`: Direct Gemini → ElevenLabs pipeline
-- `generate_streaming_voice_response()`: Chainlit integration helper
 - `text_chunker()`: Natural boundary text splitting for prosody
 
 ### WebSocket Protocol (BOS/EOS)
@@ -167,6 +191,23 @@ await ws.send(json.dumps({
 await ws.send(json.dumps({"text": ""}))
 ```
 
+### Browser Audio Streaming
+
+```python
+from chainlit.types import OutputAudioChunk
+
+# Send audio chunk directly to browser for playback
+await cl.context.emitter.send_audio_chunk(
+    OutputAudioChunk(
+        mimeType="audio/mpeg",
+        data=audio_bytes,
+        track=track_id  # Unique per session
+    )
+)
+```
+
+**Key requirement:** User must interact with microphone first (browser security).
+
 ### Configuration
 
 | Environment Variable | Default | Description |
@@ -177,7 +218,7 @@ await ws.send(json.dumps({"text": ""}))
 ### Flow
 
 ```
-User speaks → Gemini STT → LLM Stream → TTS WebSocket → Audio chunks → Play immediately
+User speaks → Gemini STT → LLM Stream → TTS WebSocket → Browser Audio (real-time)
 ```
 
 **Latency improvement:** ~3-6s → ~1-2s to first audio
@@ -185,3 +226,4 @@ User speaks → Gemini STT → LLM Stream → TTS WebSocket → Audio chunks →
 ### Dependencies
 
 - `websockets>=12.0` (NOT aiohttp - ElevenLabs requires specific WebSocket library)
+- `chainlit>=2.9.0` (Required for send_audio_chunk support)
