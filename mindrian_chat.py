@@ -3828,73 +3828,244 @@ The user expects you to understand the context and add your specialized value.
 
 @cl.on_audio_start
 async def on_audio_start():
-    """Initialize real-time voice streaming session with live STT."""
+    """
+    Initialize TRUE real-time voice streaming.
+
+    Opens Deepgram WebSocket immediately - audio streams as it arrives.
+    When user stops speaking, LLM+TTS starts INSTANTLY (before on_audio_end).
+    """
     import uuid
 
-    print("🎤 [VOICE] Audio started")
+    print("🎤 [VOICE] Audio started - initializing real-time pipeline")
 
-    # Initialize audio collection
-    cl.user_session.set("audio_chunks", [])
-    cl.user_session.set("audio_mime_type", "audio/pcm")
-
-    # Initialize real-time voice output track
+    # Initialize voice output track
     track_id = str(uuid.uuid4())
     cl.user_session.set("voice_track_id", track_id)
     cl.user_session.set("voice_enabled", True)
+    cl.user_session.set("audio_chunks", [])  # Fallback buffer
+    cl.user_session.set("audio_mime_type", "audio/pcm")
+    cl.user_session.set("utterance_processed", False)
 
-    # Check if Deepgram real-time STT is available
+    # Try to open Deepgram WebSocket for TRUE real-time STT
     try:
-        from utils.realtime_stt import is_deepgram_enabled
+        from utils.realtime_stt import is_deepgram_enabled, LiveSTTSession
+
         if is_deepgram_enabled():
-            cl.user_session.set("use_deepgram", True)
-            print("🎤 [VOICE] Deepgram real-time STT enabled")
+            # Create callback that fires when user stops speaking
+            async def on_utterance_end(transcript: str):
+                """Called IMMEDIATELY when Deepgram detects silence."""
+                if cl.user_session.get("utterance_processed"):
+                    return  # Already processed
+
+                cl.user_session.set("utterance_processed", True)
+                print(f"🎤 [VOICE] Utterance ended, starting LLM immediately: '{transcript[:50]}...'")
+
+                # Process transcript with LLM + TTS
+                await process_voice_transcript(transcript, track_id)
+
+            async def on_interim(partial_text: str):
+                """Update UI with partial transcript as user speaks."""
+                # Could update a live transcript message here
+                pass
+
+            # Create and start Deepgram session
+            session = LiveSTTSession(
+                on_utterance_end=on_utterance_end,
+                on_interim=on_interim,
+                utterance_end_ms=800,  # Fast detection
+            )
+
+            if await session.start():
+                cl.user_session.set("stt_session", session)
+                cl.user_session.set("use_realtime_stt", True)
+                print(f"🎤 [VOICE] Deepgram WebSocket open - TRUE real-time enabled")
+            else:
+                cl.user_session.set("use_realtime_stt", False)
+                print("🎤 [VOICE] Deepgram connection failed, using fallback")
         else:
-            cl.user_session.set("use_deepgram", False)
-            print("🎤 [VOICE] Using Gemini STT (Deepgram not configured)")
-    except ImportError:
-        cl.user_session.set("use_deepgram", False)
+            cl.user_session.set("use_realtime_stt", False)
+            print("🎤 [VOICE] Deepgram not configured, using Gemini fallback")
+
+    except ImportError as e:
+        print(f"🎤 [VOICE] Import error: {e}")
+        cl.user_session.set("use_realtime_stt", False)
 
     print(f"🎤 [VOICE] Track ID: {track_id[:8]}...")
-    return True  # Accept audio stream
+    return True
 
 
 @cl.on_audio_chunk
 async def on_audio_chunk(chunk: cl.InputAudioChunk):
-    """Collect incoming audio chunks from user's microphone."""
-    audio_chunks = cl.user_session.get("audio_chunks", [])
-    audio_chunks.append(chunk.data)
-    cl.user_session.set("audio_chunks", audio_chunks)
+    """
+    Stream audio chunk IMMEDIATELY to Deepgram.
 
-    # Debug log first chunk
-    if len(audio_chunks) == 1:
-        print(f"🎤 [VOICE] First chunk: {len(chunk.data)} bytes, mime: {chunk.mimeType}")
+    No buffering - each chunk goes to Deepgram as it arrives.
+    Deepgram transcribes in real-time while user speaks.
+    """
+    # Get active STT session
+    stt_session = cl.user_session.get("stt_session")
 
-    # Map Chainlit MIME types to Gemini-supported types
-    # Gemini supports: audio/wav, audio/mp3, audio/aiff, audio/aac, audio/ogg, audio/flac, audio/webm
+    if stt_session:
+        # TRUE REAL-TIME: Send directly to Deepgram (no batching!)
+        await stt_session.send_audio(chunk.data)
+    else:
+        # Fallback: Collect chunks for batch processing
+        audio_chunks = cl.user_session.get("audio_chunks", [])
+        audio_chunks.append(chunk.data)
+        cl.user_session.set("audio_chunks", audio_chunks)
+
+        if len(audio_chunks) == 1:
+            print(f"🎤 [VOICE] First chunk (fallback mode): {len(chunk.data)} bytes")
+
+    # Track MIME type for fallback
     if chunk.mimeType:
         raw_mime = chunk.mimeType.lower()
-
-        # Map internal/non-standard types to Gemini-compatible ones
         mime_mapping = {
-            "pcm16": "audio/wav",           # Raw PCM → WAV
-            "pcm": "audio/wav",             # Raw PCM → WAV
-            "audio/pcm": "audio/wav",       # PCM → WAV
-            "audio/raw": "audio/wav",       # Raw → WAV
-            "audio/l16": "audio/wav",       # Linear PCM → WAV
-            "webm": "audio/webm",           # Short form
-            "wav": "audio/wav",             # Short form
-            "mp3": "audio/mp3",             # Short form
-            "ogg": "audio/ogg",             # Short form
+            "pcm16": "audio/wav",
+            "pcm": "audio/wav",
+            "audio/pcm": "audio/wav",
+            "audio/raw": "audio/wav",
+            "audio/l16": "audio/wav",
+            "webm": "audio/webm",
+            "wav": "audio/wav",
+            "mp3": "audio/mp3",
+            "ogg": "audio/ogg",
         }
-
         gemini_mime = mime_mapping.get(raw_mime, raw_mime)
-
-        # Ensure it starts with audio/
         if not gemini_mime.startswith("audio/"):
             gemini_mime = f"audio/{gemini_mime}"
-
-        print(f"🎤 [VOICE] MIME mapping: {raw_mime} → {gemini_mime}")
         cl.user_session.set("audio_mime_type", gemini_mime)
+
+
+async def process_voice_transcript(transcript: str, track_id: str):
+    """
+    Process voice transcript with LLM and stream response with TTS.
+
+    Called immediately when Deepgram detects user stopped speaking.
+    This is the core of the real-time voice pipeline.
+    """
+    if not transcript or not transcript.strip():
+        return
+
+    # Import voice streaming
+    try:
+        from utils.voice_streaming import (
+            RealtimeVoiceStreamer,
+            is_voice_enabled,
+        )
+        VOICE_AVAILABLE = True
+    except ImportError:
+        VOICE_AVAILABLE = False
+
+    # Show what user said
+    await cl.Message(content=f"**You said:** {transcript}").send()
+
+    # Get conversation context
+    bot = cl.user_session.get("bot", BOTS["larry"])
+    history = cl.user_session.get("history", [])
+    current_phase = cl.user_session.get("current_phase", 0)
+    phases = cl.user_session.get("phases", [])
+
+    # Build contents for Gemini
+    contents = []
+    for msg_item in history:
+        contents.append(types.Content(
+            role=msg_item["role"],
+            parts=[types.Part(text=msg_item["content"])]
+        ))
+
+    phase_context = ""
+    if phases and current_phase < len(phases):
+        phase_context = f"\n\n[CURRENT WORKSHOP PHASE: {phases[current_phase]['name']}]"
+
+    contents.append(types.Content(
+        role="user",
+        parts=[types.Part(text=transcript + phase_context)]
+    ))
+
+    # Create response message
+    msg = cl.Message(content="")
+    await msg.send()
+
+    response_text = ""
+
+    # Try real-time voice streaming
+    if VOICE_AVAILABLE and is_voice_enabled() and track_id:
+        print(f"🔊 [VOICE] Starting real-time TTS streaming...")
+
+        try:
+            streamer = RealtimeVoiceStreamer()
+            text_buffer = ""
+            sentence_endings = {'.', '!', '?', '\n', ';', ':'}
+
+            # Start Gemini stream
+            response_stream = client.models.generate_content_stream(
+                model="gemini-2.0-flash",
+                contents=contents,
+                config=types.GenerateContentConfig(
+                    system_instruction=bot["system_prompt"],
+                )
+            )
+
+            async def gemini_text_chunks():
+                nonlocal response_text, text_buffer
+
+                for chunk in response_stream:
+                    if chunk.text:
+                        response_text += chunk.text
+                        text_buffer += chunk.text
+                        await msg.stream_token(chunk.text)
+
+                        # Send complete sentences to TTS
+                        if any(end in text_buffer for end in sentence_endings) and len(text_buffer) > 15:
+                            yield text_buffer
+                            text_buffer = ""
+
+                if text_buffer.strip():
+                    yield text_buffer
+
+            # Stream audio to browser
+            async for _ in streamer.stream_text_to_browser(gemini_text_chunks(), track_id):
+                pass
+
+            print("🔊 [VOICE] Real-time streaming complete")
+
+        except Exception as e:
+            print(f"🔊 [VOICE] Streaming error: {e}")
+            # Fall through to text-only
+
+    # Fallback: Text only
+    if not response_text:
+        print("🔊 [VOICE] Using text-only fallback")
+        response_stream = client.models.generate_content_stream(
+            model="gemini-2.0-flash",
+            contents=contents,
+            config=types.GenerateContentConfig(
+                system_instruction=bot["system_prompt"],
+            )
+        )
+
+        for chunk in response_stream:
+            if chunk.text:
+                response_text += chunk.text
+                await msg.stream_token(chunk.text)
+
+    await msg.update()
+
+    # Update history
+    if response_text:
+        history.append({"role": "user", "content": transcript})
+        history.append({"role": "model", "content": response_text})
+        cl.user_session.set("history", history)
+
+        # Sync context store
+        context_key = get_context_key()
+        if context_key:
+            bot_id = cl.user_session.get("bot_id", "larry")
+            context_store[context_key] = {
+                "bot_id": bot_id,
+                "history": history.copy(),
+            }
 
 
 def pcm16_to_wav(pcm_data: bytes, sample_rate: int = 24000, channels: int = 1) -> bytes:
@@ -3945,268 +4116,83 @@ def pcm16_to_wav(pcm_data: bytes, sample_rate: int = 24000, channels: int = 1) -
 @cl.on_audio_end
 async def on_audio_end(elements: list = None):
     """
-    Process complete audio and respond with REAL-TIME voice streaming.
+    Handle end of audio recording.
 
-    Uses Chainlit's send_audio_chunk() to stream audio directly to browser
-    for immediate playback (not downloadable file).
+    For TRUE real-time: LLM+TTS was already triggered by UtteranceEnd callback.
+    This just cleans up the Deepgram session.
+
+    For fallback mode: Process the batched audio with Gemini STT.
     """
-    # Import voice streaming utilities
-    try:
-        from utils.voice_streaming import (
-            RealtimeVoiceStreamer,
-            is_voice_enabled,
-            VoiceConfig,
-        )
-        VOICE_STREAMING_AVAILABLE = True
-    except ImportError as e:
-        print(f"🎤 [VOICE] Voice streaming import error: {e}")
-        VOICE_STREAMING_AVAILABLE = False
+    print("🎤 [VOICE] Audio ended")
 
-    audio_chunks = cl.user_session.get("audio_chunks", [])
-    if not audio_chunks:
-        print("🎤 [VOICE] No audio chunks received")
-        await cl.Message(content="⚠️ No audio detected. Please check microphone permissions and try again.").send()
+    # === 1. CLOSE DEEPGRAM SESSION ===
+    stt_session = cl.user_session.get("stt_session")
+    if stt_session:
+        await stt_session.stop()
+        cl.user_session.set("stt_session", None)
+        print("🎤 [VOICE] Deepgram session closed")
+
+    # === 2. CHECK IF ALREADY PROCESSED ===
+    # If real-time STT triggered the callback, we're done
+    if cl.user_session.get("utterance_processed"):
+        print("🎤 [VOICE] Utterance already processed by real-time callback")
+        cl.user_session.set("utterance_processed", False)  # Reset for next
         return
 
-    # Combine audio chunks
-    audio_data = b"".join(audio_chunks)
-    print(f"🎤 [VOICE] Recording complete: {len(audio_chunks)} chunks, {len(audio_data)} bytes")
-    cl.user_session.set("audio_chunks", [])  # Clear for next session
+    # === 3. FALLBACK: Process batched audio with Gemini STT ===
+    audio_chunks = cl.user_session.get("audio_chunks", [])
+    if not audio_chunks:
+        print("🎤 [VOICE] No audio chunks in fallback buffer")
+        # Don't show error - might have been processed by real-time
+        return
 
-    # Check if audio is too small
+    audio_data = b"".join(audio_chunks)
+    cl.user_session.set("audio_chunks", [])  # Clear buffer
+    print(f"🎤 [VOICE] Fallback mode: {len(audio_chunks)} chunks, {len(audio_data)} bytes")
+
     if len(audio_data) < 1000:
-        print(f"🎤 [VOICE] Audio too small ({len(audio_data)} bytes)")
-        await cl.Message(content="⚠️ Audio recording too short. Please speak clearly and try again.").send()
+        await cl.Message(content="⚠️ Audio too short. Please try again.").send()
         return
 
     mime_type = cl.user_session.get("audio_mime_type", "audio/webm")
-    print(f"🎤 [VOICE] Mime type: {mime_type}")
+    track_id = cl.user_session.get("voice_track_id")
 
     try:
-        # === 1. TRANSCRIBE: Use Deepgram (fast) or Gemini (fallback) ===
-        transcription = None
-        use_deepgram = cl.user_session.get("use_deepgram", False)
+        # Transcribe with Gemini (fallback)
+        print("🎤 [VOICE] Transcribing with Gemini (fallback)...")
 
-        if use_deepgram:
-            # Deepgram real-time STT (faster, ~300ms)
-            print("🎤 [VOICE] Transcribing with Deepgram...")
-            try:
-                from utils.realtime_stt import RealtimeSTT
+        # Convert PCM to WAV if needed
+        gemini_audio = audio_data
+        gemini_mime = mime_type
 
-                stt = RealtimeSTT()
+        if "wav" in mime_type or "pcm" in mime_type.lower():
+            if audio_data[:4] != b'RIFF':
+                gemini_audio = pcm16_to_wav(audio_data, sample_rate=24000)
+                gemini_mime = "audio/wav"
 
-                async def audio_gen():
-                    yield audio_data
-
-                async for result in stt.transcribe_stream(audio_gen()):
-                    if result.is_final:
-                        transcription = result.text
-                        print(f"🎤 [VOICE] Deepgram transcribed: '{transcription[:80]}...'")
-                        break
-
-            except Exception as dg_err:
-                print(f"🎤 [VOICE] Deepgram error: {dg_err}, falling back to Gemini")
-                use_deepgram = False
-
-        if not transcription:
-            # Fallback: Gemini STT (slower, ~1-2s)
-            print("🎤 [VOICE] Transcribing with Gemini...")
-
-            # Convert PCM16 to WAV for Gemini (Gemini doesn't support raw PCM)
-            gemini_audio = audio_data
-            gemini_mime = mime_type
-
-            if "wav" in mime_type or "pcm" in mime_type.lower():
-                if not audio_data[:4] == b'RIFF':
-                    print("🎤 [VOICE] Converting raw PCM to WAV for Gemini...")
-                    gemini_audio = pcm16_to_wav(audio_data, sample_rate=24000)
-                    gemini_mime = "audio/wav"
-
-            transcription_response = client.models.generate_content(
-                model="gemini-2.0-flash",
-                contents=[
-                    types.Content(
-                        role="user",
-                        parts=[
-                            types.Part.from_bytes(data=gemini_audio, mime_type=gemini_mime),
-                            types.Part(text="Transcribe this audio exactly. Only output the transcription, nothing else.")
-                        ]
-                    )
-                ]
-            )
-            transcription = transcription_response.text.strip()
-            print(f"🎤 [VOICE] Gemini transcribed: '{transcription[:80]}...'")
+        transcription_response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=[
+                types.Content(
+                    role="user",
+                    parts=[
+                        types.Part.from_bytes(data=gemini_audio, mime_type=gemini_mime),
+                        types.Part(text="Transcribe this audio exactly. Only output the transcription, nothing else.")
+                    ]
+                )
+            ]
+        )
+        transcription = transcription_response.text.strip()
 
         if not transcription:
-            await cl.Message(content="No speech detected in the audio.").send()
+            await cl.Message(content="No speech detected.").send()
             return
 
-        # === 2. SHOW WHAT USER SAID ===
-        await cl.Message(content=f"**You said:** {transcription}").send()
+        print(f"🎤 [VOICE] Gemini transcribed: '{transcription[:50]}...'")
 
-        # === 3. BUILD CONTEXT ===
-        bot = cl.user_session.get("bot", BOTS["larry"])
-        history = cl.user_session.get("history", [])
-        current_phase = cl.user_session.get("current_phase", 0)
-        phases = cl.user_session.get("phases", [])
-
-        contents = []
-        for msg_item in history:
-            contents.append(types.Content(
-                role=msg_item["role"],
-                parts=[types.Part(text=msg_item["content"])]
-            ))
-
-        phase_context = ""
-        if phases and current_phase < len(phases):
-            phase_context = f"\n\n[CURRENT WORKSHOP PHASE: {phases[current_phase]['name']}]"
-
-        contents.append(types.Content(
-            role="user",
-            parts=[types.Part(text=transcription + phase_context)]
-        ))
-
-        # === 4. STREAM RESPONSE WITH REAL-TIME VOICE ===
-        msg = cl.Message(content="")
-        await msg.send()
-
-        response_text = ""
-        track_id = cl.user_session.get("voice_track_id")
-
-        # Check if real-time streaming is available
-        streamer = None
-        use_realtime_voice = False
-
-        if VOICE_STREAMING_AVAILABLE and is_voice_enabled() and track_id:
-            print(f"🔊 [VOICE] Attempting real-time streaming (track: {track_id[:8]}...)")
-            try:
-                streamer = RealtimeVoiceStreamer()
-                use_realtime_voice = True
-                print("🔊 [VOICE] Streamer initialized successfully")
-            except Exception as init_err:
-                print(f"🔊 [VOICE] Streamer init failed: {init_err}")
-                use_realtime_voice = False
-
-        if use_realtime_voice and streamer:
-            # === REAL-TIME BROWSER AUDIO STREAMING ===
-
-            # Buffer for natural sentence chunking
-            text_buffer = ""
-            sentence_endings = {'.', '!', '?', '\n', ';', ':'}
-
-            # Start Gemini stream
-            response_stream = client.models.generate_content_stream(
-                model="gemini-2.0-flash",
-                contents=contents,
-                config=types.GenerateContentConfig(
-                    system_instruction=bot["system_prompt"],
-                )
-            )
-
-            async def gemini_text_chunks():
-                """Yield complete sentences from Gemini stream."""
-                nonlocal response_text, text_buffer
-
-                for chunk in response_stream:
-                    if chunk.text:
-                        response_text += chunk.text
-                        text_buffer += chunk.text
-
-                        # Stream text to UI immediately
-                        await msg.stream_token(chunk.text)
-
-                        # Send complete sentences to TTS
-                        if any(end in text_buffer for end in sentence_endings) and len(text_buffer) > 15:
-                            yield text_buffer
-                            text_buffer = ""
-
-                # Send remaining text
-                if text_buffer.strip():
-                    yield text_buffer
-
-            # Stream audio directly to browser
-            try:
-                async for _ in streamer.stream_text_to_browser(gemini_text_chunks(), track_id):
-                    pass  # Audio is being played in browser in real-time
-                print("🔊 [VOICE] Real-time streaming complete")
-            except Exception as stream_err:
-                print(f"🔊 [VOICE] Streaming error: {stream_err}")
-
-            await msg.update()
-
-        else:
-            # === FALLBACK: Text-only or downloadable audio ===
-            # Log why real-time streaming was skipped
-            print(f"🔊 [VOICE] Fallback mode - VOICE_STREAMING_AVAILABLE={VOICE_STREAMING_AVAILABLE}")
-            if VOICE_STREAMING_AVAILABLE:
-                print(f"🔊 [VOICE] is_voice_enabled()={is_voice_enabled()}, track_id={track_id}")
-
-            from utils.media import ELEVENLABS_API_KEY
-
-            response_stream = client.models.generate_content_stream(
-                model="gemini-2.0-flash",
-                contents=contents,
-                config=types.GenerateContentConfig(
-                    system_instruction=bot["system_prompt"],
-                )
-            )
-
-            for chunk in response_stream:
-                if chunk.text:
-                    response_text += chunk.text
-                    await msg.stream_token(chunk.text)
-
-            await msg.update()
-
-            # Generate downloadable audio as fallback
-            if ELEVENLABS_API_KEY:
-                print(f"🔊 [VOICE] Generating fallback TTS audio...")
-                try:
-                    from utils.media import text_to_speech
-                    # text_to_speech returns cl.Audio element, not bytes
-                    audio_element = await text_to_speech(response_text[:4000])
-                    if audio_element:
-                        await cl.Message(
-                            content="🔊 *Voice response:*",
-                            elements=[audio_element]
-                        ).send()
-                        print("🔊 [VOICE] Fallback audio sent successfully")
-                    else:
-                        print("🔊 [VOICE] Fallback TTS returned None")
-                except Exception as tts_err:
-                    print(f"🔊 [VOICE] Fallback TTS error: {tts_err}")
-            else:
-                print("🔊 [VOICE] ELEVENLABS_API_KEY not set, no audio output")
-
-        # === 5. UPDATE HISTORY ===
-        history.append({"role": "user", "content": transcription})
-        history.append({"role": "model", "content": response_text})
-        cl.user_session.set("history", history)
-
-        # Sync to context store
-        context_key = get_context_key()
-        bot_id = cl.user_session.get("bot_id", "larry")
-        context_store[context_key] = {
-            "bot_id": bot_id,
-            "history": history.copy(),
-        }
-
-        # Persist to Supabase (fire-and-forget)
-        from utils.context_persistence import save_cross_bot_context
-        asyncio.create_task(save_cross_bot_context(
-            user_key=context_key,
-            history=history.copy(),
-            bot_id=bot_id,
-            bot_name=BOTS.get(bot_id, {}).get("name", bot_id)
-        ))
+        # Process with LLM + TTS
+        await process_voice_transcript(transcription, track_id)
 
     except Exception as e:
-        print(f"🎤 [AUDIO DEBUG] Audio processing error: {e}")
-        await cl.Message(content=f"Audio processing error: {str(e)}").send()
-    finally:
-        # Cleanup temp file
-        import os
-        try:
-            os.unlink(audio_path)
-        except:
-            pass
+        print(f"🎤 [VOICE] Fallback error: {e}")
+        await cl.Message(content=f"Audio processing error: {str(e)[:100]}").send()
