@@ -37,13 +37,19 @@ def get_elevenlabs_client():
     """Get or create ElevenLabs client."""
     global _elevenlabs_client
 
-    if _elevenlabs_client is None and ELEVENLABS_API_KEY:
+    if _elevenlabs_client is None:
+        if not ELEVENLABS_API_KEY:
+            print("⚠️ [ELEVENLABS] ELEVENLABS_API_KEY not set - voice features disabled")
+            return None
         try:
             from elevenlabs import ElevenLabs
             _elevenlabs_client = ElevenLabs(api_key=ELEVENLABS_API_KEY)
-            print("✅ ElevenLabs client initialized")
+            print(f"✅ [ELEVENLABS] Client initialized (key: ...{ELEVENLABS_API_KEY[-4:] if len(ELEVENLABS_API_KEY) > 4 else '****'})")
+        except ImportError as e:
+            print(f"⚠️ [ELEVENLABS] Package not installed: {e}")
+            return None
         except Exception as e:
-            print(f"ElevenLabs init error: {e}")
+            print(f"⚠️ [ELEVENLABS] Init error: {e}")
             return None
 
     return _elevenlabs_client

@@ -121,3 +121,175 @@ def validate_assumption(assumption: str) -> Dict:
         "supporting_evidence": supporting.get("results", []),
         "contradicting_evidence": contradicting.get("results", []),
     }
+
+
+# === New Agent-Specific Research Functions ===
+
+def research_six_hats(topic: str, hat_color: str) -> Dict:
+    """
+    Research for BONO Master - Six Thinking Hats perspective.
+
+    Args:
+        topic: The topic being analyzed
+        hat_color: white, red, black, yellow, green, or blue
+
+    Returns:
+        Dictionary with hat-specific research
+    """
+    hat_queries = {
+        "white": f"{topic} statistics data facts evidence numbers research",
+        "red": f"{topic} user sentiment emotions feelings reactions opinions",
+        "black": f"{topic} risks problems failures challenges criticism concerns",
+        "yellow": f"{topic} benefits advantages opportunities success potential",
+        "green": f"{topic} innovations alternatives creative solutions new approaches",
+        "blue": f"{topic} strategic framework analysis methodology synthesis",
+    }
+
+    query = hat_queries.get(hat_color.lower(), f"{topic} analysis")
+
+    results = search_web(
+        query=query,
+        search_depth="advanced",
+        max_results=5
+    )
+
+    return {
+        "topic": topic,
+        "hat": hat_color,
+        "findings": results.get("results", []),
+        "summary": results.get("answer", ""),
+    }
+
+
+def research_unknowns(topic: str, quadrant: str) -> Dict:
+    """
+    Research for Known-Unknowns - Rumsfeld Matrix quadrant.
+
+    Args:
+        topic: The topic being analyzed
+        quadrant: known_knowns, known_unknowns, or unknown_unknowns
+
+    Returns:
+        Dictionary with quadrant-specific research
+    """
+    quadrant_queries = {
+        "known_knowns": f"{topic} established facts proven statistics verified data",
+        "known_unknowns": f"{topic} unanswered questions uncertainties unknowns research gaps",
+        "unknown_unknowns": f"{topic} unexpected disruptions black swan surprises blind spots emerging risks",
+    }
+
+    query = quadrant_queries.get(quadrant.lower(), f"{topic} analysis")
+
+    results = search_web(
+        query=query,
+        search_depth="advanced",
+        max_results=5
+    )
+
+    return {
+        "topic": topic,
+        "quadrant": quadrant,
+        "findings": results.get("results", []),
+        "summary": results.get("answer", ""),
+    }
+
+
+def research_domain_exhaustive(topic: str, domains: List[str] = None) -> Dict:
+    """
+    Exhaustive multi-domain research for Domain Explorer.
+
+    Args:
+        topic: The topic to research exhaustively
+        domains: Optional list of specific domains to focus on
+
+    Returns:
+        Dictionary with comprehensive multi-domain findings
+    """
+    if domains is None:
+        domains = ["technical", "market", "regulatory", "academic", "competitor"]
+
+    all_findings = {}
+
+    domain_queries = {
+        "technical": f"{topic} technology implementation technical challenges solutions",
+        "market": f"{topic} market size growth trends TAM SAM investment funding",
+        "regulatory": f"{topic} regulation policy compliance legal requirements barriers",
+        "academic": f"{topic} research paper study findings scientific evidence",
+        "competitor": f"{topic} competitors landscape alternatives comparison market share",
+        "failures": f"{topic} failures post-mortem what went wrong lessons learned",
+        "success": f"{topic} success case study best practices winning strategies",
+        "emerging": f"{topic} emerging trends future forecast predictions 2025 2026",
+    }
+
+    for domain in domains:
+        query = domain_queries.get(domain, f"{topic} {domain} analysis")
+        results = search_web(
+            query=query,
+            search_depth="advanced",
+            max_results=4
+        )
+        all_findings[domain] = {
+            "results": results.get("results", []),
+            "summary": results.get("answer", ""),
+        }
+
+    return {
+        "topic": topic,
+        "domains_researched": domains,
+        "findings": all_findings,
+        "total_sources": sum(len(f["results"]) for f in all_findings.values()),
+    }
+
+
+def research_investment_question(company_or_opportunity: str, question_number: int) -> Dict:
+    """
+    Research for PWS Investment - Ten Questions validation.
+
+    Args:
+        company_or_opportunity: The startup or opportunity being evaluated
+        question_number: 1-10 corresponding to the Ten Questions
+
+    Returns:
+        Dictionary with question-specific validation research
+    """
+    question_queries = {
+        1: f"{company_or_opportunity} problem market need pain point evidence",
+        2: f"{company_or_opportunity} user impact customer testimonials reviews",
+        3: f"{company_or_opportunity} pricing revenue willingness to pay customers",
+        4: f"{company_or_opportunity} technology differentiation patents innovation",
+        5: f"{company_or_opportunity} traction growth metrics users revenue MRR",
+        6: f"{company_or_opportunity} roadmap vision strategy future plans",
+        7: f"{company_or_opportunity} team resources funding requirements",
+        8: f"{company_or_opportunity} founders team background experience track record",
+        9: f"{company_or_opportunity} funding raised valuation investors capital",
+        10: f"{company_or_opportunity} valuation multiples comparable deals M&A",
+    }
+
+    question_names = {
+        1: "Is the problem real?",
+        2: "How is it impacting users?",
+        3: "Will they pay?",
+        4: "Solving it differently?",
+        5: "Any momentum?",
+        6: "Current vs future state clear?",
+        7: "What's needed to implement?",
+        8: "Why this team?",
+        9: "How much to get it done?",
+        10: "Sound valuation?",
+    }
+
+    query = question_queries.get(question_number, f"{company_or_opportunity} analysis")
+
+    results = search_web(
+        query=query,
+        search_depth="advanced",
+        max_results=5
+    )
+
+    return {
+        "company": company_or_opportunity,
+        "question_number": question_number,
+        "question": question_names.get(question_number, "Unknown"),
+        "findings": results.get("results", []),
+        "summary": results.get("answer", ""),
+    }

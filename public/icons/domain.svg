@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Globe/network for Domain Explorer - multi-domain research -->
+  <circle cx="12" cy="12" r="10"/>
+  <path d="M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10"/>
+  <path d="M12 2a15 15 0 0 0-4 10 15 15 0 0 0 4 10"/>
+  <path d="M2 12h20"/>
+  <path d="M4.5 7h15"/>
+  <path d="M4.5 17h15"/>
+</svg>

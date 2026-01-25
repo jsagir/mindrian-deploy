@@ -125,6 +125,11 @@ except ImportError:
     def get_cache_name(workshop_id):
         return None
 
+# === File Search Store (Gemini RAG) ===
+# PWS Knowledge Base with Tier 1 (Core), Tier 2 (Workshop Materials), Tier 3 (Case Studies)
+FILE_SEARCH_STORE = "fileSearchStores/pwsknowledgebase-a4rnz3u41lsn"
+FILE_SEARCH_ENABLED = True  # Set to False to disable File Search
+
 # === Workshop Phase Definitions ===
 WORKSHOP_PHASES = {
     "tta": [
@@ -3306,17 +3311,30 @@ The user expects you to understand the context and add your specialized value.
 """
             system_instruction = system_instruction + handoff_addendum
 
+        # Build File Search tool for RAG
+        file_search_tool = None
+        if FILE_SEARCH_ENABLED:
+            file_search_tool = types.Tool(
+                file_search=types.FileSearch(
+                    file_search_store_names=[FILE_SEARCH_STORE]
+                )
+            )
+
         if cache_name:
-            # Use cached context with RAG materials
+            # Use cached context with RAG materials + File Search
             config = types.GenerateContentConfig(
                 cached_content=cache_name,
+                tools=[file_search_tool] if file_search_tool else None,
             )
-            print(f"Using RAG cache: {cache_name}")
+            print(f"Using RAG cache: {cache_name} + File Search")
         else:
-            # Fall back to regular system instruction
+            # Use system instruction + File Search for all bots
             config = types.GenerateContentConfig(
                 system_instruction=system_instruction,
+                tools=[file_search_tool] if file_search_tool else None,
             )
+            if file_search_tool:
+                print(f"Using File Search: {FILE_SEARCH_STORE}")
 
         response_stream = client.models.generate_content_stream(
             model="gemini-3-flash-preview",

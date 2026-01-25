@@ -1,0 +1,105 @@
+/* Mindrian Custom Styles - Action Buttons Enhancement */
+
+/* Make action buttons more prominent and visible */
+.MuiButton-root[class*="action"] {
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    padding: 6px 12px !important;
+    margin: 4px !important;
+    transition: all 0.2s ease !important;
+}
+
+/* Action button container - better spacing */
+.message-actions,
+[class*="actions"] {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    margin-top: 12px !important;
+    padding: 8px !important;
+    background: rgba(99, 102, 241, 0.05) !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(99, 102, 241, 0.1) !important;
+}
+
+/* Hover effect for actions */
+.MuiButton-root[class*="action"]:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2) !important;
+}
+
+/* Primary actions (Research, Think, Synthesize) - more prominent */
+.MuiButton-root[class*="action"][class*="contained"] {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+    color: white !important;
+}
+
+/* Secondary actions (Example, Next Phase) */
+.MuiButton-root[class*="action"][class*="outlined"] {
+    border-color: #6366f1 !important;
+    color: #6366f1 !important;
+}
+
+/* Agent switch suggestion buttons - distinct styling */
+.MuiButton-root[class*="switch_to"] {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    color: white !important;
+    border: none !important;
+}
+
+/* Task list / Workshop progress styling */
+.task-list {
+    background: rgba(99, 102, 241, 0.03) !important;
+    border-radius: 12px !important;
+    padding: 12px !important;
+    margin: 8px 0 !important;
+}
+
+/* Message content area - ensure actions don't get cut off */
+.message-content {
+    overflow: visible !important;
+}
+
+/* Floating action indicator for long conversations */
+.scroll-to-bottom {
+    bottom: 100px !important;
+}
+
+/* Mobile responsiveness for action buttons */
+@media (max-width: 768px) {
+    .message-actions,
+    [class*="actions"] {
+        flex-direction: column !important;
+    }
+
+    .MuiButton-root[class*="action"] {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+    .message-actions,
+    [class*="actions"] {
+        background: rgba(129, 140, 248, 0.1) !important;
+        border-color: rgba(129, 140, 248, 0.2) !important;
+    }
+}
+
+/* Chain of thought steps - better visibility */
+.step-container {
+    border-left: 3px solid #6366f1 !important;
+    margin-left: 8px !important;
+    padding-left: 12px !important;
+}
+
+/* Starter buttons - more inviting */
+.starter-button {
+    transition: all 0.2s ease !important;
+}
+
+.starter-button:hover {
+    transform: scale(1.02) !important;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.15) !important;
+}

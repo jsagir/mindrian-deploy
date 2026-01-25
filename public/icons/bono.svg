@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Six thinking hats / theater masks for BONO -->
+  <circle cx="12" cy="12" r="10"/>
+  <path d="M8 9.05v-.1"/>
+  <path d="M16 9.05v-.1"/>
+  <path d="M12 6v2"/>
+  <path d="M8 14a4 4 0 0 0 8 0"/>
+  <!-- Six dots representing 6 hats -->
+  <circle cx="7" cy="5" r="1" fill="currentColor"/>
+  <circle cx="12" cy="3" r="1" fill="currentColor"/>
+  <circle cx="17" cy="5" r="1" fill="currentColor"/>
+</svg>
