@@ -1,11 +1,33 @@
 """
 File processing utilities for Mindrian
-Handles PDF, DOCX, and text file extraction
+Handles PDF, DOCX, text file extraction, and image detection
 """
 
 import os
 from typing import Optional, Tuple
 from pathlib import Path
+
+# === Image Support Constants ===
+IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic', '.heif'}
+IMAGE_MIME_TYPES = {
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.png': 'image/png',
+    '.gif': 'image/gif',
+    '.webp': 'image/webp',
+    '.heic': 'image/heic',
+    '.heif': 'image/heif',
+}
+
+
+def is_image_file(file_name: str) -> bool:
+    """Check if file is a supported image type."""
+    return Path(file_name).suffix.lower() in IMAGE_EXTENSIONS
+
+
+def get_image_mime_type(file_name: str) -> str:
+    """Get MIME type for image file."""
+    return IMAGE_MIME_TYPES.get(Path(file_name).suffix.lower(), 'image/jpeg')
 
 
 def extract_text_from_pdf(file_path: str, max_pages: int = 50) -> Tuple[str, dict]:

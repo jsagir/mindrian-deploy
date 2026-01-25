@@ -56,6 +56,22 @@ AGENT_TRIGGERS = {
         "keywords": ["validate", "data", "wisdom", "dikw", "evidence", "ground truth", "pyramid", "understand why"],
         "description": "Validate with DIKW"
     },
+    "bono": {
+        "keywords": ["six hats", "thinking hats", "minto", "pyramid", "expert panel", "parallel thinking", "perspectives", "white hat", "black hat"],
+        "description": "Six Hats + Minto analysis"
+    },
+    "knowns": {
+        "keywords": ["rumsfeld", "unknown unknowns", "blind spots", "knowledge gaps", "what don't we know", "uncertainty", "risk mapping"],
+        "description": "Map unknowns & blind spots"
+    },
+    "domain": {
+        "keywords": ["deep research", "multi-domain", "cross-domain", "comprehensive research", "exhaustive", "15 searches", "synthesis"],
+        "description": "Exhaustive domain research"
+    },
+    "investment": {
+        "keywords": ["ten questions", "investment thesis", "startup", "funding", "valuation", "due diligence", "invest", "evaluation"],
+        "description": "PWS Investment analysis"
+    },
 }
 
 # === Data Persistence Setup ===
@@ -88,7 +104,11 @@ from prompts import (
     JTBD_WORKSHOP_PROMPT,
     SCURVE_WORKSHOP_PROMPT,
     REDTEAM_PROMPT,
-    ACKOFF_WORKSHOP_PROMPT
+    ACKOFF_WORKSHOP_PROMPT,
+    BONO_MASTER_PROMPT,
+    KNOWN_UNKNOWNS_PROMPT,
+    DOMAIN_EXPLORER_PROMPT,
+    PWS_INVESTMENT_PROMPT
 )
 
 # === RAG Cache Support ===
@@ -148,13 +168,60 @@ WORKSHOP_PHASES = {
         {"name": "Wisdom Level", "status": "pending"},
         {"name": "Validation & Action", "status": "pending"},
     ],
+    "bono": [
+        {"name": "Introduction", "status": "ready"},
+        {"name": "Persona Generation", "status": "pending"},
+        {"name": "White Hat Analysis", "status": "pending"},
+        {"name": "Red Hat Analysis", "status": "pending"},
+        {"name": "Black Hat Analysis", "status": "pending"},
+        {"name": "Yellow Hat Analysis", "status": "pending"},
+        {"name": "Green Hat Analysis", "status": "pending"},
+        {"name": "Blue Hat Synthesis", "status": "pending"},
+        {"name": "Panel Discussion", "status": "pending"},
+        {"name": "Breakthrough Recommendations", "status": "pending"},
+    ],
+    "knowns": [
+        {"name": "Introduction", "status": "ready"},
+        {"name": "Context Gathering", "status": "pending"},
+        {"name": "Known Knowns Audit", "status": "pending"},
+        {"name": "Known Unknowns Mapping", "status": "pending"},
+        {"name": "Unknown Knowns Surfacing", "status": "pending"},
+        {"name": "Unknown Unknowns Discovery", "status": "pending"},
+        {"name": "Risk Assessment", "status": "pending"},
+        {"name": "Action Planning", "status": "pending"},
+    ],
+    "domain": [
+        {"name": "Introduction", "status": "ready"},
+        {"name": "Scope Definition", "status": "pending"},
+        {"name": "Domain Mapping", "status": "pending"},
+        {"name": "Primary Research", "status": "pending"},
+        {"name": "Adjacent Research", "status": "pending"},
+        {"name": "Cross-Domain Research", "status": "pending"},
+        {"name": "Dissent Collection", "status": "pending"},
+        {"name": "Synthesis", "status": "pending"},
+        {"name": "Gap Identification", "status": "pending"},
+        {"name": "Insight Generation", "status": "pending"},
+    ],
+    "investment": [
+        {"name": "Introduction", "status": "ready"},
+        {"name": "Scope Definition", "status": "pending"},
+        {"name": "Ten Questions Part 1", "status": "pending"},
+        {"name": "Ten Questions Part 2", "status": "pending"},
+        {"name": "Go/No-Go Decision", "status": "pending"},
+        {"name": "Thesis: Business & Team", "status": "pending"},
+        {"name": "Thesis: Market & GTM", "status": "pending"},
+        {"name": "Thesis: Competition & Value", "status": "pending"},
+        {"name": "Adversarial Review", "status": "pending"},
+        {"name": "Final Recommendation", "status": "pending"},
+    ],
 }
 
 # === Bot Configurations ===
 BOTS = {
     "larry": {
         "name": "Larry",
-        "icon": "🧠",
+        "icon": "/public/icons/larry.svg",
+        "emoji": "🧠",  # Keep emoji for inline use
         "description": "General PWS thinking partner",
         "system_prompt": LARRY_RAG_SYSTEM_PROMPT,
         "has_phases": False,
@@ -168,7 +235,8 @@ Before solutions, I ask questions. Let's make sure we're solving the right probl
     },
     "tta": {
         "name": "Trending to the Absurd",
-        "icon": "🔮",
+        "icon": "/public/icons/tta.svg",
+        "emoji": "🔮",
         "description": "Guided workshop: escape presentism, find future problems",
         "system_prompt": TTA_WORKSHOP_PROMPT,
         "has_phases": True,
@@ -197,7 +265,8 @@ I'm listening."""
     },
     "jtbd": {
         "name": "Jobs to Be Done",
-        "icon": "🎯",
+        "icon": "/public/icons/jtbd.svg",
+        "emoji": "🎯",
         "description": "Workshop: discover what customers really hire products for",
         "system_prompt": JTBD_WORKSHOP_PROMPT,
         "has_phases": True,
@@ -217,7 +286,8 @@ People don't buy products — they "hire" them to make progress in their lives. 
     },
     "scurve": {
         "name": "S-Curve Analysis",
-        "icon": "📈",
+        "icon": "/public/icons/scurve.svg",
+        "emoji": "📈",
         "description": "Workshop: analyze technology timing and disruption",
         "system_prompt": SCURVE_WORKSHOP_PROMPT,
         "has_phases": True,
@@ -237,7 +307,8 @@ Every technology follows an S-curve: slow start, rapid growth, eventual plateau.
     },
     "redteam": {
         "name": "Red Teaming",
-        "icon": "😈",
+        "icon": "/public/icons/redteam.svg",
+        "emoji": "😈",
         "description": "Devil's advocate: stress-test your assumptions",
         "system_prompt": REDTEAM_PROMPT,
         "has_phases": True,
@@ -253,7 +324,8 @@ This isn't about being negative — it's about making your idea bulletproof.
     },
     "ackoff": {
         "name": "Ackoff's Pyramid (DIKW)",
-        "icon": "🔺",
+        "icon": "/public/icons/ackoff.svg",
+        "emoji": "🔺",
         "description": "Workshop: Climb the DIKW pyramid to validate understanding",
         "system_prompt": ACKOFF_WORKSHOP_PROMPT,
         "has_phases": True,
@@ -283,6 +355,94 @@ Or, if you already have a solution, we'll **climb down** to validate it's actual
    → When do you need to act?
 
 I'm listening."""
+    },
+    "bono": {
+        "name": "BONO Master",
+        "icon": "/public/icons/bono.svg",
+        "emoji": "🎭",
+        "description": "Workshop: Six Thinking Hats + Minto Pyramid synthesis",
+        "system_prompt": BONO_MASTER_PROMPT,
+        "has_phases": True,
+        "welcome": """🎭 **BONO Master Workshop**
+### Six Thinking Hats + Minto Pyramid + Expert Panels
+
+Hello, I'm your BONO Master facilitator.
+
+I orchestrate comprehensive strategic analysis by combining:
+- **Domain-specific expert personas** tailored to your challenge
+- **Six Thinking Hats** for parallel perspective exploration
+- **Minto Pyramid** for structured synthesis
+- **Expert Panel Discussions** for breakthrough insights
+
+**Tell me about the challenge or decision you're facing.**
+
+I'll generate a custom expert panel and guide you through a systematic exploration from multiple angles."""
+    },
+    "knowns": {
+        "name": "Known-Unknowns",
+        "icon": "/public/icons/knowns.svg",
+        "emoji": "❓",
+        "description": "Workshop: Rumsfeld Matrix for blind spot discovery",
+        "system_prompt": KNOWN_UNKNOWNS_PROMPT,
+        "has_phases": True,
+        "welcome": """🎯 **Known-Unknowns Analyzer**
+### Rumsfeld Matrix + Blind Spot Discovery
+
+Hello, I'm your uncertainty mapper.
+
+I help you systematically categorize what you know and don't know:
+
+- ✅ **Known Knowns**: Facts you're confident about
+- ❓ **Known Unknowns**: Questions you know to ask
+- 💡 **Unknown Knowns**: Tacit expertise not yet surfaced
+- ⚠️ **Unknown Unknowns**: Blind spots that could derail you
+
+**What situation, decision, or plan do you want to map?**
+
+We'll surface hidden assumptions and discover what you don't know you don't know."""
+    },
+    "domain": {
+        "name": "Domain Explorer",
+        "icon": "/public/icons/domain.svg",
+        "emoji": "🔍",
+        "description": "Workshop: Exhaustive multi-domain research synthesis",
+        "system_prompt": DOMAIN_EXPLORER_PROMPT,
+        "has_phases": True,
+        "welcome": """🔍 **Domain Explorer**
+### Exhaustive Research + Cross-Domain Synthesis
+
+Hello, I'm your systematic researcher.
+
+I conduct comprehensive multi-domain exploration:
+- **15-20+ strategic searches** across domains
+- **Multiple lenses**: disciplinary, stakeholder, temporal, scale
+- **Both supporting AND dissenting evidence**
+- **Cross-domain synthesis** for non-obvious connections
+
+**What topic do you want to explore exhaustively?**
+
+Whether it's a technology, market, problem, or opportunity, I'll map the full landscape."""
+    },
+    "investment": {
+        "name": "PWS Investment",
+        "icon": "/public/icons/investment.svg",
+        "emoji": "💰",
+        "description": "Workshop: Ten Questions + Investment Thesis evaluation",
+        "system_prompt": PWS_INVESTMENT_PROMPT,
+        "has_phases": True,
+        "welcome": """💰 **PWS Investment Analysis**
+### Ten Questions + Investment Thesis
+
+Hello, I'm your rigorous investment analyst.
+
+I evaluate opportunities using the PWS framework:
+1. **Ten Questions Rapid Assessment** - Must pass 8/10 to proceed
+2. **Investment Thesis Deep Analysis** - 6 comprehensive categories
+3. **Devil's Advocate Integration** - Every positive challenged
+
+**What startup, opportunity, or investment are you evaluating?**
+
+I'll systematically assess whether this is worth pursuing and why."""
     }
 }
 
@@ -362,6 +522,26 @@ async def chat_profiles():
             name="ackoff",
             markdown_description=BOTS["ackoff"]["description"],
             icon=BOTS["ackoff"]["icon"],
+        ),
+        cl.ChatProfile(
+            name="bono",
+            markdown_description=BOTS["bono"]["description"],
+            icon=BOTS["bono"]["icon"],
+        ),
+        cl.ChatProfile(
+            name="knowns",
+            markdown_description=BOTS["knowns"]["description"],
+            icon=BOTS["knowns"]["icon"],
+        ),
+        cl.ChatProfile(
+            name="domain",
+            markdown_description=BOTS["domain"]["description"],
+            icon=BOTS["domain"]["icon"],
+        ),
+        cl.ChatProfile(
+            name="investment",
+            markdown_description=BOTS["investment"]["description"],
+            icon=BOTS["investment"]["icon"],
         ),
     ]
 
@@ -500,6 +680,94 @@ STARTERS = {
             icon="/public/icons/example.svg",
         ),
     ],
+    "bono": [
+        cl.Starter(
+            label="Analyze a challenge",
+            message="I have a strategic challenge I want to analyze with multiple expert perspectives.",
+            icon="/public/icons/explore.svg",
+        ),
+        cl.Starter(
+            label="Generate expert panel",
+            message="Help me create a domain-specific expert panel for my problem.",
+            icon="/public/icons/team.svg",
+        ),
+        cl.Starter(
+            label="Six Hats analysis",
+            message="Walk me through a Six Thinking Hats analysis of my situation.",
+            icon="/public/icons/hats.svg",
+        ),
+        cl.Starter(
+            label="See an example",
+            message="Show me how the BONO Master framework works with an example.",
+            icon="/public/icons/example.svg",
+        ),
+    ],
+    "knowns": [
+        cl.Starter(
+            label="Map my knowledge",
+            message="Help me map what I know and don't know about my situation.",
+            icon="/public/icons/map.svg",
+        ),
+        cl.Starter(
+            label="Find blind spots",
+            message="What unknown unknowns might be lurking in my plan?",
+            icon="/public/icons/search.svg",
+        ),
+        cl.Starter(
+            label="Risk assessment",
+            message="Help me assess the risks of what I don't know.",
+            icon="/public/icons/risk.svg",
+        ),
+        cl.Starter(
+            label="Explain Rumsfeld Matrix",
+            message="Explain the Known-Unknowns framework and how to use it.",
+            icon="/public/icons/info.svg",
+        ),
+    ],
+    "domain": [
+        cl.Starter(
+            label="Deep dive research",
+            message="I need exhaustive research on a topic. Here's what I want to explore: [topic]",
+            icon="/public/icons/research.svg",
+        ),
+        cl.Starter(
+            label="Cross-domain synthesis",
+            message="Help me find connections between different fields related to my challenge.",
+            icon="/public/icons/connect.svg",
+        ),
+        cl.Starter(
+            label="Find dissenting evidence",
+            message="I need to understand the opposing views and counter-evidence for my hypothesis.",
+            icon="/public/icons/contrast.svg",
+        ),
+        cl.Starter(
+            label="Map the landscape",
+            message="Give me a comprehensive landscape analysis of a market/technology/problem.",
+            icon="/public/icons/landscape.svg",
+        ),
+    ],
+    "investment": [
+        cl.Starter(
+            label="Evaluate a startup",
+            message="I want to evaluate a startup opportunity using the Ten Questions framework.",
+            icon="/public/icons/startup.svg",
+        ),
+        cl.Starter(
+            label="Investment thesis",
+            message="Help me build an investment thesis for this opportunity: [describe it]",
+            icon="/public/icons/thesis.svg",
+        ),
+        cl.Starter(
+            label="Due diligence",
+            message="Walk me through a systematic due diligence process.",
+            icon="/public/icons/checklist.svg",
+        ),
+        cl.Starter(
+            label="Explain the framework",
+            message="Explain the Ten Questions and Investment Thesis framework.",
+            icon="/public/icons/info.svg",
+        ),
+    ],
 }
 
 
@@ -619,7 +887,7 @@ async def suggest_agents_from_context(
         suggestions.append(cl.Action(
             name=f"switch_to_{agent_id}",
             payload={"agent": agent_id, "action": "switch"},
-            label=f"Switch to {bot_info.get('icon', '')} {bot_info.get('name', agent_id)}",
+            label=f"Switch to {bot_info.get('emoji', '')} {bot_info.get('name', agent_id)}",
             description=info["description"]
         ))
 
@@ -707,9 +975,16 @@ async def start():
         stop_events[session_id] = asyncio.Event()
 
     # === Context Preservation: Check for existing conversation ===
+    # Try persistent storage first (survives server restart), then in-memory cache
+    from utils.context_persistence import load_cross_bot_context
+
     context_key = get_context_key()
-    preserved_context = context_store.get(context_key, {})
-    previous_bot = preserved_context.get("bot_id")
+
+    # Try to load from persistent storage (async), falls back to in-memory
+    persisted_context = await load_cross_bot_context(context_key)
+    preserved_context = persisted_context or context_store.get(context_key, {})
+
+    previous_bot = preserved_context.get("bot_id") or preserved_context.get("last_bot_id")
     preserved_history = preserved_context.get("history", [])
     is_bot_switch = previous_bot and previous_bot != chat_profile and len(preserved_history) > 0
 
@@ -761,49 +1036,57 @@ async def start():
                 name="show_example",
                 payload={"action": "example"},
                 label="Show Example",
-                description="See an example of this phase"
+                description="See an example of this phase",
+                tooltip="View a real-world example of this methodology phase in action"
             ),
             cl.Action(
                 name="next_phase",
                 payload={"action": "next"},
                 label="Next Phase",
-                description="Move to the next workshop phase"
+                description="Move to the next workshop phase",
+                tooltip="Progress to the next phase of the workshop"
             ),
             cl.Action(
                 name="show_progress",
                 payload={"action": "progress"},
                 label="Show Progress",
-                description="View your workshop progress"
+                description="View your workshop progress",
+                tooltip="See which phases you've completed and what's next"
             ),
             cl.Action(
                 name="deep_research",
                 payload={"action": "research"},
                 label="Deep Research",
-                description="Plan and execute web research with Tavily"
+                description="Plan and execute web research with Tavily",
+                tooltip="🔍 Search the web for relevant data, studies, and evidence"
             ),
             cl.Action(
                 name="think_through",
                 payload={"action": "think"},
                 label="Think It Through",
-                description="Break down the problem with sequential thinking"
+                description="Break down the problem with sequential thinking",
+                tooltip="🧠 Systematically analyze: identify problem → extract assumptions → find gaps → plan next steps"
             ),
             cl.Action(
                 name="multi_agent_analysis",
                 payload={"action": "multi_agent"},
                 label="Multi-Agent Analysis",
-                description="Get perspectives from multiple PWS experts"
+                description="Get perspectives from multiple PWS experts",
+                tooltip="👥 Get different perspectives from Larry, Red Team, Ackoff, and other PWS experts"
             ),
             cl.Action(
                 name="watch_video",
                 payload={"action": "video"},
                 label="🎬 Watch Video",
-                description="Watch tutorial video for this phase"
+                description="Watch tutorial video for this phase",
+                tooltip="Watch a tutorial video explaining this workshop phase"
             ),
             cl.Action(
                 name="listen_audiobook",
                 payload={"action": "audiobook"},
                 label="📖 Listen to Chapter",
-                description="Listen to relevant PWS audiobook chapter"
+                description="Listen to relevant PWS audiobook chapter",
+                tooltip="Listen to audio content from the PWS course materials"
             ),
         ]
 
@@ -813,14 +1096,16 @@ async def start():
                 name="show_dikw_pyramid",
                 payload={"action": "pyramid"},
                 label="Show DIKW Pyramid",
-                description="View the DIKW pyramid diagram"
+                description="View the DIKW pyramid diagram",
+                tooltip="📊 View the Data→Information→Knowledge→Wisdom hierarchy diagram"
             ))
         elif chat_profile == "scurve":
             actions.append(cl.Action(
                 name="show_scurve",
                 payload={"action": "scurve"},
                 label="Show S-Curve",
-                description="View the technology S-curve diagram"
+                description="View the technology S-curve diagram",
+                tooltip="📈 View the technology adoption S-curve showing ferment→takeoff→maturity phases"
             ))
 
         # Add export button for all workshop bots
@@ -828,7 +1113,8 @@ async def start():
             name="export_summary",
             payload={"action": "export"},
             label="Export Summary",
-            description="Download workshop summary as markdown"
+            description="Download workshop summary as markdown",
+            tooltip="⬇️ Download a complete summary of your workshop progress as a Markdown file"
         ))
     else:
         # Non-workshop bots (like Larry general) also get useful actions
@@ -837,31 +1123,36 @@ async def start():
                 name="deep_research",
                 payload={"action": "research"},
                 label="🔍 Deep Research",
-                description="Plan and execute web research with Tavily"
+                description="Plan and execute web research with Tavily",
+                tooltip="🔍 Search the web for relevant data, studies, and evidence to support your analysis"
             ),
             cl.Action(
                 name="think_through",
                 payload={"action": "think"},
                 label="🧠 Think It Through",
-                description="Break down the problem with sequential thinking"
+                description="Break down the problem with sequential thinking",
+                tooltip="🧠 Systematically analyze: identify problem → extract assumptions → find gaps → plan next steps"
             ),
             cl.Action(
                 name="multi_agent_analysis",
                 payload={"action": "multi_agent"},
                 label="👥 Multi-Agent Analysis",
-                description="Get perspectives from multiple PWS experts"
+                description="Get perspectives from multiple PWS experts",
+                tooltip="👥 Get different perspectives from Larry, Red Team, Ackoff, and other PWS experts"
             ),
             cl.Action(
                 name="show_example",
                 payload={"action": "example"},
                 label="📖 Show Example",
-                description="See an example of PWS methodology"
+                description="See an example of PWS methodology",
+                tooltip="📖 View a real-world example of this methodology in action"
             ),
             cl.Action(
                 name="listen_audiobook",
                 payload={"action": "audiobook"},
                 label="🎧 Listen to Chapter",
-                description="Listen to relevant PWS audiobook chapter"
+                description="Listen to relevant PWS audiobook chapter",
+                tooltip="🎧 Listen to audio content from the PWS course materials"
             ),
         ]
 
@@ -870,7 +1161,8 @@ async def start():
         name="synthesize_conversation",
         payload={"action": "synthesize"},
         label="📝 Synthesize & Download",
-        description="Larry synthesizes the entire conversation as a downloadable MD file"
+        description="Larry synthesizes the entire conversation as a downloadable MD file",
+        tooltip="📝 Larry summarizes your conversation: key insights, breakthroughs, and next steps"
     ))
 
     # Add "Extract Insights" button for ALL bots (deep structured extraction)
@@ -878,7 +1170,34 @@ async def start():
         name="extract_insights",
         payload={"action": "extract"},
         label="🔍 Extract Insights",
-        description="Extract structured data: facts, assumptions, statistics, open questions"
+        description="Extract structured data: facts, assumptions, statistics, open questions",
+        tooltip="🔍 Extract: facts, assumptions, statistics, problems, solutions, and open questions"
+    ))
+
+    # Add "Generate Image" button for ALL bots
+    actions.append(cl.Action(
+        name="generate_image",
+        payload={},
+        label="🎨 Generate Image",
+        description="Create an image from a text description using AI",
+        tooltip="🎨 Generate images with Gemini Imagen - describe what you want to see"
+    ))
+
+    # Add Analytics buttons (dashboard access)
+    actions.append(cl.Action(
+        name="show_feedback_dashboard",
+        payload={},
+        label="📊 Feedback Analytics",
+        description="View feedback analytics dashboard",
+        tooltip="📊 See satisfaction rates, trends, and feedback by bot"
+    ))
+
+    actions.append(cl.Action(
+        name="show_usage_metrics",
+        payload={},
+        label="📈 Usage Metrics",
+        description="View usage metrics dashboard",
+        tooltip="📈 See message counts, bot usage, and activity trends"
     ))
 
     # Add "Clear Context" action to all bots if there's preserved history
@@ -887,13 +1206,14 @@ async def start():
             name="clear_context",
             payload={"action": "clear"},
             label="Clear Context",
-            description="Start fresh without previous conversation history"
+            description="Start fresh without previous conversation history",
+            tooltip="🗑️ Clear conversation history and start fresh with this bot"
         ))
 
     # Send welcome message with context info if switching
     if is_bot_switch:
         previous_bot_name = BOTS.get(previous_bot, {}).get("name", previous_bot)
-        switch_message = f"""**{bot['icon']} {bot['name']}** is now active.
+        switch_message = f"""**{bot.get('emoji', '')} {bot['name']}** is now active.
 
 **Context preserved from {previous_bot_name}** ({len(preserved_history)} messages)
 I'll continue our conversation with my perspective. Your previous discussion has been handed off to me.
@@ -1064,7 +1384,8 @@ async def on_feedback(feedback):
                     name="detailed_feedback",
                     payload={"message_id": feedback.id},
                     label="📝 Add Detailed Feedback",
-                    description="Rate specific aspects of this response"
+                    description="Rate specific aspects of this response",
+                    tooltip="Provide detailed feedback on accuracy, helpfulness, and other aspects"
                 )
             ]
         ).send()
@@ -1207,25 +1528,29 @@ Select the type of analysis you want:""",
                 name="ma_quick",
                 payload={"type": "quick"},
                 label="Quick Analysis",
-                description="Router picks best agents (fastest)"
+                description="Router picks best agents (fastest)",
+                tooltip="⚡ Fast: AI router selects the most relevant agents automatically"
             ),
             cl.Action(
                 name="ma_research",
                 payload={"type": "research"},
                 label="Research & Explore",
-                description="Web research → TTA → Larry"
+                description="Web research → TTA → Larry",
+                tooltip="🔍 Web research → Trending to Absurd → Larry synthesis"
             ),
             cl.Action(
                 name="ma_validate",
                 payload={"type": "validate"},
                 label="Validate Decision",
-                description="Validation → Ackoff → Red Team"
+                description="Validation → Ackoff → Red Team",
+                tooltip="✅ Fact-check → Ackoff DIKW validation → Red Team challenge"
             ),
             cl.Action(
                 name="ma_full",
                 payload={"type": "full"},
                 label="Full Analysis",
-                description="Research → Validate → All Agents (most thorough)"
+                description="Research → Validate → All Agents (most thorough)",
+                tooltip="🔄 Comprehensive: research + validation + all expert perspectives"
             ),
         ]
     ).send()
@@ -1374,11 +1699,16 @@ async def run_multi_agent_with_type(analysis_type: str):
 @cl.action_callback("clear_context")
 async def on_clear_context(action: cl.Action):
     """Clear preserved context and start fresh."""
+    from utils.context_persistence import clear_cross_bot_context
+
     context_key = get_context_key()
 
-    # Clear the stored context
+    # Clear the stored context (in-memory)
     if context_key in context_store:
         del context_store[context_key]
+
+    # Clear from persistent storage (Supabase)
+    await clear_cross_bot_context(context_key)
 
     # Clear session history
     cl.user_session.set("history", [])
@@ -1390,6 +1720,118 @@ async def on_clear_context(action: cl.Action):
     await cl.Message(
         content=f"**Context cleared.** Starting fresh with {bot.get('name', 'Larry')}.\n\n{bot.get('welcome', 'How can I help?')}"
     ).send()
+
+
+# === Analytics & Dashboard Callbacks ===
+
+@cl.action_callback("show_feedback_dashboard")
+async def on_show_feedback_dashboard(action: cl.Action):
+    """Show the feedback analytics dashboard."""
+    from utils.feedback import get_feedback_dashboard, format_dashboard_message
+
+    async with cl.Step(name="Loading Feedback Analytics", type="tool") as step:
+        step.input = "Fetching feedback data from Supabase..."
+
+        dashboard = await get_feedback_dashboard(days=7)
+        message = format_dashboard_message(dashboard)
+
+        step.output = f"Found {dashboard.get('total_feedback', 0)} feedback entries"
+
+    await cl.Message(content=message).send()
+
+
+@cl.action_callback("show_usage_metrics")
+async def on_show_usage_metrics(action: cl.Action):
+    """Show the usage metrics dashboard."""
+    from utils.usage_metrics import get_usage_dashboard, format_usage_dashboard_message
+
+    async with cl.Step(name="Loading Usage Metrics", type="tool") as step:
+        step.input = "Fetching usage data from Supabase..."
+
+        dashboard = await get_usage_dashboard(days=7)
+        message = format_usage_dashboard_message(dashboard)
+
+        step.output = f"Analyzed {dashboard.get('total_messages', 0)} messages"
+
+    await cl.Message(content=message).send()
+
+
+@cl.action_callback("generate_image")
+async def on_generate_image(action: cl.Action):
+    """Handle image generation request from action button."""
+    from utils.image_generation import generate_image, save_image_to_temp, get_style_presets
+    from utils.usage_metrics import track_image_generation
+
+    # Get the prompt from payload or ask user
+    prompt = action.payload.get("prompt") if action.payload else None
+
+    if not prompt:
+        # Send a message asking for the prompt
+        await cl.Message(
+            content="**Generate Image**\n\nPlease describe the image you want to create. For example:\n"
+                    "- *A sunset over mountains with a lake reflection*\n"
+                    "- *A futuristic city with flying cars*\n"
+                    "- *A cozy coffee shop interior in watercolor style*\n\n"
+                    "Type your description and I'll generate an image for you.",
+            actions=[
+                cl.Action(name="cancel_generation", payload={}, label="Cancel", tooltip="Cancel image generation")
+            ]
+        ).send()
+        cl.user_session.set("awaiting_image_prompt", True)
+        return
+
+    # Generate the image
+    async with cl.Step(name="Generating Image", type="tool") as step:
+        step.input = f"Prompt: {prompt}"
+
+        image_bytes, mime_type, metadata = await generate_image(
+            prompt=prompt,
+            model="fast",
+            aspect_ratio="square"
+        )
+
+        if image_bytes:
+            step.output = f"Image generated ({metadata.get('size_bytes', 0):,} bytes)"
+
+            # Save to temp file for display
+            temp_path = save_image_to_temp(image_bytes, mime_type)
+
+            # Track usage
+            context_key = get_context_key()
+            track_image_generation(context_key)
+
+            # Display the image
+            await cl.Message(
+                content=f"**Generated Image**\n\n*Prompt:* {prompt}",
+                elements=[
+                    cl.Image(name="generated_image", path=temp_path, display="inline")
+                ],
+                actions=[
+                    cl.Action(
+                        name="generate_image",
+                        payload={"prompt": prompt},
+                        label="Regenerate",
+                        tooltip="Generate a new variation"
+                    ),
+                    cl.Action(
+                        name="generate_image",
+                        payload={},
+                        label="New Image",
+                        tooltip="Generate a different image"
+                    )
+                ]
+            ).send()
+        else:
+            error_msg = metadata.get("user_message", metadata.get("error", "Unknown error"))
+            step.output = f"Failed: {error_msg}"
+            await cl.Message(content=f"**Image Generation Failed**\n\n{error_msg}").send()
+
+
+@cl.action_callback("cancel_generation")
+async def on_cancel_generation(action: cl.Action):
+    """Cancel pending image generation."""
+    cl.user_session.set("awaiting_image_prompt", False)
+    await cl.Message(content="Image generation cancelled.").send()
 
 
 # === Dynamic Agent Switching ===
@@ -1418,6 +1860,22 @@ async def on_switch_to_ackoff(action: cl.Action):
 @cl.action_callback("switch_to_larry")
 async def on_switch_to_larry(action: cl.Action):
     await handle_agent_switch("larry")
+
+@cl.action_callback("switch_to_bono")
+async def on_switch_to_bono(action: cl.Action):
+    await handle_agent_switch("bono")
+
+@cl.action_callback("switch_to_knowns")
+async def on_switch_to_knowns(action: cl.Action):
+    await handle_agent_switch("knowns")
+
+@cl.action_callback("switch_to_domain")
+async def on_switch_to_domain(action: cl.Action):
+    await handle_agent_switch("domain")
+
+@cl.action_callback("switch_to_investment")
+async def on_switch_to_investment(action: cl.Action):
+    await handle_agent_switch("investment")
 
 
 async def handle_agent_switch(new_agent_id: str):
@@ -1473,9 +1931,9 @@ async def handle_agent_switch(new_agent_id: str):
     actions = []
     if new_bot.get("has_phases"):
         actions = [
-            cl.Action(name="show_example", payload={"action": "example"}, label="Show Example"),
-            cl.Action(name="next_phase", payload={"action": "next"}, label="Next Phase"),
-            cl.Action(name="think_through", payload={"action": "think"}, label="Think Through"),
+            cl.Action(name="show_example", payload={"action": "example"}, label="Show Example", tooltip="View a real-world example of this methodology"),
+            cl.Action(name="next_phase", payload={"action": "next"}, label="Next Phase", tooltip="Progress to the next workshop phase"),
+            cl.Action(name="think_through", payload={"action": "think"}, label="Think Through", tooltip="Systematically break down the problem"),
         ]
 
     # Add clear context button
@@ -1483,7 +1941,8 @@ async def handle_agent_switch(new_agent_id: str):
         name="clear_context",
         payload={"action": "clear"},
         label="Clear Context",
-        description="Start fresh without previous history"
+        description="Start fresh without previous history",
+        tooltip="🗑️ Clear conversation history and start fresh with this bot"
     ))
 
     # Generate a handoff response from the new bot
@@ -1515,7 +1974,7 @@ Be direct and engaging. Show your unique value."""
 
     # Send the handoff message
     await cl.Message(
-        content=f"**{new_bot.get('icon', '')} Switched to {new_bot.get('name')}**\n\n{handoff_message}",
+        content=f"**{new_bot.get('emoji', '')} Switched to {new_bot.get('name')}**\n\n{handoff_message}",
         actions=actions
     ).send()
 
@@ -2050,8 +2509,17 @@ Now synthesize this conversation in Larry's voice. Create a document titled "Con
             filename=filename
         )
 
+        # Show synthesis inline in chat AND offer download
         await cl.Message(
-            content=f"**📝 Larry's Synthesis Complete!**\n\nI've distilled our conversation into key insights. Click below to download:",
+            content=f"""**📝 Larry's Synthesis Complete!**
+
+---
+
+{synthesis}
+
+---
+
+**Download your synthesis:**""",
             elements=[file_element]
         ).send()
 
@@ -2505,6 +2973,82 @@ Your insights help us improve Mindrian!"""
         ).send()
         return  # Don't process as regular message
 
+    # Check if user is providing an image generation prompt
+    if cl.user_session.get("awaiting_image_prompt"):
+        cl.user_session.set("awaiting_image_prompt", False)
+        from utils.image_generation import generate_image, save_image_to_temp
+        from utils.usage_metrics import track_image_generation
+
+        prompt = message.content.strip()
+        if prompt:
+            async with cl.Step(name="Generating Image", type="tool") as step:
+                step.input = f"Prompt: {prompt}"
+
+                image_bytes, mime_type, metadata = await generate_image(
+                    prompt=prompt,
+                    model="fast",
+                    aspect_ratio="square"
+                )
+
+                if image_bytes:
+                    step.output = f"Image generated ({metadata.get('size_bytes', 0):,} bytes)"
+                    temp_path = save_image_to_temp(image_bytes, mime_type)
+
+                    # Track usage
+                    context_key = get_context_key()
+                    track_image_generation(context_key)
+
+                    await cl.Message(
+                        content=f"**Generated Image**\n\n*Prompt:* {prompt}",
+                        elements=[cl.Image(name="generated_image", path=temp_path, display="inline")],
+                        actions=[
+                            cl.Action(name="generate_image", payload={"prompt": prompt}, label="Regenerate"),
+                            cl.Action(name="generate_image", payload={}, label="New Image")
+                        ]
+                    ).send()
+                else:
+                    error_msg = metadata.get("user_message", metadata.get("error", "Unknown error"))
+                    step.output = f"Failed: {error_msg}"
+                    await cl.Message(content=f"**Image Generation Failed**\n\n{error_msg}").send()
+        return  # Don't process as regular message
+
+    # Check for image generation intent in message
+    from utils.image_generation import detect_image_generation_intent
+    is_image_request, image_prompt = detect_image_generation_intent(message.content)
+    if is_image_request and image_prompt:
+        from utils.image_generation import generate_image, save_image_to_temp
+        from utils.usage_metrics import track_image_generation
+
+        async with cl.Step(name="Generating Image", type="tool") as step:
+            step.input = f"Detected image request: {image_prompt}"
+
+            image_bytes, mime_type, metadata = await generate_image(
+                prompt=image_prompt,
+                model="fast",
+                aspect_ratio="square"
+            )
+
+            if image_bytes:
+                step.output = f"Image generated ({metadata.get('size_bytes', 0):,} bytes)"
+                temp_path = save_image_to_temp(image_bytes, mime_type)
+
+                # Track usage
+                context_key = get_context_key()
+                track_image_generation(context_key)
+
+                await cl.Message(
+                    content=f"**Generated Image**\n\n*Prompt:* {image_prompt}",
+                    elements=[cl.Image(name="generated_image", path=temp_path, display="inline")],
+                    actions=[
+                        cl.Action(name="generate_image", payload={"prompt": image_prompt}, label="Regenerate"),
+                        cl.Action(name="generate_image", payload={}, label="New Image")
+                    ]
+                ).send()
+                return  # Image generated, don't process as regular message
+            else:
+                # Fall through to regular processing if image generation failed
+                step.output = f"Image generation failed, falling back to text response"
+
     bot = cl.user_session.get("bot", BOTS["larry"])
     history = cl.user_session.get("history", [])
     current_phase = cl.user_session.get("current_phase", 0)
@@ -2516,49 +3060,118 @@ Your insights help us improve Mindrian!"""
     if session_id and session_id in stop_events:
         stop_events[session_id].clear()
 
-    # Process file attachments (PDF, DOCX, TXT, etc.)
+    # Process file attachments (PDF, DOCX, TXT, images, etc.)
     file_context = ""
+    image_parts = []  # For Gemini multimodal
+    image_elements = []  # For display
+    failed_images = []  # Track failed images for text fallback
+
     if message.elements:
-        from utils.file_processor import process_uploaded_file, format_file_context
+        from utils.file_processor import process_uploaded_file, format_file_context, is_image_file, get_image_mime_type
+        import os
 
         for element in message.elements:
             if hasattr(element, 'path') and element.path:
-                # Extract text from uploaded file
-                async with cl.Step(name=f"Processing: {element.name}", type="tool") as file_step:
-                    file_step.input = f"Extracting content from {element.name}"
+                # Check if it's an image file
+                if is_image_file(element.name):
+                    # Handle image upload for multimodal
+                    async with cl.Step(name=f"Processing image: {element.name}", type="tool") as img_step:
+                        img_step.input = f"Preparing image for analysis: {element.name}"
+                        image_processed = False
+                        try:
+                            # Check file size before reading (Gemini limit ~20MB)
+                            file_size = os.path.getsize(element.path)
+                            if file_size > 20 * 1024 * 1024:  # 20MB limit
+                                raise ValueError(f"Image too large ({file_size / 1024 / 1024:.1f}MB). Max 20MB.")
 
-                    content, metadata = process_uploaded_file(element.path, element.name)
+                            with open(element.path, "rb") as f:
+                                image_bytes = f.read()
 
-                    if metadata.get("error"):
-                        file_step.output = f"Error: {metadata['error']}"
-                        await cl.Message(content=f"Could not process **{element.name}**: {metadata['error']}").send()
-                    else:
-                        file_type = metadata.get("type", "file")
-                        char_count = metadata.get("char_count", 0)
-                        file_step.output = f"Extracted {char_count:,} characters from {file_type}"
+                            # Validate image bytes are not empty/corrupt
+                            if len(image_bytes) < 100:
+                                raise ValueError("Image file appears to be empty or corrupt")
 
-                        # Add to context for LLM
-                        file_context += format_file_context(element.name, content, metadata)
+                            mime_type = get_image_mime_type(element.name)
 
-                        # Notify user with inline PDF display if applicable
-                        info_msg = f"**{element.name}** processed"
-                        elements = []
+                            # Add to Gemini parts for multimodal
+                            image_parts.append(types.Part.from_bytes(data=image_bytes, mime_type=mime_type))
 
-                        if file_type == "pdf":
-                            info_msg += f" ({metadata.get('pages_extracted')}/{metadata.get('total_pages')} pages)"
-                            # Add inline PDF viewer
-                            elements.append(cl.Pdf(
-                                name=element.name,
-                                path=element.path,
-                                display="side"
-                            ))
-                        elif file_type == "docx":
-                            info_msg += f" ({metadata.get('paragraphs')} paragraphs)"
+                            # Add to display elements
+                            image_elements.append(cl.Image(name=element.name, path=element.path, display="inline"))
 
-                        if metadata.get("truncated"):
-                            info_msg += " *(truncated for length)*"
+                            # Track image upload
+                            from utils.usage_metrics import track_image_upload
+                            track_image_upload(get_context_key())
 
-                        await cl.Message(content=info_msg, elements=elements).send()
+                            img_step.output = f"Image ready ({len(image_bytes):,} bytes, {mime_type})"
+                            image_processed = True
+
+                        except Exception as img_err:
+                            img_step.output = f"Error: {str(img_err)}"
+                            failed_images.append({
+                                "name": element.name,
+                                "error": str(img_err),
+                                "path": element.path
+                            })
+
+                        # Fallback: Add text description if image processing failed
+                        if not image_processed:
+                            fallback_desc = f"\n\n---\n**IMAGE UPLOAD (Processing Failed): {element.name}**\n"
+                            fallback_desc += f"Error: {failed_images[-1]['error']}\n"
+                            fallback_desc += "Note: The user attempted to upload an image but it could not be processed for visual analysis. "
+                            fallback_desc += "Please acknowledge the upload attempt and ask the user to describe the image content or try re-uploading.\n---\n"
+                            file_context += fallback_desc
+
+                            await cl.Message(
+                                content=f"**Image processing failed for {element.name}**\n\n"
+                                        f"Error: {failed_images[-1]['error']}\n\n"
+                                        f"*The AI will acknowledge your upload but cannot see the image. "
+                                        f"Please describe what's in the image or try re-uploading.*"
+                            ).send()
+                else:
+                    # Extract text from uploaded document file
+                    async with cl.Step(name=f"Processing: {element.name}", type="tool") as file_step:
+                        file_step.input = f"Extracting content from {element.name}"
+
+                        content, metadata = process_uploaded_file(element.path, element.name)
+
+                        if metadata.get("error"):
+                            file_step.output = f"Error: {metadata['error']}"
+                            await cl.Message(content=f"Could not process **{element.name}**: {metadata['error']}").send()
+                        else:
+                            file_type = metadata.get("type", "file")
+                            char_count = metadata.get("char_count", 0)
+                            file_step.output = f"Extracted {char_count:,} characters from {file_type}"
+
+                            # Add to context for LLM
+                            file_context += format_file_context(element.name, content, metadata)
+
+                            # Notify user with inline PDF display if applicable
+                            info_msg = f"**{element.name}** processed"
+                            elements = []
+
+                            if file_type == "pdf":
+                                info_msg += f" ({metadata.get('pages_extracted')}/{metadata.get('total_pages')} pages)"
+                                # Add inline PDF viewer
+                                elements.append(cl.Pdf(
+                                    name=element.name,
+                                    path=element.path,
+                                    display="side"
+                                ))
+                            elif file_type == "docx":
+                                info_msg += f" ({metadata.get('paragraphs')} paragraphs)"
+
+                            if metadata.get("truncated"):
+                                info_msg += " *(truncated for length)*"
+
+                            await cl.Message(content=info_msg, elements=elements).send()
+
+        # Display uploaded images together
+        if image_elements:
+            await cl.Message(
+                content=f"**{len(image_elements)} image(s) uploaded** - analyzing...",
+                elements=image_elements
+            ).send()
 
     # Build contents for Gemini
     contents = []
@@ -2588,9 +3201,18 @@ Your insights help us improve Mindrian!"""
         full_user_message += f"\n\n{file_context}"
     full_user_message += phase_context + detail_instruction
 
+    # Build multimodal content (supports images + text)
+    user_parts = []
+    if image_parts:
+        # Add image parts first for Gemini multimodal
+        user_parts.extend(image_parts)
+    # Add text part (or default prompt if only images provided)
+    text_content = full_user_message if message.content.strip() else "Please analyze this image and describe what you see."
+    user_parts.append(types.Part(text=text_content))
+
     contents.append(types.Content(
         role="user",
-        parts=[types.Part(text=full_user_message)]
+        parts=user_parts
     ))
 
     # Create streaming message
@@ -2653,26 +3275,63 @@ The user expects you to understand the context and add your specialized value.
                 full_response += chunk.text
                 await msg.stream_token(chunk.text)
 
-        # Add action buttons to response for workshop bots
+        # Add action buttons to EVERY response (key actions always visible)
         actions = []
-        if bot.get("has_phases") and not stopped:
+        if not stopped:
+            # Core actions for ALL bots - always visible
             actions = [
                 cl.Action(
-                    name="show_example",
-                    payload={"action": "example"},
-                    label="Example",
-                ),
-                cl.Action(
-                    name="next_phase",
-                    payload={"action": "next"},
-                    label="Next Phase",
+                    name="deep_research",
+                    payload={"action": "research"},
+                    label="🔍 Research",
+                    tooltip="Search the web for relevant data and evidence",
                 ),
                 cl.Action(
                     name="think_through",
                     payload={"action": "think"},
-                    label="Think Through",
+                    label="🧠 Think",
+                    tooltip="Systematically analyze: problem → assumptions → gaps → next steps",
+                ),
+                cl.Action(
+                    name="synthesize_conversation",
+                    payload={"action": "synthesize"},
+                    label="📥 Synthesize",
+                    tooltip="Summarize conversation: key insights, breakthroughs, next steps",
                 ),
             ]
+
+            # Add workshop-specific actions
+            if bot.get("has_phases"):
+                actions.extend([
+                    cl.Action(
+                        name="show_example",
+                        payload={"action": "example"},
+                        label="📖 Example",
+                        tooltip="View a real-world example of this methodology",
+                    ),
+                    cl.Action(
+                        name="next_phase",
+                        payload={"action": "next"},
+                        label="➡️ Next Phase",
+                        tooltip="Progress to the next workshop phase",
+                    ),
+                ])
+            else:
+                # Non-workshop bots get example and multi-agent
+                actions.extend([
+                    cl.Action(
+                        name="show_example",
+                        payload={"action": "example"},
+                        label="📖 Example",
+                        tooltip="View a real-world example of this methodology",
+                    ),
+                    cl.Action(
+                        name="multi_agent_analysis",
+                        payload={"action": "multi_agent"},
+                        label="👥 Multi-Agent",
+                        tooltip="Get perspectives from multiple PWS experts",
+                    ),
+                ])
 
         # Add dynamic agent suggestions based on conversation context
         if not stopped and len(history) >= 2:
@@ -2702,10 +3361,25 @@ The user expects you to understand the context and add your specialized value.
 
         # Sync history to context store for preservation across bot switches
         context_key = get_context_key()
+        bot_id = cl.user_session.get("bot_id", "larry")
         context_store[context_key] = {
-            "bot_id": cl.user_session.get("bot_id", "larry"),
+            "bot_id": bot_id,
             "history": history.copy(),
         }
+
+        # Persist to Supabase for cross-session survival (fire-and-forget)
+        from utils.context_persistence import save_cross_bot_context
+        asyncio.create_task(save_cross_bot_context(
+            user_key=context_key,
+            history=history.copy(),
+            bot_id=bot_id,
+            bot_name=BOTS.get(bot_id, {}).get("name", bot_id)
+        ))
+
+        # Track usage metrics
+        from utils.usage_metrics import track_context_save, track_message
+        track_context_save(context_key, bot_id, len(history))
+        track_message(session_id or "unknown", context_key, bot_id)
 
         # Save session metadata for resume (phases, settings, current_phase)
         # Metadata is persisted through the data layer when threads are saved
@@ -2737,6 +3411,7 @@ The user expects you to understand the context and add your specialized value.
 @cl.on_audio_start
 async def on_audio_start():
     """Initialize audio streaming session."""
+    print("🎤 [AUDIO DEBUG] Audio recording started")
     cl.user_session.set("audio_chunks", [])
     cl.user_session.set("audio_mime_type", "audio/webm")
     return True  # Accept audio stream
@@ -2748,6 +3423,10 @@ async def on_audio_chunk(chunk: cl.InputAudioChunk):
     audio_chunks = cl.user_session.get("audio_chunks", [])
     audio_chunks.append(chunk.data)
     cl.user_session.set("audio_chunks", audio_chunks)
+
+    # Debug log first chunk
+    if len(audio_chunks) == 1:
+        print(f"🎤 [AUDIO DEBUG] First chunk received, size: {len(chunk.data)} bytes, mime: {chunk.mimeType}")
 
     # Store mime type from first chunk
     if chunk.mimeType:
@@ -2762,25 +3441,37 @@ async def on_audio_end(elements: list = None):
 
     audio_chunks = cl.user_session.get("audio_chunks", [])
     if not audio_chunks:
+        print("🎤 [AUDIO DEBUG] No audio chunks received - audio recording may have failed")
+        await cl.Message(content="⚠️ No audio detected. Please check microphone permissions and try again.").send()
         return
 
     # Combine audio chunks
     audio_data = b"".join(audio_chunks)
+    print(f"🎤 [AUDIO DEBUG] Audio recording ended. Total chunks: {len(audio_chunks)}, Total size: {len(audio_data)} bytes")
     cl.user_session.set("audio_chunks", [])  # Clear for next session
+
+    # Check if audio is too small (likely no speech)
+    if len(audio_data) < 1000:
+        print(f"🎤 [AUDIO DEBUG] Audio too small ({len(audio_data)} bytes) - likely no speech detected")
+        await cl.Message(content="⚠️ Audio recording too short. Please speak clearly and try again.").send()
+        return
 
     # Save to temp file for transcription
     mime_type = cl.user_session.get("audio_mime_type", "audio/webm")
     suffix = ".webm" if "webm" in mime_type else ".wav"
+    print(f"🎤 [AUDIO DEBUG] Mime type: {mime_type}, Saving as: {suffix}")
 
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as f:
         f.write(audio_data)
         audio_path = f.name
+    print(f"🎤 [AUDIO DEBUG] Audio saved to: {audio_path}")
 
     try:
         # Use Gemini for transcription (it supports audio)
         transcription = None
 
         # Try Google Speech-to-Text via Gemini
+        print("🎤 [AUDIO DEBUG] Sending to Gemini for transcription...")
         try:
             with open(audio_path, "rb") as audio_file:
                 audio_bytes = audio_file.read()
@@ -2799,13 +3490,15 @@ async def on_audio_end(elements: list = None):
                 ]
             )
             transcription = response.text.strip()
+            print(f"🎤 [AUDIO DEBUG] Transcription successful: '{transcription[:100]}...' ({len(transcription)} chars)")
         except Exception as e:
-            print(f"Transcription error: {e}")
-            await cl.Message(content="Could not transcribe audio. Please try again or type your message.").send()
+            print(f"🎤 [AUDIO DEBUG] Transcription error: {e}")
+            await cl.Message(content=f"Could not transcribe audio: {str(e)[:100]}. Please try again or type your message.").send()
             return
 
         if not transcription:
-            await cl.Message(content="No speech detected.").send()
+            print("🎤 [AUDIO DEBUG] Empty transcription returned")
+            await cl.Message(content="No speech detected in the audio.").send()
             return
 
         # Show what was heard
@@ -2852,24 +3545,40 @@ async def on_audio_end(elements: list = None):
 
         # Sync history to context store for preservation across bot switches
         context_key = get_context_key()
+        bot_id = cl.user_session.get("bot_id", "larry")
         context_store[context_key] = {
-            "bot_id": cl.user_session.get("bot_id", "larry"),
+            "bot_id": bot_id,
             "history": history.copy(),
         }
 
+        # Persist to Supabase for cross-session survival (fire-and-forget)
+        from utils.context_persistence import save_cross_bot_context
+        asyncio.create_task(save_cross_bot_context(
+            user_key=context_key,
+            history=history.copy(),
+            bot_id=bot_id,
+            bot_name=BOTS.get(bot_id, {}).get("name", bot_id)
+        ))
+
         # Generate voice response with ElevenLabs
-        from utils.media import text_to_speech
+        from utils.media import text_to_speech, ELEVENLABS_API_KEY
+        print(f"🔊 [AUDIO DEBUG] Generating TTS for response ({len(response_text)} chars)")
+        print(f"🔊 [AUDIO DEBUG] ElevenLabs API key configured: {bool(ELEVENLABS_API_KEY)}")
+
         audio_element = await text_to_speech(response_text[:2000])
 
         if audio_element:
+            print("🔊 [AUDIO DEBUG] TTS successful - audio element created")
             await cl.Message(
                 content=response_text,
                 elements=[audio_element]
             ).send()
         else:
-            await cl.Message(content=response_text).send()
+            print("🔊 [AUDIO DEBUG] TTS failed - no audio element returned. Check ELEVENLABS_API_KEY env var.")
+            await cl.Message(content=response_text + "\n\n*(Voice response unavailable - check ElevenLabs API key)*").send()
 
     except Exception as e:
+        print(f"🎤 [AUDIO DEBUG] Audio processing error: {e}")
         await cl.Message(content=f"Audio processing error: {str(e)}").send()
     finally:
         # Cleanup temp file

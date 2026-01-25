@@ -333,3 +333,232 @@ def export_feedback_report(date: Optional[str] = None) -> str:
 def is_feedback_configured() -> bool:
     """Check if Supabase is configured for feedback storage."""
     return bool(SUPABASE_URL and SUPABASE_SERVICE_KEY)
+
+
+# === Enhanced Analytics Dashboard ===
+
+async def get_feedback_dashboard(
+    days: int = 7,
+    bot_id: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Get comprehensive feedback analytics for dashboard display.
+
+    Args:
+        days: Number of days to analyze (default 7)
+        bot_id: Filter by specific bot (optional)
+
+    Returns:
+        Comprehensive analytics dictionary
+    """
+    from datetime import timedelta
+
+    client = get_supabase_client()
+    all_feedback = []
+
+    # Collect feedback from Supabase for the date range
+    if client:
+        end_date = datetime.utcnow()
+        start_date = end_date - timedelta(days=days)
+
+        # Iterate through date folders
+        current = start_date
+        while current <= end_date:
+            date_str = current.strftime("%Y-%m-%d")
+            try:
+                folder = f"feedback/{date_str}"
+                files = client.storage.from_(SUPABASE_BUCKET).list(folder)
+
+                for file_info in files:
+                    if file_info.get("name", "").endswith(".json"):
+                        path = f"{folder}/{file_info['name']}"
+                        try:
+                            content = client.storage.from_(SUPABASE_BUCKET).download(path)
+                            if content:
+                                feedback = json.loads(content.decode('utf-8'))
+                                all_feedback.append(feedback)
+                        except Exception:
+                            continue
+            except Exception:
+                pass
+            current += timedelta(days=1)
+
+    # Add in-memory cache
+    all_feedback.extend(_feedback_cache.values())
+
+    # Filter by bot if specified
+    if bot_id:
+        all_feedback = [f for f in all_feedback if f.get("bot_id") == bot_id]
+
+    # Remove duplicates by message_id
+    seen = set()
+    unique_feedback = []
+    for f in all_feedback:
+        msg_id = f.get("message_id")
+        if msg_id and msg_id not in seen:
+            seen.add(msg_id)
+            unique_feedback.append(f)
+    all_feedback = unique_feedback
+
+    # Calculate comprehensive stats
+    total = len(all_feedback)
+    if total == 0:
+        return {
+            "period_days": days,
+            "total_feedback": 0,
+            "message": "No feedback data found for this period"
+        }
+
+    positive = sum(1 for f in all_feedback if f.get("score", 0) >= 1)
+    negative = total - positive
+    with_comments = sum(1 for f in all_feedback if f.get("comment"))
+
+    # Daily breakdown
+    daily_stats = {}
+    for f in all_feedback:
+        date = f.get("date", "unknown")
+        if date not in daily_stats:
+            daily_stats[date] = {"positive": 0, "negative": 0, "total": 0}
+        daily_stats[date]["total"] += 1
+        if f.get("score", 0) >= 1:
+            daily_stats[date]["positive"] += 1
+        else:
+            daily_stats[date]["negative"] += 1
+
+    # Bot breakdown with detailed stats
+    bot_stats = {}
+    for f in all_feedback:
+        bot = f.get("bot_id", "unknown")
+        if bot not in bot_stats:
+            bot_stats[bot] = {
+                "positive": 0, "negative": 0, "total": 0,
+                "comments": [], "phases": {}
+            }
+        bot_stats[bot]["total"] += 1
+        if f.get("score", 0) >= 1:
+            bot_stats[bot]["positive"] += 1
+        else:
+            bot_stats[bot]["negative"] += 1
+            # Collect negative feedback comments for review
+            if f.get("comment"):
+                bot_stats[bot]["comments"].append({
+                    "comment": f["comment"],
+                    "user_question": f.get("user_message_preview", "N/A"),
+                    "timestamp": f.get("timestamp", "N/A")
+                })
+
+        # Track by phase
+        phase = f.get("phase", "general")
+        if phase not in bot_stats[bot]["phases"]:
+            bot_stats[bot]["phases"][phase] = {"positive": 0, "negative": 0}
+        if f.get("score", 0) >= 1:
+            bot_stats[bot]["phases"][phase]["positive"] += 1
+        else:
+            bot_stats[bot]["phases"][phase]["negative"] += 1
+
+    # Calculate satisfaction rates
+    for bot in bot_stats:
+        total_bot = bot_stats[bot]["total"]
+        bot_stats[bot]["satisfaction_rate"] = (
+            (bot_stats[bot]["positive"] / total_bot * 100) if total_bot > 0 else 0
+        )
+
+    # Recent feedback (last 10)
+    sorted_feedback = sorted(
+        all_feedback,
+        key=lambda x: x.get("timestamp", ""),
+        reverse=True
+    )[:10]
+
+    # Trend analysis (compare first half vs second half of period)
+    mid_point = len(all_feedback) // 2
+    if mid_point > 0:
+        first_half = all_feedback[:mid_point]
+        second_half = all_feedback[mid_point:]
+        first_rate = sum(1 for f in first_half if f.get("score", 0) >= 1) / len(first_half) * 100
+        second_rate = sum(1 for f in second_half if f.get("score", 0) >= 1) / len(second_half) * 100
+        trend = "improving" if second_rate > first_rate else "declining" if second_rate < first_rate else "stable"
+        trend_delta = second_rate - first_rate
+    else:
+        trend = "insufficient_data"
+        trend_delta = 0
+
+    return {
+        "period_days": days,
+        "total_feedback": total,
+        "positive": positive,
+        "negative": negative,
+        "satisfaction_rate": (positive / total * 100) if total > 0 else 0,
+        "with_comments": with_comments,
+        "daily_breakdown": daily_stats,
+        "by_bot": bot_stats,
+        "recent_feedback": sorted_feedback,
+        "trend": trend,
+        "trend_delta": round(trend_delta, 1),
+        "generated_at": datetime.utcnow().isoformat()
+    }
+
+
+def format_dashboard_message(dashboard: Dict[str, Any]) -> str:
+    """
+    Format dashboard data as a readable message for display.
+
+    Args:
+        dashboard: Dashboard data from get_feedback_dashboard()
+
+    Returns:
+        Formatted markdown string
+    """
+    if dashboard.get("total_feedback", 0) == 0:
+        return f"**Feedback Dashboard** ({dashboard.get('period_days', 7)} days)\n\nNo feedback data found for this period."
+
+    # Header
+    msg = f"""**Feedback Analytics Dashboard**
+*Period: Last {dashboard['period_days']} days | Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M')} UTC*
+
+---
+
+## Overall Summary
+
+| Metric | Value |
+|--------|-------|
+| Total Feedback | {dashboard['total_feedback']} |
+| Positive | {dashboard['positive']} |
+| Negative | {dashboard['negative']} |
+| **Satisfaction Rate** | **{dashboard['satisfaction_rate']:.1f}%** |
+| With Comments | {dashboard['with_comments']} |
+| Trend | {dashboard['trend'].replace('_', ' ').title()} ({'+' if dashboard['trend_delta'] > 0 else ''}{dashboard['trend_delta']}%) |
+
+---
+
+## By Bot
+
+| Bot | Total | Rate | Trend |
+|-----|-------|---------|-------|
+"""
+
+    # Bot stats
+    for bot, stats in dashboard.get("by_bot", {}).items():
+        emoji = "🟢" if stats["satisfaction_rate"] >= 80 else "🟡" if stats["satisfaction_rate"] >= 60 else "🔴"
+        msg += f"| {bot} | {stats['total']} | {stats['satisfaction_rate']:.1f}% | {emoji} |\n"
+
+    # Daily breakdown (last 5 days)
+    msg += "\n---\n\n## Daily Trend (Recent)\n\n| Date | Total | Rate |\n|------|-------|------|\n"
+    daily = dashboard.get("daily_breakdown", {})
+    for date in sorted(daily.keys(), reverse=True)[:5]:
+        stats = daily[date]
+        rate = (stats["positive"] / stats["total"] * 100) if stats["total"] > 0 else 0
+        msg += f"| {date} | {stats['total']} | {rate:.0f}% |\n"
+
+    # Recent negative feedback for review
+    negative_feedback = [f for f in dashboard.get("recent_feedback", []) if f.get("score", 0) == 0]
+    if negative_feedback:
+        msg += "\n---\n\n## Recent Negative Feedback (Action Items)\n\n"
+        for i, f in enumerate(negative_feedback[:3], 1):
+            msg += f"**{i}. {f.get('bot_id', 'unknown')}** - {f.get('timestamp', 'N/A')[:10]}\n"
+            msg += f"   - Question: *{f.get('user_message_preview', 'N/A')[:100]}*\n"
+            if f.get("comment"):
+                msg += f"   - Comment: \"{f['comment'][:150]}\"\n"
+            msg += "\n"
+
+    return msg
