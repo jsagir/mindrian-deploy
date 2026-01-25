@@ -3945,16 +3945,113 @@ async def on_audio_end(elements: list = None):
             parts=[types.Part(text=transcription + phase_context)]
         ))
 
-        # Generate response
-        response = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=contents,
-            config=types.GenerateContentConfig(
-                system_instruction=bot["system_prompt"],
-            )
-        )
+        # === REAL-TIME STREAMING: LLM → TTS ===
+        # Stream text from Gemini and convert to audio in real-time
+        from utils.media import ELEVENLABS_API_KEY
 
-        response_text = response.text
+        print(f"🔊 [AUDIO DEBUG] Starting streaming response with ElevenLabs: {bool(ELEVENLABS_API_KEY)}")
+
+        # Create message for streaming
+        msg = cl.Message(content="")
+        await msg.send()
+
+        response_text = ""
+
+        try:
+            # Try real-time streaming TTS
+            if ELEVENLABS_API_KEY:
+                from utils.elevenlabs_streaming import ElevenLabsStreamingTTS, MODEL_TURBO
+
+                tts = ElevenLabsStreamingTTS(model_id=MODEL_TURBO)
+                audio_chunks = []
+
+                # Stream from Gemini
+                response_stream = client.models.generate_content_stream(
+                    model="gemini-2.0-flash",
+                    contents=contents,
+                    config=types.GenerateContentConfig(
+                        system_instruction=bot["system_prompt"],
+                    )
+                )
+
+                # Collect text for TTS (we'll process in batches for lower latency)
+                text_buffer = ""
+                sentence_endings = {'.', '!', '?', '\n'}
+
+                for chunk in response_stream:
+                    if chunk.text:
+                        response_text += chunk.text
+                        text_buffer += chunk.text
+                        await msg.stream_token(chunk.text)
+
+                        # When we have a complete sentence, send to TTS
+                        if any(end in text_buffer for end in sentence_endings) and len(text_buffer) > 20:
+                            try:
+                                async for audio in tts.text_to_speech_streaming(text_buffer):
+                                    audio_chunks.append(audio)
+                            except Exception as tts_err:
+                                print(f"🔊 [AUDIO DEBUG] TTS chunk error: {tts_err}")
+                            text_buffer = ""
+
+                # Process any remaining text
+                if text_buffer.strip():
+                    try:
+                        async for audio in tts.text_to_speech_streaming(text_buffer):
+                            audio_chunks.append(audio)
+                    except Exception as tts_err:
+                        print(f"🔊 [AUDIO DEBUG] TTS final chunk error: {tts_err}")
+
+                await msg.update()
+
+                # Combine audio and attach to message
+                if audio_chunks:
+                    combined_audio = b"".join(audio_chunks)
+                    print(f"🔊 [AUDIO DEBUG] Streaming TTS complete: {len(combined_audio)} bytes")
+
+                    audio_element = cl.Audio(
+                        content=combined_audio,
+                        mime="audio/mpeg",
+                        name="response.mp3"
+                    )
+                    # Send audio as follow-up
+                    await cl.Message(
+                        content="🔊 *Voice response:*",
+                        elements=[audio_element]
+                    ).send()
+                else:
+                    print("🔊 [AUDIO DEBUG] No audio chunks generated")
+
+            else:
+                # Fallback: No ElevenLabs, just stream text
+                print("🔊 [AUDIO DEBUG] ElevenLabs not configured, text-only response")
+                response_stream = client.models.generate_content_stream(
+                    model="gemini-2.0-flash",
+                    contents=contents,
+                    config=types.GenerateContentConfig(
+                        system_instruction=bot["system_prompt"],
+                    )
+                )
+
+                for chunk in response_stream:
+                    if chunk.text:
+                        response_text += chunk.text
+                        await msg.stream_token(chunk.text)
+
+                await msg.update()
+
+        except Exception as stream_err:
+            print(f"🔊 [AUDIO DEBUG] Streaming error: {stream_err}")
+            # Fallback to non-streaming
+            response = client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=contents,
+                config=types.GenerateContentConfig(
+                    system_instruction=bot["system_prompt"],
+                )
+            )
+            response_text = response.text
+            await msg.stream_token(response_text)
+            await msg.update()
 
         # Update history
         history.append({"role": "user", "content": transcription})
@@ -3977,23 +4074,6 @@ async def on_audio_end(elements: list = None):
             bot_id=bot_id,
             bot_name=BOTS.get(bot_id, {}).get("name", bot_id)
         ))
-
-        # Generate voice response with ElevenLabs
-        from utils.media import text_to_speech, ELEVENLABS_API_KEY
-        print(f"🔊 [AUDIO DEBUG] Generating TTS for response ({len(response_text)} chars)")
-        print(f"🔊 [AUDIO DEBUG] ElevenLabs API key configured: {bool(ELEVENLABS_API_KEY)}")
-
-        audio_element = await text_to_speech(response_text[:2000])
-
-        if audio_element:
-            print("🔊 [AUDIO DEBUG] TTS successful - audio element created")
-            await cl.Message(
-                content=response_text,
-                elements=[audio_element]
-            ).send()
-        else:
-            print("🔊 [AUDIO DEBUG] TTS failed - no audio element returned. Check ELEVENLABS_API_KEY env var.")
-            await cl.Message(content=response_text + "\n\n*(Voice response unavailable - check ElevenLabs API key)*").send()
 
     except Exception as e:
         print(f"🎤 [AUDIO DEBUG] Audio processing error: {e}")

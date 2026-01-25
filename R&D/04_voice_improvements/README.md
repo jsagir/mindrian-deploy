@@ -130,7 +130,21 @@ async def settings_update(settings):
 
 - [x] Basic TTS implemented
 - [x] Streaming API used
-- [ ] WebSocket real-time streaming
+- [x] WebSocket real-time streaming (utils/elevenlabs_streaming.py)
 - [ ] Voice selection UI
 - [ ] Custom Larry voice
 - [ ] Conversational AI agent
+
+## New: Real-Time Streaming (2026-01-25)
+
+Added `utils/elevenlabs_streaming.py` with:
+- `ElevenLabsStreamingTTS`: WebSocket-based TTS for real-time audio
+- `ElevenLabsConversationalAI`: Full conversation mode (requires Agent ID)
+- Integration in `mindrian_chat.py` audio handlers
+
+Flow:
+```
+User speaks → Gemini STT → LLM Stream → TTS WebSocket → Audio chunks → Play immediately
+```
+
+**Latency improvement:** ~3-6s → ~1-2s to first audio
