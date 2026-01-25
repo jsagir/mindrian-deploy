@@ -3173,11 +3173,12 @@ async def on_deep_research(action: cl.Action):
 ---
 
 ### 📊 Research Summary
-- **Validation queries:** {len([r for r in all_results if r['type'] == 'validation'])}
-- **Supporting evidence:** {len([r for r in all_results if r['type'] == 'supporting'])}
-- **Challenging evidence:** {len([r for r in all_results if r['type'] == 'challenging'])}
-- **Context queries:** {len([r for r in all_results if r['type'] == 'context'])}
-- **Total sources:** {sum(len(r['results']) for r in all_results)}
+- **WHY queries:** {len(all_results.get('why', []))}
+- **WHAT IF queries:** {len(all_results.get('what_if', []))}
+- **HOW queries:** {len(all_results.get('how', []))}
+- **Validation queries:** {len(all_results.get('validation', []))}
+- **Challenge queries:** {len(all_results.get('challenge', []))}
+- **Total sources:** {sum(len(r.get('results', [])) for cat in all_results.values() for r in cat)}
 """
 
         # Add DataFrame if available
@@ -3186,10 +3187,11 @@ async def on_deep_research(action: cl.Action):
             try:
                 from utils.charts import create_research_results_dataframe
                 flat_results = []
-                for item in all_results:
-                    for r in item.get("results", []):
-                        r["query_type"] = item.get("type", "general")
-                    flat_results.extend(item.get("results", []))
+                for category, items in all_results.items():
+                    for item in items:
+                        for r in item.get("results", []):
+                            r["query_type"] = category
+                        flat_results.extend(item.get("results", []))
 
                 if flat_results:
                     df_element = await create_research_results_dataframe(flat_results[:12])
