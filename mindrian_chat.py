@@ -3828,19 +3828,31 @@ The user expects you to understand the context and add your specialized value.
 
 @cl.on_audio_start
 async def on_audio_start():
-    """Initialize real-time voice streaming session."""
+    """Initialize real-time voice streaming session with live STT."""
     import uuid
 
-    print("🎤 [VOICE] Audio recording started")
+    print("🎤 [VOICE] Audio started")
 
     # Initialize audio collection
     cl.user_session.set("audio_chunks", [])
-    cl.user_session.set("audio_mime_type", "audio/webm")
+    cl.user_session.set("audio_mime_type", "audio/pcm")
 
     # Initialize real-time voice output track
     track_id = str(uuid.uuid4())
     cl.user_session.set("voice_track_id", track_id)
     cl.user_session.set("voice_enabled", True)
+
+    # Check if Deepgram real-time STT is available
+    try:
+        from utils.realtime_stt import is_deepgram_enabled
+        if is_deepgram_enabled():
+            cl.user_session.set("use_deepgram", True)
+            print("🎤 [VOICE] Deepgram real-time STT enabled")
+        else:
+            cl.user_session.set("use_deepgram", False)
+            print("🎤 [VOICE] Using Gemini STT (Deepgram not configured)")
+    except ImportError:
+        cl.user_session.set("use_deepgram", False)
 
     print(f"🎤 [VOICE] Track ID: {track_id[:8]}...")
     return True  # Accept audio stream
@@ -3970,31 +3982,60 @@ async def on_audio_end(elements: list = None):
     mime_type = cl.user_session.get("audio_mime_type", "audio/webm")
     print(f"🎤 [VOICE] Mime type: {mime_type}")
 
-    # Convert PCM16 to WAV for Gemini (Gemini doesn't support raw PCM)
-    if "wav" in mime_type and not audio_data[:4] == b'RIFF':
-        # Raw PCM data mapped to audio/wav - add WAV header
-        print("🎤 [VOICE] Converting raw PCM to WAV format...")
-        audio_data = pcm16_to_wav(audio_data, sample_rate=24000)
-        print(f"🎤 [VOICE] WAV conversion complete: {len(audio_data)} bytes")
-
     try:
-        # === 1. TRANSCRIBE WITH GEMINI ===
-        print("🎤 [VOICE] Transcribing with Gemini...")
+        # === 1. TRANSCRIBE: Use Deepgram (fast) or Gemini (fallback) ===
+        transcription = None
+        use_deepgram = cl.user_session.get("use_deepgram", False)
 
-        transcription_response = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=[
-                types.Content(
-                    role="user",
-                    parts=[
-                        types.Part.from_bytes(data=audio_data, mime_type=mime_type),
-                        types.Part(text="Transcribe this audio exactly. Only output the transcription, nothing else.")
-                    ]
-                )
-            ]
-        )
-        transcription = transcription_response.text.strip()
-        print(f"🎤 [VOICE] Transcribed: '{transcription[:80]}...'")
+        if use_deepgram:
+            # Deepgram real-time STT (faster, ~300ms)
+            print("🎤 [VOICE] Transcribing with Deepgram...")
+            try:
+                from utils.realtime_stt import RealtimeSTT
+
+                stt = RealtimeSTT()
+
+                async def audio_gen():
+                    yield audio_data
+
+                async for result in stt.transcribe_stream(audio_gen()):
+                    if result.is_final:
+                        transcription = result.text
+                        print(f"🎤 [VOICE] Deepgram transcribed: '{transcription[:80]}...'")
+                        break
+
+            except Exception as dg_err:
+                print(f"🎤 [VOICE] Deepgram error: {dg_err}, falling back to Gemini")
+                use_deepgram = False
+
+        if not transcription:
+            # Fallback: Gemini STT (slower, ~1-2s)
+            print("🎤 [VOICE] Transcribing with Gemini...")
+
+            # Convert PCM16 to WAV for Gemini (Gemini doesn't support raw PCM)
+            gemini_audio = audio_data
+            gemini_mime = mime_type
+
+            if "wav" in mime_type or "pcm" in mime_type.lower():
+                if not audio_data[:4] == b'RIFF':
+                    print("🎤 [VOICE] Converting raw PCM to WAV for Gemini...")
+                    gemini_audio = pcm16_to_wav(audio_data, sample_rate=24000)
+                    gemini_mime = "audio/wav"
+
+            transcription_response = client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=[
+                    types.Content(
+                        role="user",
+                        parts=[
+                            types.Part.from_bytes(data=gemini_audio, mime_type=gemini_mime),
+                            types.Part(text="Transcribe this audio exactly. Only output the transcription, nothing else.")
+                        ]
+                    )
+                ]
+            )
+            transcription = transcription_response.text.strip()
+            print(f"🎤 [VOICE] Gemini transcribed: '{transcription[:80]}...'")
 
         if not transcription:
             await cl.Message(content="No speech detected in the audio.").send()
