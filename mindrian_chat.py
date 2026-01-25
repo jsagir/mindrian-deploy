@@ -4032,11 +4032,22 @@ async def on_audio_end(elements: list = None):
         response_text = ""
         track_id = cl.user_session.get("voice_track_id")
 
-        if VOICE_STREAMING_AVAILABLE and is_voice_enabled() and track_id:
-            # === REAL-TIME BROWSER AUDIO STREAMING ===
-            print(f"🔊 [VOICE] Starting real-time streaming to browser (track: {track_id[:8]}...)")
+        # Check if real-time streaming is available
+        streamer = None
+        use_realtime_voice = False
 
-            streamer = RealtimeVoiceStreamer()
+        if VOICE_STREAMING_AVAILABLE and is_voice_enabled() and track_id:
+            print(f"🔊 [VOICE] Attempting real-time streaming (track: {track_id[:8]}...)")
+            try:
+                streamer = RealtimeVoiceStreamer()
+                use_realtime_voice = True
+                print("🔊 [VOICE] Streamer initialized successfully")
+            except Exception as init_err:
+                print(f"🔊 [VOICE] Streamer init failed: {init_err}")
+                use_realtime_voice = False
+
+        if use_realtime_voice and streamer:
+            # === REAL-TIME BROWSER AUDIO STREAMING ===
 
             # Buffer for natural sentence chunking
             text_buffer = ""
@@ -4084,7 +4095,10 @@ async def on_audio_end(elements: list = None):
 
         else:
             # === FALLBACK: Text-only or downloadable audio ===
-            print("🔊 [VOICE] Fallback mode (no real-time streaming)")
+            # Log why real-time streaming was skipped
+            print(f"🔊 [VOICE] Fallback mode - VOICE_STREAMING_AVAILABLE={VOICE_STREAMING_AVAILABLE}")
+            if VOICE_STREAMING_AVAILABLE:
+                print(f"🔊 [VOICE] is_voice_enabled()={is_voice_enabled()}, track_id={track_id}")
 
             from utils.media import ELEVENLABS_API_KEY
 
@@ -4103,23 +4117,25 @@ async def on_audio_end(elements: list = None):
 
             await msg.update()
 
-            # Optional: Generate downloadable audio as fallback
+            # Generate downloadable audio as fallback
             if ELEVENLABS_API_KEY:
+                print(f"🔊 [VOICE] Generating fallback TTS audio...")
                 try:
                     from utils.media import text_to_speech
-                    audio_bytes = await text_to_speech(response_text[:4000])  # Limit for API
-                    if audio_bytes:
-                        audio_element = cl.Audio(
-                            content=audio_bytes,
-                            mime="audio/mpeg",
-                            name="response.mp3"
-                        )
+                    # text_to_speech returns cl.Audio element, not bytes
+                    audio_element = await text_to_speech(response_text[:4000])
+                    if audio_element:
                         await cl.Message(
                             content="🔊 *Voice response:*",
                             elements=[audio_element]
                         ).send()
+                        print("🔊 [VOICE] Fallback audio sent successfully")
+                    else:
+                        print("🔊 [VOICE] Fallback TTS returned None")
                 except Exception as tts_err:
                     print(f"🔊 [VOICE] Fallback TTS error: {tts_err}")
+            else:
+                print("🔊 [VOICE] ELEVENLABS_API_KEY not set, no audio output")
 
         # === 5. UPDATE HISTORY ===
         history.append({"role": "user", "content": transcription})
