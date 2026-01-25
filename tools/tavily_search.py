@@ -293,3 +293,219 @@ def research_investment_question(company_or_opportunity: str, question_number: i
         "findings": results.get("results", []),
         "summary": results.get("answer", ""),
     }
+
+
+# === Enhanced Tavily Methods for Matrix-Based Research ===
+
+def get_search_context(
+    query: str,
+    search_depth: str = "advanced",
+    max_results: int = 5,
+    max_tokens: int = 4000
+) -> str:
+    """
+    Get optimized search context for RAG applications.
+    Uses Tavily's get_search_context() for precise, fact-based context.
+
+    Args:
+        query: Search query
+        search_depth: "basic" or "advanced"
+        max_results: Number of results to consider
+        max_tokens: Max tokens in returned context
+
+    Returns:
+        Optimized context string for RAG
+    """
+    if not TAVILY_API_KEY:
+        return "Error: Tavily API key not configured"
+
+    try:
+        client = TavilyClient(api_key=TAVILY_API_KEY)
+        context = client.get_search_context(
+            query=query,
+            search_depth=search_depth,
+            max_results=max_results,
+            max_tokens=max_tokens
+        )
+        return context
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+
+def qna_search(query: str, search_depth: str = "advanced") -> Dict:
+    """
+    Get direct answer to a question using Tavily's QnA search.
+    Perfect for specific questions that need concise answers.
+
+    Args:
+        query: Question to answer
+        search_depth: "basic" or "advanced"
+
+    Returns:
+        Dictionary with answer and sources
+    """
+    if not TAVILY_API_KEY:
+        return {"error": "Tavily API key not configured", "answer": "", "sources": []}
+
+    try:
+        client = TavilyClient(api_key=TAVILY_API_KEY)
+        answer = client.qna_search(query=query, search_depth=search_depth)
+        return {
+            "query": query,
+            "answer": answer,
+            "sources": []  # QnA returns just the answer
+        }
+    except Exception as e:
+        return {"error": str(e), "answer": "", "sources": []}
+
+
+def batch_search(queries: List[Dict], max_concurrent: int = 5) -> List[Dict]:
+    """
+    Execute multiple searches efficiently.
+
+    Args:
+        queries: List of dicts with 'query', 'category', 'consolidation_group' keys
+        max_concurrent: Max parallel requests (Tavily handles this internally)
+
+    Returns:
+        List of search results with metadata
+    """
+    if not TAVILY_API_KEY:
+        return [{"error": "Tavily API key not configured"} for _ in queries]
+
+    client = TavilyClient(api_key=TAVILY_API_KEY)
+    results = []
+
+    for q in queries:
+        query_text = q.get("query", "")
+        category = q.get("category", "general")
+        group = q.get("consolidation_group", "default")
+
+        try:
+            response = client.search(
+                query=query_text,
+                search_depth="advanced",
+                max_results=5,
+                include_answer=True
+            )
+
+            results.append({
+                "query": query_text,
+                "category": category,
+                "consolidation_group": group,
+                "results": response.get("results", []),
+                "answer": response.get("answer", ""),
+                "source_count": len(response.get("results", []))
+            })
+        except Exception as e:
+            results.append({
+                "query": query_text,
+                "category": category,
+                "consolidation_group": group,
+                "error": str(e),
+                "results": [],
+                "answer": ""
+            })
+
+    return results
+
+
+def research_matrix_execution(
+    why_queries: List[str],
+    what_if_queries: List[str],
+    how_queries: List[str],
+    validation_queries: List[str],
+    challenge_queries: List[str]
+) -> Dict:
+    """
+    Execute a full research matrix with categorized queries.
+    Optimized for Beautiful Questions + Sequential Thinking workflow.
+
+    Args:
+        why_queries: Queries for WHY questions (root causes)
+        what_if_queries: Queries for WHAT IF questions (possibilities)
+        how_queries: Queries for HOW questions (implementation)
+        validation_queries: Camera Test queries (observable evidence)
+        challenge_queries: Devil's Advocate queries (counter-evidence)
+
+    Returns:
+        Comprehensive research results organized by category
+    """
+    all_results = {
+        "why": {"queries": [], "results": [], "context": "", "source_count": 0},
+        "what_if": {"queries": [], "results": [], "context": "", "source_count": 0},
+        "how": {"queries": [], "results": [], "context": "", "source_count": 0},
+        "validation": {"queries": [], "results": [], "context": "", "source_count": 0},
+        "challenge": {"queries": [], "results": [], "context": "", "source_count": 0},
+    }
+
+    def execute_category(queries: List[str], category: str):
+        category_results = []
+        for query in queries:
+            # Use get_search_context for RAG-optimized results
+            context = get_search_context(query, max_results=4, max_tokens=2000)
+
+            # Also get structured results
+            search_result = search_web(query, search_depth="advanced", max_results=4)
+
+            category_results.append({
+                "query": query,
+                "context": context,
+                "results": search_result.get("results", []),
+                "answer": search_result.get("answer", "")
+            })
+
+        return category_results
+
+    # Execute each category
+    if why_queries:
+        results = execute_category(why_queries, "why")
+        all_results["why"]["queries"] = why_queries
+        all_results["why"]["results"] = results
+        all_results["why"]["source_count"] = sum(len(r.get("results", [])) for r in results)
+        all_results["why"]["context"] = "\n\n".join([r.get("context", "") for r in results if r.get("context")])
+
+    if what_if_queries:
+        results = execute_category(what_if_queries, "what_if")
+        all_results["what_if"]["queries"] = what_if_queries
+        all_results["what_if"]["results"] = results
+        all_results["what_if"]["source_count"] = sum(len(r.get("results", [])) for r in results)
+        all_results["what_if"]["context"] = "\n\n".join([r.get("context", "") for r in results if r.get("context")])
+
+    if how_queries:
+        results = execute_category(how_queries, "how")
+        all_results["how"]["queries"] = how_queries
+        all_results["how"]["results"] = results
+        all_results["how"]["source_count"] = sum(len(r.get("results", [])) for r in results)
+        all_results["how"]["context"] = "\n\n".join([r.get("context", "") for r in results if r.get("context")])
+
+    if validation_queries:
+        results = execute_category(validation_queries, "validation")
+        all_results["validation"]["queries"] = validation_queries
+        all_results["validation"]["results"] = results
+        all_results["validation"]["source_count"] = sum(len(r.get("results", [])) for r in results)
+        all_results["validation"]["context"] = "\n\n".join([r.get("context", "") for r in results if r.get("context")])
+
+    if challenge_queries:
+        results = execute_category(challenge_queries, "challenge")
+        all_results["challenge"]["queries"] = challenge_queries
+        all_results["challenge"]["results"] = results
+        all_results["challenge"]["source_count"] = sum(len(r.get("results", [])) for r in results)
+        all_results["challenge"]["context"] = "\n\n".join([r.get("context", "") for r in results if r.get("context")])
+
+    # Calculate totals
+    total_sources = sum(cat["source_count"] for cat in all_results.values())
+    total_queries = sum(len(cat["queries"]) for cat in all_results.values())
+
+    return {
+        "categories": all_results,
+        "total_queries_executed": total_queries,
+        "total_sources_found": total_sources,
+        "summary": {
+            "why_sources": all_results["why"]["source_count"],
+            "what_if_sources": all_results["what_if"]["source_count"],
+            "how_sources": all_results["how"]["source_count"],
+            "validation_sources": all_results["validation"]["source_count"],
+            "challenge_sources": all_results["challenge"]["source_count"],
+        }
+    }

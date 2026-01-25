@@ -142,6 +142,98 @@ class Thought:
 
 
 @dataclass
+class ResearchQuery:
+    """A single research query with context."""
+    query: str
+    category: str          # why, what_if, how, validation, challenge
+    source_question: str   # The Beautiful Question or thought it addresses
+    consolidation_group: str  # For grouping results later
+    priority: int = 1      # 1=high, 2=medium, 3=low
+
+    def to_dict(self) -> Dict:
+        return {
+            "query": self.query,
+            "category": self.category,
+            "source_question": self.source_question,
+            "consolidation_group": self.consolidation_group,
+            "priority": self.priority
+        }
+
+
+@dataclass
+class ResearchMatrix:
+    """
+    Pre-consolidation research planning matrix.
+    Maps each Beautiful Question and thought to specific search queries.
+    """
+    # Queries organized by source
+    why_queries: List[ResearchQuery] = field(default_factory=list)
+    what_if_queries: List[ResearchQuery] = field(default_factory=list)
+    how_queries: List[ResearchQuery] = field(default_factory=list)
+    validation_queries: List[ResearchQuery] = field(default_factory=list)
+    challenge_queries: List[ResearchQuery] = field(default_factory=list)
+
+    # Consolidation groups for organizing results
+    consolidation_groups: Dict[str, str] = field(default_factory=dict)
+
+    def get_all_queries(self) -> List[ResearchQuery]:
+        """Return all queries in priority order."""
+        all_queries = (
+            self.why_queries +
+            self.what_if_queries +
+            self.how_queries +
+            self.validation_queries +
+            self.challenge_queries
+        )
+        return sorted(all_queries, key=lambda q: q.priority)
+
+    def get_queries_by_group(self) -> Dict[str, List[ResearchQuery]]:
+        """Group queries by consolidation group."""
+        groups = {}
+        for q in self.get_all_queries():
+            if q.consolidation_group not in groups:
+                groups[q.consolidation_group] = []
+            groups[q.consolidation_group].append(q)
+        return groups
+
+    def total_queries(self) -> int:
+        return len(self.get_all_queries())
+
+    def to_dict(self) -> Dict:
+        return {
+            "why_queries": [q.to_dict() for q in self.why_queries],
+            "what_if_queries": [q.to_dict() for q in self.what_if_queries],
+            "how_queries": [q.to_dict() for q in self.how_queries],
+            "validation_queries": [q.to_dict() for q in self.validation_queries],
+            "challenge_queries": [q.to_dict() for q in self.challenge_queries],
+            "consolidation_groups": self.consolidation_groups,
+            "total_queries": self.total_queries()
+        }
+
+
+@dataclass
+class ConsolidatedResults:
+    """Results organized by consolidation group for synthesis."""
+    group_name: str
+    group_description: str
+    queries_executed: List[str]
+    results: List[Dict]  # Search results
+    ai_summaries: List[str]  # Tavily AI summaries
+    key_findings: List[str]  # Extracted key points
+    source_count: int = 0
+
+    def to_dict(self) -> Dict:
+        return {
+            "group_name": self.group_name,
+            "group_description": self.group_description,
+            "queries_executed": self.queries_executed,
+            "results_count": len(self.results),
+            "source_count": self.source_count,
+            "key_findings": self.key_findings
+        }
+
+
+@dataclass
 class ResearchPlan:
     """Structured research plan derived from sequential thinking."""
     known_knowns: List[str]           # What we already know
@@ -187,7 +279,9 @@ class SequentialThinkingSession:
     beautiful_questions: Optional[BeautifulQuestions] = None  # Why/What If/How
     thoughts: List[Thought] = field(default_factory=list)
     branches: Dict[str, List[Thought]] = field(default_factory=dict)
-    research_plan: Optional[ResearchPlan] = None
+    research_matrix: Optional[ResearchMatrix] = None  # Pre-consolidation planning
+    research_plan: Optional[ResearchPlan] = None  # Legacy support
+    consolidated_results: Dict[str, ConsolidatedResults] = field(default_factory=dict)
     total_thoughts_estimated: int = 5
     created_at: datetime = field(default_factory=datetime.utcnow)
 
@@ -459,6 +553,140 @@ Build a pyramid answer with:
 Format as markdown with clear hierarchy showing the pyramid structure."""
 
 
+RESEARCH_MATRIX_PROMPT = """You are creating a comprehensive research matrix based on Beautiful Questions and Sequential Thinking.
+
+The goal is to generate multiple targeted search queries for EACH question/category, which will be executed and then consolidated by theme.
+
+SCQA ANALYSIS:
+{scqa}
+
+BEAUTIFUL QUESTIONS:
+{beautiful_questions}
+
+SEQUENTIAL THINKING INSIGHTS:
+{thoughts}
+
+For each category, generate 2-4 specific search queries that will:
+- Directly address the source question
+- Use searchable keywords (not full sentences)
+- Cover different angles of the question
+
+Also assign each query to a "consolidation_group" - themes that will organize the results:
+- Example groups: "market_evidence", "technical_feasibility", "user_validation", "competitive_landscape", "risk_factors"
+
+Format as JSON:
+```json
+{{
+    "consolidation_groups": {{
+        "group_name_1": "Description of what this group covers",
+        "group_name_2": "Description...",
+        "group_name_3": "Description..."
+    }},
+    "why_queries": [
+        {{"query": "search query text", "source_question": "The WHY question this addresses", "consolidation_group": "group_name", "priority": 1}},
+        {{"query": "another search query", "source_question": "WHY question", "consolidation_group": "group_name", "priority": 1}}
+    ],
+    "what_if_queries": [
+        {{"query": "search query", "source_question": "WHAT IF question", "consolidation_group": "group_name", "priority": 1}}
+    ],
+    "how_queries": [
+        {{"query": "search query", "source_question": "HOW question", "consolidation_group": "group_name", "priority": 1}}
+    ],
+    "validation_queries": [
+        {{"query": "Camera Test style observable evidence query", "source_question": "Assumption to validate", "consolidation_group": "group_name", "priority": 1}}
+    ],
+    "challenge_queries": [
+        {{"query": "Devil's advocate counter-evidence query", "source_question": "Challenge to hypothesis", "consolidation_group": "group_name", "priority": 2}}
+    ]
+}}
+```
+
+Generate 12-20 total queries across all categories. Ensure:
+- Each Beautiful Question has at least 2 supporting queries
+- Validation queries test Camera Test criteria (observable, measurable)
+- Challenge queries seek counter-evidence (Red Team perspective)
+- Consolidation groups are meaningful themes, not just categories"""
+
+
+CONSOLIDATION_PROMPT = """You are consolidating research results from multiple searches into a coherent synthesis.
+
+CONSOLIDATION GROUP: {group_name}
+GROUP DESCRIPTION: {group_description}
+
+QUERIES EXECUTED:
+{queries}
+
+SEARCH RESULTS AND CONTEXT:
+{results}
+
+Synthesize these results into:
+
+1. **KEY FINDINGS** (3-5 bullet points): The most important facts discovered
+2. **EVIDENCE STRENGTH**: Rate the evidence (Strong/Moderate/Weak) with justification
+3. **CONTRADICTIONS**: Any conflicting information found
+4. **GAPS IDENTIFIED**: What this research did NOT answer
+5. **SOURCES**: List the most credible sources with URLs
+
+Format as markdown. Be specific and cite sources."""
+
+
+FINAL_SYNTHESIS_PROMPT = """Create a comprehensive Minto Pyramid synthesis from all consolidated research groups.
+
+ORIGINAL SCQA:
+{scqa}
+
+BEAUTIFUL QUESTIONS:
+{beautiful_questions}
+
+CONSOLIDATED RESEARCH BY GROUP:
+{consolidated_groups}
+
+Build the final pyramid:
+
+## GOVERNING THOUGHT
+[Single key answer to the SCQA Question, validated or revised by evidence]
+
+## KEY ARGUMENTS (MECE)
+### Argument 1: [First key supporting point]
+- Evidence from: [consolidation groups]
+- Strength: [Strong/Moderate/Weak]
+
+### Argument 2: [Second key supporting point]
+- Evidence from: [consolidation groups]
+- Strength: [Strong/Moderate/Weak]
+
+### Argument 3: [Third key supporting point]
+- Evidence from: [consolidation groups]
+- Strength: [Strong/Moderate/Weak]
+
+## HYPOTHESIS VALIDATION
+- Original confidence: {original_confidence}%
+- Post-research confidence: [X]%
+- What changed: [Explanation]
+
+## BEAUTIFUL QUESTIONS ADDRESSED
+### WHY Questions
+- [Question]: [What we learned]
+
+### WHAT IF Questions
+- [Question]: [What we learned]
+
+### HOW Questions
+- [Question]: [What we learned]
+
+## REMAINING UNKNOWNS
+1. [Unknown that still needs investigation]
+2. [Another unknown]
+
+## ACTION RECOMMENDATIONS
+1. [Specific next step based on findings]
+2. [Another recommendation]
+
+## SOURCES (Top 10)
+1. [Source title](URL) - Key insight
+2. ..."""
+
+
 # === Helper Functions ===
 
 def format_thoughts_for_prompt(thoughts: List[Thought]) -> str:
@@ -576,3 +804,130 @@ def parse_research_plan_response(response_text: str) -> Optional[ResearchPlan]:
         except json.JSONDecodeError:
             pass
     return None
+
+
+def parse_research_matrix_response(response_text: str) -> Optional[ResearchMatrix]:
+    """Parse LLM response into ResearchMatrix with consolidation groups."""
+    import json
+    import re
+
+    json_match = re.search(r'```json\s*(.*?)\s*```', response_text, re.DOTALL)
+    if json_match:
+        try:
+            data = json.loads(json_match.group(1))
+
+            def parse_queries(query_list: List[Dict], category: str) -> List[ResearchQuery]:
+                """Parse a list of query dicts into ResearchQuery objects."""
+                parsed = []
+                for q in query_list:
+                    parsed.append(ResearchQuery(
+                        query=q.get("query", ""),
+                        category=category,
+                        source_question=q.get("source_question", ""),
+                        consolidation_group=q.get("consolidation_group", "general"),
+                        priority=q.get("priority", 1)
+                    ))
+                return parsed
+
+            return ResearchMatrix(
+                why_queries=parse_queries(data.get("why_queries", []), "why"),
+                what_if_queries=parse_queries(data.get("what_if_queries", []), "what_if"),
+                how_queries=parse_queries(data.get("how_queries", []), "how"),
+                validation_queries=parse_queries(data.get("validation_queries", []), "validation"),
+                challenge_queries=parse_queries(data.get("challenge_queries", []), "challenge"),
+                consolidation_groups=data.get("consolidation_groups", {})
+            )
+        except (json.JSONDecodeError, TypeError) as e:
+            print(f"Error parsing research matrix: {e}")
+            pass
+    return None
+
+
+def consolidate_results_by_group(
+    matrix: ResearchMatrix,
+    search_results: Dict[str, List[Dict]]
+) -> Dict[str, ConsolidatedResults]:
+    """
+    Group search results by consolidation_group for synthesis.
+
+    Args:
+        matrix: The ResearchMatrix with query metadata
+        search_results: Dict mapping category to list of search results
+
+    Returns:
+        Dict mapping group_name to ConsolidatedResults
+    """
+    grouped = {}
+
+    # Initialize groups from matrix
+    for group_name, description in matrix.consolidation_groups.items():
+        grouped[group_name] = ConsolidatedResults(
+            group_name=group_name,
+            group_description=description,
+            queries_executed=[],
+            results=[],
+            ai_summaries=[],
+            key_findings=[],
+            source_count=0
+        )
+
+    # Map queries to their results
+    all_queries = matrix.get_all_queries()
+
+    for category, results_list in search_results.items():
+        for i, result in enumerate(results_list):
+            # Find the matching query
+            category_queries = getattr(matrix, f"{category}_queries", [])
+            if i < len(category_queries):
+                query = category_queries[i]
+                group = query.consolidation_group
+
+                if group not in grouped:
+                    grouped[group] = ConsolidatedResults(
+                        group_name=group,
+                        group_description="Auto-created group",
+                        queries_executed=[],
+                        results=[],
+                        ai_summaries=[],
+                        key_findings=[],
+                        source_count=0
+                    )
+
+                grouped[group].queries_executed.append(query.query)
+                grouped[group].results.extend(result.get("results", []))
+                if result.get("answer"):
+                    grouped[group].ai_summaries.append(result.get("answer"))
+                grouped[group].source_count += len(result.get("results", []))
+
+    return grouped
+
+
+def format_consolidated_for_synthesis(consolidated: Dict[str, ConsolidatedResults]) -> str:
+    """Format consolidated results for the final synthesis prompt."""
+    lines = []
+
+    for group_name, results in consolidated.items():
+        lines.append(f"### {group_name.replace('_', ' ').title()}")
+        lines.append(f"*{results.group_description}*")
+        lines.append(f"- Queries executed: {len(results.queries_executed)}")
+        lines.append(f"- Sources found: {results.source_count}")
+        lines.append("")
+
+        if results.ai_summaries:
+            lines.append("**AI Summaries:**")
+            for summary in results.ai_summaries[:3]:  # Top 3 summaries
+                lines.append(f"> {summary[:500]}...")
+            lines.append("")
+
+        if results.results:
+            lines.append("**Top Sources:**")
+            for r in results.results[:5]:  # Top 5 results per group
+                title = r.get("title", "Unknown")
+                url = r.get("url", "")
+                snippet = r.get("content", "")[:200]
+                lines.append(f"- [{title}]({url}): {snippet}...")
+            lines.append("")
+
+        lines.append("---")
+
+    return "\n".join(lines)
