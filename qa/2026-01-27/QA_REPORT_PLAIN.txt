@@ -1,0 +1,397 @@
+QA REPORT — MINDRIAN — 2026-01-27
+==================================
+
+SESSION SUMMARY
+---------------
+6 commits pushed to main branch today. Primary feature: LangExtract Intelligence Layer (invisible coaching on every message). Secondary: 6 new research tool buttons, Neo4j schema rename, upload scripts, QA documentation.
+
+Commits:
+  4e683a9  refactor: Rename MCPTool to ResearchTool in graph orchestrator and tool dispatcher
+  5269a73  feat: Add research tool modules (govdata, trends, dataset, news) with caching
+  ca21048  feat: Add LangExtract Intelligence Layer — invisible coaching on every message
+  d6517fe  chore: Add LightRAG upload scripts and progress tracking
+  89853c2  docs: Add QA records for 2026-01-27 session
+  b36b52f  docs: Add comprehensive QA Review Guide
+
+
+========================================================================
+PART A: WHAT WAS BUILT TODAY
+========================================================================
+
+A1. LANGEXTRACT INTELLIGENCE LAYER
+-----------------------------------
+Invisible coaching system that runs on every user message. No UI changes. Zero latency impact.
+
+How it works:
+  - User sends message
+  - instant_extract() runs in under 5ms using regex patterns
+  - Detects: assumptions, certainty, problems, solutions, forward-looking language, data presence
+  - get_extraction_hint() generates a 1-sentence coaching instruction
+  - Instruction appended to system context (user never sees it)
+  - Bot responds with better coaching because of the hint
+  - After response: background_intelligence() fires every 5 turns as async task
+  - Deep LLM extraction runs, stores coherence scores in session
+  - Coherence scores influence future research button and agent suggestions
+
+Files changed:
+  mindrian_chat.py line 4231    instant_extract() call before GraphRAG
+  mindrian_chat.py line 4253    get_extraction_hint() appended to full_user_message
+  mindrian_chat.py line 4451    background_intelligence() async fire-and-forget task
+  mindrian_chat.py line 967     Extraction-driven agent scoring in suggest_agents_from_context()
+  mindrian_chat.py line 1067    Layer 0 extraction signals in suggest_research_tools()
+  tools/langextract.py          New functions: get_extraction_hint(), background_intelligence()
+
+Coaching hints generated:
+  Signal detected                          Hint appended to context
+  ---------------------------------------- ----------------------------------------------------------
+  Solution-focused, no problems mentioned  Redirect to problem definition
+  2+ assumptions, no data                  Probe which assumptions to validate
+  High certainty, no sources               Ask what evidence supports confidence
+  Forward-looking, no data                 Ask what current data supports projection
+
+Agent suggestion boosts from extraction:
+  Signal                                   Agent boosted    Score added
+  ---------------------------------------- --------------- -----------
+  Solution-focused + problems = 0          ackoff           +0.4
+  Assumptions >= 2                         redteam          +0.4
+  Forward-looking language                 tta              +0.3
+
+Research button boosts from extraction (Layer 0):
+  Signal                                   Button boosted   Reason
+  ---------------------------------------- --------------- ------------------------------------------
+  Certainty >= 1, no data                  Academic (ArXiv) Claims need evidence grounding
+  Forward-looking language                 Trends           Forward-looking discussion benefits from trend data
+  Assumptions >= 3                         News             Multiple assumptions, news may validate them
+  Coherence data_grounding < 4             Gov Data + Datasets  Low data grounding
+  Coherence assumption_awareness < 4       Academic (ArXiv) Hidden assumptions detected
+
+
+A2. RESEARCH TOOL BUTTONS (6 NEW)
+----------------------------------
+Contextual research buttons now appear after 2+ messages. Driven by a 4-layer decision engine.
+
+Layer 0: LangExtract signals         Under 5ms    Regex-detected patterns from current message
+Layer 1: Neo4j graph queries         About 50ms   Framework to ResearchTool to Technique relationships
+Layer 2: Problem context             About 50ms   Problem type classification
+Layer 3: Bot hints (fallback)        Under 1ms    Hardcoded per-bot research suggestions
+
+Buttons and when they appear:
+  Academic Evidence (arxiv_search)     Claims need validation, certainty without sources
+  Prior Art and Patents (patent_search)  Inventions, solutions, innovation landscape
+  Trends (trends_search)               Market trends, adoption curves, forward-looking
+  Gov Data (govdata_search)            Economic data, demographics, labor stats
+  Find Datasets (dataset_search)       Raw data needed to ground analysis
+  News Signal (news_search)            Current events, validating assumptions
+
+Bot-specific hints (Layer 3):
+  redteam    Gets: Academic, Datasets, News
+  ackoff     Gets: Academic, Gov Data, Datasets
+  scurve     Gets: Patents, Trends, Gov Data, News
+  tta        Gets: Patents, Trends, Datasets, News
+  jtbd       Gets: Gov Data, Datasets
+  All others get buttons only from Layers 0-2
+
+New files:
+  tools/trends_search.py     Google Trends via SerpAPI
+  tools/govdata_search.py    BLS + FRED + Census
+  tools/dataset_search.py    Kaggle + Socrata
+  tools/news_search.py       NewsMesh
+  tools/research_cache.py    Shared TTL cache, 10-min default
+  tools/README.md            Developer guide for all tools
+
+What happens when a button is clicked:
+  1. Header appears with reason ("Why: S-Curve timing uses patent filing patterns")
+  2. Gemini extracts a search query from last 4 messages
+  3. Results stream in with formatted output
+  4. Results injected into conversation history for follow-up reference
+
+
+A3. NEO4J SCHEMA RENAME
+-------------------------
+  Before                        After
+  ----------------------------- -----------------------------
+  Node label: MCPTool           Node label: ResearchTool
+  Relationship: ORCHESTRATES_MCP  Relationship: USES_TOOL
+  Relationship: USES_MCP        Relationship: USES_TOOL
+
+Files changed:
+  tools/graph_orchestrator.py   All Cypher queries updated
+  tools/tool_dispatcher.py      All docstrings and registry comments updated
+
+Full Neo4j path now:
+  ProblemType -> CynefinDomain -> Framework -> ResearchTool -> Technique
+  Relationships: ADDRESSES_PROBLEM_TYPE, PART_OF, USES_TECHNIQUE, USES_TOOL, SUPPORTS, LEADS_TO
+
+
+A4. LIGHTRAG UPLOAD SCRIPTS
+-----------------------------
+  scripts/lightrag_gentle_upload.py       Batch upload with progress tracking
+  scripts/lightrag_graph_push.py          Graph push utility
+  scripts/lightrag_graph_progress.json    Progress state
+  scripts/lightrag_upload_progress.json   Progress state
+  Not user-facing. Admin scripts only.
+
+
+========================================================================
+PART B: QA FEEDBACK ITEMS — STATUS
+========================================================================
+
+21 items from QA session. 3 done. 3 partial. 15 not changed.
+
+ITEM 1: SLIDER VISIBILITY AND DEFAULT
+  1a. Put slider on front/main page
+      STATUS: NOT CHANGED
+      Current: Slider is in Chainlit Settings panel. initial=5, range 1-10.
+      Needed: Move to chat header. Requires Chainlit UI customization.
+
+  1b. Default slider to 1
+      STATUS: NOT CHANGED
+      Current: initial=5 at mindrian_chat.py line 897
+      Needed: Change to initial=1. One-line change, not in today's scope.
+
+ITEM 2: BUTTON OVERLOAD
+  2a. Remove/relocate most bottom buttons
+      STATUS: NOT CHANGED
+      Current: All action buttons created in on_chat_start(), all visible.
+      Needed: Keep only Research + Synthesize visible. Move rest to menu.
+
+  2b. Limit suggested agent buttons to 1-2
+      STATUS: DONE
+      Current: max_suggestions=2 at line 916. Was already in place.
+      Today's improvement: Extraction scoring makes the 2 suggestions smarter.
+
+  2c. Move secondary actions to "More options" menu
+      STATUS: NOT CHANGED
+      Needed: Chainlit does not natively support kebab/dropdown menus.
+
+ITEM 3: RESEARCH VS DEEP RESEARCH VS THINK
+  3a. Consolidate Research and Deep Research
+      STATUS: NOT CHANGED
+      Current: Two callbacks: deep_research (line 3033), gemini_deep_research (line 3695).
+      Plus 6 new specific research buttons added today. Net button count increased.
+      Needed: Merge or remove one of the generic research buttons.
+
+  3b. Clarify what Think does
+      STATUS: NOT CHANGED
+      Current: think_through at line 3906. No tooltip.
+      Needed: Tooltip or move behind Advanced menu.
+
+ITEM 4: SYNTHESIZE
+  4a. Keep Synthesize always present
+      STATUS: DONE
+      Already pinned in on_chat_start(). No change needed.
+
+  4b. Naming: Synthesize vs Summarize
+      STATUS: NOT CHANGED
+      Needs team decision on label.
+
+ITEM 5: SIMPLE/ADVANCED MODE
+  5a. Add Simple/Advanced toggle
+      STATUS: NOT CHANGED
+      Needs significant UI architecture change. Could be two ChatProfiles or settings toggle.
+
+ITEM 6: MULTI-AGENT ANALYSIS
+  6a. Reduce prominence
+      STATUS: NOT CHANGED
+      multi_agent_analysis button at line 2032. Always visible.
+      Needed: Only show when high confidence.
+
+  6b. Respect slider setting
+      STATUS: NOT CHANGED
+      Handler does not read response_detail slider value.
+
+ITEM 7: AGENT DROPDOWN
+  7a. Keep dropdown for power users
+      STATUS: DONE
+      11-bot ChatProfile dropdown exists. Unchanged.
+
+  7b. Contextual hover descriptions
+      STATUS: PARTIAL
+      Suggested agent buttons now have contextual tooltips from extraction.
+      Dropdown descriptions remain static (Chainlit limitation).
+
+  7c. Plan for 50 agents
+      STATUS: NOT CHANGED
+      Future consideration. Not urgent at 11 bots.
+
+ITEM 8: PDF/IMAGES
+  8a. Warn about image limitations in PDFs
+      STATUS: NOT CHANGED
+      Needed: Upload message saying "Text extracted. Images not supported yet."
+
+ITEM 9: VOICE INPUT
+  9a. Reliable stop control
+      STATUS: NOT CHANGED
+      Requires Chainlit UI fix.
+
+  9b. "Voice is experimental" messaging
+      STATUS: NOT CHANGED
+
+ITEM 10: RESEARCH LINKS
+  10a. Clickable links and copy citations
+      STATUS: PARTIAL
+      New research tool outputs render markdown with clickable links.
+      No "copy all citations" button yet.
+
+ITEM 11: METRICS/FEEDBACK CONTROLS
+  11a. Hide from normal users
+      STATUS: NOT CHANGED
+      show_feedback_dashboard (line 2068) and show_usage_metrics (line 2084) still primary buttons.
+
+ITEM 12: MVP UI LAYOUT
+      STATUS: PARTIAL
+      Backend intelligence improved (smarter suggestions, better coaching).
+      UI layout unchanged (all buttons still visible, slider in settings).
+
+
+========================================================================
+PART C: SMOKE TESTS
+========================================================================
+
+TEST 1: Fresh session
+  Steps: Open fresh browser, navigate to Mindrian
+  Check: Larry is default bot, 4 starters visible, no delay
+  Pass: [ ]
+
+TEST 2: Solution jumping
+  Steps: Say "We should build an Uber for plumbing"
+  Check: Larry redirects to problem definition
+  Why: content_type=solution_focused + problems=0 triggers coaching hint
+  Pass: [ ]
+
+TEST 3: Assumption accumulation
+  Steps: Send 2+ messages with "assuming that...", "given that..."
+  Check: Red Team agent suggestion appears, bot probes assumptions
+  Why: assumptions >= 2 adds +0.4 to redteam score
+  Pass: [ ]
+
+TEST 4: Certainty without evidence
+  Steps: Say "This is definitely the right approach. Clearly the best option."
+  Check: Academic Evidence button appears, bot asks for evidence
+  Why: certainty >= 1 with no data triggers "Claims need evidence grounding"
+  Pass: [ ]
+
+TEST 5: Forward-looking language
+  Steps: Say "By 2030, every company will be AI-first"
+  Check: Trends button appears, TTA agent suggested
+  Why: is_forward_looking=True boosts TTA +0.3 and triggers trends reason
+  Pass: [ ]
+
+TEST 6: Research button execution
+  Steps: Click each of the 6 research buttons when they appear
+  Check: Results stream with reason header and formatted output
+  Check: Results include clickable links
+  Check: Results appended to conversation history
+  Pass: [ ]
+
+TEST 7: Background intelligence
+  Steps: Have 5+ turn conversation
+  Check: Server logs show background_intelligence running
+  Check: Supabase extractions/ bucket has new entries
+  Check: No visible change to user during processing
+  Pass: [ ]
+
+TEST 8: Graph-driven suggestions
+  Steps: Switch to S-Curve bot, mention "S-Curve analysis"
+  Check: Research buttons appear with framework-specific reasons
+  Check: Both GraphRAG and extraction hints contribute (not conflict)
+  Pass: [ ]
+
+TEST 9: Neo4j down (graceful degradation)
+  Steps: Disconnect Neo4j, continue chatting
+  Check: Buttons still appear via Layer 0 (extraction) + Layer 3 (bot hints)
+  Check: No error messages shown to user
+  Pass: [ ]
+
+TEST 10: Extract Insights button (regression)
+  Steps: Click "Extract Insights" at any point
+  Check: Works as before
+  Pass: [ ]
+
+TEST 11: Synthesize button (regression)
+  Steps: Click "Synthesize" after a conversation
+  Check: Summary produced
+  Pass: [ ]
+
+TEST 12: Bot switch via dropdown (regression)
+  Steps: Switch bots using ChatProfile dropdown
+  Check: Context preserved, correct bot loads
+  Pass: [ ]
+
+TEST 13: Bot switch via suggestion button (regression)
+  Steps: Click agent suggestion button
+  Check: Context preserved, buttons update for new bot
+  Pass: [ ]
+
+
+========================================================================
+PART D: EDGE CASES
+========================================================================
+
+  Scenario                              Expected behavior
+  ------------------------------------- --------------------------------------------------
+  First message (history < 2)           No research buttons appear
+  Neo4j unreachable                     Layer 0 + 3 still work, Layer 1 + 2 skip silently
+  API key missing for a tool            Click shows error for that tool, others unaffected
+  Click same button twice               Second click returns cached (10-min TTL)
+  Very short messages ("yes", "ok")     Likely no buttons, not enough signal
+  Hover over button                     Tooltip shows reason
+  Multiple buttons appear               Fixed order: Academic, Patents, Trends, Gov Data, Datasets, News
+  LangExtract import fails              App works as before, all wrapped in try/except
+  Supabase is down                      Background caching fails silently, everything else works
+
+
+========================================================================
+PART E: ENVIRONMENT VARIABLES
+========================================================================
+
+  Variable                  Button              Required?
+  ------------------------- ------------------- ---------
+  SERPAPI_API_KEY            Trends, Patents     Yes for these tools
+  FRED_API_KEY              Gov Data (FRED)     Yes for FRED
+  BLS_API_KEY               Gov Data (BLS)      Optional (higher limits)
+  DATA_GOV_API_KEY          Gov Data (Census)   Optional
+  KAGGLE_USERNAME           Find Datasets       Yes for Kaggle
+  KAGGLE_KEY                Find Datasets       Yes for Kaggle
+  SOCRATA_APP_TOKEN         Find Datasets       Optional (higher limits)
+  NEWSMESH_API_KEY          News Signal         Yes for news
+  (none needed)             Academic Evidence   Free (ArXiv API)
+  (none needed)             Prior Art/Patents   Free (when using ArXiv fallback)
+  GOOGLE_API_KEY            All (query extract)  Yes (existing)
+  NEO4J_URI                 Layer 1+2 graph     Optional (graceful degradation)
+  NEO4J_USERNAME            Layer 1+2 graph     Optional
+  NEO4J_PASSWORD            Layer 1+2 graph     Optional
+  SUPABASE_URL              Background caching  Optional
+  SUPABASE_SERVICE_KEY      Background caching  Optional
+
+Packages required in requirements.txt:
+  google-search-results     (SerpAPI for Trends + Patents)
+  sodapy                    (Socrata government data)
+  kaggle                    (Kaggle dataset search)
+
+
+========================================================================
+PART F: SUMMARY
+========================================================================
+
+What was built:
+  - Invisible intelligence layer on every message (coaching hints, agent boosts, research boosts)
+  - 6 new research tool buttons with 4-layer decision engine
+  - Neo4j schema alignment (MCPTool to ResearchTool)
+  - Background extraction every 5 turns with coherence scoring
+
+What was NOT built (pending UI pass):
+  - Slider moved to main page or defaulted to 1
+  - Button reduction (still showing all buttons)
+  - Research/Deep Research consolidation
+  - Simple/Advanced mode toggle
+  - Multi-agent de-emphasis
+  - PDF upload image warning
+  - Voice stop control improvements
+  - Metrics/feedback hidden from normal users
+
+Today's focus: backend intelligence. The 15 pending items are UI/UX layout changes.
+
+========================================================================
+END OF REPORT
+========================================================================
