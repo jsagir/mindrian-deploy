@@ -1,12 +1,12 @@
 """
-Tool Dispatcher — Maps Neo4j MCPTool nodes to actual callable Python functions.
+Tool Dispatcher — Maps Neo4j ResearchTool nodes to actual callable Python functions.
 
-The Neo4j graph contains MCPTool nodes with SUPPORTS/ORCHESTRATES_MCP relationships
+The Neo4j graph contains ResearchTool nodes with SUPPORTS/USES_TOOL relationships
 that describe *what each tool is good at*. This module bridges graph intelligence
 to actual execution by mapping tool names to Python callables.
 
 Architecture:
-    Neo4j MCPTool node → TOOL_REGISTRY → Python function → Result
+    Neo4j ResearchTool node → TOOL_REGISTRY → Python function → Result
 
 Available tools in Mindrian runtime:
     - Neo4j (graphrag_lite) — framework discovery, concept lookup, community context
@@ -33,7 +33,7 @@ logger = logging.getLogger("tool_dispatcher")
 
 
 # ── Tool Registry ────────────────────────────────────────────────────────────
-# Maps Neo4j MCPTool.name variants → (callable, category, description)
+# Maps Neo4j ResearchTool.name variants → (callable, category, description)
 # Lazy imports inside callables to avoid import errors when tools unavailable.
 
 def _neo4j_framework_lookup(query: str, **kwargs) -> Dict:
@@ -149,7 +149,7 @@ def _not_available(query: str, **kwargs) -> Dict:
     }
 
 
-# ── Registry: Neo4j MCPTool.name → (function, category) ─────────────────────
+# ── Registry: Neo4j ResearchTool.name → (function, category) ─────────────────
 
 TOOL_REGISTRY: Dict[str, Dict[str, Any]] = {
     # Neo4j tools (all map to graphrag_lite functions)
@@ -209,7 +209,7 @@ CATEGORY_FALLBACK: Dict[str, Callable] = {
 
 def resolve_tool(tool_name: str) -> Dict[str, Any]:
     """
-    Resolve a Neo4j MCPTool node name to its registry entry.
+    Resolve a Neo4j ResearchTool node name to its registry entry.
 
     Returns:
         {"fn": callable, "category": str, "available": bool}
@@ -234,10 +234,10 @@ def resolve_tool(tool_name: str) -> Dict[str, Any]:
 
 def execute_tool(tool_name: str, query: str, **kwargs) -> Dict:
     """
-    Execute a tool by its Neo4j MCPTool node name.
+    Execute a tool by its Neo4j ResearchTool node name.
 
     Args:
-        tool_name: The MCPTool.name from Neo4j
+        tool_name: The ResearchTool.name from Neo4j
         query: The query/input to pass
         **kwargs: Additional parameters
 
@@ -279,7 +279,7 @@ def execute_pipeline(tool_names: List[str], query: str, pass_context: bool = Tru
     Execute a sequence of tools, optionally passing context forward.
 
     Args:
-        tool_names: Ordered list of MCPTool node names
+        tool_names: Ordered list of ResearchTool node names
         query: Initial query
         pass_context: If True, append prior results as context to subsequent queries
 

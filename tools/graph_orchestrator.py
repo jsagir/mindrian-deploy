@@ -3,7 +3,7 @@ Graph-Driven Research Orchestrator
 ===================================
 
 Queries the Neo4j graph to discover:
-  ProblemType → CynefinDomain → Framework → MCPTool → Technique
+  ProblemType → CynefinDomain → Framework → ResearchTool → Technique
 
 Then executes the discovered tool pipeline via tool_dispatcher.
 
@@ -52,7 +52,7 @@ def discover_research_plan(challenge: str) -> ResearchPlan:
         1. Classify ProblemType from challenge keywords
         2. Map to CynefinDomain
         3. Find Frameworks via ADDRESSES_PROBLEM_TYPE
-        4. Get MCPTools via ORCHESTRATES_MCP / USES_MCP
+        4. Get ResearchTools via USES_TOOL
         5. Get Techniques via USES_TECHNIQUE / SUPPORTS
         6. Find ProcessStep chains via LEADS_TO
 
@@ -110,11 +110,11 @@ def discover_research_plan(challenge: str) -> ResearchPlan:
                     })
                     plan.techniques.extend(rec["techniques"])
 
-            # Step 4: MCPTools via ORCHESTRATES_MCP / USES_MCP
+            # Step 4: ResearchTools via USES_TOOL
             fw_names = [f["name"] for f in plan.frameworks]
             if fw_names:
                 result = session.run("""
-                    MATCH (f:Framework)-[:ORCHESTRATES_MCP|USES_MCP]->(m:MCPTool)
+                    MATCH (f:Framework)-[:USES_TOOL]->(m:ResearchTool)
                     WHERE f.name IN $frameworks
                     RETURN DISTINCT m.name AS tool, m.description AS desc
                 """, frameworks=fw_names)
@@ -125,7 +125,7 @@ def discover_research_plan(challenge: str) -> ResearchPlan:
             # If no tools from frameworks, try technique-based SUPPORTS
             if not plan.tool_names and plan.techniques:
                 result = session.run("""
-                    MATCH (m:MCPTool)-[:SUPPORTS]->(t:Technique)
+                    MATCH (m:ResearchTool)-[:SUPPORTS]->(t:Technique)
                     WHERE t.name IN $techniques
                     RETURN DISTINCT m.name AS tool, count(t) AS support_count
                     ORDER BY support_count DESC
