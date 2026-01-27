@@ -1,8 +1,32 @@
-# Neo4j Graph Writer Skill
-
-**Purpose:** Safely add nodes, relationships, and structured knowledge to the Mindrian Neo4j knowledge graph.
-
 ---
+skill: neo4j-graph-writer
+version: "1.0"
+description: Safely add nodes, relationships, and structured knowledge to the Mindrian Neo4j knowledge graph.
+author: mindrian
+tags:
+  - neo4j
+  - knowledge-graph
+  - graphrag
+  - schema-governance
+tools:
+  - neo4j-cypher
+  - read-neo4j-cypher
+  - write-neo4j-cypher
+references:
+  - scripts/neo4j_schema_post_cleanup.json
+  - tools/graphrag_lite.py
+  - tools/problem_classifier.py
+constraints:
+  max_batch_size: 200
+  max_result_nodes: 1000
+  neo4j_timeout_seconds: 3
+  memory_limit_mb: 512
+  always_use_merge: true
+  new_label_threshold: 200
+  new_relationship_threshold: 200
+---
+
+# Neo4j Graph Writer Skill
 
 ## Pre-Flight: WHAT → WHY → HOW
 
