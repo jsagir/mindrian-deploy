@@ -1,0 +1,146 @@
+{
+  "schema_version": "2.0-post-cleanup",
+  "generated": "2026-01-27",
+  "summary": {
+    "total_nodes": "~20,230",
+    "total_edges": "~166,250",
+    "lazy_graphrag_concepts": 7922,
+    "lazy_graphrag_co_occurs": "~122,909 (undirected)",
+    "lazy_graphrag_mentioned_in": 11935,
+    "total_label_types": 700,
+    "total_relationship_types": 1610,
+    "significant_relationship_types": 170,
+    "cleanup_actions_performed": [
+      "Deleted 728 orphan nodes (zero connections)",
+      "Deleted 147 garbage/stopword LazyGraphConcept nodes + 16,241 edges",
+      "Cleaned self-loops on LazyGraphConcept",
+      "Merged 29 CynefinDomain nodes → 5 canonical (deleted 24 duplicates, 5,058 edges)",
+      "Deleted 1,611 nameless orphan extraction artifacts (base label, <3 edges)",
+      "Enriched 450 remaining nameless nodes with fallback names",
+      "Converted 219 NEEDS_CLASSIFICATION_TO → RELATES_TO with needs_review flag",
+      "Deleted OrchestrationSystem supernode + 8,001 COORDINATES_MCP edges",
+      "A1: Deleted 340 garbage LazyGraphConcepts (markdown artifacts, URLs, unicode, code fragments) + 9,578 edges",
+      "A2: Merged 7 case-duplicate pairs (SLIDES/Slides, NATO/Nato, DNA/Dna, etc.)"
+    ]
+  },
+  "layers": {
+    "evidence_layer": {
+      "description": "Raw content chunks - the source evidence",
+      "labels": {
+        "Chunk": { "count": 1167, "key_props": ["id", "chunk_id", "content", "source"] },
+        "DocumentChunk": { "count": 1136, "key_props": ["content", "source", "chunk_index"] },
+        "FrameworkChunk": { "count": 31, "key_props": ["content", "framework"] }
+      },
+      "relationships": {
+        "NEXT_CHUNK": { "count": 1159, "pattern": "Chunk → Chunk" },
+        "FIRST_CHUNK": { "count": 28, "pattern": "Document → Chunk" }
+      }
+    },
+    "meaning_layer": {
+      "description": "Extracted entities, concepts, frameworks - semantic meaning",
+      "labels": {
+        "__Entity__": { "count": 5797, "key_props": ["name", "entity_type", "description"], "note": "LightRAG extraction entities" },
+        "Concept": { "count": 835, "key_props": ["name", "description"] },
+        "Framework": { "count": 267, "key_props": ["name", "description", "source"] },
+        "Person": { "count": 376, "key_props": ["name", "role"] },
+        "ProcessStep": { "count": 571, "key_props": ["name", "order"] },
+        "DictionaryTerm": { "count": 309, "key_props": ["name", "definition"] },
+        "ProblemType": { "count": 246, "key_props": ["name"] },
+        "Technique": { "count": 167, "key_props": ["name"] },
+        "Book": { "count": 157, "key_props": ["name", "author"] },
+        "CaseStudy": { "count": 24, "key_props": ["name", "description"] },
+        "CynefinDomain": { "count": 5, "key_props": ["name", "aliases"], "values": ["Clear", "Chaotic", "Complex", "Complicated", "Disorder"] }
+      },
+      "relationships": {
+        "HAS_ENTITY": { "count": 7772, "pattern": "Chunk → Entity" },
+        "MENTIONED_IN": { "count": 12564, "pattern": "LazyGraphConcept → Chunk" },
+        "INTRODUCES_TERM": { "count": 998, "pattern": "Chunk → DictionaryTerm" },
+        "INTRODUCES_FRAMEWORK": { "count": 125, "pattern": "Chunk → Framework" },
+        "AUTHORED_BY": { "count": 132, "pattern": "Book/CreativeWork → Person" }
+      }
+    },
+    "lazy_graphrag_layer": {
+      "description": "NLP-extracted concept co-occurrence graph with community detection",
+      "labels": {
+        "LazyGraphConcept": { "count": 8268, "key_props": ["name", "community_id", "degree", "chunk_count", "chunk_ids"] }
+      },
+      "relationships": {
+        "CO_OCCURS": { "count": 132016, "pattern": "LazyGraphConcept ↔ LazyGraphConcept", "note": "Weighted co-occurrence within same chunk" },
+        "MENTIONED_IN": { "count": 12564, "pattern": "LazyGraphConcept → Chunk" }
+      },
+      "communities": 39,
+      "note": "Zero LLM cost. Built via spaCy NLP + Louvain community detection"
+    },
+    "structural_layer": {
+      "description": "Organizational/structural relationships",
+      "labels": {
+        "Product": { "count": 1305, "key_props": ["name"] },
+        "Event": { "count": 1012, "key_props": ["name"] },
+        "StrategicResponse": { "count": 432, "key_props": ["name"] },
+        "DiagnosticElement": { "count": 338, "key_props": ["name"] },
+        "ReverseSalient": { "count": 233, "key_props": ["name"] },
+        "StrategicComponent": { "count": 231, "key_props": ["name"] },
+        "Problem": { "count": 226, "key_props": ["name"] },
+        "Organization": { "count": 138, "key_props": ["name"] },
+        "Domain": { "count": 85, "key_props": ["name"] },
+        "InnovationOpportunity": { "count": 56, "key_props": ["name"] },
+        "BeautifulQuestion": { "count": 43, "key_props": ["name"] }
+      },
+      "relationships": {
+        "SIMILAR": { "count": 2366, "pattern": "Entity ↔ Entity" },
+        "IMPLEMENTED_AS": { "count": 2052, "pattern": "Concept → Product/Process" },
+        "PART_OF": { "count": 1471, "pattern": "Component → Parent" },
+        "LEADS_TO": { "count": 309, "pattern": "Step → Step / Cause → Effect" },
+        "ALTERNATIVE_TO": { "count": 220, "pattern": "Framework ↔ Framework" },
+        "ENABLES": { "count": 366, "pattern": "Tool → Capability" },
+        "ADDRESSES_PROBLEM_TYPE": { "count": 292, "pattern": "Framework → ProblemType" },
+        "COMPLEMENTS": { "count": 148, "pattern": "Framework ↔ Framework" },
+        "SUPPORTS": { "count": 156, "pattern": "Tool → Framework" }
+      }
+    },
+    "infrastructure_layer": {
+      "description": "System/platform metadata nodes",
+      "labels": {
+        "MCPTool": { "count": 31, "key_props": ["name"], "note": "Orphaned after OrchestrationSystem deletion - kept as reference" },
+        "Agent": { "count": 54, "key_props": ["name", "role"] },
+        "File": { "count": 22, "key_props": ["name", "path"] },
+        "Document": { "count": 105, "key_props": ["name", "type"] }
+      }
+    },
+    "lightrag_base_layer": {
+      "description": "LightRAG extraction artifacts with multi-label typing",
+      "labels": {
+        "base": { "count": 447, "note": "LightRAG base label, sub-typed via concept/person/method/content/organization/UNKNOWN" }
+      },
+      "sub_labels": ["concept", "person", "method", "content", "organization", "UNKNOWN", "location", "event", "other", "data", "artifact"]
+    }
+  },
+  "top_relationship_types_by_count": [
+    { "type": "CO_OCCURS", "count": 132016 },
+    { "type": "MENTIONED_IN", "count": 12564 },
+    { "type": "HAS_ENTITY", "count": 7772 },
+    { "type": "SIMILAR", "count": 2366 },
+    { "type": "IMPLEMENTED_AS", "count": 2052 },
+    { "type": "HAS", "count": 1485 },
+    { "type": "PART_OF", "count": 1471 },
+    { "type": "NEXT_CHUNK", "count": 1159 },
+    { "type": "INTRODUCES_TERM", "count": 998 },
+    { "type": "DIRECTED", "count": 971 },
+    { "type": "ENHANCES_TOOL", "count": 549 },
+    { "type": "CREATED_BY", "count": 523 },
+    { "type": "INCLUDES", "count": 420 },
+    { "type": "INCORPORATES", "count": 388 },
+    { "type": "ENABLES", "count": 366 },
+    { "type": "RELATED_READING", "count": 344 },
+    { "type": "LEADS_TO", "count": 309 },
+    { "type": "ADDRESSES_PROBLEM_TYPE", "count": 292 },
+    { "type": "REVEALS", "count": 248 },
+    { "type": "ALTERNATIVE_TO", "count": 220 }
+  ],
+  "known_issues_remaining": {
+    "label_sprawl": "700+ labels, many with count=1. Future: consolidate to ~30 canonical labels",
+    "relationship_sprawl": "1,610 rel types, many with count=1. Future: consolidate to ~30 canonical types",
+    "base_layer_typing": "447 'base' nodes use multi-label typing (base+concept, base+person etc.) from LightRAG. Consider migrating to standard labels",
+    "relates_to_needs_review": "4 RELATES_TO edges with needs_review=true (converted from NEEDS_CLASSIFICATION_TO)"
+  }
+}

@@ -10,6 +10,7 @@ from .known_unknowns import KNOWN_UNKNOWNS_PROMPT
 from .domain_explorer import DOMAIN_EXPLORER_PROMPT
 from .pws_investment import PWS_INVESTMENT_PROMPT
 from .scenario_analysis import SCENARIO_ANALYSIS_PROMPT
+from .problem_classifier import PROBLEM_CLASSIFIER_PROMPT
 
 __all__ = [
     "LARRY_RAG_SYSTEM_PROMPT",
@@ -23,4 +24,5 @@ __all__ = [
     "DOMAIN_EXPLORER_PROMPT",
     "PWS_INVESTMENT_PROMPT",
     "SCENARIO_ANALYSIS_PROMPT",
+    "PROBLEM_CLASSIFIER_PROMPT",
 ]

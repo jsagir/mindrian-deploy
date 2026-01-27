@@ -19,6 +19,7 @@ Each subfolder represents a feature or capability that has been researched but n
 | `07_audiobook_content` | HIGH | TODO | PWS audiobook chapter URLs need to be added |
 | `08_video_tutorials` | HIGH | TODO | Workshop video URLs need to be added |
 | `09_graphrag_lite` | HIGH | **DONE** | Neo4j + Vector hybrid RAG for conversational context |
+| `10_graphrag_knowledge_base` | HIGH | **ACTIVE** | Graph schema, skill file, problem taxonomy, reverse salient spec |
 
 ---
 
