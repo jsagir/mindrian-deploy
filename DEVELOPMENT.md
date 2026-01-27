@@ -319,7 +319,7 @@ async def on_my_new_action(action: cl.Action):
 
     # Get context
     history = cl.user_session.get("history", [])
-    bot = cl.user_session.get("bot", BOTS["larry"])
+    bot = cl.user_session.get("bot", BOTS["lawrence"])
 
     # Do something with cl.Step for visibility
     async with cl.Step(name="Processing", type="run") as step:
@@ -858,10 +858,10 @@ class AgentState(TypedDict):
 
 # Build graph
 graph = StateGraph(AgentState)
-graph.add_node("larry", larry_agent)
+graph.add_node("lawrence", lawrence_agent)
 graph.add_node("redteam", redteam_agent)
 graph.add_node("router", route_agent)
-graph.add_edge("router", "larry")
+graph.add_edge("router", "lawrence")
 graph.add_edge("router", "redteam")
 ```
 

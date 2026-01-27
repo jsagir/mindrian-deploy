@@ -2,12 +2,21 @@
 
 This file is for AI assistants (Claude Code, etc.) to quickly understand this project and continue development effectively.
 
+> **REPO GUARD:** This is the **production deploy repo** (`mindrian-deploy`). All code changes go here.
+> Do NOT edit files in `mindrian-langgraph` or any other sibling folder — those are archived experiments.
+> The canonical working directory is `/home/jsagi/Mindrian/mindrian-deploy/`.
+
 ---
 
 ## Quick Context
 
 **What is Mindrian?**
-A Chainlit-based multi-bot platform for PWS (Problems Worth Solving) methodology workshops. Users chat with specialized AI bots (Larry, Ackoff, TTA, etc.) to work through structured innovation frameworks.
+A Chainlit-based multi-bot platform for PWS (Problems Worth Solving) methodology workshops. Users chat with specialized AI bots (Lawrence, Ackoff, TTA, etc.) to work through structured innovation frameworks.
+
+**Bot Naming:**
+- **Lawrence** (`"lawrence"`) — Default bot. Focused, concise PWS thinking partner (`simple_mode: True`).
+- **Larry Playground** (`"larry_playground"`) — Full-featured PWS lab with all tools, research, multi-agent analysis (`simple_mode: False`).
+- Both share the same system prompt (`LARRY_RAG_SYSTEM_PROMPT` from `prompts/larry_core.py`).
 
 **Tech Stack:**
 - **Frontend/UI:** Chainlit 2.9+
@@ -62,7 +71,8 @@ This is the heart of the application. Key sections:
 # === Important Data Structures ===
 
 BOTS = {
-    "larry": { "name": "Larry", "icon": "🧠", "system_prompt": LARRY_PROMPT, ... },
+    "lawrence": { "name": "Lawrence", "simple_mode": True, "system_prompt": LARRY_RAG_SYSTEM_PROMPT, ... },
+    "larry_playground": { "name": "Larry Playground", "simple_mode": False, "system_prompt": LARRY_RAG_SYSTEM_PROMPT, ... },
     "tta": { "name": "Trending to the Absurd", ... },
     "jtbd": { ... },
     "scurve": { ... },
@@ -77,7 +87,7 @@ WORKSHOP_PHASES = {
 }
 
 STARTERS = {
-    "larry": [cl.Starter(label="...", message="...", icon="..."), ...],
+    "lawrence": [cl.Starter(label="...", message="...", icon="..."), ...],
     # 4 starters per bot
 }
 
@@ -582,14 +592,14 @@ Auto-enabled when Neo4j environment variables are configured:
 ```python
 # Imported at top of mindrian_chat.py
 try:
-    from tools.graphrag_lite import enrich_for_larry
+    from tools.graphrag_lite import enrich_for_larry, enrich_for_bot
     GRAPHRAG_ENABLED = True
 except ImportError:
     GRAPHRAG_ENABLED = False
 
 # In @cl.on_message handler
 if GRAPHRAG_ENABLED:
-    hint = enrich_for_larry(message.content, turn_count)
+    hint = enrich_for_bot(message.content, turn_count, bot_id="lawrence")
     if hint:
         full_user_message += f"\n\n[GraphRAG context: {hint}]"
 ```
@@ -720,7 +730,7 @@ Feedback is stored in `utils/feedback.py` with Supabase persistence:
   "score": 1,  // 1 = thumbs up, 0 = thumbs down
   "rating": "positive",
   "comment": "Optional user comment",
-  "bot_id": "larry",
+  "bot_id": "lawrence",
   "phase": "Phase 3",
   "message_preview": "First 500 chars of AI response...",
   "user_message_preview": "What user asked...",
@@ -735,7 +745,7 @@ Feedback is stored in `utils/feedback.py` with Supabase persistence:
 from utils.feedback import get_feedback_stats, export_feedback_report
 
 # Get statistics
-stats = get_feedback_stats(date="2026-01-22", bot_id="larry")
+stats = get_feedback_stats(date="2026-01-22", bot_id="lawrence")
 # Returns: total, positive, negative, positive_rate, by_bot, recent_negative
 
 # Export report
@@ -767,7 +777,7 @@ AUDIOBOOK_CHAPTERS = {
             "url": "https://your-supabase-url/audio/pws_intro.mp3",
             "duration": "15:00",
             "keywords": ["problem", "worth solving", "introduction"],
-            "bot_relevance": ["larry"],
+            "bot_relevance": ["lawrence", "larry_playground"],
         },
         # ... more chapters
     },
@@ -842,7 +852,7 @@ The platform now supports multi-agent workflows where multiple agents collaborat
 ### Agent Types
 
 **Conversation Agents** (PWS methodology experts):
-- larry, tta, jtbd, scurve, redteam, ackoff
+- lawrence, larry_playground, tta, jtbd, scurve, redteam, ackoff
 - Each has a specialized system prompt
 - Provide expert perspectives
 
@@ -893,7 +903,7 @@ BACKGROUND_AGENTS["myagent"] = MyAgent()
 ```python
 result = await run_enhanced_workflow(
     query,
-    conversation_agents=["larry"],
+    conversation_agents=["lawrence"],
     background_agents=["myagent", "research"]
 )
 ```

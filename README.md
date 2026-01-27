@@ -1,6 +1,6 @@
 # Mindrian - Multi-Bot PWS Platform
 
-A conversational AI platform for Problem Worth Solving (PWS) methodology, featuring Larry (the core thinking partner) and specialized workshop bots powered by Google Gemini with RAG-based knowledge retrieval.
+A conversational AI platform for Problem Worth Solving (PWS) methodology, featuring Lawrence (the focused thinking partner) and Larry Playground (the full-featured lab), plus specialized workshop bots powered by Google Gemini with RAG-based knowledge retrieval.
 
 **Live Demo:** https://mindrian.onrender.com
 **Repository:** https://github.com/jsagir/mindrian-deploy
@@ -30,7 +30,8 @@ A conversational AI platform for Problem Worth Solving (PWS) methodology, featur
 
 Mindrian is a Chainlit-based multi-bot platform that guides users through structured innovation workshops using the PWS (Problems Worth Solving) methodology. Each bot specializes in a different PWS tool:
 
-- **Larry** - The core conversational partner
+- **Lawrence** - The focused PWS thinking partner (default)
+- **Larry Playground** - Full-featured PWS lab with all tools
 - **Trending to the Absurd (TTA)** - Escape presentism, find future problems
 - **Jobs to Be Done (JTBD)** - Discover what customers hire products for
 - **S-Curve Analysis** - Analyze technology timing and disruption
@@ -45,7 +46,8 @@ The platform uses **Gemini 3 Flash** with **Gemini File Search** (RAG) to retrie
 
 | Bot ID | Name | Icon | Phases | Purpose |
 |--------|------|------|--------|---------|
-| `larry` | Larry | brain | N/A | General PWS thinking partner |
+| `lawrence` | Lawrence | 🧠 | N/A | Focused PWS thinking partner (default) |
+| `larry_playground` | Larry Playground | 🔬 | N/A | Full-featured PWS lab — all tools, research, multi-agent |
 | `tta` | Trending to the Absurd | crystal_ball | 8 | Escape presentism, find future problems |
 | `jtbd` | Jobs to Be Done | dart | 7 | Discover customer jobs |
 | `scurve` | S-Curve Analysis | chart_increasing | 6 | Technology timing analysis |
