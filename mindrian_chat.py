@@ -2360,56 +2360,147 @@ Be direct and engaging. Show your unique value."""
 
 @cl.action_callback("show_example")
 async def on_show_example(action: cl.Action):
-    """Handle show example button click - generates a context-relevant example.
+    """Show example — LazyGraph + Tavily + Gemini pipeline.
 
-    Uses conversation history to produce an example that matches what the user
-    is actually discussing, not a random static example.
+    1. Read conversation context
+    2. Query LazyGraph for related concepts, frameworks, techniques
+    3. Gemini extracts a search query for the best real-world example
+    4. Tavily fetches actual web sources about that example
+    5. Gemini synthesizes a concrete story from graph + web data
+    Falls back gracefully at every step.
     """
     current_phase = cl.user_session.get("current_phase", 0)
     chat_profile = cl.user_session.get("chat_profile", "lawrence")
     session_id = cl.user_session.get("id", "default")
     history = cl.user_session.get("history", [])
 
-    # Build conversation summary for context-aware example generation
     recent_context = " ".join(
         [m.get("content", "") for m in history[-6:]]
     )[-1200:]
 
-    # If there's conversation context, generate a relevant example via Gemini
-    if recent_context.strip():
-        try:
-            from utils.dynamic_examples import BOT_TO_METHODOLOGY
-            methodology_names = BOT_TO_METHODOLOGY.get(chat_profile, ["PWS"])
-            methodology = methodology_names[0]
+    # No conversation yet → static fallback
+    if not recent_context.strip():
+        await _show_fallback_example(chat_profile, current_phase, session_id)
+        return
 
-            prompt = (
-                f"Based on this conversation:\n\n{recent_context}\n\n"
-                f"Give ONE specific, real-world example that illustrates the concept "
-                f"being discussed. The example should be a concrete historical or "
-                f"business case — with names, dates, and outcomes — that directly "
-                f"parallels or illuminates what the user is exploring.\n\n"
-                f"The user is in a {methodology} workshop context. "
-                f"Do NOT explain the methodology itself. Give a STORY, not a definition.\n\n"
-                f"Format: **Title**: 2-4 sentence example with specific details."
-            )
+    msg = cl.Message(content="")
+    await msg.send()
+    await msg.stream_token("**📖 Finding a relevant example...**\n\n")
 
-            response = client.models.generate_content(
-                model="gemini-2.0-flash",
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    temperature=0.7,
-                    max_output_tokens=400,
-                ),
-            )
+    # --- Step 1: LazyGraph context ---
+    graph_hint = ""
+    graph_concepts = []
+    try:
+        from tools.graphrag_lite import light_context, _extract_keywords
+        keywords = _extract_keywords(recent_context)
+        if keywords:
+            hint, trace = light_context(recent_context[:500], context_type="auto")
+            if hint:
+                graph_hint = hint
+                graph_concepts = trace.get("lazy_trace", {}).get("matched_concepts", [])
+    except Exception as e:
+        print(f"Example graph lookup error: {e}")
 
-            if response.text and len(response.text.strip()) > 20:
-                await cl.Message(content=f"**📖 Example:**\n\n{response.text.strip()}").send()
-                return
+    # --- Step 2: Gemini extracts a search query ---
+    search_query = ""
+    try:
+        from utils.dynamic_examples import BOT_TO_METHODOLOGY
+        methodology = BOT_TO_METHODOLOGY.get(chat_profile, ["PWS"])[0]
 
-        except Exception as e:
-            print(f"Context-aware example error: {e}")
+        graph_block = ""
+        if graph_hint:
+            graph_block = f"\nKnowledge graph context: {graph_hint}\nMatched concepts: {', '.join(graph_concepts[:5])}\n"
 
-    # Fallback: use the existing diverse example system (static/Neo4j/File Search)
+        query_prompt = (
+            f"Conversation:\n{recent_context}\n"
+            f"{graph_block}\n"
+            f"The user is exploring this topic in a {methodology} workshop.\n"
+            f"Extract a web search query (max 10 words) to find a specific real-world "
+            f"historical or business CASE STUDY that parallels or illuminates the topic "
+            f"they're discussing. Focus on finding a concrete STORY, not a definition.\n"
+            f"Return ONLY the search query, nothing else."
+        )
+
+        qr = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=query_prompt,
+            config=types.GenerateContentConfig(temperature=0.3, max_output_tokens=30),
+        )
+        search_query = qr.text.strip().strip('"').strip("'")
+    except Exception as e:
+        print(f"Example query extraction error: {e}")
+
+    # --- Step 3: Tavily web search for real sources ---
+    web_evidence = ""
+    try:
+        if search_query:
+            from tools.tavily_search import search_web
+            results = search_web(search_query, search_depth="basic", max_results=3)
+            snippets = []
+            for r in results.get("results", []):
+                title = r.get("title", "")
+                content = r.get("content", "")[:300]
+                url = r.get("url", "")
+                if content:
+                    snippets.append(f"- {title}: {content} ({url})")
+            if snippets:
+                web_evidence = "\n".join(snippets)
+    except Exception as e:
+        print(f"Example Tavily search error: {e}")
+
+    # --- Step 4: Gemini synthesizes the example ---
+    try:
+        g_block = f"\nGraph context: {graph_hint}" if graph_hint else ""
+        w_block = f"\nWeb sources:\n{web_evidence}" if web_evidence else ""
+
+        synthesis_prompt = (
+            f"Conversation context:\n{recent_context}\n"
+            f"{g_block}"
+            f"{w_block}\n\n"
+            f"Based on the conversation and the sources above, write ONE specific, "
+            f"real-world example that directly parallels what the user is discussing.\n\n"
+            f"Rules:\n"
+            f"- Tell a STORY: specific names, dates, events, and outcomes\n"
+            f"- Do NOT explain methodology or frameworks — only the example itself\n"
+            f"- Connect the example back to the user's topic in 1 final sentence\n"
+            f"- If web sources provided real data, cite it with the URL\n"
+            f"- If no web sources, use your knowledge of real historical cases\n"
+            f"- Keep it to 4-8 sentences total\n\n"
+            f"Format: **Title (Year/Era)**: The story..."
+        )
+
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=synthesis_prompt,
+            config=types.GenerateContentConfig(temperature=0.7, max_output_tokens=500),
+        )
+
+        if response.text and len(response.text.strip()) > 30:
+            source_note = ""
+            if web_evidence:
+                source_note = "\n\n*Sources found via web search.*"
+            elif graph_hint:
+                source_note = "\n\n*Context enriched by knowledge graph.*"
+
+            await msg.stream_token(response.text.strip() + source_note)
+            await msg.update()
+
+            # Inject into history so the bot can reference it
+            history.append({"role": "model", "content": f"[Example shown]\n{response.text.strip()}"})
+            cl.user_session.set("history", history)
+            return
+
+    except Exception as e:
+        print(f"Example synthesis error: {e}")
+
+    # --- Fallback ---
+    await msg.stream_token("*(Showing a general example instead.)*\n\n")
+    await msg.update()
+    await _show_fallback_example(chat_profile, current_phase, session_id)
+
+
+async def _show_fallback_example(chat_profile: str, current_phase: int, session_id: str):
+    """Fallback example from static/Neo4j/File Search pool."""
     try:
         from utils.dynamic_examples import (
             get_diverse_example,
