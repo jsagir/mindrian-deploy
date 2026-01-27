@@ -246,18 +246,31 @@ WORKSHOP_PHASES = {
 
 # === Bot Configurations ===
 BOTS = {
-    "larry": {
-        "name": "Larry",
+    "lawrence": {
+        "name": "Lawrence",
         "icon": "/public/icons/larry.svg",
-        "emoji": "🧠",  # Keep emoji for inline use
-        "description": "General PWS thinking partner",
+        "emoji": "🧠",
+        "description": "Your PWS thinking partner — focused and concise",
         "system_prompt": LARRY_RAG_SYSTEM_PROMPT,
         "has_phases": False,
+        "simple_mode": True,
         "welcome": """🧠 **Welcome to Mindrian!**
 
-I'm Larry, your thinking partner. I help people identify problems worth solving before they chase solutions.
+I'm Lawrence, your thinking partner. I help you identify problems worth solving before chasing solutions.
 
-Before solutions, I ask questions. Let's make sure we're solving the right problem.
+**What are you working on?**"""
+    },
+    "larry_playground": {
+        "name": "Larry Playground",
+        "icon": "/public/icons/larry.svg",
+        "emoji": "🔬",
+        "description": "Full-featured PWS lab — all tools, research, multi-agent analysis",
+        "system_prompt": LARRY_RAG_SYSTEM_PROMPT,
+        "has_phases": False,
+        "simple_mode": False,
+        "welcome": """🔬 **Welcome to Larry Playground!**
+
+Full access to every Mindrian tool — deep research, multi-agent analysis, extraction, synthesis, and all specialized agents.
 
 **What are you working on?**"""
     },
@@ -542,9 +555,15 @@ async def chat_profiles():
     """Define available bot profiles."""
     return [
         cl.ChatProfile(
-            name="larry",
-            markdown_description=BOTS["larry"]["description"],
-            icon=BOTS["larry"]["icon"],
+            name="lawrence",
+            markdown_description=BOTS["lawrence"]["description"],
+            icon=BOTS["lawrence"]["icon"],
+            default=True,
+        ),
+        cl.ChatProfile(
+            name="larry_playground",
+            markdown_description=BOTS["larry_playground"]["description"],
+            icon=BOTS["larry_playground"]["icon"],
         ),
         cl.ChatProfile(
             name="tta",
@@ -601,7 +620,7 @@ async def chat_profiles():
 
 # === Conversation Starters ===
 STARTERS = {
-    "larry": [
+    "lawrence": [
         cl.Starter(
             label="Explore a problem",
             message="I have a challenge I'm facing and need help thinking through it systematically.",
@@ -850,7 +869,7 @@ STARTERS = {
 async def set_starters():
     """Return conversation starters based on selected chat profile."""
     profile = cl.user_session.get("chat_profile")
-    return STARTERS.get(profile, STARTERS["larry"])
+    return STARTERS.get(profile, STARTERS["lawrence"])
 
 
 # === Chat Settings (Input Widgets) ===
@@ -1308,7 +1327,7 @@ def get_context_key() -> str:
 async def start():
     """Initialize conversation with selected bot."""
     chat_profile = cl.user_session.get("chat_profile")
-    bot = BOTS.get(chat_profile, BOTS["larry"])
+    bot = BOTS.get(chat_profile, BOTS["lawrence"])
 
     # Initialize stop event for this session
     session_id = cl.user_session.get("id")
@@ -1346,12 +1365,12 @@ async def start():
         cl.user_session.set("context_handoff", None)
 
     cl.user_session.set("bot", bot)
-    cl.user_session.set("bot_id", chat_profile or "larry")
+    cl.user_session.set("bot_id", chat_profile or "lawrence")
     cl.user_session.set("current_phase", 0)
 
     # Update context store with current session info
     context_store[context_key] = {
-        "bot_id": chat_profile or "larry",
+        "bot_id": chat_profile or "lawrence",
         "history": cl.user_session.get("history", []),
     }
 
@@ -1583,10 +1602,10 @@ async def on_chat_resume(thread: dict):
         metadata = user_data
 
     # Try to infer chat_profile from thread name or first messages if not in metadata
-    chat_profile = metadata.get("chat_profile", "larry")
+    chat_profile = metadata.get("chat_profile", "lawrence")
 
     # Restore bot configuration
-    bot = BOTS.get(chat_profile, BOTS["larry"])
+    bot = BOTS.get(chat_profile, BOTS["lawrence"])
     cl.user_session.set("bot", bot)
     cl.user_session.set("bot_id", chat_profile)
     cl.user_session.set("chat_profile", chat_profile)
@@ -1678,7 +1697,7 @@ async def on_feedback(feedback):
 
         # Get session context
         thread_id = cl.user_session.get("id", "unknown")
-        bot_id = cl.user_session.get("chat_profile", "larry")
+        bot_id = cl.user_session.get("chat_profile", "lawrence")
         phase = cl.user_session.get("current_phase")
         phases = cl.user_session.get("phases", [])
         phase_name = phases[phase]["name"] if phases and phase is not None and phase < len(phases) else None
@@ -1786,7 +1805,7 @@ async def on_rate_detailed(action: cl.Action):
 
     # Get session context
     thread_id = cl.user_session.get("id", "unknown")
-    bot_id = cl.user_session.get("chat_profile", "larry")
+    bot_id = cl.user_session.get("chat_profile", "lawrence")
     phase = cl.user_session.get("current_phase")
     phases = cl.user_session.get("phases", [])
     phase_name = phases[phase]["name"] if phases and phase is not None and phase < len(phases) else None
@@ -2056,7 +2075,7 @@ async def on_clear_context(action: cl.Action):
     cl.user_session.set("previous_bot", None)
     cl.user_session.set("context_handoff", None)
 
-    bot = cl.user_session.get("bot", BOTS["larry"])
+    bot = cl.user_session.get("bot", BOTS["lawrence"])
 
     await cl.Message(
         content=f"**Context cleared.** Starting fresh with {bot.get('name', 'Larry')}.\n\n{bot.get('welcome', 'How can I help?')}"
@@ -2200,7 +2219,7 @@ async def on_switch_to_ackoff(action: cl.Action):
 
 @cl.action_callback("switch_to_larry")
 async def on_switch_to_larry(action: cl.Action):
-    await handle_agent_switch("larry")
+    await handle_agent_switch("lawrence")
 
 @cl.action_callback("switch_to_bono")
 async def on_switch_to_bono(action: cl.Action):
@@ -2228,7 +2247,7 @@ async def handle_agent_switch(new_agent_id: str):
     Handle switching to a new agent while preserving conversation context.
     This performs an in-session switch without reloading the page.
     """
-    current_bot_id = cl.user_session.get("bot_id", "larry")
+    current_bot_id = cl.user_session.get("bot_id", "lawrence")
     history = cl.user_session.get("history", [])
 
     if new_agent_id not in BOTS:
@@ -2236,7 +2255,7 @@ async def handle_agent_switch(new_agent_id: str):
         return
 
     new_bot = BOTS[new_agent_id]
-    old_bot = BOTS.get(current_bot_id, BOTS["larry"])
+    old_bot = BOTS.get(current_bot_id, BOTS["lawrence"])
 
     # Update session with new bot
     cl.user_session.set("bot", new_bot)
@@ -2332,7 +2351,7 @@ Be direct and engaging. Show your unique value."""
 async def on_show_example(action: cl.Action):
     """Handle show example button click - pulls diverse examples from Neo4j and File Search."""
     current_phase = cl.user_session.get("current_phase", 0)
-    chat_profile = cl.user_session.get("chat_profile", "larry")
+    chat_profile = cl.user_session.get("chat_profile", "lawrence")
     session_id = cl.user_session.get("id", "default")
 
     try:
@@ -2371,7 +2390,7 @@ async def on_show_example(action: cl.Action):
             "scurve": "**S-Curve Analysis**: Technologies progress through Era of Ferment → Dominant Design → Incremental Improvement. Know where your technology sits to time your innovation.",
             "redteam": "**Red Teaming**: Attack your own assumptions before the market does. 'What if customers won't pay?' 'What if a free alternative exists?'",
             "ackoff": "**Camera Test**: If a camera can't record it, it's interpretation, not data. '47 people in line' is data. 'Long line' is interpretation.",
-            "larry": "**PWS Methodology**: Validate the problem is worth solving BEFORE building the solution. Is it Real? Can you Win? Is it Worth it?",
+            "lawrence": "**PWS Methodology**: Validate the problem is worth solving BEFORE building the solution. Is it Real? Can you Win? Is it Worth it?",
         }
         example = fallback_examples.get(chat_profile, "No specific example available.")
         await cl.Message(content=f"**📖 Example:**\n\n{example}").send()
@@ -2381,7 +2400,7 @@ async def on_show_example(action: cl.Action):
 async def on_next_phase(action: cl.Action):
     """Handle next phase button click."""
     current_phase = cl.user_session.get("current_phase", 0)
-    chat_profile = cl.user_session.get("chat_profile", "larry")
+    chat_profile = cl.user_session.get("chat_profile", "lawrence")
     phases = cl.user_session.get("phases", [])
 
     if current_phase < len(phases) - 1:
@@ -2516,7 +2535,7 @@ async def on_watch_video(action: cl.Action):
     """Handle watching tutorial video for current phase."""
     from utils.media import get_workshop_video, WORKSHOP_VIDEOS
 
-    bot = cl.user_session.get("bot", BOTS["larry"])
+    bot = cl.user_session.get("bot", BOTS["lawrence"])
     bot_id = None
 
     # Find the bot_id from current bot
@@ -2526,7 +2545,7 @@ async def on_watch_video(action: cl.Action):
             break
 
     if not bot_id:
-        bot_id = "larry"
+        bot_id = "lawrence"
 
     current_phase = cl.user_session.get("current_phase", 0)
     phases = cl.user_session.get("phases", [])
@@ -2589,7 +2608,7 @@ async def on_listen_audiobook(action: cl.Action):
         AUDIOBOOK_CHAPTERS
     )
 
-    bot_id = cl.user_session.get("chat_profile", "larry")
+    bot_id = cl.user_session.get("chat_profile", "lawrence")
     history = cl.user_session.get("history", [])
 
     # Get recent conversation context for relevance matching
@@ -2727,7 +2746,7 @@ async def on_export_summary(action: cl.Action):
     """Export workshop progress as downloadable markdown file."""
     from utils.media import export_workshop_summary
 
-    bot = cl.user_session.get("bot", BOTS["larry"])
+    bot = cl.user_session.get("bot", BOTS["lawrence"])
     phases = cl.user_session.get("phases", [])
     history = cl.user_session.get("history", [])
     current_phase = cl.user_session.get("current_phase", 0)
@@ -2760,7 +2779,7 @@ async def on_synthesize_conversation(action: cl.Action):
     import datetime
 
     history = cl.user_session.get("history", [])
-    bot = cl.user_session.get("bot", BOTS["larry"])
+    bot = cl.user_session.get("bot", BOTS["lawrence"])
 
     if len(history) < 2:
         await cl.Message(content="Not enough conversation to synthesize. Have a discussion first!").send()
@@ -2886,7 +2905,7 @@ async def on_extract_insights(action: cl.Action):
     import datetime
 
     history = cl.user_session.get("history", [])
-    bot = cl.user_session.get("bot", BOTS["larry"])
+    bot = cl.user_session.get("bot", BOTS["lawrence"])
     session_id = cl.user_session.get("id", "unknown")
 
     if len(history) < 2:
@@ -2916,7 +2935,7 @@ async def on_extract_insights(action: cl.Action):
         async with cl.Step(name="Deep Extraction", type="llm") as deep_step:
             deep_step.input = "Extracting structured PWS elements: problems, assumptions, facts, questions..."
 
-            deep_results = await background_extract_conversation(history, bot.get("name", "larry"))
+            deep_results = await background_extract_conversation(history, bot.get("name", "lawrence"))
 
             if deep_results.get("error"):
                 deep_step.output = f"Error: {deep_results['error']}"
@@ -3055,9 +3074,9 @@ async def on_deep_research(action: cl.Action):
 
     # Get context
     history = cl.user_session.get("history", [])
-    bot = cl.user_session.get("bot", BOTS["larry"])
+    bot = cl.user_session.get("bot", BOTS["lawrence"])
     bot_name = bot.get("name", "Larry")
-    chat_profile = cl.user_session.get("chat_profile", "larry")
+    chat_profile = cl.user_session.get("chat_profile", "lawrence")
     settings = cl.user_session.get("settings", {})
     search_depth = settings.get("research_depth", "basic")
 
@@ -3714,8 +3733,8 @@ async def on_gemini_deep_research(action: cl.Action):
     )
 
     history = cl.user_session.get("history", [])
-    bot = cl.user_session.get("bot", BOTS["larry"])
-    bot_id = cl.user_session.get("bot_id", "larry")
+    bot = cl.user_session.get("bot", BOTS["lawrence"])
+    bot_id = cl.user_session.get("bot_id", "lawrence")
 
     # Build recent context
     recent_context = ""
@@ -3907,8 +3926,8 @@ async def on_gemini_deep_research(action: cl.Action):
 async def on_think_through(action: cl.Action):
     """Handle think through button - sequential thinking breakdown with cl.Step visualization."""
     history = cl.user_session.get("history", [])
-    bot = cl.user_session.get("bot", BOTS["larry"])
-    chat_profile = cl.user_session.get("chat_profile", "larry")
+    bot = cl.user_session.get("bot", BOTS["lawrence"])
+    chat_profile = cl.user_session.get("chat_profile", "lawrence")
 
     # Build context from recent conversation
     recent_context = ""
@@ -4036,7 +4055,7 @@ async def main(message: cl.Message):
 
         # Get session context for storing the comment
         thread_id = cl.user_session.get("id", "unknown")
-        bot_id = cl.user_session.get("chat_profile", "larry")
+        bot_id = cl.user_session.get("chat_profile", "lawrence")
 
         # Store the comment with the previous feedback
         store_feedback(
@@ -4135,7 +4154,7 @@ Your insights help us improve Mindrian!"""
                 # Fall through to regular processing if image generation failed
                 step.output = f"Image generation failed, falling back to text response"
 
-    bot = cl.user_session.get("bot", BOTS["larry"])
+    bot = cl.user_session.get("bot", BOTS["lawrence"])
     history = cl.user_session.get("history", [])
     current_phase = cl.user_session.get("current_phase", 0)
     phases = cl.user_session.get("phases", [])
@@ -4303,7 +4322,7 @@ Your insights help us improve Mindrian!"""
     graphrag_hint = None
     if GRAPHRAG_ENABLED and turn_count >= 0:
         try:
-            bot_id = cl.user_session.get("bot_id", "larry")
+            bot_id = cl.user_session.get("bot_id", "lawrence")
             graphrag_hint = enrich_for_bot(message.content, turn_count, bot_id=bot_id)
             if graphrag_hint:
                 # Add as invisible context hint - not shown to user
@@ -4341,7 +4360,7 @@ Your insights help us improve Mindrian!"""
 
     try:
         # Check for cached context (RAG) for this bot
-        bot_id = cl.user_session.get("bot_id", "larry")
+        bot_id = cl.user_session.get("bot_id", "lawrence")
         cache_name = get_cache_name(bot_id) if RAG_ENABLED else None
 
         # Build system instruction with context handoff if applicable
@@ -4474,7 +4493,7 @@ The user expects you to understand the context and add your specialized value.
 
         # Add dynamic agent suggestions based on conversation context
         if not stopped and len(history) >= 2:
-            current_bot_id = cl.user_session.get("bot_id", "larry")
+            current_bot_id = cl.user_session.get("bot_id", "lawrence")
             # Include the new messages for analysis
             updated_history = history + [
                 {"role": "user", "content": message.content},
@@ -4505,7 +4524,7 @@ The user expects you to understand the context and add your specialized value.
 
         # Sync history to context store for preservation across bot switches
         context_key = get_context_key()
-        bot_id = cl.user_session.get("bot_id", "larry")
+        bot_id = cl.user_session.get("bot_id", "lawrence")
         context_store[context_key] = {
             "bot_id": bot_id,
             "history": history.copy(),
@@ -4539,7 +4558,7 @@ The user expects you to understand the context and add your specialized value.
 
         # Save session metadata for resume (phases, settings, current_phase)
         # Metadata is persisted through the data layer when threads are saved
-        chat_profile = cl.user_session.get("chat_profile", "larry")
+        chat_profile = cl.user_session.get("chat_profile", "lawrence")
         try:
             # Update thread metadata for resume
             thread_id = cl.context.session.thread_id
@@ -4699,7 +4718,7 @@ async def process_voice_transcript(transcript: str, track_id: str):
     await cl.Message(content=f"**You said:** {transcript}").send()
 
     # Get conversation context
-    bot = cl.user_session.get("bot", BOTS["larry"])
+    bot = cl.user_session.get("bot", BOTS["lawrence"])
     history = cl.user_session.get("history", [])
     current_phase = cl.user_session.get("current_phase", 0)
     phases = cl.user_session.get("phases", [])
@@ -4799,7 +4818,7 @@ async def process_voice_transcript(transcript: str, track_id: str):
         # Sync context store
         context_key = get_context_key()
         if context_key:
-            bot_id = cl.user_session.get("bot_id", "larry")
+            bot_id = cl.user_session.get("bot_id", "lawrence")
             context_store[context_key] = {
                 "bot_id": bot_id,
                 "history": history.copy(),
