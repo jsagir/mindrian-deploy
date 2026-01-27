@@ -2360,13 +2360,15 @@ Be direct and engaging. Show your unique value."""
 
 @cl.action_callback("show_example")
 async def on_show_example(action: cl.Action):
-    """Show example — LazyGraph + Tavily + Gemini pipeline.
+    """Show example — LazyGraph → File Search → Fit Analysis → Tavily → Story.
 
-    1. Read conversation context
-    2. Query LazyGraph for related concepts, frameworks, techniques
-    3. Gemini extracts a search query for the best real-world example
-    4. Tavily fetches actual web sources about that example
-    5. Gemini synthesizes a concrete story from graph + web data
+    Pipeline:
+    1. LazyGraph: get related concepts, frameworks, techniques from Neo4j
+    2. File Search (RAG): query PWS knowledge base for 1-3 relevant examples
+    3. Fit analysis: Gemini understands conversation + graph + RAG to decide
+       what kind of real-world example best fits the discussion
+    4. Tavily: fetch real web sources for that specific example type
+    5. Synthesis: Gemini writes a proper story (not search results) from all layers
     Falls back gracefully at every step.
     """
     current_phase = cl.user_session.get("current_phase", 0)
@@ -2387,7 +2389,7 @@ async def on_show_example(action: cl.Action):
     await msg.send()
     await msg.stream_token("**📖 Finding a relevant example...**\n\n")
 
-    # --- Step 1: LazyGraph context ---
+    # --- Step 1: LazyGraph — concepts & frameworks from Neo4j ---
     graph_hint = ""
     graph_concepts = []
     try:
@@ -2401,45 +2403,93 @@ async def on_show_example(action: cl.Action):
     except Exception as e:
         print(f"Example graph lookup error: {e}")
 
-    # --- Step 2: Gemini extracts a search query ---
-    search_query = ""
+    # --- Step 2: Gemini File Search (RAG) — PWS knowledge base examples ---
+    rag_examples = ""
+    try:
+        if FILE_SEARCH_ENABLED:
+            from utils.dynamic_examples import BOT_TO_METHODOLOGY
+            methodology = BOT_TO_METHODOLOGY.get(chat_profile, ["PWS"])[0]
+
+            rag_query = (
+                f"Find 1-3 specific examples or case studies from the PWS course materials "
+                f"that relate to this topic: {recent_context[:400]}\n\n"
+                f"Focus on real-world cases, historical parallels, or applied examples "
+                f"from the {methodology} framework. Return concrete examples with names "
+                f"and details, not methodology explanations."
+            )
+
+            file_search_tool = types.Tool(
+                file_search=types.FileSearch(
+                    file_search_store_names=[FILE_SEARCH_STORE]
+                )
+            )
+
+            rag_response = client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=rag_query,
+                config=types.GenerateContentConfig(
+                    tools=[file_search_tool],
+                    temperature=0.3,
+                    max_output_tokens=600,
+                ),
+            )
+
+            if rag_response.text and len(rag_response.text.strip()) > 30:
+                rag_examples = rag_response.text.strip()
+    except Exception as e:
+        print(f"Example File Search error: {e}")
+
+    # --- Step 3: Fit analysis — understand what example type best matches ---
+    example_direction = ""
+    tavily_query = ""
     try:
         from utils.dynamic_examples import BOT_TO_METHODOLOGY
         methodology = BOT_TO_METHODOLOGY.get(chat_profile, ["PWS"])[0]
 
-        graph_block = ""
-        if graph_hint:
-            graph_block = f"\nKnowledge graph context: {graph_hint}\nMatched concepts: {', '.join(graph_concepts[:5])}\n"
+        graph_block = f"\nKnowledge graph concepts: {graph_hint}" if graph_hint else ""
+        rag_block = f"\nPWS knowledge base examples:\n{rag_examples}" if rag_examples else ""
 
-        query_prompt = (
+        fit_prompt = (
             f"Conversation:\n{recent_context}\n"
-            f"{graph_block}\n"
-            f"The user is exploring this topic in a {methodology} workshop.\n"
-            f"Extract a web search query (max 10 words) to find a specific real-world "
-            f"historical or business CASE STUDY that parallels or illuminates the topic "
-            f"they're discussing. Focus on finding a concrete STORY, not a definition.\n"
-            f"Return ONLY the search query, nothing else."
+            f"{graph_block}"
+            f"{rag_block}\n\n"
+            f"The user is in a {methodology} workshop. Based on the conversation, "
+            f"graph context, and any PWS examples found above:\n\n"
+            f"1. What specific type of real-world example would best illuminate "
+            f"what the user is discussing? (1 sentence)\n"
+            f"2. A web search query (max 10 words) to find that specific example "
+            f"— a concrete historical case, not a definition.\n\n"
+            f"Return EXACTLY this format:\n"
+            f"DIRECTION: [what kind of example fits best]\n"
+            f"SEARCH: [the search query]"
         )
 
-        qr = client.models.generate_content(
+        fit_response = client.models.generate_content(
             model="gemini-2.0-flash",
-            contents=query_prompt,
-            config=types.GenerateContentConfig(temperature=0.3, max_output_tokens=30),
+            contents=fit_prompt,
+            config=types.GenerateContentConfig(temperature=0.3, max_output_tokens=80),
         )
-        search_query = qr.text.strip().strip('"').strip("'")
-    except Exception as e:
-        print(f"Example query extraction error: {e}")
 
-    # --- Step 3: Tavily web search for real sources ---
+        if fit_response.text:
+            for line in fit_response.text.strip().split("\n"):
+                line = line.strip()
+                if line.upper().startswith("DIRECTION:"):
+                    example_direction = line.split(":", 1)[1].strip()
+                elif line.upper().startswith("SEARCH:"):
+                    tavily_query = line.split(":", 1)[1].strip().strip('"').strip("'")
+    except Exception as e:
+        print(f"Example fit analysis error: {e}")
+
+    # --- Step 4: Tavily — fetch real-world sources for the example ---
     web_evidence = ""
     try:
-        if search_query:
+        if tavily_query:
             from tools.tavily_search import search_web
-            results = search_web(search_query, search_depth="basic", max_results=3)
+            results = search_web(tavily_query, search_depth="basic", max_results=3)
             snippets = []
             for r in results.get("results", []):
                 title = r.get("title", "")
-                content = r.get("content", "")[:300]
+                content = r.get("content", "")[:400]
                 url = r.get("url", "")
                 if content:
                     snippets.append(f"- {title}: {content} ({url})")
@@ -2448,39 +2498,52 @@ async def on_show_example(action: cl.Action):
     except Exception as e:
         print(f"Example Tavily search error: {e}")
 
-    # --- Step 4: Gemini synthesizes the example ---
+    # --- Step 5: Gemini synthesizes the final story ---
     try:
-        g_block = f"\nGraph context: {graph_hint}" if graph_hint else ""
-        w_block = f"\nWeb sources:\n{web_evidence}" if web_evidence else ""
+        parts = [f"Conversation context:\n{recent_context}"]
+        if graph_hint:
+            parts.append(f"Knowledge graph context: {graph_hint}")
+        if rag_examples:
+            parts.append(f"PWS knowledge base examples:\n{rag_examples}")
+        if example_direction:
+            parts.append(f"Best example type for this discussion: {example_direction}")
+        if web_evidence:
+            parts.append(f"Web research findings:\n{web_evidence}")
 
         synthesis_prompt = (
-            f"Conversation context:\n{recent_context}\n"
-            f"{g_block}"
-            f"{w_block}\n\n"
-            f"Based on the conversation and the sources above, write ONE specific, "
-            f"real-world example that directly parallels what the user is discussing.\n\n"
-            f"Rules:\n"
-            f"- Tell a STORY: specific names, dates, events, and outcomes\n"
-            f"- Do NOT explain methodology or frameworks — only the example itself\n"
-            f"- Connect the example back to the user's topic in 1 final sentence\n"
-            f"- If web sources provided real data, cite it with the URL\n"
-            f"- If no web sources, use your knowledge of real historical cases\n"
-            f"- Keep it to 4-8 sentences total\n\n"
-            f"Format: **Title (Year/Era)**: The story..."
+            "\n\n".join(parts) + "\n\n"
+            "Using ALL of the above (conversation, graph, PWS examples, web sources), "
+            "write ONE specific, real-world example that directly parallels what the "
+            "user is discussing.\n\n"
+            "Rules:\n"
+            "- Tell a STORY: specific names, dates, events, and outcomes\n"
+            "- Do NOT explain methodology or frameworks — only the example itself\n"
+            "- If PWS knowledge base had a relevant example, USE it as a starting "
+            "point but enrich it with web source details\n"
+            "- If web sources found real data, weave it into the story and cite the URL\n"
+            "- Connect the example back to the user's topic in 1 final sentence\n"
+            "- Keep it to 4-8 sentences total\n\n"
+            "Format: **Title (Year/Era)**: The story..."
         )
 
         response = client.models.generate_content(
             model="gemini-2.0-flash",
             contents=synthesis_prompt,
-            config=types.GenerateContentConfig(temperature=0.7, max_output_tokens=500),
+            config=types.GenerateContentConfig(temperature=0.7, max_output_tokens=600),
         )
 
         if response.text and len(response.text.strip()) > 30:
-            source_note = ""
+            # Source attribution
+            sources_used = []
+            if graph_hint:
+                sources_used.append("knowledge graph")
+            if rag_examples:
+                sources_used.append("PWS knowledge base")
             if web_evidence:
-                source_note = "\n\n*Sources found via web search.*"
-            elif graph_hint:
-                source_note = "\n\n*Context enriched by knowledge graph.*"
+                sources_used.append("web research")
+            source_note = ""
+            if sources_used:
+                source_note = f"\n\n*Sourced from: {', '.join(sources_used)}.*"
 
             await msg.stream_token(response.text.strip() + source_note)
             await msg.update()
