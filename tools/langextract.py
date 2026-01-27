@@ -617,3 +617,79 @@ def clear_extraction_cache():
     global extraction_cache
     extraction_cache = {}
     return {"cleared": True, "timestamp": datetime.now().isoformat()}
+
+
+# ============================================================================
+# INTELLIGENCE LAYER - Coaching hints + background coherence tracking
+# ============================================================================
+
+def get_extraction_hint(signals: Dict[str, Any], turn_count: int = 0) -> Optional[str]:
+    """
+    Generate a 1-sentence coaching instruction based on extraction signals.
+    Returns None if no actionable hint is warranted.
+
+    Used as invisible context appended to system message — not shown to user.
+    """
+    if not signals or signals.get("empty"):
+        return None
+
+    content_type = signals.get("content_type", "general")
+    counts = signals.get("counts", {})
+    quality = signals.get("quality_signals", {})
+
+    # Solution-focused + no problems → redirect to problem definition
+    if content_type == "solution_focused" and counts.get("problems", 0) == 0:
+        return "[Coaching hint: The user is jumping to solutions without defining the problem. Gently redirect them to articulate the problem first before exploring solutions.]"
+
+    # High assumptions + no data → probe which assumptions to validate
+    if counts.get("assumptions", 0) >= 2 and not quality.get("has_data"):
+        return "[Coaching hint: The user is making multiple assumptions without data support. Ask which assumptions they consider most critical and what evidence would validate them.]"
+
+    # High certainty + no sources → ask what evidence supports this
+    if counts.get("certainty", 0) >= 1 and not quality.get("has_sources"):
+        return "[Coaching hint: The user expresses high certainty but cites no sources. Ask what evidence or experience supports their confidence.]"
+
+    # Forward-looking + no data → ask what current data supports projection
+    if quality.get("is_forward_looking") and not quality.get("has_data"):
+        return "[Coaching hint: The user is making forward-looking claims without current data. Ask what present-day data or trends support their projection.]"
+
+    return None
+
+
+async def background_intelligence(
+    history: List[Dict],
+    bot_id: str = "larry",
+    session=None,
+) -> None:
+    """
+    Fire-and-forget background task: deep extraction + coherence tracking.
+
+    Runs every ~5 turns. Stores coherence metrics in session and caches
+    extraction to Supabase.
+    """
+    try:
+        extraction = await background_extract_conversation(history, bot_id)
+
+        if not extraction or extraction.get("empty"):
+            return
+
+        # Store coherence metrics in session for research tool scoring
+        pws_relevance = extraction.get("pws_relevance", {})
+        if pws_relevance and session:
+            try:
+                session.set("extraction_coherence", {
+                    "problem_clarity": pws_relevance.get("problem_clarity", 5),
+                    "data_grounding": pws_relevance.get("data_grounding", 5),
+                    "assumption_awareness": pws_relevance.get("assumption_awareness", 5),
+                })
+            except Exception:
+                pass
+
+        # Cache full extraction to Supabase
+        conversation_text = " ".join(
+            msg.get("content", "")[:200] for msg in history[-10:]
+        )
+        cache_extraction(conversation_text, extraction, "conversation_intelligence")
+
+    except Exception as e:
+        print(f"Background intelligence error (non-fatal): {e}")

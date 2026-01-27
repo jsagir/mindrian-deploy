@@ -964,6 +964,36 @@ async def suggest_agents_from_context(
         except Exception as e:
             print(f"Graph routing error (non-fatal): {e}")
 
+    # Extraction-driven agent scoring
+    extraction = None
+    try:
+        extraction = cl.user_session.get("last_extraction")
+    except Exception:
+        pass
+
+    if extraction and not extraction.get("empty"):
+        content_type = extraction.get("content_type", "general")
+        counts = extraction.get("counts", {})
+        quality = extraction.get("quality_signals", {})
+
+        if content_type == "solution_focused" and counts.get("problems", 0) == 0:
+            if "ackoff" in AGENT_TRIGGERS and current_bot != "ackoff":
+                if "ackoff" not in agent_scores:
+                    agent_scores["ackoff"] = {"keyword_score": 0, "description": AGENT_TRIGGERS.get("ackoff", {}).get("description", "")}
+                agent_scores["ackoff"]["keyword_score"] = agent_scores["ackoff"].get("keyword_score", 0) + 0.4
+
+        if counts.get("assumptions", 0) >= 2:
+            if "redteam" in AGENT_TRIGGERS and current_bot != "redteam":
+                if "redteam" not in agent_scores:
+                    agent_scores["redteam"] = {"keyword_score": 0, "description": AGENT_TRIGGERS.get("redteam", {}).get("description", "")}
+                agent_scores["redteam"]["keyword_score"] = agent_scores["redteam"].get("keyword_score", 0) + 0.4
+
+        if quality.get("is_forward_looking"):
+            if "tta" in AGENT_TRIGGERS and current_bot != "tta":
+                if "tta" not in agent_scores:
+                    agent_scores["tta"] = {"keyword_score": 0, "description": AGENT_TRIGGERS.get("tta", {}).get("description", "")}
+                agent_scores["tta"]["keyword_score"] = agent_scores["tta"].get("keyword_score", 0) + 0.3
+
     # Merge: final_score = keyword_score + (graph_score * 1.5)
     all_agent_ids = set(agent_scores.keys()) | set(graph_scores.keys())
     merged_scores = {}
@@ -1004,6 +1034,205 @@ async def suggest_agents_from_context(
         ))
 
     return suggestions
+
+
+async def suggest_research_tools(history: list, current_bot: str) -> list:
+    """
+    Use LazyGraphRAG to decide if ArXiv, Patent, or Google Trends buttons should appear.
+
+    Decision sources:
+      1. Graph orchestrator: if discovered frameworks/techniques link to
+         ArXiv, Patents, or Google Trends ResearchTool nodes via SUPPORTS/USES_TOOL
+      2. Problem context: if problem type suggests validation (empirical,
+         prior art, evidence gaps) or trend analysis
+      3. Bot context: Red Team → ArXiv; S-Curve → Patents; TTA → Trends
+
+    Each button includes a 'reason' tooltip explaining WHY it appeared.
+    """
+    if len(history) < 2:
+        return []
+
+    recent_text = " ".join([
+        m.get("content", "") for m in history[-4:]
+    ]).lower()
+
+    actions = []
+    arxiv_reasons = []
+    patent_reasons = []
+    trends_reasons = []
+    govdata_reasons = []
+    dataset_reasons = []
+    news_reasons = []
+
+    # Layer 0: Extraction signals (fastest, most precise)
+    extraction = None
+    coherence = None
+    try:
+        extraction = cl.user_session.get("last_extraction")
+        coherence = cl.user_session.get("extraction_coherence")
+    except Exception:
+        pass
+
+    if extraction and not extraction.get("empty"):
+        counts = extraction.get("counts", {})
+        quality = extraction.get("quality_signals", {})
+
+        if not quality.get("has_data") and counts.get("certainty", 0) >= 1:
+            arxiv_reasons.append("Claims need evidence grounding")
+
+        if quality.get("is_forward_looking"):
+            trends_reasons.append("Forward-looking discussion benefits from trend data")
+
+        if counts.get("assumptions", 0) >= 3:
+            news_reasons.append("Multiple assumptions — news may validate or challenge them")
+
+    if coherence:
+        if coherence.get("data_grounding", 10) < 4:
+            govdata_reasons.append("Low data grounding — government statistics could help")
+            dataset_reasons.append("Low data grounding — datasets could validate claims")
+        if coherence.get("assumption_awareness", 10) < 4:
+            arxiv_reasons.append("Hidden assumptions detected — academic evidence may help")
+
+    # Layer 1: Graph orchestrator — check if discovered tools include ArXiv/Patents/Trends
+    try:
+        from tools.graph_orchestrator import discover_research_plan
+        plan = discover_research_plan(recent_text[:300])
+
+        for tool_name in plan.tool_names:
+            tl = tool_name.lower()
+            if "arxiv" in tl:
+                arxiv_reasons.append(f"Framework '{plan.frameworks[0]['name']}' uses academic research" if plan.frameworks else "Graph suggests academic validation")
+            if "patent" in tl:
+                patent_reasons.append(f"Framework '{plan.frameworks[0]['name']}' uses patent analysis" if plan.frameworks else "Graph suggests patent landscaping")
+            if "trend" in tl:
+                trends_reasons.append(f"Framework '{plan.frameworks[0]['name']}' uses trend data" if plan.frameworks else "Graph suggests trend analysis")
+            if "gov" in tl or "data search" in tl:
+                govdata_reasons.append(f"Framework '{plan.frameworks[0]['name']}' uses public data" if plan.frameworks else "Graph suggests government data grounding")
+            if "dataset" in tl:
+                dataset_reasons.append(f"Framework '{plan.frameworks[0]['name']}' needs raw data" if plan.frameworks else "Graph suggests dataset discovery")
+            if "news" in tl:
+                news_reasons.append(f"Framework '{plan.frameworks[0]['name']}' needs current events" if plan.frameworks else "Graph suggests news signal analysis")
+
+        # Technique signals
+        for tech in plan.techniques:
+            tl = tech.lower()
+            if any(w in tl for w in ["validation", "evidence", "empirical", "grounding"]):
+                arxiv_reasons.append(f"Technique '{tech}' benefits from academic evidence")
+            if any(w in tl for w in ["prior art", "landscape", "innovation scan", "patent"]):
+                patent_reasons.append(f"Technique '{tech}' benefits from patent search")
+            if any(w in tl for w in ["trend", "foresight", "extrapolat", "emerging", "steep", "pattern"]):
+                trends_reasons.append(f"Technique '{tech}' benefits from real trend data")
+            if any(w in tl for w in ["evidence", "stakeholder", "cause-effect", "best practice", "expert analysis"]):
+                govdata_reasons.append(f"Technique '{tech}' benefits from public economic/demographic data")
+            if any(w in tl for w in ["evidence", "gap analysis", "domain", "systematic", "pattern"]):
+                dataset_reasons.append(f"Technique '{tech}' can be grounded with real datasets")
+            if any(w in tl for w in ["trend", "assumption", "scenario", "emerging", "steep"]):
+                news_reasons.append(f"Technique '{tech}' benefits from current news signals")
+
+    except Exception:
+        pass  # Graph unavailable — fall through to layer 2
+
+    # Layer 2: Problem context signals
+    try:
+        from tools.graphrag_lite import get_problem_context
+        problem = get_problem_context(recent_text[:200])
+        if problem.get("problem_type"):
+            pt = problem["problem_type"].lower()
+            if "undefined" in pt or "ill-defined" in pt:
+                arxiv_reasons.append(f"'{problem['problem_type']}' problems need evidence grounding")
+            if "well-defined" in pt:
+                patent_reasons.append(f"'{problem['problem_type']}' — check if solutions already exist")
+            if "emerging" in pt or "evolving" in pt:
+                trends_reasons.append(f"'{problem['problem_type']}' — track real-world momentum")
+            if "well-defined" in pt or "complicated" in pt:
+                govdata_reasons.append(f"'{problem['problem_type']}' — ground in public economic/labor data")
+    except Exception:
+        pass
+
+    # Layer 3: Bot-specific signals
+    BOT_RESEARCH_HINTS = {
+        "redteam":  {"arxiv": "Red Team challenges need counter-evidence", "dataset": "Red Team — find contradicting data to challenge assumptions", "news": "Red Team — check if news contradicts current assumptions"},
+        "ackoff":   {"arxiv": "DIKW validation benefits from published data", "govdata": "DIKW Data layer benefits from real government statistics", "dataset": "DIKW Data layer — find raw datasets to build Information from"},
+        "scurve":   {"patent": "S-Curve timing uses patent filing patterns", "trends": "S-Curve adoption maps to Google Trends interest curves", "govdata": "S-Curve industry analysis uses BLS/FRED economic data", "news": "S-Curve — news volume signals adoption phase"},
+        "tta":      {"patent": "Trend analysis benefits from innovation landscape", "trends": "TTA extrapolation needs real trend baselines", "dataset": "TTA needs real data to validate trend extrapolations", "news": "TTA — current news validates or challenges trend direction"},
+        "jtbd":     {"govdata": "JTBD customer research benefits from Census demographic data", "dataset": "JTBD needs behavioral/survey datasets for customer evidence"},
+    }
+    bot_hints = BOT_RESEARCH_HINTS.get(current_bot, {})
+    if "arxiv" in bot_hints and not arxiv_reasons:
+        arxiv_reasons.append(bot_hints["arxiv"])
+    if "patent" in bot_hints and not patent_reasons:
+        patent_reasons.append(bot_hints["patent"])
+    if "trends" in bot_hints and not trends_reasons:
+        trends_reasons.append(bot_hints["trends"])
+    if "govdata" in bot_hints and not govdata_reasons:
+        govdata_reasons.append(bot_hints["govdata"])
+    if "dataset" in bot_hints and not dataset_reasons:
+        dataset_reasons.append(bot_hints["dataset"])
+    if "news" in bot_hints and not news_reasons:
+        news_reasons.append(bot_hints["news"])
+
+    # Build buttons with reason tooltips
+    if arxiv_reasons:
+        reason = arxiv_reasons[0]  # Most specific reason
+        actions.append(cl.Action(
+            name="arxiv_search",
+            payload={"action": "arxiv_search", "reason": reason},
+            label="📚 Academic Evidence",
+            tooltip=reason,
+            description=reason,
+        ))
+
+    if patent_reasons:
+        reason = patent_reasons[0]
+        actions.append(cl.Action(
+            name="patent_search",
+            payload={"action": "patent_search", "reason": reason},
+            label="🔎 Prior Art & Patents",
+            tooltip=reason,
+            description=reason,
+        ))
+
+    if trends_reasons:
+        reason = trends_reasons[0]
+        actions.append(cl.Action(
+            name="trends_search",
+            payload={"action": "trends_search", "reason": reason},
+            label="📈 Trends",
+            tooltip=reason,
+            description=reason,
+        ))
+
+    if govdata_reasons:
+        reason = govdata_reasons[0]
+        actions.append(cl.Action(
+            name="govdata_search",
+            payload={"action": "govdata_search", "reason": reason},
+            label="🏛️ Gov Data",
+            tooltip=reason,
+            description=reason,
+        ))
+
+    if dataset_reasons:
+        reason = dataset_reasons[0]
+        actions.append(cl.Action(
+            name="dataset_search",
+            payload={"action": "dataset_search", "reason": reason},
+            label="📊 Find Datasets",
+            tooltip=reason,
+            description=reason,
+        ))
+
+    if news_reasons:
+        reason = news_reasons[0]
+        actions.append(cl.Action(
+            name="news_search",
+            payload={"action": "news_search", "reason": reason},
+            label="📰 News Signal",
+            tooltip=reason,
+            description=reason,
+        ))
+
+    return actions
 
 
 async def get_ai_agent_suggestion(history: list, current_bot: str) -> Optional[str]:
@@ -3247,6 +3476,222 @@ async def on_deep_research(action: cl.Action):
         await cl.Message(content=f"Research error: {str(e)}").send()
 
 
+@cl.action_callback("arxiv_search")
+async def on_arxiv_search(action: cl.Action):
+    """Search ArXiv for academic papers based on conversation context."""
+    history = cl.user_session.get("history", [])
+    recent = " ".join([m.get("content", "") for m in history[-4:]])[-500:]
+    reason = action.payload.get("reason", "Graph suggested academic research")
+
+    msg = cl.Message(content="")
+    await msg.send()
+    await msg.stream_token(f"**📚 Finding Academic Evidence**\n*Why: {reason}*\n\n")
+
+    # Extract search query from context via Gemini
+    qr = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=f"Extract a concise academic search query (max 8 words) from this conversation. Return ONLY the query:\n\n{recent}",
+    )
+    search_query = qr.text.strip().strip('"')
+
+    from tools.arxiv_search import search_papers, format_papers_markdown
+    results = search_papers(search_query, max_results=5)
+    formatted = format_papers_markdown(results)
+
+    await msg.stream_token(f"**Query:** {search_query}\n\n{formatted}")
+    await msg.update()
+
+    history.append({"role": "model", "content": f"[ArXiv Search: {search_query}]\n{formatted}"})
+    cl.user_session.set("history", history)
+
+
+@cl.action_callback("patent_search")
+async def on_patent_search(action: cl.Action):
+    """Search patents based on conversation context."""
+    history = cl.user_session.get("history", [])
+    recent = " ".join([m.get("content", "") for m in history[-4:]])[-500:]
+    reason = action.payload.get("reason", "Graph suggested patent landscaping")
+
+    msg = cl.Message(content="")
+    await msg.send()
+    await msg.stream_token(f"**🔎 Checking Prior Art & Innovation Landscape**\n*Why: {reason}*\n\n")
+
+    # Extract search query from context via Gemini
+    qr = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=f"Extract a concise patent search query (max 8 words) from this conversation. Return ONLY the query:\n\n{recent}",
+    )
+    search_query = qr.text.strip().strip('"')
+
+    from tools.patent_search import search_patents, format_patents_markdown
+    results = search_patents(search_query, max_results=5)
+    formatted = format_patents_markdown(results)
+
+    await msg.stream_token(f"**Query:** {search_query}\n\n{formatted}")
+    await msg.update()
+
+    history.append({"role": "model", "content": f"[Patent Search: {search_query}]\n{formatted}"})
+    cl.user_session.set("history", history)
+
+
+@cl.action_callback("trends_search")
+async def on_trends_search(action: cl.Action):
+    """Search Google Trends based on conversation context (graph-driven)."""
+    history = cl.user_session.get("history", [])
+    recent = " ".join([m.get("content", "") for m in history[-4:]])[-500:]
+    reason = action.payload.get("reason", "Graph suggested trend analysis")
+
+    msg = cl.Message(content="")
+    await msg.send()
+    await msg.stream_token(f"**📈 Measuring Trend Momentum**\n*Why: {reason}*\n\n")
+
+    # Extract 1-3 trend search terms from context via Gemini
+    qr = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=(
+            "Extract 1-3 concise Google Trends search terms (each max 3 words) from this conversation. "
+            "Return ONLY comma-separated terms, no explanation:\n\n" + recent
+        ),
+    )
+    search_query = qr.text.strip().strip('"')
+
+    from tools.trends_search import search_trends, search_related_queries, format_trends_markdown
+
+    # Fetch both timeseries and related queries
+    timeseries = search_trends(search_query, data_type="TIMESERIES", date="today 12-m")
+    related = search_related_queries(search_query)
+
+    ts_formatted = format_trends_markdown(timeseries)
+    rq_formatted = format_trends_markdown(related)
+
+    await msg.stream_token(f"**Terms:** {search_query}\n\n{ts_formatted}\n\n---\n\n{rq_formatted}")
+    await msg.update()
+
+    combined = f"[Google Trends: {search_query}]\n{ts_formatted}\n\n{rq_formatted}"
+    history.append({"role": "model", "content": combined})
+    cl.user_session.set("history", history)
+
+
+@cl.action_callback("govdata_search")
+async def on_govdata_search(action: cl.Action):
+    """Search US government data (BLS, FRED, Census) based on conversation context."""
+    history = cl.user_session.get("history", [])
+    recent = " ".join([m.get("content", "") for m in history[-4:]])[-500:]
+    reason = action.payload.get("reason", "Graph suggested public data grounding")
+
+    msg = cl.Message(content="")
+    await msg.send()
+    await msg.stream_token(f"**🏛️ Pulling Public Statistics**\n*Why: {reason}*\n\n")
+
+    # Use Gemini to extract a data-oriented query and pick sources
+    qr = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=(
+            "From this conversation, extract: 1) a concise data search query (max 6 words), "
+            "2) which US government data sources are relevant: 'bls' (labor/employment/wages/CPI), "
+            "'fred' (GDP/interest rates/economic indicators), 'census' (demographics/income/population). "
+            "Return JSON like: {\"query\": \"...\", \"sources\": [\"bls\", \"fred\"]}\n\n" + recent
+        ),
+    )
+
+    import json as _json
+    try:
+        parsed = _json.loads(qr.text.strip().strip("```json").strip("```"))
+        search_query = parsed.get("query", "economic trends")
+        sources = parsed.get("sources", ["fred", "bls"])
+    except Exception:
+        search_query = qr.text.strip().strip('"')[:50]
+        sources = None  # auto-detect
+
+    from tools.govdata_search import search_govdata, format_govdata_markdown
+    results = search_govdata(search_query, sources=sources)
+    formatted = format_govdata_markdown(results)
+
+    await msg.stream_token(f"**Query:** {search_query}\n**Sources:** {', '.join(results.get('sources', []))}\n\n{formatted}")
+    await msg.update()
+
+    history.append({"role": "model", "content": f"[Gov Data: {search_query}]\n{formatted}"})
+    cl.user_session.set("history", history)
+
+
+@cl.action_callback("dataset_search")
+async def on_dataset_search(action: cl.Action):
+    """Search Kaggle + Socrata for datasets based on conversation context."""
+    history = cl.user_session.get("history", [])
+    recent = " ".join([m.get("content", "") for m in history[-4:]])[-500:]
+    reason = action.payload.get("reason", "Graph suggested dataset discovery")
+
+    msg = cl.Message(content="")
+    await msg.send()
+    await msg.stream_token(f"**📊 Finding Raw Data**\n*Why: {reason}*\n\n")
+
+    # Extract dataset search query from context via Gemini
+    qr = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=(
+            "Extract a concise dataset search query (max 5 words) from this conversation. "
+            "Think about what raw data would help validate or explore the topic. "
+            "Return ONLY the query:\n\n" + recent
+        ),
+    )
+    search_query = qr.text.strip().strip('"')
+
+    from tools.dataset_search import search_datasets, format_datasets_markdown
+    results = search_datasets(search_query)
+    formatted = format_datasets_markdown(results)
+
+    await msg.stream_token(f"**Query:** {search_query}\n\n{formatted}")
+    await msg.update()
+
+    history.append({"role": "model", "content": f"[Dataset Search: {search_query}]\n{formatted}"})
+    cl.user_session.set("history", history)
+
+
+@cl.action_callback("news_search")
+async def on_news_search(action: cl.Action):
+    """Search NewsMesh for structured news based on conversation context."""
+    history = cl.user_session.get("history", [])
+    recent = " ".join([m.get("content", "") for m in history[-4:]])[-500:]
+    reason = action.payload.get("reason", "Graph suggested news signal analysis")
+
+    msg = cl.Message(content="")
+    await msg.send()
+    await msg.stream_token(f"**📰 Scanning Current Events**\n*Why: {reason}*\n\n")
+
+    # Extract news search query + optional category from context via Gemini
+    qr = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=(
+            "From this conversation, extract: 1) a news search query (max 6 words), "
+            "2) the most relevant news category from: politics, technology, business, "
+            "health, science, environment, world (or 'none' if unclear). "
+            "Return JSON: {\"query\": \"...\", \"category\": \"...\"}\n\n" + recent
+        ),
+    )
+
+    import json as _json
+    try:
+        parsed = _json.loads(qr.text.strip().strip("```json").strip("```"))
+        search_query = parsed.get("query", "innovation")
+        category = parsed.get("category")
+        if category == "none":
+            category = None
+    except Exception:
+        search_query = qr.text.strip().strip('"')[:40]
+        category = None
+
+    from tools.news_search import search_news, format_news_markdown
+    results = search_news(search_query, max_results=5, category=category)
+    formatted = format_news_markdown(results)
+
+    cat_label = f" ({category})" if category else ""
+    await msg.stream_token(f"**Query:** {search_query}{cat_label}\n\n{formatted}")
+    await msg.update()
+
+    history.append({"role": "model", "content": f"[News Search: {search_query}]\n{formatted}"})
+    cl.user_session.set("history", history)
+
+
 @cl.action_callback("gemini_deep_research")
 async def on_gemini_deep_research(action: cl.Action):
     """
@@ -3842,6 +4287,15 @@ Your insights help us improve Mindrian!"""
         full_user_message += f"\n\n{file_context}"
     full_user_message += phase_context + detail_instruction
 
+    # === LangExtract: Instant signal extraction (<5ms) ===
+    extraction_signals = None
+    try:
+        from tools.langextract import instant_extract, get_extraction_hint
+        extraction_signals = instant_extract(message.content)
+        cl.user_session.set("last_extraction", extraction_signals)
+    except Exception:
+        pass  # Non-fatal
+
     # === GraphRAG: Conditional context enrichment ===
     # Only enriches when user asks "what is X", mentions frameworks, or needs grounding
     # Returns hints (not lectures) to help Larry ask better questions
@@ -3857,6 +4311,15 @@ Your insights help us improve Mindrian!"""
                 print(f"GraphRAG enriched ({bot_id}): {graphrag_hint[:100]}...")
         except Exception as e:
             print(f"GraphRAG error (non-fatal): {e}")
+
+    # === LangExtract: Shape response based on conversation signals ===
+    if extraction_signals and not extraction_signals.get("empty"):
+        try:
+            extraction_hint = get_extraction_hint(extraction_signals, turn_count)
+            if extraction_hint:
+                full_user_message += f"\n\n{extraction_hint}"
+        except Exception:
+            pass
 
     # Build multimodal content (supports images + text)
     user_parts = []
@@ -4025,6 +4488,11 @@ The user expects you to understand the context and add your specialized value.
             if agent_suggestions:
                 actions.extend(agent_suggestions)
 
+            # Contextual research tool buttons (graph-driven)
+            research_tools = await suggest_research_tools(updated_history, current_bot_id)
+            if research_tools:
+                actions.extend(research_tools)
+
         if actions:
             msg.actions = actions
 
@@ -4051,6 +4519,18 @@ The user expects you to understand the context and add your specialized value.
             bot_id=bot_id,
             bot_name=BOTS.get(bot_id, {}).get("name", bot_id)
         ))
+
+        # Background intelligence: deep extraction + coherence tracking
+        if len(history) >= 4 and len(history) % 5 < 2:
+            try:
+                from tools.langextract import background_intelligence
+                asyncio.create_task(background_intelligence(
+                    history=history.copy(),
+                    bot_id=bot_id,
+                    session=cl.user_session,
+                ))
+            except Exception:
+                pass
 
         # Track usage metrics
         from utils.usage_metrics import track_context_save, track_message
