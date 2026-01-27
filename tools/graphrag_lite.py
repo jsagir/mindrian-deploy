@@ -661,21 +661,28 @@ def light_context(query: str, context_type: str = "auto") -> tuple:
     return hint, trace
 
 
-def enrich_for_larry(user_message: str, turn_count: int) -> Optional[str]:
+_BOT_HINT_PREFIX: Dict[str, str] = {
+    "larry": "[GraphRAG context for larry - use to ask better questions, not to lecture: ",
+    "tta": "[GraphRAG context for tta - use to guide trend exploration: ",
+    "jtbd": "[GraphRAG context for jtbd - use to deepen customer job analysis: ",
+    "scurve": "[GraphRAG context for scurve - use to ground technology timing: ",
+    "redteam": "[GraphRAG context for redteam - use to sharpen assumption challenges: ",
+    "ackoff": "[GraphRAG context for ackoff - use to ground DIKW validation: ",
+    "bono": "[GraphRAG context for bono - use to enrich perspective analysis: ",
+}
+
+
+def enrich_for_bot(user_message: str, turn_count: int, bot_id: str = "larry") -> Optional[str]:
     """
-    Main entry point: decide if and how to enrich Larry's context.
+    Enrich any bot's context with graph hints.
 
     Args:
         user_message: What the user said
         turn_count: How many turns into the conversation
+        bot_id: Which bot is active (e.g. 'larry', 'tta', 'jtbd')
 
     Returns:
-        Context hint string if helpful, None otherwise
-
-    Usage in mindrian_chat.py:
-        context_hint = enrich_for_larry(message.content, turn_count)
-        if context_hint:
-            # Add to system prompt or as invisible context
+        Context hint string with bot-specific prefix if helpful, None otherwise
     """
     if not should_retrieve(user_message, turn_count):
         return None
@@ -687,21 +694,26 @@ def enrich_for_larry(user_message: str, turn_count: int) -> Optional[str]:
 
         if hint:
             logger.info(
-                "GraphRAG enrichment [%dms]: concepts=%s, communities=%s, cross_domain=%s, entity_layer=%s",
+                "GraphRAG enrichment [%dms] bot=%s: concepts=%s, communities=%s, cross_domain=%s, entity_layer=%s",
                 trace.get("total_ms", 0),
+                bot_id,
                 trace.get("lazy_trace", {}).get("matched_concepts", []) if trace.get("lazy_trace") else [],
                 trace.get("lazy_trace", {}).get("community_ids", []) if trace.get("lazy_trace") else [],
                 trace.get("lazy_trace", {}).get("cross_domain", False) if trace.get("lazy_trace") else False,
                 trace.get("entity_layer_used", False),
             )
-            return hint
+            prefix = _BOT_HINT_PREFIX.get(bot_id, f"[GraphRAG context for {bot_id} - ")
+            return f"{prefix}{hint}]"
 
-        # Circuit breaker: if total retrieval took too long, log it
         if elapsed > _NEO4J_TIMEOUT:
             logger.warning("GraphRAG timeout: %.1fs for '%s...'", elapsed, user_message[:50])
 
     except Exception as e:
-        # Full circuit breaker: if anything fails, Larry still works without hints
         logger.error("GraphRAG enrichment failed (graceful fallback): %s", e)
 
     return None
+
+
+def enrich_for_larry(user_message: str, turn_count: int) -> Optional[str]:
+    """Backward-compatible wrapper around enrich_for_bot."""
+    return enrich_for_bot(user_message, turn_count, bot_id="larry")

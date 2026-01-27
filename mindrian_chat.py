@@ -20,9 +20,10 @@ from google.genai import types
 
 # === GraphRAG Lite - Conditional context enrichment ===
 try:
-    from tools.graphrag_lite import enrich_for_larry, should_retrieve
+    from tools.graphrag_lite import enrich_for_larry, enrich_for_bot, should_retrieve
+    from tools.graph_router import graph_score_agents, classify_and_route, has_problem_language
     GRAPHRAG_ENABLED = True
-    print("GraphRAG Lite enabled")
+    print("GraphRAG Lite + Graph Router enabled")
 except ImportError:
     GRAPHRAG_ENABLED = False
     print("GraphRAG Lite not available (Neo4j not configured)")
@@ -917,7 +918,8 @@ async def suggest_agents_from_context(
     """
     Analyze conversation context and suggest relevant agents to switch to.
 
-    Uses both keyword matching and LLM analysis for smart suggestions.
+    Uses keyword matching + graph scoring (advisory, additive only).
+    final_score = keyword_score + (graph_score * 1.5)
     Returns list of cl.Action buttons for suggested agents.
     """
     if len(history) < 2:
@@ -944,16 +946,52 @@ async def suggest_agents_from_context(
 
         if score > 0:
             agent_scores[agent_id] = {
-                "score": score,
+                "keyword_score": score,
                 "description": triggers["description"]
             }
 
+    # Graph scoring — advisory, additive only (Constraint 1)
+    graph_scores = {}
+    graph_trace = {}
+    problem_trace = {}
+    if GRAPHRAG_ENABLED:
+        try:
+            graph_scores, graph_trace = graph_score_agents(recent_text, current_bot)
+            if has_problem_language(recent_text):
+                problem_scores, problem_trace = classify_and_route(recent_text, current_bot)
+                for bot_id, ps in problem_scores.items():
+                    graph_scores[bot_id] = graph_scores.get(bot_id, 0) + ps
+        except Exception as e:
+            print(f"Graph routing error (non-fatal): {e}")
+
+    # Merge: final_score = keyword_score + (graph_score * 1.5)
+    all_agent_ids = set(agent_scores.keys()) | set(graph_scores.keys())
+    merged_scores = {}
+    for agent_id in all_agent_ids:
+        if agent_id == current_bot:
+            continue
+        kw = agent_scores.get(agent_id, {}).get("keyword_score", 0)
+        gs = graph_scores.get(agent_id, 0)
+        final = kw + (gs * 1.5)
+        if final > 0:
+            desc = agent_scores.get(agent_id, {}).get("description") or AGENT_TRIGGERS.get(agent_id, {}).get("description", "")
+            merged_scores[agent_id] = {"score": round(final, 2), "description": desc}
+
+    # Trace for logging (Constraint 2)
+    import logging
+    _logger = logging.getLogger("mindrian")
+    sorted_merged = sorted(merged_scores.items(), key=lambda x: x[1]["score"], reverse=True)
+    trace = {
+        "query": recent_text[:120],
+        "keyword_scores": {k: v.get("keyword_score", 0) for k, v in agent_scores.items()},
+        "graph_trace": graph_trace,
+        "problem_trace": problem_trace,
+        "final_ranked": [(a, s["score"]) for a, s in sorted_merged[:3]],
+    }
+    _logger.info("graph_route_trace: %s", trace)
+
     # Sort by score and take top suggestions
-    sorted_agents = sorted(
-        agent_scores.items(),
-        key=lambda x: x[1]["score"],
-        reverse=True
-    )[:max_suggestions]
+    sorted_agents = sorted_merged[:max_suggestions]
 
     # Create action buttons for suggestions
     for agent_id, info in sorted_agents:
@@ -3600,11 +3638,12 @@ Your insights help us improve Mindrian!"""
     graphrag_hint = None
     if GRAPHRAG_ENABLED and turn_count >= 0:
         try:
-            graphrag_hint = enrich_for_larry(message.content, turn_count)
+            bot_id = cl.user_session.get("bot_id", "larry")
+            graphrag_hint = enrich_for_bot(message.content, turn_count, bot_id=bot_id)
             if graphrag_hint:
                 # Add as invisible context hint - not shown to user
-                full_user_message += f"\n\n[GraphRAG context for Larry - use to ask better questions, not to lecture: {graphrag_hint}]"
-                print(f"GraphRAG enriched: {graphrag_hint[:100]}...")
+                full_user_message += f"\n\n{graphrag_hint}"
+                print(f"GraphRAG enriched ({bot_id}): {graphrag_hint[:100]}...")
         except Exception as e:
             print(f"GraphRAG error (non-fatal): {e}")
 
