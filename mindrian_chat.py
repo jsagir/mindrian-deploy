@@ -3247,6 +3247,217 @@ async def on_deep_research(action: cl.Action):
         await cl.Message(content=f"Research error: {str(e)}").send()
 
 
+@cl.action_callback("gemini_deep_research")
+async def on_gemini_deep_research(action: cl.Action):
+    """
+    Gemini Deep Research — comprehensive autonomous research (5-15 min).
+
+    Flow:
+    1. Expectation-setting message (immediate)
+    2. cl.Step: Graph Intelligence (LazyGraphRAG + orchestrator compose query)
+    3. cl.Step: Gemini Deep Research (background polling with live updates)
+    4. cl.Step: Report storage (Supabase)
+    5. Result message with download actions
+    """
+    import asyncio
+    from tools.deep_research import (
+        compose_research_query,
+        start_deep_research,
+        poll_deep_research,
+        save_report_to_supabase,
+        save_report_to_json,
+    )
+
+    history = cl.user_session.get("history", [])
+    bot = cl.user_session.get("bot", BOTS["larry"])
+    bot_id = cl.user_session.get("bot_id", "larry")
+
+    # Build recent context
+    recent_context = ""
+    for msg in history[-8:]:
+        role = "User" if msg.get("role") == "user" else "Larry"
+        content = msg.get("content", "")[:300]
+        recent_context += f"{role}: {content}\n"
+
+    # Derive research topic from last user message
+    topic = ""
+    for msg in reversed(history):
+        if msg.get("role") == "user":
+            topic = msg.get("content", "")
+            break
+    if not topic:
+        await cl.Message(content="Please send a message first so I know what to research.").send()
+        return
+
+    # ── Expectation Setting (immediate) ──
+    intro_msg = await cl.Message(content=f"""🔬 **Gemini Deep Research Starting**
+
+**Topic:** {topic[:150]}{'...' if len(topic) > 150 else ''}
+
+**What to expect:**
+- ⏱️ This takes **5-15 minutes** (autonomous multi-source analysis)
+- 📚 The agent will browse and analyze **30-50+ sources**
+- 📊 You'll get a comprehensive research report with citations
+- 🧠 Your conversation's graph intelligence shapes the research query
+
+**You can keep chatting** — I'll notify you when results are ready.
+""").send()
+
+    # ── Phase 1: Graph Intelligence (cl.Step) ──
+    try:
+        async with cl.Step(name="🔬 Gemini Deep Research", type="run") as main_step:
+            main_step.input = f"Topic: {topic[:200]}"
+
+            # Phase 1: Compose query
+            async with cl.Step(name="🧭 Graph Intelligence", type="tool") as graph_step:
+                graph_step.input = "Querying LazyGraphRAG + Neo4j orchestrator for research framing..."
+
+                composed_query, trace = compose_research_query(
+                    topic, recent_context, bot_id
+                )
+
+                graph_output_parts = []
+                if trace.get("lazy_concepts"):
+                    graph_output_parts.append(f"**Key Concepts** (LazyGraphRAG): {', '.join(trace['lazy_concepts'])}")
+                if trace.get("problem_type"):
+                    graph_output_parts.append(f"**Problem Type**: {trace['problem_type']}")
+                if trace.get("cynefin_domain"):
+                    graph_output_parts.append(f"**Cynefin Domain**: {trace['cynefin_domain']}")
+                if trace.get("frameworks"):
+                    graph_output_parts.append(f"**Frameworks**: {', '.join(trace['frameworks'])}")
+                if trace.get("techniques"):
+                    graph_output_parts.append(f"**Techniques**: {', '.join(trace['techniques'][:5])}")
+
+                graph_step.output = "\n".join(graph_output_parts) if graph_output_parts else "Using direct topic query (no graph matches)"
+
+            # Phase 2: Start deep research
+            async with cl.Step(name="📝 Research Query Composed", type="tool") as compose_step:
+                compose_step.output = f"Query length: {len(composed_query)} chars\n\n{composed_query[:500]}..."
+
+            # Phase 3: Gemini Deep Research (long-running)
+            async with cl.Step(name="🔍 Gemini Deep Research", type="run") as research_step:
+                research_step.input = "Autonomous agent browsing and analyzing sources..."
+
+                # Start the research
+                start_result = await start_deep_research(composed_query)
+
+                if "error" in start_result:
+                    research_step.output = f"❌ Failed to start: {start_result['error']}"
+                    await cl.Message(
+                        content=f"❌ **Deep Research failed to start:** {start_result['error']}\n\nTry the regular 🔍 Research button instead."
+                    ).send()
+                    return
+
+                interaction_id = start_result["interaction_id"]
+
+                # Progress message (updated during polling)
+                progress_msg = cl.Message(content="🔍 Research in progress... (0s elapsed)")
+                await progress_msg.send()
+
+                # Poll with live updates
+                async def on_progress(poll_count, elapsed_sec):
+                    minutes = elapsed_sec // 60
+                    seconds = elapsed_sec % 60
+                    dots = "." * ((poll_count % 3) + 1)
+                    time_str = f"{minutes}m {seconds}s" if minutes > 0 else f"{seconds}s"
+                    await progress_msg.update(
+                        content=f"🔍 Research in progress{dots} ({time_str} elapsed)\n\n"
+                                f"_The agent is autonomously browsing and analyzing sources. "
+                                f"You can keep chatting — I'll notify you when done._"
+                    )
+                    # Also update the step
+                    research_step.output = f"Running... {time_str} elapsed"
+
+                poll_result = await poll_deep_research(
+                    interaction_id,
+                    poll_interval=15,
+                    on_progress=on_progress,
+                )
+
+                status = poll_result.get("status", "unknown")
+                elapsed = poll_result.get("elapsed_sec", 0)
+                report = poll_result.get("report", "")
+
+                if status == "completed":
+                    research_step.output = f"✅ Completed in {elapsed}s — {len(report)} chars"
+                elif status == "failed":
+                    research_step.output = f"❌ Failed: {poll_result.get('error', 'Unknown')}"
+                elif status == "timeout":
+                    research_step.output = f"⏰ Timed out after {elapsed}s"
+
+                # Remove progress message
+                await progress_msg.remove()
+
+            # Phase 4: Storage
+            report_url = None
+            if report:
+                async with cl.Step(name="💾 Saving Report", type="tool") as save_step:
+                    report_url = save_report_to_supabase(report, topic, trace, bot_id)
+                    save_report_to_json(report, topic, trace, bot_id)
+                    if report_url:
+                        save_step.output = f"✅ Saved to Supabase: {report_url}"
+                    else:
+                        save_step.output = "Report kept in session (Supabase not configured)"
+
+            main_step.output = f"Status: {status} | {len(report)} chars | {elapsed}s"
+
+        # ── Result Message ──
+        if status == "completed" and report:
+            # Truncate for chat display
+            display_report = report
+            if len(report) > 3000:
+                display_report = report[:3000] + f"\n\n*... [{len(report) - 3000} more characters in full report]*"
+
+            result_actions = []
+            if report_url:
+                result_actions.append(cl.Action(
+                    name="open_report_url",
+                    payload={"url": report_url},
+                    label="📄 View Full Report",
+                    tooltip="Open the complete research report",
+                ))
+
+            minutes = elapsed // 60
+            seconds = elapsed % 60
+            time_str = f"{minutes}m {seconds}s" if minutes > 0 else f"{seconds}s"
+
+            header_parts = [f"🔬 **Deep Research Complete** ({time_str})"]
+            if trace.get("frameworks"):
+                header_parts.append(f"**Frameworks applied**: {', '.join(trace['frameworks'][:3])}")
+            if trace.get("lazy_concepts"):
+                header_parts.append(f"**Graph concepts**: {', '.join(trace['lazy_concepts'][:4])}")
+
+            await cl.Message(
+                content="\n".join(header_parts) + f"\n\n---\n\n{display_report}",
+                actions=result_actions,
+            ).send()
+
+            # Inject summary into conversation history so the bot can reference it
+            research_summary = f"[Deep Research findings on '{topic[:80]}']: {report[:1500]}"
+            history.append({"role": "model", "content": research_summary})
+            cl.user_session.set("history", history)
+
+        elif status == "failed":
+            await cl.Message(
+                content=f"❌ **Deep Research Failed**\n\n{poll_result.get('error', 'Unknown error')}\n\n"
+                        f"Try the regular 🔍 Research button for a quick Tavily search instead."
+            ).send()
+        elif status == "timeout":
+            await cl.Message(
+                content=f"⏰ **Deep Research Timed Out** after {elapsed}s.\n\n"
+                        f"The research may still be running on Google's servers. "
+                        f"Try again or use the regular 🔍 Research button."
+            ).send()
+
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Gemini Deep Research error: {error_details}")
+        await cl.Message(
+            content=f"❌ **Deep Research Error:** {str(e)}\n\nFalling back to regular research is available via 🔍 Research."
+        ).send()
+
+
 @cl.action_callback("think_through")
 async def on_think_through(action: cl.Action):
     """Handle think through button - sequential thinking breakdown with cl.Step visualization."""
@@ -3744,6 +3955,12 @@ The user expects you to understand the context and add your specialized value.
                     payload={"action": "research"},
                     label="🔍 Research",
                     tooltip="Search the web for relevant data and evidence",
+                ),
+                cl.Action(
+                    name="gemini_deep_research",
+                    payload={"action": "gemini_deep_research"},
+                    label="🔬 Deep Research",
+                    tooltip="Comprehensive AI research (5-15 min) — 50+ sources analyzed autonomously",
                 ),
                 cl.Action(
                     name="think_through",
