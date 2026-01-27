@@ -913,7 +913,7 @@ async def get_settings_widgets():
         Slider(
             id="response_detail",
             label="Response Detail",
-            initial=5,
+            initial=1,
             min=1,
             max=10,
             step=1,
@@ -1378,6 +1378,12 @@ async def start():
     settings = await cl.ChatSettings(await get_settings_widgets()).send()
     cl.user_session.set("settings", settings)
 
+    # Show slider reminder on main page (so users don't have to find Settings)
+    if not bot.get("has_phases"):
+        await cl.Message(
+            content="💡 **Tip:** Use the ⚙️ Settings gear (top right) to adjust **Response Detail** — it's set to **1** (concise) by default. Slide up for more detail.",
+        ).send()
+
     # Initialize phases for workshop bots
     if chat_profile in WORKSHOP_PHASES:
         phases = [p.copy() for p in WORKSHOP_PHASES[chat_profile]]
@@ -1477,46 +1483,52 @@ async def start():
             tooltip="⬇️ Download a complete summary of your workshop progress as a Markdown file"
         ))
     else:
-        # Non-workshop bots (like Larry general) also get useful actions
+        # Non-workshop bots — simple_mode (Lawrence) gets fewer buttons
+        is_simple = bot.get("simple_mode", False)
+
+        # Core buttons for all non-workshop bots
         actions = [
             cl.Action(
                 name="deep_research",
                 payload={"action": "research"},
-                label="🔍 Deep Research",
-                description="Plan and execute web research with Tavily",
+                label="🔍 Research",
+                description="Search the web for relevant data and evidence",
                 tooltip="🔍 Search the web for relevant data, studies, and evidence to support your analysis"
             ),
             cl.Action(
                 name="think_through",
                 payload={"action": "think"},
                 label="🧠 Think It Through",
-                description="Break down the problem with sequential thinking",
-                tooltip="🧠 Systematically analyze: identify problem → extract assumptions → find gaps → plan next steps"
+                description="Run a structured analysis: problem → assumptions → gaps → next steps",
+                tooltip="🧠 Run a structured analysis: define the problem → list assumptions → find gaps → suggest next steps"
             ),
-            cl.Action(
+        ]
+
+        # Full-mode-only buttons (Playground, not Lawrence)
+        if not is_simple:
+            actions.append(cl.Action(
                 name="multi_agent_analysis",
                 payload={"action": "multi_agent"},
                 label="👥 Multi-Agent Analysis",
                 description="Get perspectives from multiple PWS experts",
                 tooltip="👥 Get different perspectives from Larry, Red Team, Ackoff, and other PWS experts"
-            ),
-            cl.Action(
+            ))
+            actions.append(cl.Action(
                 name="show_example",
                 payload={"action": "example"},
                 label="📖 Show Example",
                 description="See an example of PWS methodology",
                 tooltip="📖 View a real-world example of this methodology in action"
-            ),
-            cl.Action(
+            ))
+            actions.append(cl.Action(
                 name="listen_audiobook",
                 payload={"action": "audiobook"},
                 label="🎧 Listen to Chapter",
                 description="Listen to relevant PWS audiobook chapter",
                 tooltip="🎧 Listen to audio content from the PWS course materials"
-            ),
-        ]
+            ))
 
-    # Add "Synthesize & Download" button for ALL bots (Larry synthesizes regardless of current bot)
+    # Add "Synthesize & Download" button for ALL bots
     actions.append(cl.Action(
         name="synthesize_conversation",
         payload={"action": "synthesize"},
@@ -1525,40 +1537,39 @@ async def start():
         tooltip="📝 Larry summarizes your conversation: key insights, breakthroughs, and next steps"
     ))
 
-    # Add "Extract Insights" button for ALL bots (deep structured extraction)
-    actions.append(cl.Action(
-        name="extract_insights",
-        payload={"action": "extract"},
-        label="🔍 Extract Insights",
-        description="Extract structured data: facts, assumptions, statistics, open questions",
-        tooltip="🔍 Extract: facts, assumptions, statistics, problems, solutions, and open questions"
-    ))
+    # Full-mode-only: Extract Insights, Generate Image, Analytics
+    if not bot.get("has_phases") and not bot.get("simple_mode", False):
+        actions.append(cl.Action(
+            name="extract_insights",
+            payload={"action": "extract"},
+            label="🔍 Extract Insights",
+            description="Extract structured data: facts, assumptions, statistics, open questions",
+            tooltip="🔍 Extract: facts, assumptions, statistics, problems, solutions, and open questions"
+        ))
 
-    # Add "Generate Image" button for ALL bots
-    actions.append(cl.Action(
-        name="generate_image",
-        payload={},
-        label="🎨 Generate Image",
-        description="Create an image from a text description using AI",
-        tooltip="🎨 Generate images with Gemini Imagen - describe what you want to see"
-    ))
+        actions.append(cl.Action(
+            name="generate_image",
+            payload={},
+            label="🎨 Generate Image",
+            description="Create an image from a text description using AI",
+            tooltip="🎨 Generate images with Gemini Imagen - describe what you want to see"
+        ))
 
-    # Add Analytics buttons (dashboard access)
-    actions.append(cl.Action(
-        name="show_feedback_dashboard",
-        payload={},
-        label="📊 Feedback Analytics",
-        description="View feedback analytics dashboard",
-        tooltip="📊 See satisfaction rates, trends, and feedback by bot"
-    ))
+        actions.append(cl.Action(
+            name="show_feedback_dashboard",
+            payload={},
+            label="📊 Feedback Analytics",
+            description="View feedback analytics dashboard",
+            tooltip="📊 See satisfaction rates, trends, and feedback by bot"
+        ))
 
-    actions.append(cl.Action(
-        name="show_usage_metrics",
-        payload={},
-        label="📈 Usage Metrics",
-        description="View usage metrics dashboard",
-        tooltip="📈 See message counts, bot usage, and activity trends"
-    ))
+        actions.append(cl.Action(
+            name="show_usage_metrics",
+            payload={},
+            label="📈 Usage Metrics",
+            description="View usage metrics dashboard",
+            tooltip="📈 See message counts, bot usage, and activity trends"
+        ))
 
     # Add "Clear Context" action to all bots if there's preserved history
     if is_bot_switch or len(preserved_history) > 0:
@@ -4292,7 +4303,7 @@ Your insights help us improve Mindrian!"""
         phase_context = f"\n\n[CURRENT WORKSHOP PHASE: {phases[current_phase]['name']} (Phase {current_phase + 1} of {len(phases)})]"
 
     # Add settings context
-    detail_level = settings.get("response_detail", 5)
+    detail_level = settings.get("response_detail", 1)
     workshop_mode = settings.get("workshop_mode", "guided")
     detail_instruction = ""
     if detail_level <= 3:
@@ -4430,7 +4441,10 @@ The user expects you to understand the context and add your specialized value.
         # Add action buttons to EVERY response (key actions always visible)
         actions = []
         if not stopped:
-            # Core actions for ALL bots - always visible
+            # Determine if this bot uses simple_mode (Lawrence = clean, fewer buttons)
+            is_simple = bot.get("simple_mode", False)
+
+            # Core actions — simple_mode gets fewer buttons
             actions = [
                 cl.Action(
                     name="deep_research",
@@ -4439,24 +4453,29 @@ The user expects you to understand the context and add your specialized value.
                     tooltip="Search the web for relevant data and evidence",
                 ),
                 cl.Action(
-                    name="gemini_deep_research",
-                    payload={"action": "gemini_deep_research"},
-                    label="🔬 Deep Research",
-                    tooltip="Comprehensive AI research (5-15 min) — 50+ sources analyzed autonomously",
-                ),
-                cl.Action(
-                    name="think_through",
-                    payload={"action": "think"},
-                    label="🧠 Think",
-                    tooltip="Systematically analyze: problem → assumptions → gaps → next steps",
-                ),
-                cl.Action(
                     name="synthesize_conversation",
                     payload={"action": "synthesize"},
                     label="📥 Synthesize",
                     tooltip="Summarize conversation: key insights, breakthroughs, next steps",
                 ),
             ]
+
+            # Think button — all modes, but with clearer tooltip
+            actions.append(cl.Action(
+                name="think_through",
+                payload={"action": "think"},
+                label="🧠 Think",
+                tooltip="Run a structured analysis: define the problem → list assumptions → find gaps → suggest next steps",
+            ))
+
+            # Deep Research (Gemini) — only in full/playground mode
+            if not is_simple:
+                actions.append(cl.Action(
+                    name="gemini_deep_research",
+                    payload={"action": "gemini_deep_research"},
+                    label="🔬 Deep Research",
+                    tooltip="Comprehensive AI research (5-15 min) — 50+ sources analyzed autonomously",
+                ))
 
             # Add workshop-specific actions
             if bot.get("has_phases"):
@@ -4475,21 +4494,20 @@ The user expects you to understand the context and add your specialized value.
                     ),
                 ])
             else:
-                # Non-workshop bots get example and multi-agent
-                actions.extend([
-                    cl.Action(
-                        name="show_example",
-                        payload={"action": "example"},
-                        label="📖 Example",
-                        tooltip="View a real-world example of this methodology",
-                    ),
-                    cl.Action(
+                # Non-workshop bots get example; multi-agent only for non-simple bots
+                actions.append(cl.Action(
+                    name="show_example",
+                    payload={"action": "example"},
+                    label="📖 Example",
+                    tooltip="View a real-world example of this methodology",
+                ))
+                if not is_simple:
+                    actions.append(cl.Action(
                         name="multi_agent_analysis",
                         payload={"action": "multi_agent"},
                         label="👥 Multi-Agent",
                         tooltip="Get perspectives from multiple PWS experts",
-                    ),
-                ])
+                    ))
 
         # Add dynamic agent suggestions based on conversation context
         if not stopped and len(history) >= 2:
