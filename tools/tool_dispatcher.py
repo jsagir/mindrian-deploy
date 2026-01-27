@@ -13,10 +13,12 @@ Available tools in Mindrian runtime:
     - Tavily (tavily_search) — web search, trend research, assumption validation
     - Gemini (google.genai) — LLM reasoning, synthesis
 
+Available (API-based, no MCP server needed):
+    - ArXiv (arxiv.py) — free, no API key required
+    - Google Patents (SerpApi + Tavily fallback) — works with or without SERPAPI_KEY
+
 NOT available (graph has nodes, but no runtime):
-    - ArXiv MCP Server — no API key / client configured
     - Octagon Deep Research — no API key / client configured
-    - Google Patents MCP — no API key / client configured
     - Sequential Thinking MCP — no server running
     - Notion — no server running
     - n8n-mcp — no runtime integration
@@ -124,6 +126,18 @@ def _tavily_batch(query: str, **kwargs) -> Dict:
     return {"tool": "tavily", "action": "batch", "results": batch_search(queries)}
 
 
+def _arxiv_search(query: str, **kwargs) -> Dict:
+    """Search ArXiv for academic papers."""
+    from tools.arxiv_search import search_papers
+    return search_papers(query, max_results=kwargs.get("max_results", 5))
+
+
+def _patent_search(query: str, **kwargs) -> Dict:
+    """Search Google Patents."""
+    from tools.patent_search import search_patents
+    return search_patents(query, max_results=kwargs.get("max_results", 5))
+
+
 def _not_available(query: str, **kwargs) -> Dict:
     """Placeholder for tools that exist in the graph but have no runtime."""
     tool_name = kwargs.get("_tool_name", "unknown")
@@ -154,14 +168,18 @@ TOOL_REGISTRY: Dict[str, Dict[str, Any]] = {
     "Web Search":            {"fn": _tavily_search,    "category": "web",    "available": True},
     "Web Search for Unknown Unknowns": {"fn": _tavily_search, "category": "web", "available": True},
 
+    # ArXiv — free API, no key required
+    "ArXiv MCP Server":      {"fn": _arxiv_search,  "category": "arxiv",   "available": True},
+    "ArXiv Research":        {"fn": _arxiv_search,  "category": "arxiv",   "available": True},
+    "ArXiv Academic Search":  {"fn": _arxiv_search,  "category": "arxiv",   "available": True},
+
     # NOT AVAILABLE — graph nodes exist but no runtime
-    "ArXiv MCP Server":      {"fn": _not_available, "category": "arxiv",   "available": False},
-    "ArXiv Research":        {"fn": _not_available, "category": "arxiv",   "available": False},
-    "ArXiv Academic Search":  {"fn": _not_available, "category": "arxiv",   "available": False},
     "Octagon Deep Research":  {"fn": _not_available, "category": "octagon", "available": False},
     "Octagon Deep Research MCP": {"fn": _not_available, "category": "octagon", "available": False},
-    "Google Patents MCP":    {"fn": _not_available, "category": "patents", "available": False},
-    "Google Patents Search":  {"fn": _not_available, "category": "patents", "available": False},
+
+    # Google Patents — SerpApi if key set, else Tavily fallback
+    "Google Patents MCP":    {"fn": _patent_search,  "category": "patents", "available": True},
+    "Google Patents Search":  {"fn": _patent_search,  "category": "patents", "available": True},
     "Sequential Thinking":   {"fn": _not_available, "category": "thinking", "available": False},
     "Sequential Thinking Analyzer": {"fn": _not_available, "category": "thinking", "available": False},
     "think-tool":            {"fn": _not_available, "category": "thinking", "available": False},
@@ -182,6 +200,8 @@ CATEGORY_FALLBACK: Dict[str, Callable] = {
     "tavily":  _tavily_search,
     "web":     _tavily_search,
     "search":  _tavily_search,
+    "arxiv":   _arxiv_search,
+    "patent":  _patent_search,
 }
 
 
