@@ -2360,11 +2360,56 @@ Be direct and engaging. Show your unique value."""
 
 @cl.action_callback("show_example")
 async def on_show_example(action: cl.Action):
-    """Handle show example button click - pulls diverse examples from Neo4j and File Search."""
+    """Handle show example button click - generates a context-relevant example.
+
+    Uses conversation history to produce an example that matches what the user
+    is actually discussing, not a random static example.
+    """
     current_phase = cl.user_session.get("current_phase", 0)
     chat_profile = cl.user_session.get("chat_profile", "lawrence")
     session_id = cl.user_session.get("id", "default")
+    history = cl.user_session.get("history", [])
 
+    # Build conversation summary for context-aware example generation
+    recent_context = " ".join(
+        [m.get("content", "") for m in history[-6:]]
+    )[-1200:]
+
+    # If there's conversation context, generate a relevant example via Gemini
+    if recent_context.strip():
+        try:
+            from utils.dynamic_examples import BOT_TO_METHODOLOGY
+            methodology_names = BOT_TO_METHODOLOGY.get(chat_profile, ["PWS"])
+            methodology = methodology_names[0]
+
+            prompt = (
+                f"Based on this conversation:\n\n{recent_context}\n\n"
+                f"Give ONE specific, real-world example that illustrates the concept "
+                f"being discussed. The example should be a concrete historical or "
+                f"business case — with names, dates, and outcomes — that directly "
+                f"parallels or illuminates what the user is exploring.\n\n"
+                f"The user is in a {methodology} workshop context. "
+                f"Do NOT explain the methodology itself. Give a STORY, not a definition.\n\n"
+                f"Format: **Title**: 2-4 sentence example with specific details."
+            )
+
+            response = client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    temperature=0.7,
+                    max_output_tokens=400,
+                ),
+            )
+
+            if response.text and len(response.text.strip()) > 20:
+                await cl.Message(content=f"**📖 Example:**\n\n{response.text.strip()}").send()
+                return
+
+        except Exception as e:
+            print(f"Context-aware example error: {e}")
+
+    # Fallback: use the existing diverse example system (static/Neo4j/File Search)
     try:
         from utils.dynamic_examples import (
             get_diverse_example,
@@ -2372,18 +2417,13 @@ async def on_show_example(action: cl.Action):
             track_shown_example
         )
 
-        # Get recently shown examples to avoid repetition
         exclude_recent = get_shown_examples(session_id)
-
-        # Fetch a diverse example (from Neo4j, File Search, or static)
         example = await get_diverse_example(
             bot_id=chat_profile,
             phase=current_phase,
             exclude_recent=exclude_recent
         )
 
-        # Track this example to avoid showing it again soon
-        # Extract title for tracking (assumes **Title**: format)
         if "**" in example:
             title = example.split("**")[1] if len(example.split("**")) > 1 else f"example_{current_phase}"
         else:
@@ -2394,7 +2434,6 @@ async def on_show_example(action: cl.Action):
 
     except Exception as e:
         print(f"Dynamic example fetch error: {e}")
-        # Fallback to simple static examples
         fallback_examples = {
             "tta": "**Trending to the Absurd**: Push a trend to its extreme to reveal future problems. Example: 'What if 100% of workers are remote?' surfaces problems in collaboration, culture, and infrastructure.",
             "jtbd": "**Jobs to Be Done**: People don't buy products, they hire them for a job. Example: Milkshakes are 'hired' for a boring commute, not as a dessert.",
