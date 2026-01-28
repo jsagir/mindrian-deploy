@@ -8,6 +8,20 @@ This file is for AI assistants (Claude Code, etc.) to quickly understand this pr
 
 ---
 
+## Session Start: Health Check Protocol
+
+**Every new Claude Code session on this project MUST begin by running:**
+
+```bash
+python3 scripts/health_check.py
+```
+
+This verifies: Gemini API, FileSearch RAG, Neo4j LazyGraph, Tavily, Supabase, ElevenLabs, LangExtract, optional research APIs, and code integrity. Fix any failures before proceeding with development work.
+
+You can also run it via: `/health-check`
+
+---
+
 ## Quick Context
 
 **What is Mindrian?**

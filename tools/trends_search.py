@@ -34,7 +34,7 @@ def search_trends(
     Returns:
         {"query": str, "data_type": str, "data": ..., "error": str|None}
     """
-    api_key = os.getenv("SERPAPI_API_KEY")
+    api_key = os.getenv("SERPAPI_KEY") or os.getenv("SERPAPI_API_KEY")
     if not api_key:
         return {"query": query, "data_type": data_type, "data": None, "error": "SERPAPI_API_KEY not set"}
 

@@ -547,6 +547,9 @@ def should_retrieve(message: str, turn_count: int) -> bool:
             "trending", "absurd", "reverse salient", "ackoff",
             "cynefin", "red team", "beautiful question",
             "problem worth solving", "innovation",
+            "domain selection", "domain statement", "interest knowledge access",
+            "six thinking hats", "de bono", "known unknowns", "rumsfeld",
+            "scenario analysis", "ten questions",
         ]
         if any(word in message_lower for word in methodology_words):
             return True
@@ -669,6 +672,13 @@ _BOT_HINT_PREFIX: Dict[str, str] = {
     "redteam": "[GraphRAG context for redteam - use to sharpen assumption challenges: ",
     "ackoff": "[GraphRAG context for ackoff - use to ground DIKW validation: ",
     "bono": "[GraphRAG context for bono - use to enrich perspective analysis: ",
+    "domain": "[GraphRAG context for domain - use to ground domain selection with PWS frameworks: ",
+    "known_unknowns": "[GraphRAG context for known_unknowns - use to map knowledge boundaries: ",
+    "pws_investment": "[GraphRAG context for pws_investment - use to ground investment evaluation: ",
+    "scenario": "[GraphRAG context for scenario - use to enrich scenario construction: ",
+    "problem_classifier": "[GraphRAG context for problem_classifier - use to classify problem types: ",
+    "larry_playground": "[GraphRAG context for larry - use to ask better questions, not to lecture: ",
+    "lawrence": "[GraphRAG context for larry - use to ask better questions, not to lecture: ",
 }
 
 

@@ -9,6 +9,12 @@ from typing import Optional, List, Dict
 
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 
+# Startup diagnostic
+if TAVILY_API_KEY:
+    print(f"[TAVILY] API key loaded: {TAVILY_API_KEY[:8]}...{TAVILY_API_KEY[-4:]} ({len(TAVILY_API_KEY)} chars)")
+else:
+    print("[TAVILY] WARNING: TAVILY_API_KEY not found in environment!")
+
 
 def search_web(
     query: str,
@@ -31,12 +37,14 @@ def search_web(
         Dictionary with search results
     """
     if not TAVILY_API_KEY:
+        print("[TAVILY] search_web called but API key is missing!")
         return {
-            "error": "Tavily API key not configured",
+            "error": "Tavily API key not configured. Set TAVILY_API_KEY in environment.",
             "results": []
         }
 
     try:
+        print(f"[TAVILY] Searching: '{query[:80]}' (depth={search_depth}, max={max_results})")
         client = TavilyClient(api_key=TAVILY_API_KEY)
 
         response = client.search(
@@ -47,6 +55,9 @@ def search_web(
             exclude_domains=exclude_domains or []
         )
 
+        result_count = len(response.get("results", []))
+        print(f"[TAVILY] Got {result_count} results for: '{query[:50]}'")
+
         return {
             "query": query,
             "results": response.get("results", []),
@@ -54,6 +65,7 @@ def search_web(
         }
 
     except Exception as e:
+        print(f"[TAVILY] ERROR for '{query[:50]}': {type(e).__name__}: {e}")
         return {
             "error": str(e),
             "results": []

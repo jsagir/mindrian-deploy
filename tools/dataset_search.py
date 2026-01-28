@@ -34,6 +34,16 @@ def search_kaggle(query: str, max_results: int = 5) -> Dict:
     username = os.getenv("KAGGLE_USERNAME")
     key = os.getenv("KAGGLE_KEY")
 
+    # Support KAGGLE_API_TOKEN (JSON format: {"username":"x","key":"y"})
+    if (not username or not key) and os.getenv("KAGGLE_API_TOKEN"):
+        try:
+            import json as _json
+            token = _json.loads(os.getenv("KAGGLE_API_TOKEN"))
+            username = token.get("username")
+            key = token.get("key")
+        except Exception:
+            pass
+
     if not username or not key:
         return {"source": "Kaggle", "query": query, "datasets": [], "error": "KAGGLE_USERNAME/KAGGLE_KEY not set"}
 

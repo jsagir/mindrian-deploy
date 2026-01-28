@@ -232,6 +232,41 @@ def setup_ackoff_cache():
     return cache_name
 
 
+def setup_domain_cache():
+    """
+    Set up the Domain Selection Workshop cache with all materials.
+    Run this once to upload materials and create the cache.
+    """
+    from prompts.domain_explorer import DOMAIN_EXPLORER_PROMPT
+
+    base_path = Path("/home/jsagi/Mindrian/PWS - Lectures and worksheets created by Mindrian-20251219T001450Z-1-001/PWS - Lectures and worksheets created by Mindrian/Domain Selection")
+
+    file_paths = [
+        base_path / "Lecture domain selection.txt",
+        base_path / "Worksheet.txt",
+    ]
+
+    # Verify files exist
+    for fp in file_paths:
+        if not fp.exists():
+            raise FileNotFoundError(f"File not found: {fp}")
+
+    cache_name = create_workshop_cache(
+        workshop_id="domain",
+        file_paths=[str(fp) for fp in file_paths],
+        system_instruction=DOMAIN_EXPLORER_PROMPT,
+        model="models/gemini-2.0-flash-001",
+        ttl_seconds=604800  # 7 days
+    )
+
+    print(f"\n{'='*50}")
+    print(f"Domain Selection cache setup complete!")
+    print(f"Cache name: {cache_name}")
+    print(f"{'='*50}")
+
+    return cache_name
+
+
 if __name__ == "__main__":
     """Run setup when executed directly."""
     import sys
@@ -241,15 +276,19 @@ if __name__ == "__main__":
 
         if command == "setup-ackoff":
             setup_ackoff_cache()
+        elif command == "setup-domain":
+            setup_domain_cache()
         elif command == "list":
             list_caches()
         elif command == "delete" and len(sys.argv) > 2:
             delete_cache(sys.argv[2])
         else:
             print("Usage:")
-            print("  python gemini_rag.py setup-ackoff  - Set up Ackoff workshop cache")
-            print("  python gemini_rag.py list          - List all caches")
-            print("  python gemini_rag.py delete <name> - Delete a cache")
+            print("  python gemini_rag.py setup-ackoff   - Set up Ackoff workshop cache")
+            print("  python gemini_rag.py setup-domain   - Set up Domain Selection cache")
+            print("  python gemini_rag.py list            - List all caches")
+            print("  python gemini_rag.py delete <name>   - Delete a cache")
     else:
         print("Setting up all workshop caches...")
         setup_ackoff_cache()
+        setup_domain_cache()

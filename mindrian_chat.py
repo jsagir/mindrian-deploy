@@ -42,7 +42,7 @@ def _check_api_keys():
     keys = {
         "GOOGLE_API_KEY": GOOGLE_API_KEY,
         "TAVILY_API_KEY": TAVILY_API_KEY,
-        "SERPAPI_API_KEY": os.getenv("SERPAPI_API_KEY"),
+        "SERPAPI_KEY": os.getenv("SERPAPI_KEY") or os.getenv("SERPAPI_API_KEY"),
         "FRED_API_KEY": os.getenv("FRED_API_KEY"),
         "ELEVENLABS_API_KEY": os.getenv("ELEVENLABS_API_KEY"),
         "NEO4J_URI": os.getenv("NEO4J_URI"),
@@ -100,8 +100,8 @@ AGENT_TRIGGERS = {
         "description": "Map unknowns & blind spots"
     },
     "domain": {
-        "keywords": ["deep research", "multi-domain", "cross-domain", "comprehensive research", "exhaustive", "15 searches", "synthesis"],
-        "description": "Exhaustive domain research"
+        "keywords": ["domain selection", "choose domain", "pick domain", "domain candidate", "interest knowledge access", "where to innovate", "innovation territory", "domain statement"],
+        "description": "Domain Selection Workshop"
     },
     "investment": {
         "keywords": ["ten questions", "investment thesis", "startup", "funding", "valuation", "due diligence", "invest", "evaluation"],
@@ -148,7 +148,15 @@ from prompts import (
     KNOWN_UNKNOWNS_PROMPT,
     DOMAIN_EXPLORER_PROMPT,
     PWS_INVESTMENT_PROMPT,
-    SCENARIO_ANALYSIS_PROMPT
+    SCENARIO_ANALYSIS_PROMPT,
+    CV_EXTRACTION_PROMPT,
+    DOMAIN_GENERATION_PROMPT,
+    DOMAIN_SCORING_PROMPT,
+    RESEARCH_EXTRACTION_PROMPT,
+    RESEARCH_QUESTION_EXPANSION_PROMPT,
+    DOMAIN_GENERATION_FROM_RESEARCH_PROMPT,
+    RESEARCH_DOMAIN_SCORING_PROMPT,
+    RESEARCH_TRANSLATION_PROMPT,
 )
 
 # === RAG Cache Support ===
@@ -237,15 +245,10 @@ WORKSHOP_PHASES = {
     ],
     "domain": [
         {"name": "Introduction", "status": "ready"},
-        {"name": "Scope Definition", "status": "pending"},
-        {"name": "Domain Mapping", "status": "pending"},
-        {"name": "Primary Research", "status": "pending"},
-        {"name": "Adjacent Research", "status": "pending"},
-        {"name": "Cross-Domain Research", "status": "pending"},
-        {"name": "Dissent Collection", "status": "pending"},
-        {"name": "Synthesis", "status": "pending"},
-        {"name": "Gap Identification", "status": "pending"},
-        {"name": "Insight Generation", "status": "pending"},
+        {"name": "Domain Generation", "status": "pending"},
+        {"name": "Domain Evaluation", "status": "pending"},
+        {"name": "Domain Validation", "status": "pending"},
+        {"name": "Domain Finalization", "status": "pending"},
     ],
     "investment": [
         {"name": "Introduction", "status": "ready"},
@@ -468,26 +471,28 @@ I help you systematically categorize what you know and don't know:
 We'll surface hidden assumptions and discover what you don't know you don't know."""
     },
     "domain": {
-        "name": "Domain Explorer",
+        "name": "Domain Selection",
         "icon": "/public/icons/domain.svg",
-        "emoji": "🔍",
-        "description": "Workshop: Exhaustive multi-domain research synthesis",
+        "emoji": "🧭",
+        "description": "Workshop: Domain Selection — Choose where to innovate",
         "system_prompt": DOMAIN_EXPLORER_PROMPT,
         "has_phases": True,
-        "welcome": """🔍 **Domain Explorer**
-### Exhaustive Research + Cross-Domain Synthesis
+        "welcome": """🧭 **Domain Selection Workshop**
+### Find Your Innovation Territory
 
-Hello, I'm your systematic researcher.
+Hello, I'm Larry Aronhime.
 
-I conduct comprehensive multi-domain exploration:
-- **15-20+ strategic searches** across domains
-- **Multiple lenses**: disciplinary, stakeholder, temporal, scale
-- **Both supporting AND dissenting evidence**
-- **Cross-domain synthesis** for non-obvious connections
+**Here's what most people miss:** They think domain selection is a warm-up exercise. It's not. It's the foundation. Get it wrong, and no amount of creativity will save you.
 
-**What topic do you want to explore exhaustively?**
+We'll work through 4 phases:
+1. **Generation** — Mine your experience for candidate domains
+2. **Evaluation** — Score honestly on Interest, Knowledge, Access
+3. **Validation** — Test with real research and stakeholder checks
+4. **Finalization** — Craft your domain statement and action plan
 
-Whether it's a technology, market, problem, or opportunity, I'll map the full landscape."""
+You can also upload a **CV** or **research paper** to discover domains automatically.
+
+**Where are you starting from?** Do you have candidates in mind, or are you starting fresh?"""
     },
     "investment": {
         "name": "PWS Investment",
@@ -823,24 +828,24 @@ STARTERS = {
     ],
     "domain": [
         cl.Starter(
-            label="Deep dive research",
-            message="I need exhaustive research on a topic. Here's what I want to explore: [topic]",
+            label="Start fresh",
+            message="I'm starting fresh — help me find my innovation domain from scratch.",
+            icon="/public/icons/start.svg",
+        ),
+        cl.Starter(
+            label="I have candidates",
+            message="I already have some domain candidates in mind. Help me evaluate them honestly.",
+            icon="/public/icons/evaluate.svg",
+        ),
+        cl.Starter(
+            label="Analyze my CV",
+            message="I'd like to upload my CV so you can extract potential innovation domains from my background.",
+            icon="/public/icons/cv.svg",
+        ),
+        cl.Starter(
+            label="Analyze research paper",
+            message="I have a research paper I'd like to analyze for domain opportunities.",
             icon="/public/icons/research.svg",
-        ),
-        cl.Starter(
-            label="Cross-domain synthesis",
-            message="Help me find connections between different fields related to my challenge.",
-            icon="/public/icons/connect.svg",
-        ),
-        cl.Starter(
-            label="Find dissenting evidence",
-            message="I need to understand the opposing views and counter-evidence for my hypothesis.",
-            icon="/public/icons/contrast.svg",
-        ),
-        cl.Starter(
-            label="Map the landscape",
-            message="Give me a comprehensive landscape analysis of a market/technology/problem.",
-            icon="/public/icons/landscape.svg",
         ),
     ],
     "investment": [
@@ -1497,6 +1502,28 @@ async def start():
                 label="Show S-Curve",
                 description="View the technology S-curve diagram",
                 tooltip="📈 View the technology adoption S-curve showing ferment→takeoff→maturity phases"
+            ))
+        elif chat_profile == "domain":
+            actions.append(cl.Action(
+                name="analyze_cv",
+                payload={"action": "analyze_cv"},
+                label="Analyze CV",
+                description="Upload a CV/resume to discover innovation domains",
+                tooltip="📄 Upload a CV/resume to extract potential innovation domains from your background"
+            ))
+            actions.append(cl.Action(
+                name="analyze_research",
+                payload={"action": "analyze_research"},
+                label="Analyze Research",
+                description="Upload a research paper to discover domain opportunities",
+                tooltip="📑 Upload a research paper, patent, or proposal to identify innovation domains"
+            ))
+            actions.append(cl.Action(
+                name="explore_question",
+                payload={"action": "explore_question"},
+                label="Explore Question",
+                description="Enter a research question to discover domain opportunities",
+                tooltip="❓ Enter a research question or topic to identify innovation domains without a document"
             ))
 
         # Add export button for all workshop bots
@@ -2666,13 +2693,34 @@ async def on_next_phase(action: cl.Action):
         completed_count = sum(1 for p in phases if p["status"] == "done")
         total_count = len(phases)
 
-        await cl.Message(
+        phase_msg = cl.Message(
             content=(
                 f"**✅ Moving to Phase {phase_num}/{total_count}: {phase_name}**\n\n"
                 f"*({completed_count} of {total_count} phases completed)*\n\n"
                 f"What would you like to explore in this phase?"
             ),
-        ).send()
+        )
+        phase_msg.actions = [
+            cl.Action(
+                name="next_phase",
+                payload={"action": "next"},
+                label="➡️ Next Phase",
+                tooltip="Skip ahead to the next phase",
+            ),
+            cl.Action(
+                name="deep_research",
+                payload={"action": "research"},
+                label="🔍 Research",
+                tooltip="Search for sources relevant to this phase",
+            ),
+            cl.Action(
+                name="show_example",
+                payload={"action": "example"},
+                label="📖 Example",
+                tooltip="See an example for this phase",
+            ),
+        ]
+        await phase_msg.send()
     else:
         await cl.Message(
             content="**🎉 Workshop Complete!**\n\nYou've completed all phases. Would you like to review your progress or start fresh?"
@@ -3431,12 +3479,13 @@ async def on_deep_research(action: cl.Action):
         content = msg.get("content", "")[:600]
         recent_context += f"{role}: {content}\n"
 
-    # ─── Sources-First Mode (Lawrence / simple_mode) ───
-    if is_simple:
-        await _research_sources_first(recent_context, bot_name, search_depth, history)
-        return
+    # ─── Sources-First Mode (ALL bots) ───
+    # Always show sources first. Users can click "Deep Analyze" for Minto Pyramid.
+    # This fixes the UX mismatch where users expect sources but get Minto analysis.
+    await _research_sources_first(recent_context, bot_name, search_depth, history)
+    return
 
-    # ─── Full Minto Pyramid Mode (Playground) ───
+    # ─── Full Minto Pyramid Mode (only via "Deep Analyze" button) ───
     from utils.minto_research import (
         SequentialThinkingSession, SCQAAnalysis, ResearchPlan, ThoughtType,
         BeautifulQuestions, SCQA_ANALYSIS_PROMPT, BEAUTIFUL_QUESTIONS_PROMPT,
@@ -4887,6 +4936,38 @@ The user expects you to understand the context and add your specialized value.
         history.append({"role": "model", "content": full_response})
         cl.user_session.set("history", history)
 
+        # Auto-detect phase progression from LLM response for workshop bots
+        if phases and bot.get("has_phases") and current_phase < len(phases) - 1:
+            try:
+                # Check if the response mentions moving to next phase or completing current
+                response_lower = full_response.lower()
+                next_phase_name = phases[current_phase + 1]["name"].lower()
+                current_phase_name = phases[current_phase]["name"].lower()
+
+                # Detect phase transition signals
+                phase_advanced = False
+                transition_signals = [
+                    f"phase {current_phase + 2}",
+                    f"moving to {next_phase_name}",
+                    f"let's move to {next_phase_name}",
+                    f"now let's {next_phase_name}",
+                    f"proceed to {next_phase_name}",
+                ]
+                for signal in transition_signals:
+                    if signal in response_lower:
+                        phase_advanced = True
+                        break
+
+                if phase_advanced:
+                    phases[current_phase]["status"] = "done"
+                    phases[current_phase + 1]["status"] = "running"
+                    current_phase += 1
+                    cl.user_session.set("phases", phases)
+                    cl.user_session.set("current_phase", current_phase)
+                    print(f"[PHASE] Auto-advanced to phase {current_phase + 1}: {phases[current_phase]['name']}")
+            except Exception as e:
+                print(f"[PHASE] Auto-detect error (non-critical): {e}")
+
         # Refresh task panel for workshop bots (keeps it in sync every message)
         if phases and bot.get("has_phases"):
             try:
@@ -5336,3 +5417,517 @@ async def on_audio_end(elements: list = None):
     except Exception as e:
         print(f"🎤 [VOICE] Fallback error: {e}")
         await cl.Message(content=f"Audio processing error: {str(e)[:100]}").send()
+
+
+# =====================================================================
+# DOMAIN SELECTION — CV Analysis, Research Analysis, Question Exploration
+# =====================================================================
+
+async def _gemini_json_call(prompt_text: str) -> dict:
+    """Call Gemini and parse JSON response."""
+    import re
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt_text,
+        config=types.GenerateContentConfig(temperature=0.3),
+    )
+    text = response.text.strip()
+    # Strip markdown fences if present
+    text = re.sub(r'^```(?:json)?\s*', '', text)
+    text = re.sub(r'\s*```$', '', text)
+    return json.loads(text)
+
+
+async def _get_graph_hints(keywords: list) -> str:
+    """Get GraphRAG hints for domain keywords."""
+    if not GRAPHRAG_ENABLED:
+        return "No graph context available."
+    try:
+        from tools.graphrag_lite import light_context
+        hints = []
+        for kw in keywords[:5]:
+            hint, _ = light_context(kw, context_type="auto")
+            if hint:
+                hints.append(hint)
+        return "\n".join(hints) if hints else "No graph matches found."
+    except Exception:
+        return "Graph context unavailable."
+
+
+async def _get_rag_context(query: str) -> str:
+    """Get File Search RAG context."""
+    if not FILE_SEARCH_ENABLED:
+        return "No RAG context available."
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=query,
+            config=types.GenerateContentConfig(
+                tools=[types.Tool(
+                    google_search=None,
+                    file_search=types.FileSearch(
+                        vector_store_ids=[FILE_SEARCH_STORE.split("/")[-1]],
+                    ),
+                )],
+                temperature=0.2,
+            ),
+        )
+        return response.text[:2000] if response.text else "No RAG results."
+    except Exception:
+        return "RAG context unavailable."
+
+
+async def _run_research_validation(domains: list, max_domains: int = 5) -> str:
+    """Run Tavily research validation for top domains."""
+    try:
+        from tools.tavily_search import search_web
+    except ImportError:
+        return "Research validation unavailable (Tavily not configured)."
+
+    results = []
+    for domain in domains[:max_domains]:
+        statement = domain.get("domain_statement", str(domain))
+        try:
+            r = search_web(f"{statement} research landscape challenges", search_depth="basic", max_results=3)
+            results.append(f"**{statement}**: {r[:500] if isinstance(r, str) else str(r)[:500]}")
+        except Exception as e:
+            results.append(f"**{statement}**: Search failed - {str(e)[:100]}")
+    return "\n\n".join(results) if results else "No research results."
+
+
+_INPUT_TYPE_INDICATORS = {
+    "published_paper": ["Abstract", "Introduction", "Methods", "Results", "Discussion", "References"],
+    "research_proposal": ["Specific Aims", "Background", "Research Plan", "Budget", "Timeline"],
+    "thesis_proposal": ["Problem Statement", "Literature Review", "Methodology", "Expected Contributions"],
+    "patent_application": ["Claims", "Description", "Prior Art"],
+    "literature_review": ["Search Strategy", "Inclusion Criteria", "Synthesis", "Themes"],
+}
+
+
+def _detect_document_type(text: str) -> str:
+    """Auto-detect research document type from section headings."""
+    text_upper = text[:5000].upper()
+    best_type = "published_paper"
+    best_score = 0
+    for doc_type, indicators in _INPUT_TYPE_INDICATORS.items():
+        score = sum(1 for ind in indicators if ind.upper() in text_upper)
+        if score > best_score:
+            best_score = score
+            best_type = doc_type
+    return best_type
+
+
+@cl.action_callback("analyze_cv")
+async def on_analyze_cv(action: cl.Action):
+    """CV-based domain discovery pipeline."""
+    # Phase 1: File Upload
+    files = await cl.AskFileMessage(
+        content="Upload your CV or resume (PDF, DOCX, or TXT).",
+        accept=["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "text/plain"],
+        max_size_mb=10,
+    ).send()
+
+    if not files:
+        await cl.Message(content="No file uploaded. You can try again by clicking **Analyze CV**.").send()
+        return
+
+    file = files[0]
+    status_msg = cl.Message(content="")
+    await status_msg.send()
+
+    try:
+        # Extract text
+        async with cl.Step(name="Extracting CV", type="tool") as step:
+            step.input = f"Processing {file.name}"
+            from utils.file_processor import process_uploaded_file
+            content, metadata = process_uploaded_file(file.path, file.name)
+            if not content or len(content.strip()) < 50:
+                await cl.Message(content="Could not extract sufficient text from the file. Please try a different format.").send()
+                return
+            step.output = f"Extracted {len(content)} characters"
+
+        # Phase 2: CV Extraction
+        async with cl.Step(name="Analyzing CV Structure", type="llm") as step:
+            step.input = "Extracting professional experience, education, skills, and network indicators"
+            extraction = await _gemini_json_call(
+                CV_EXTRACTION_PROMPT.format(cv_text=content[:15000])
+            )
+            step.output = f"Found {len(extraction.get('professional_experience', []))} roles, {len(extraction.get('education', []))} degrees"
+            cl.user_session.set("cv_extraction", extraction)
+
+        # Phase 3: Domain Generation
+        async with cl.Step(name="Generating Domain Candidates", type="llm") as step:
+            # Get graph and RAG context
+            keywords = extraction.get("skills", {}).get("technical", [])[:5] + \
+                       [e.get("field", "") for e in extraction.get("education", [])]
+            graph_hints = await _get_graph_hints(keywords)
+            rag_context = await _get_rag_context("domain selection methodology PWS criteria")
+
+            step.input = f"Using {len(keywords)} keywords for context enrichment"
+            domains_data = await _gemini_json_call(
+                DOMAIN_GENERATION_PROMPT.format(
+                    cv_extraction=json.dumps(extraction, indent=2),
+                    graph_hints=graph_hints,
+                    rag_context=rag_context,
+                )
+            )
+            domains = domains_data.get("domains", [])
+            step.output = f"Generated {len(domains)} domain candidates"
+
+        # Phase 4: Research Validation
+        async with cl.Step(name="Validating with Research", type="tool") as step:
+            step.input = f"Researching top {min(5, len(domains))} domains"
+            research_results = await _run_research_validation(domains)
+            step.output = "Research validation complete"
+
+        # Phase 5: Scoring
+        async with cl.Step(name="Scoring Domains", type="llm") as step:
+            step.input = "Scoring Interest, Knowledge, Access for each domain"
+            scored_data = await _gemini_json_call(
+                DOMAIN_SCORING_PROMPT.format(
+                    cv_extraction=json.dumps(extraction, indent=2),
+                    domain_candidates=json.dumps(domains, indent=2),
+                    research_results=research_results,
+                )
+            )
+            scored = scored_data.get("scored_domains", [])
+            step.output = f"Scored {len(scored)} domains"
+
+        # Output results
+        output_parts = ["## Domain Discovery Results\n"]
+        output_parts.append(f"**Source:** {file.name}\n")
+        output_parts.append("### Scoring Matrix\n")
+        output_parts.append("| # | Domain | Interest | Knowledge | Access | Total |")
+        output_parts.append("|---|--------|----------|-----------|--------|-------|")
+        for i, d in enumerate(scored, 1):
+            interest = d.get("interest", {}).get("score", "?")
+            knowledge = d.get("knowledge", {}).get("score", "?")
+            access = d.get("access", {}).get("score", "?")
+            total = d.get("composite_score", "?")
+            output_parts.append(f"| {i} | {d.get('domain_statement', 'N/A')} | {interest} | {knowledge} | {access} | {total} |")
+
+        output_parts.append("\n### Top Domain Details\n")
+        for i, d in enumerate(scored[:3], 1):
+            output_parts.append(f"**{i}. {d.get('domain_statement', 'N/A')}**")
+            output_parts.append(f"- Interest: {d.get('interest', {}).get('score', '?')}/5 — {d.get('interest', {}).get('rationale', '')}")
+            output_parts.append(f"- Knowledge: {d.get('knowledge', {}).get('score', '?')}/5 — {d.get('knowledge', {}).get('rationale', '')}")
+            output_parts.append(f"- Access: {d.get('access', {}).get('score', '?')}/5 — {d.get('access', {}).get('rationale', '')}")
+            next_steps = d.get("recommended_next_steps", [])
+            if next_steps:
+                output_parts.append(f"- Next steps: {'; '.join(next_steps)}")
+            output_parts.append("")
+
+        output_parts.append("\n---\n*These are starting points. Let's evaluate them together using the full Domain Selection methodology. Which domain surprises you? Which did you dismiss too quickly?*")
+
+        # Save to Supabase
+        try:
+            session_id = cl.user_session.get("id", "unknown")
+            supabase_url = os.getenv("SUPABASE_URL")
+            supabase_key = os.getenv("SUPABASE_SERVICE_KEY") or os.getenv("SUPABASE_KEY")
+            if supabase_url and supabase_key:
+                from supabase import create_client
+                sb = create_client(supabase_url, supabase_key)
+                sb.table("cv_analyses").insert({
+                    "session_id": str(session_id),
+                    "cv_extraction": json.dumps(extraction),
+                    "scored_domains": json.dumps(scored),
+                    "research_results": research_results,
+                }).execute()
+                print(f"[DOMAIN] CV analysis saved for session {session_id}")
+        except Exception as e:
+            print(f"[DOMAIN] Supabase save failed (non-critical): {e}")
+
+        await status_msg.remove()
+        result_msg = cl.Message(content="\n".join(output_parts))
+
+        # Add deep dive buttons for top domains
+        for i, d in enumerate(scored[:3]):
+            result_msg.actions.append(cl.Action(
+                name="domain_deep_dive",
+                payload={"domain": d.get("domain_statement", ""), "index": i},
+                label=f"Deep Dive: Domain {i+1}",
+                description=f"Research {d.get('domain_statement', '')[:50]} in depth",
+            ))
+
+        await result_msg.send()
+
+    except Exception as e:
+        await status_msg.remove()
+        await cl.Message(content=f"CV analysis encountered an error: {str(e)[:200]}. Please try again.").send()
+        print(f"[DOMAIN] CV analysis error: {e}")
+
+
+@cl.action_callback("analyze_research")
+async def on_analyze_research(action: cl.Action):
+    """Research paper domain discovery pipeline."""
+    files = await cl.AskFileMessage(
+        content="Upload a research document (paper, patent, proposal, or literature review).",
+        accept=["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "text/plain"],
+        max_size_mb=10,
+    ).send()
+
+    if not files:
+        await cl.Message(content="No file uploaded. You can try again by clicking **Analyze Research**.").send()
+        return
+
+    file = files[0]
+    await _run_research_pipeline(file.path, file.name)
+
+
+@cl.action_callback("explore_question")
+async def on_explore_question(action: cl.Action):
+    """Research question domain discovery — no document needed."""
+    response = await cl.AskUserMessage(
+        content="Enter your research question or topic. I'll identify potential innovation domains from it.",
+    ).send()
+
+    if not response:
+        return
+
+    user_input = response.get("output", "") if isinstance(response, dict) else str(response)
+
+    status_msg = cl.Message(content="Analyzing research question...")
+    await status_msg.send()
+
+    try:
+        # Expand question into research context
+        async with cl.Step(name="Expanding Research Question", type="llm") as step:
+            step.input = user_input[:200]
+            extraction = await _gemini_json_call(
+                RESEARCH_QUESTION_EXPANSION_PROMPT.format(user_input=user_input)
+            )
+            step.output = f"Expanded into {extraction.get('document_metadata', {}).get('field', 'unknown')} field"
+
+        # Continue with shared pipeline
+        await _run_research_pipeline_from_extraction(extraction, f"Question: {user_input[:80]}", status_msg)
+
+    except Exception as e:
+        await status_msg.remove()
+        await cl.Message(content=f"Question analysis error: {str(e)[:200]}").send()
+        print(f"[DOMAIN] Question analysis error: {e}")
+
+
+async def _run_research_pipeline(file_path: str, file_name: str):
+    """Shared research pipeline for document-based analysis."""
+    status_msg = cl.Message(content="")
+    await status_msg.send()
+
+    try:
+        # Extract text
+        async with cl.Step(name="Extracting Document", type="tool") as step:
+            step.input = f"Processing {file_name}"
+            from utils.file_processor import process_uploaded_file
+            content, metadata = process_uploaded_file(file_path, file_name)
+            if not content or len(content.strip()) < 50:
+                await cl.Message(content="Could not extract sufficient text. Please try a different format.").send()
+                return
+            step.output = f"Extracted {len(content)} characters"
+
+        # Detect type and extract
+        detected_type = _detect_document_type(content)
+
+        async with cl.Step(name="Analyzing Research", type="llm") as step:
+            step.input = f"Detected type: {detected_type}"
+            extraction = await _gemini_json_call(
+                RESEARCH_EXTRACTION_PROMPT.format(
+                    detected_type=detected_type,
+                    document_text=content[:15000],
+                )
+            )
+            step.output = f"Extracted research core from {detected_type}"
+
+        await _run_research_pipeline_from_extraction(extraction, file_name, status_msg)
+
+    except Exception as e:
+        await status_msg.remove()
+        await cl.Message(content=f"Research analysis error: {str(e)[:200]}").send()
+        print(f"[DOMAIN] Research analysis error: {e}")
+
+
+async def _run_research_pipeline_from_extraction(extraction: dict, source_name: str, status_msg):
+    """Continue research pipeline from extraction data."""
+    try:
+        # Domain generation
+        async with cl.Step(name="Generating Domains (5 Lenses)", type="llm") as step:
+            keywords = extraction.get("domain_seeds", {}).get("keywords", [])
+            graph_hints = await _get_graph_hints(keywords)
+            rag_context = await _get_rag_context("domain selection research translation innovation")
+
+            step.input = f"Applying gap, application, intersection, frontier, translation lenses"
+            domains_data = await _gemini_json_call(
+                DOMAIN_GENERATION_FROM_RESEARCH_PROMPT.format(
+                    research_extraction=json.dumps(extraction, indent=2),
+                    graph_hints=graph_hints,
+                    rag_context=rag_context,
+                )
+            )
+            domains = domains_data.get("domains", [])
+            step.output = f"Generated {len(domains)} domains across lenses"
+
+        # Research validation
+        async with cl.Step(name="Validating with Research", type="tool") as step:
+            step.input = f"Researching top {min(5, len(domains))} domains"
+            research_results = await _run_research_validation(domains)
+            step.output = "Validation complete"
+
+        # Scoring
+        async with cl.Step(name="Scoring Domains", type="llm") as step:
+            step.input = "Scoring Research Maturity, Translation Readiness, Competitive Position"
+            scored_data = await _gemini_json_call(
+                RESEARCH_DOMAIN_SCORING_PROMPT.format(
+                    research_extraction=json.dumps(extraction, indent=2),
+                    domain_candidates=json.dumps(domains, indent=2),
+                    research_results=research_results,
+                )
+            )
+            scored = scored_data.get("scored_domains", [])
+            step.output = f"Scored {len(scored)} domains"
+
+        # Translation
+        async with cl.Step(name="Translating to Practitioner Language", type="llm") as step:
+            step.input = "Converting academic domains to actionable opportunities"
+            translation_data = await _gemini_json_call(
+                RESEARCH_TRANSLATION_PROMPT.format(
+                    scored_domains=json.dumps(scored[:5], indent=2),
+                    research_extraction=json.dumps(extraction, indent=2),
+                )
+            )
+            translations = translation_data.get("translations", [])
+            step.output = f"Translated {len(translations)} domains"
+
+        # Output
+        output_parts = ["## Research-Derived Domain Opportunities\n"]
+        output_parts.append(f"**Source:** {source_name}\n")
+
+        output_parts.append("### Scoring Matrix\n")
+        output_parts.append("| # | Domain | Research | Translation | Competitive | Composite | Horizon |")
+        output_parts.append("|---|--------|----------|-------------|-------------|-----------|---------|")
+        for i, d in enumerate(scored, 1):
+            rm = d.get("research_maturity", {}).get("score", "?")
+            tr = d.get("translation_readiness", {}).get("score", "?")
+            cp = d.get("competitive_position", {}).get("score", "?")
+            cs = d.get("composite_score", "?")
+            th = d.get("time_horizon", "?")
+            output_parts.append(f"| {i} | {d.get('domain_statement', 'N/A')[:60]} | {rm} | {tr} | {cp} | {cs} | {th} |")
+
+        if translations:
+            output_parts.append("\n### Practitioner Translations\n")
+            for i, t in enumerate(translations[:3], 1):
+                output_parts.append(f"**{i}. {t.get('plain_language', t.get('domain_statement', 'N/A'))}**")
+                pf = t.get("problem_frame", {})
+                if pf:
+                    output_parts.append(f"- **Who has this problem:** {pf.get('who_has_problem', 'N/A')}")
+                    output_parts.append(f"- **Current pain:** {pf.get('current_pain', 'N/A')}")
+                    output_parts.append(f"- **Solving enables:** {pf.get('solving_enables', 'N/A')}")
+                ep = t.get("entry_points", {})
+                if ep:
+                    output_parts.append(f"- **Startup path:** {ep.get('startup', 'N/A')}")
+                rec = t.get("recommended_pws_tool", "")
+                if rec:
+                    output_parts.append(f"- **Recommended next tool:** {rec} — {t.get('recommended_pws_reason', '')}")
+                output_parts.append("")
+
+        output_parts.append("\n---\n*These domains emerge from the research frontier. Which ones align with your capabilities? Let's evaluate them using Interest, Knowledge, and Access.*")
+
+        # Save to Supabase
+        try:
+            session_id = cl.user_session.get("id", "unknown")
+            supabase_url = os.getenv("SUPABASE_URL")
+            supabase_key = os.getenv("SUPABASE_SERVICE_KEY") or os.getenv("SUPABASE_KEY")
+            if supabase_url and supabase_key:
+                from supabase import create_client
+                sb = create_client(supabase_url, supabase_key)
+                sb.table("cv_analyses").insert({
+                    "session_id": str(session_id),
+                    "cv_extraction": json.dumps({"type": "research_analysis", "extraction": extraction}),
+                    "scored_domains": json.dumps(scored),
+                    "research_results": research_results,
+                }).execute()
+                print(f"[DOMAIN] Research analysis saved for session {session_id}")
+        except Exception as e:
+            print(f"[DOMAIN] Supabase save failed (non-critical): {e}")
+
+        await status_msg.remove()
+        result_msg = cl.Message(content="\n".join(output_parts))
+
+        for i, d in enumerate(scored[:3]):
+            result_msg.actions.append(cl.Action(
+                name="domain_deep_dive",
+                payload={"domain": d.get("domain_statement", ""), "index": i},
+                label=f"Deep Dive: Domain {i+1}",
+                description=f"Research {d.get('domain_statement', '')[:50]} in depth",
+            ))
+
+        await result_msg.send()
+
+    except Exception as e:
+        await status_msg.remove()
+        await cl.Message(content=f"Research pipeline error: {str(e)[:200]}").send()
+        print(f"[DOMAIN] Research pipeline error: {e}")
+
+
+@cl.action_callback("domain_deep_dive")
+async def on_domain_deep_dive(action: cl.Action):
+    """Deep dive research into a specific domain."""
+    domain = action.payload.get("domain", "")
+    if not domain:
+        await cl.Message(content="No domain specified for deep dive.").send()
+        return
+
+    status_msg = cl.Message(content=f"Researching **{domain}** in depth...")
+    await status_msg.send()
+
+    try:
+        from tools.tavily_search import search_web
+
+        async with cl.Step(name=f"Deep Dive: {domain[:50]}", type="tool") as step:
+            step.input = f"Running 5 targeted searches for: {domain}"
+
+            queries = [
+                f"{domain} comprehensive market analysis",
+                f"{domain} key stakeholders and decision makers",
+                f"{domain} emerging technologies and innovations",
+                f"{domain} regulatory landscape and policy",
+                f"{domain} unmet needs and pain points",
+                f"{domain} investment and funding trends",
+                f"{domain} academic research and publications",
+            ]
+
+            all_results = []
+            for q in queries:
+                try:
+                    r = search_web(q, search_depth="basic", max_results=3)
+                    all_results.append(f"**Query:** {q}\n{r[:400] if isinstance(r, str) else str(r)[:400]}")
+                except Exception:
+                    all_results.append(f"**Query:** {q}\n(search failed)")
+
+            step.output = f"Completed {len(queries)} searches"
+
+        # Synthesize via Gemini
+        async with cl.Step(name="Synthesizing Research", type="llm") as step:
+            research_text = "\n\n".join(all_results)
+            synthesis_prompt = f"""Synthesize the following research about the domain "{domain}" into actionable insights for someone looking for Problems Worth Solving.
+
+RESEARCH:
+{research_text[:10000]}
+
+Structure your response as:
+1. Domain Overview (2-3 sentences)
+2. Key Stakeholders & Their Pain Points
+3. Emerging Trends Creating New Problems
+4. Gaps & Underserved Needs
+5. Recommended PWS Phase 1 Starting Points (specific problem hypotheses to investigate)"""
+
+            response = client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=synthesis_prompt,
+                config=types.GenerateContentConfig(temperature=0.3),
+            )
+            step.output = "Synthesis complete"
+
+        await status_msg.remove()
+        await cl.Message(content=f"## Deep Dive: {domain}\n\n{response.text}").send()
+
+    except Exception as e:
+        await status_msg.remove()
+        await cl.Message(content=f"Deep dive error: {str(e)[:200]}").send()
