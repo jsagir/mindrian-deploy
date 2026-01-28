@@ -36,6 +36,31 @@ DATABASE_URL = os.getenv("CHAINLIT_DATABASE_URL") or os.getenv("DATABASE_URL")
 
 client = genai.Client(api_key=GOOGLE_API_KEY)
 
+# === API Key Diagnostics (runs once at startup) ===
+def _check_api_keys():
+    """Log API key status at startup for debugging."""
+    keys = {
+        "GOOGLE_API_KEY": GOOGLE_API_KEY,
+        "TAVILY_API_KEY": TAVILY_API_KEY,
+        "SERPAPI_API_KEY": os.getenv("SERPAPI_API_KEY"),
+        "FRED_API_KEY": os.getenv("FRED_API_KEY"),
+        "ELEVENLABS_API_KEY": os.getenv("ELEVENLABS_API_KEY"),
+        "NEO4J_URI": os.getenv("NEO4J_URI"),
+        "SUPABASE_URL": os.getenv("SUPABASE_URL"),
+    }
+    print("=" * 50)
+    print("API KEY DIAGNOSTIC")
+    print("=" * 50)
+    for name, value in keys.items():
+        if value:
+            masked = value[:6] + "..." + value[-4:] if len(value) > 12 else "***"
+            print(f"  ✅ {name}: {masked}")
+        else:
+            print(f"  ❌ {name}: NOT FOUND")
+    print("=" * 50)
+
+_check_api_keys()
+
 # === Stop Event for Cancellation ===
 stop_events: Dict[str, asyncio.Event] = {}
 
@@ -1693,7 +1718,13 @@ async def on_stop():
     if session_id and session_id in stop_events:
         stop_events[session_id].set()
 
-    await cl.Message(content="**Stopped.** You can continue or ask something else.").send()
+    await cl.Message(
+        content="**Stopped.** Ready for your next message.",
+        actions=[
+            cl.Action(name="deep_research", payload={"action": "research"}, label="🔍 Research"),
+            cl.Action(name="synthesize_conversation", payload={"action": "synthesize"}, label="📥 Synthesize"),
+        ],
+    ).send()
 
 
 # === User Feedback Handler ===
@@ -2630,8 +2661,17 @@ async def on_next_phase(action: cl.Action):
 
         await task_list.send()
 
+        phase_num = current_phase + 2  # +1 for 0-index, +1 because we moved forward
+        phase_name = phases[current_phase + 1]["name"]
+        completed_count = sum(1 for p in phases if p["status"] == "done")
+        total_count = len(phases)
+
         await cl.Message(
-            content=f"**✅ Moving to Phase {current_phase + 2}: {phases[current_phase + 1]['name']}**\n\nLet's continue with the next phase of the workshop."
+            content=(
+                f"**✅ Moving to Phase {phase_num}/{total_count}: {phase_name}**\n\n"
+                f"*({completed_count} of {total_count} phases completed)*\n\n"
+                f"What would you like to explore in this phase?"
+            ),
         ).send()
     else:
         await cl.Message(
@@ -3253,28 +3293,127 @@ async def on_speak_response(action: cl.Action):
             ).send()
 
 
+async def _research_sources_first(recent_context: str, bot_name: str, search_depth: str, history: list):
+    """
+    Sources-First research: show clickable sources immediately,
+    then offer deep analysis (Minto Pyramid) as an optional button.
+    """
+    from tools.tavily_search import search_web
+
+    msg = cl.Message(content="")
+    await msg.send()
+    await msg.stream_token("**🔍 Searching for relevant sources...**\n\n")
+
+    # Step 1: Use Gemini to compose a good search query from conversation
+    try:
+        query_response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=(
+                f"Based on this conversation, write ONE concise web search query "
+                f"(max 12 words) to find relevant sources, evidence, or data. "
+                f"Return ONLY the search query, nothing else.\n\n"
+                f"Conversation:\n{recent_context[:800]}"
+            ),
+            config=types.GenerateContentConfig(temperature=0.2, max_output_tokens=40),
+        )
+        search_query = query_response.text.strip().strip('"').strip("'")
+    except Exception:
+        # Fallback: use last user message
+        search_query = recent_context.split("user:")[-1][:100].strip()
+
+    if not search_query or len(search_query) < 3:
+        await msg.stream_token("Could not determine what to search for. Try asking a more specific question.")
+        await msg.update()
+        return
+
+    await msg.stream_token(f"*Searching: \"{search_query}\"*\n\n")
+
+    # Step 2: Run Tavily search
+    try:
+        results = search_web(search_query, search_depth=search_depth, max_results=8)
+    except Exception as e:
+        print(f"[RESEARCH] Tavily search error: {e}")
+        await msg.stream_token(f"⚠️ Search failed: {e}")
+        await msg.update()
+        return
+
+    sources = results.get("results", [])
+    tavily_answer = results.get("answer", "")
+    error = results.get("error", "")
+
+    if error:
+        print(f"[RESEARCH] Tavily error: {error}")
+        await msg.stream_token(f"⚠️ Search error: {error}")
+        await msg.update()
+        return
+
+    if not sources:
+        await msg.stream_token("No sources found. Try rephrasing your topic or question.")
+        await msg.update()
+        return
+
+    # Step 3: Format sources with clickable links
+    output = f"## 📚 Research Results: {search_query}\n\n"
+
+    if tavily_answer:
+        output += f"**Summary:** {tavily_answer}\n\n---\n\n"
+
+    output += f"**Found {len(sources)} sources:**\n\n"
+
+    for i, src in enumerate(sources, 1):
+        title = src.get("title", "Untitled")
+        url = src.get("url", "")
+        content = src.get("content", "")[:200]
+        score = src.get("score", 0)
+
+        output += f"**{i}. [{title}]({url})**\n"
+        if content:
+            output += f"   {content}...\n"
+        output += "\n"
+
+    await msg.stream_token(output)
+
+    # Add "Deep Analyze" button to offer Minto Pyramid as optional
+    msg.actions = [
+        cl.Action(
+            name="deep_research_full",
+            payload={"action": "deep_research_full"},
+            label="🔬 Deep Analyze These Sources",
+            tooltip="Run full Minto Pyramid analysis on this topic",
+        ),
+    ]
+    await msg.update()
+
+    # Inject into history
+    history.append({"role": "model", "content": f"[Research results]\n{output}"})
+    cl.user_session.set("history", history)
+
+
+@cl.action_callback("deep_research_full")
+async def on_deep_research_full(action: cl.Action):
+    """Run full Minto Pyramid analysis (triggered from Sources-First view)."""
+    # Delegate to the full pipeline by temporarily disabling simple_mode
+    bot = cl.user_session.get("bot", BOTS["lawrence"])
+    original_simple = bot.get("simple_mode", False)
+    bot["simple_mode"] = False
+    cl.user_session.set("bot", bot)
+    try:
+        await on_deep_research(action)
+    finally:
+        bot["simple_mode"] = original_simple
+        cl.user_session.set("bot", bot)
+
+
 @cl.action_callback("deep_research")
 async def on_deep_research(action: cl.Action):
     """
-    Handle deep research button - Minto Pyramid + Beautiful Questions + Sequential Thinking + Tavily execution.
+    Handle research button — Sources-First approach.
 
-    Flow:
-    1. SCQA Analysis (Situation, Complication, Question, Answer hypothesis)
-    2. Beautiful Questions (Why / What If / How - Warren Berger framework)
-    3. Sequential Thinking (Known/Unknown analysis with revision/branching)
-    4. Research Plan Generation (targeted queries)
-    5. Research Execution (validation, supporting, challenging queries)
-    6. Pyramid Synthesis (structured answer with evidence hierarchy)
+    For simple_mode (Lawrence): Show sources with links, offer deep analysis as optional.
+    For playground: Full Minto Pyramid pipeline.
     """
     import uuid
     from tools.tavily_search import search_web
-    from utils.minto_research import (
-        SequentialThinkingSession, SCQAAnalysis, ResearchPlan, ThoughtType,
-        BeautifulQuestions, SCQA_ANALYSIS_PROMPT, BEAUTIFUL_QUESTIONS_PROMPT,
-        SEQUENTIAL_THINKING_PROMPT, RESEARCH_PLAN_PROMPT, PYRAMID_SYNTHESIS_PROMPT,
-        parse_scqa_response, parse_beautiful_questions_response, parse_thoughts_response,
-        parse_research_plan_response, format_thoughts_for_prompt
-    )
 
     # Get context
     history = cl.user_session.get("history", [])
@@ -3283,13 +3422,28 @@ async def on_deep_research(action: cl.Action):
     chat_profile = cl.user_session.get("chat_profile", "lawrence")
     settings = cl.user_session.get("settings", {})
     search_depth = settings.get("research_depth", "basic")
+    is_simple = bot.get("simple_mode", False)
 
     # Build context from recent conversation
     recent_context = ""
-    for msg in history[-8:]:  # Last 4 exchanges for better context
+    for msg in history[-8:]:
         role = msg.get("role", "user")
         content = msg.get("content", "")[:600]
         recent_context += f"{role}: {content}\n"
+
+    # ─── Sources-First Mode (Lawrence / simple_mode) ───
+    if is_simple:
+        await _research_sources_first(recent_context, bot_name, search_depth, history)
+        return
+
+    # ─── Full Minto Pyramid Mode (Playground) ───
+    from utils.minto_research import (
+        SequentialThinkingSession, SCQAAnalysis, ResearchPlan, ThoughtType,
+        BeautifulQuestions, SCQA_ANALYSIS_PROMPT, BEAUTIFUL_QUESTIONS_PROMPT,
+        SEQUENTIAL_THINKING_PROMPT, RESEARCH_PLAN_PROMPT, PYRAMID_SYNTHESIS_PROMPT,
+        parse_scqa_response, parse_beautiful_questions_response, parse_thoughts_response,
+        parse_research_plan_response, format_thoughts_for_prompt
+    )
 
     # Initialize session
     session = SequentialThinkingSession(session_id=str(uuid.uuid4())[:8])
@@ -4732,6 +4886,24 @@ The user expects you to understand the context and add your specialized value.
         history.append({"role": "user", "content": message.content})
         history.append({"role": "model", "content": full_response})
         cl.user_session.set("history", history)
+
+        # Refresh task panel for workshop bots (keeps it in sync every message)
+        if phases and bot.get("has_phases"):
+            try:
+                task_list = cl.TaskList()
+                task_list.name = "Workshop Progress"
+                for i, phase in enumerate(phases):
+                    if phase["status"] == "done":
+                        status = cl.TaskStatus.DONE
+                    elif phase["status"] == "running" or i == current_phase:
+                        status = cl.TaskStatus.RUNNING
+                    else:
+                        status = cl.TaskStatus.READY
+                    task = cl.Task(title=phase["name"], status=status)
+                    await task_list.add_task(task)
+                await task_list.send()
+            except Exception:
+                pass
 
         # Sync history to context store for preservation across bot switches
         context_key = get_context_key()
