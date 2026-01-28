@@ -118,6 +118,10 @@ AGENT_TRIGGERS = {
         "keywords": ["validate", "multi-perspective", "six hats", "evidence-based", "stress test", "parallel thinking", "hat analysis", "de bono", "ibm case", "abb case", "validation report", "challenge assumptions"],
         "description": "Multi-Perspective Validation"
     },
+    "beautiful_question": {
+        "keywords": ["beautiful question", "warren berger", "why what if how", "five whys", "root cause", "what if", "how might we", "hmw", "assumption challenge", "constraint removal", "vuja de", "questioning"],
+        "description": "WHY → WHAT IF → HOW questioning"
+    },
 }
 
 # === Data Persistence Setup ===
@@ -157,6 +161,7 @@ from prompts import (
     PWS_INVESTMENT_PROMPT,
     SCENARIO_ANALYSIS_PROMPT,
     MULTI_PERSPECTIVE_VALIDATION_PROMPT,
+    BEAUTIFUL_QUESTION_PROMPT,
     CV_EXTRACTION_PROMPT,
     DOMAIN_GENERATION_PROMPT,
     DOMAIN_SCORING_PROMPT,
@@ -290,6 +295,19 @@ WORKSHOP_PHASES = {
         {"name": "Blue Hat Synthesis", "status": "pending"},
         {"name": "Structured Debate", "status": "pending"},
         {"name": "Validation Report", "status": "pending"},
+    ],
+    "beautiful_question": [
+        {"name": "Introduction", "status": "ready"},
+        {"name": "WHY: Five Whys", "status": "pending"},
+        {"name": "WHY: Assumption Mapping", "status": "pending"},
+        {"name": "WHY: Vuja De", "status": "pending"},
+        {"name": "WHAT IF: Constraint Removal", "status": "pending"},
+        {"name": "WHAT IF: Thinking Wrong", "status": "pending"},
+        {"name": "WHAT IF: Cross-Domain", "status": "pending"},
+        {"name": "HOW: HMW Statements", "status": "pending"},
+        {"name": "HOW: Rapid Prototyping", "status": "pending"},
+        {"name": "HOW: MVP Design", "status": "pending"},
+        {"name": "Action Plan", "status": "pending"},
     ],
 }
 
@@ -585,6 +603,41 @@ My methodology is based on:
 **What idea, strategy, or decision do you want to validate?**
 
 Be specific—the more context you give me, the better I can tailor the expert personas to your domain."""
+    },
+    "beautiful_question": {
+        "name": "Beautiful Question",
+        "icon": "/public/icons/explore.svg",
+        "emoji": "❓",
+        "description": "Workshop: WHY → WHAT IF → HOW breakthrough questioning methodology",
+        "system_prompt": BEAUTIFUL_QUESTION_PROMPT,
+        "has_phases": True,
+        "welcome": """❓ **Beautiful Question Workshop**
+### WHY → WHAT IF → HOW
+
+Hello, I'm your Beautiful Question guide, based on Warren Berger's breakthrough methodology.
+
+Most people jump to solutions before understanding problems. I'll help you ask better questions to find better answers.
+
+**The Three Phases:**
+
+🔴 **WHY Phase** — Stop and question
+- Five Whys to find root causes
+- Assumption mapping to surface hidden beliefs
+- Vuja De to see familiar things freshly
+
+🟡 **WHAT IF Phase** — Imagine possibilities
+- Constraint removal to expand solution space
+- Thinking Wrong to break patterns
+- Cross-domain analogies for fresh approaches
+
+🟢 **HOW Phase** — Move to action
+- How Might We (HMW) statements
+- Rapid prototyping and pretotyping
+- MVP design with success metrics
+
+**What challenge are you exploring?**
+
+Tell me what problem you're trying to solve, and we'll start by questioning whether you're solving the right problem."""
     }
 }
 
@@ -700,6 +753,11 @@ async def chat_profiles():
             name="validation",
             markdown_description=BOTS["validation"]["description"],
             icon=BOTS["validation"]["icon"],
+        ),
+        cl.ChatProfile(
+            name="beautiful_question",
+            markdown_description=BOTS["beautiful_question"]["description"],
+            icon=BOTS["beautiful_question"]["icon"],
         ),
     ]
 
@@ -967,6 +1025,28 @@ STARTERS = {
         cl.Starter(
             label="Show IBM case study",
             message="Show me how IBM used Six Thinking Hats to reduce meeting time by 75%.",
+            icon="/public/icons/example.svg",
+        ),
+    ],
+    "beautiful_question": [
+        cl.Starter(
+            label="Start with WHY",
+            message="I have a challenge I want to explore using the Beautiful Question methodology. Help me start with WHY.",
+            icon="/public/icons/explore.svg",
+        ),
+        cl.Starter(
+            label="Challenge assumptions",
+            message="I think I know the problem, but I want to challenge my assumptions before jumping to solutions.",
+            icon="/public/icons/challenge.svg",
+        ),
+        cl.Starter(
+            label="Generate possibilities",
+            message="I understand the problem now. Help me generate bold WHAT IF possibilities.",
+            icon="/public/icons/future.svg",
+        ),
+        cl.Starter(
+            label="Show the methodology",
+            message="Explain Warren Berger's Beautiful Question methodology and show me an example.",
             icon="/public/icons/example.svg",
         ),
     ],
@@ -2391,6 +2471,10 @@ async def on_switch_to_scenario(action: cl.Action):
 @cl.action_callback("switch_to_validation")
 async def on_switch_to_validation(action: cl.Action):
     await handle_agent_switch("validation")
+
+@cl.action_callback("switch_to_beautiful_question")
+async def on_switch_to_beautiful_question(action: cl.Action):
+    await handle_agent_switch("beautiful_question")
 
 
 async def handle_agent_switch(new_agent_id: str):
