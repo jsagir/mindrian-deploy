@@ -679,6 +679,7 @@ _BOT_HINT_PREFIX: Dict[str, str] = {
     "problem_classifier": "[GraphRAG context for problem_classifier - use to classify problem types: ",
     "larry_playground": "[GraphRAG context for larry - use to ask better questions, not to lecture: ",
     "lawrence": "[GraphRAG context for larry - use to ask better questions, not to lecture: ",
+    "validation": "[GraphRAG context for validation - use to ground multi-perspective analysis with Six Thinking Hats evidence: ",
 }
 
 

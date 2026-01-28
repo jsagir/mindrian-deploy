@@ -30,11 +30,14 @@ except ImportError:
 
 # === Config ===
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("GOOGLE_AI_API_KEY")
+# FileSearch store owned by a different API key
+GOOGLE_FILESEARCH_API_KEY = os.getenv("GOOGLE_FILESEARCH_API_KEY") or GOOGLE_API_KEY
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 # Chainlit uses CHAINLIT_DATABASE_URL, fallback to DATABASE_URL for compatibility
 DATABASE_URL = os.getenv("CHAINLIT_DATABASE_URL") or os.getenv("DATABASE_URL")
 
 client = genai.Client(api_key=GOOGLE_API_KEY)
+filesearch_client = genai.Client(api_key=GOOGLE_FILESEARCH_API_KEY)
 
 # === API Key Diagnostics (runs once at startup) ===
 def _check_api_keys():
@@ -111,6 +114,10 @@ AGENT_TRIGGERS = {
         "keywords": ["scenario", "futures", "uncertainty", "2x2 matrix", "shell oil", "presentism", "driving forces", "multiple futures", "plausible futures", "strategic planning"],
         "description": "Multiple plausible futures"
     },
+    "validation": {
+        "keywords": ["validate", "multi-perspective", "six hats", "evidence-based", "stress test", "parallel thinking", "hat analysis", "de bono", "ibm case", "abb case", "validation report", "challenge assumptions"],
+        "description": "Multi-Perspective Validation"
+    },
 }
 
 # === Data Persistence Setup ===
@@ -149,6 +156,7 @@ from prompts import (
     DOMAIN_EXPLORER_PROMPT,
     PWS_INVESTMENT_PROMPT,
     SCENARIO_ANALYSIS_PROMPT,
+    MULTI_PERSPECTIVE_VALIDATION_PROMPT,
     CV_EXTRACTION_PROMPT,
     DOMAIN_GENERATION_PROMPT,
     DOMAIN_SCORING_PROMPT,
@@ -269,6 +277,19 @@ WORKSHOP_PHASES = {
         {"name": "Scenario Matrix (2×2)", "status": "pending"},
         {"name": "Scenario Narratives", "status": "pending"},
         {"name": "Synthesis & Implications", "status": "pending"},
+    ],
+    "validation": [
+        {"name": "Introduction", "status": "ready"},
+        {"name": "Domain Extraction", "status": "pending"},
+        {"name": "Persona Construction", "status": "pending"},
+        {"name": "White Hat Research", "status": "pending"},
+        {"name": "Red Hat Research", "status": "pending"},
+        {"name": "Black Hat Research", "status": "pending"},
+        {"name": "Yellow Hat Research", "status": "pending"},
+        {"name": "Green Hat Research", "status": "pending"},
+        {"name": "Blue Hat Synthesis", "status": "pending"},
+        {"name": "Structured Debate", "status": "pending"},
+        {"name": "Validation Report", "status": "pending"},
     ],
 }
 
@@ -534,6 +555,36 @@ Scenario Analysis is your escape route from the prison of presentism. We won't p
 This is how Shell survived the 1973 oil crisis when every other oil company was blindsided. It's how you can find problems worth solving that others can't see.
 
 **To begin: What domain or industry do you want to explore, and what strategic question is driving your interest?**"""
+    },
+    "validation": {
+        "name": "Multi-Perspective Validation",
+        "icon": "/public/icons/validate.svg",
+        "emoji": "🎯",
+        "description": "Workshop: Validate ideas with domain-specific Six Thinking Hats + research",
+        "system_prompt": MULTI_PERSPECTIVE_VALIDATION_PROMPT,
+        "has_phases": True,
+        "welcome": """🎯 **Multi-Perspective Validation Workshop**
+### Evidence-Grounded Validation with Six Thinking Hats
+
+Hello, I'm your Multi-Perspective Validation specialist.
+
+I don't just explore ideas—I **validate** them with evidence-grounded rigor using domain-specific Six Thinking Hats personas.
+
+My methodology is based on:
+- **de Bono's Six Thinking Hats** for parallel thinking
+- **IBM case study**: 75% meeting time reduction
+- **ABB case study**: 30 days → 2 days through structured hat sequences
+
+**The 5-Phase Process:**
+1. **Domain Extraction** — Analyze your context and stakeholders
+2. **Persona Construction** — Build domain-specific expert personas
+3. **Parallel Research** — Each hat conducts independent investigation
+4. **Structured Debate** — Cross-examine evidence and assumptions
+5. **Validation Report** — Evidence-grounded verdict and action plan
+
+**What idea, strategy, or decision do you want to validate?**
+
+Be specific—the more context you give me, the better I can tailor the expert personas to your domain."""
     }
 }
 
@@ -644,6 +695,11 @@ async def chat_profiles():
             name="scenario",
             markdown_description=BOTS["scenario"]["description"],
             icon=BOTS["scenario"]["icon"],
+        ),
+        cl.ChatProfile(
+            name="validation",
+            markdown_description=BOTS["validation"]["description"],
+            icon=BOTS["validation"]["icon"],
         ),
     ]
 
@@ -889,6 +945,28 @@ STARTERS = {
         cl.Starter(
             label="Show Shell Oil example",
             message="Show me how Shell used scenario planning to prepare for the 1973 oil crisis.",
+            icon="/public/icons/example.svg",
+        ),
+    ],
+    "validation": [
+        cl.Starter(
+            label="Validate an idea",
+            message="I have an idea I want to validate with rigorous multi-perspective analysis: [describe your idea]",
+            icon="/public/icons/validate.svg",
+        ),
+        cl.Starter(
+            label="Stress-test a strategy",
+            message="I have a strategy that needs stress-testing from multiple expert perspectives.",
+            icon="/public/icons/attack.svg",
+        ),
+        cl.Starter(
+            label="Make a big decision",
+            message="I'm facing a significant decision and want evidence-grounded validation before committing.",
+            icon="/public/icons/challenge.svg",
+        ),
+        cl.Starter(
+            label="Show IBM case study",
+            message="Show me how IBM used Six Thinking Hats to reduce meeting time by 75%.",
             icon="/public/icons/example.svg",
         ),
     ],
@@ -2310,6 +2388,10 @@ async def on_switch_to_investment(action: cl.Action):
 async def on_switch_to_scenario(action: cl.Action):
     await handle_agent_switch("scenario")
 
+@cl.action_callback("switch_to_validation")
+async def on_switch_to_validation(action: cl.Action):
+    await handle_agent_switch("validation")
+
 
 async def handle_agent_switch(new_agent_id: str):
     """
@@ -2482,8 +2564,8 @@ async def on_show_example(action: cl.Action):
                 )
             )
 
-            rag_response = client.models.generate_content(
-                model="gemini-2.0-flash",
+            rag_response = filesearch_client.models.generate_content(
+                model="gemini-2.5-flash",
                 contents=rag_query,
                 config=types.GenerateContentConfig(
                     tools=[file_search_tool],
@@ -4813,8 +4895,16 @@ The user expects you to understand the context and add your specialized value.
             if file_search_tool:
                 print(f"Using File Search: {FILE_SEARCH_STORE}")
 
-        response_stream = client.models.generate_content_stream(
-            model="gemini-3-flash-preview",
+        # Use filesearch_client when FileSearch tool is active (store ownership)
+        # FileSearch store requires gemini-2.5-flash (store owner's key)
+        if file_search_tool:
+            active_client = filesearch_client
+            active_model = "gemini-2.5-flash"
+        else:
+            active_client = client
+            active_model = "gemini-3-flash-preview"
+        response_stream = active_client.models.generate_content_stream(
+            model=active_model,
             contents=contents,
             config=config,
         )
@@ -5459,14 +5549,13 @@ async def _get_rag_context(query: str) -> str:
     if not FILE_SEARCH_ENABLED:
         return "No RAG context available."
     try:
-        response = client.models.generate_content(
-            model="gemini-2.0-flash",
+        response = filesearch_client.models.generate_content(
+            model="gemini-2.5-flash",
             contents=query,
             config=types.GenerateContentConfig(
                 tools=[types.Tool(
-                    google_search=None,
                     file_search=types.FileSearch(
-                        vector_store_ids=[FILE_SEARCH_STORE.split("/")[-1]],
+                        file_search_store_names=[FILE_SEARCH_STORE],
                     ),
                 )],
                 temperature=0.2,
