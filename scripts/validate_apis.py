@@ -151,7 +151,7 @@ def test_serpapi():
     """Test SerpAPI for Google Trends."""
     api_key = os.getenv("SERPAPI_KEY") or os.getenv("SERPAPI_API_KEY")
     if not api_key:
-        log("SKIP", "SerpAPI", "SERPAPI_API_KEY not set")
+        log("SKIP", "SerpAPI", "SERPAPI_KEY not set")
         return
 
     try:
@@ -239,11 +239,13 @@ def test_census_api():
 # ============================================================
 def test_kaggle_api():
     """Test Kaggle datasets API."""
+    # Check for either KAGGLE_API_TOKEN (Render) or KAGGLE_USERNAME+KEY (legacy)
+    token = os.getenv("KAGGLE_API_TOKEN")
     username = os.getenv("KAGGLE_USERNAME")
     key = os.getenv("KAGGLE_KEY")
 
-    if not username or not key:
-        log("SKIP", "Kaggle API", "KAGGLE_USERNAME/KAGGLE_KEY not set")
+    if not token and (not username or not key):
+        log("SKIP", "Kaggle API", "KAGGLE_API_TOKEN not set")
         return
 
     try:
@@ -260,7 +262,80 @@ def test_kaggle_api():
 
 
 # ============================================================
-# 10. ARXIV API (No key needed)
+# 10. ANTHROPIC API (Claude)
+# ============================================================
+def test_anthropic_api():
+    """Test Anthropic Claude API."""
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+    if not api_key:
+        log("SKIP", "Anthropic API", "ANTHROPIC_API_KEY not set")
+        return
+
+    try:
+        import anthropic
+        client = anthropic.Anthropic(api_key=api_key)
+        response = client.messages.create(
+            model="claude-3-haiku-20240307",
+            max_tokens=50,
+            messages=[{"role": "user", "content": "Say 'API test successful'"}]
+        )
+        if response and response.content:
+            log("PASS", "Anthropic API", f"Claude responded")
+        else:
+            log("FAIL", "Anthropic API", "Empty response")
+    except ImportError:
+        log("SKIP", "Anthropic API", "anthropic package not installed")
+    except Exception as e:
+        log("FAIL", "Anthropic API", str(e)[:100])
+
+
+# ============================================================
+# 11. ELEVENLABS API (Voice)
+# ============================================================
+def test_elevenlabs_api():
+    """Test ElevenLabs TTS API."""
+    api_key = os.getenv("ELEVENLABS_API_KEY")
+    if not api_key:
+        log("SKIP", "ElevenLabs API", "ELEVENLABS_API_KEY not set")
+        return
+
+    try:
+        import requests
+        headers = {"xi-api-key": api_key}
+        resp = requests.get("https://api.elevenlabs.io/v1/voices", headers=headers, timeout=10)
+        if resp.status_code == 200:
+            voices = resp.json().get("voices", [])
+            log("PASS", "ElevenLabs API", f"{len(voices)} voices available")
+        else:
+            log("FAIL", "ElevenLabs API", f"HTTP {resp.status_code}")
+    except Exception as e:
+        log("FAIL", "ElevenLabs API", str(e)[:100])
+
+
+# ============================================================
+# 12. DEEPGRAM API (Speech-to-Text)
+# ============================================================
+def test_deepgram_api():
+    """Test Deepgram STT API."""
+    api_key = os.getenv("DEEPGRAM_API_KEY")
+    if not api_key:
+        log("SKIP", "Deepgram API", "DEEPGRAM_API_KEY not set")
+        return
+
+    try:
+        import requests
+        headers = {"Authorization": f"Token {api_key}"}
+        resp = requests.get("https://api.deepgram.com/v1/projects", headers=headers, timeout=10)
+        if resp.status_code == 200:
+            log("PASS", "Deepgram API", "Connected")
+        else:
+            log("FAIL", "Deepgram API", f"HTTP {resp.status_code}")
+    except Exception as e:
+        log("FAIL", "Deepgram API", str(e)[:100])
+
+
+# ============================================================
+# 13. ARXIV API (No key needed)
 # ============================================================
 def test_arxiv_api():
     """Test arXiv papers search."""
@@ -321,18 +396,30 @@ def main():
     # Environment variables check
     print("--- ENVIRONMENT VARIABLES ---")
     env_vars = [
+        # Core AI
         "GOOGLE_API_KEY",
+        "ANTHROPIC_API_KEY",
+        # Search & Research
         "TAVILY_API_KEY",
+        "SERPAPI_KEY",
+        "NEWSMESH_API_KEY",
+        # Graph & Database
         "NEO4J_URI",
         "NEO4J_USER",
         "NEO4J_PASSWORD",
-        "NEWSMESH_API_KEY",
-        "SERPAPI_API_KEY",
+        "DATABASE_URL",
+        "CHAINLIT_DATABASE_URL",
+        # Storage
+        "SUPABASE_URL",
+        "SUPABASE_SERVICE_KEY",
+        # Voice
+        "ELEVENLABS_API_KEY",
+        "DEEPGRAM_API_KEY",
+        # Economic Data
         "FRED_API_KEY",
         "BLS_API_KEY",
-        "DATA_GOV_API_KEY",
-        "KAGGLE_USERNAME",
-        "KAGGLE_KEY",
+        # Datasets
+        "KAGGLE_API_TOKEN",
     ]
     for var in env_vars:
         test_env_var(var)
@@ -345,16 +432,29 @@ def main():
 
     # API tests
     print("--- API CONNECTIVITY ---")
+    print()
+    print("Core AI:")
     test_gemini_api()
+    test_anthropic_api()
+    print()
+    print("Search & Research:")
     test_tavily_api()
-    test_neo4j()
-    test_newsmesh_api()
     test_serpapi()
+    test_newsmesh_api()
+    test_arxiv_api()
+    print()
+    print("Graph & Database:")
+    test_neo4j()
+    print()
+    print("Voice:")
+    test_elevenlabs_api()
+    test_deepgram_api()
+    print()
+    print("Economic Data:")
     test_fred_api()
     test_bls_api()
     test_census_api()
     test_kaggle_api()
-    test_arxiv_api()
     print()
 
     # Summary
