@@ -25,10 +25,16 @@ Each subfolder represents a feature or capability that has been researched but n
 | `13_custom_elements` | HIGH | **DONE** | Custom JSX elements + AskElementMessage forms |
 | `14_oauth_authentication` | MEDIUM | **DONE** | Google/GitHub OAuth social login |
 | `15_langgraph_visualization` | MEDIUM | **DONE** | Chainlit cl.Step integration for LangGraph workflows |
+| `16_v4_architecture` | HIGH | **ANALYSIS** | v4.0 Cynefin Router + Devil's Advocate + Multi-Agent Pipelines |
 
 ---
 
 ## Recent Implementations (2026-01-29)
+
+### Research Enhancement
+- **Result Synthesizer**: AI-powered relevance scoring and PWS framing for all research tools
+- **Research Orchestrator**: Full 5-phase Tavily workflow (Query Decomposition → Discovery → Evaluation → Extraction → Synthesis)
+- **Source Authority Scoring**: .gov (0.98) > .edu (0.90) > news (0.75) > blogs (0.55) > forums (0.40)
 
 ### P0 Features
 - **Custom JSX Elements**: PhaseProgress, DIKWPyramid, ResearchMatrix
@@ -42,7 +48,12 @@ Each subfolder represents a feature or capability that has been researched but n
 - **OpenAI Realtime Evaluation**: Documented decision to keep Gemini+ElevenLabs
 - **AskElementMessage Forms**: ScenarioSetupForm, ProblemDefinitionForm with validation
 
-See `13_custom_elements/`, `14_oauth_authentication/`, `15_langgraph_visualization/` for details.
+### v4.0 Architecture Analysis
+- **Fit Assessment**: 85-90% of v4.0 infrastructure already exists
+- **Key Gaps**: Cynefin UI exposure, Multi-agent pipelines, Cross-bot assumption tracking
+- **Estimated Effort**: 50-60 hours for full v4.0 implementation
+
+See `13_custom_elements/`, `14_oauth_authentication/`, `15_langgraph_visualization/`, `16_v4_architecture/` for details.
 
 ---
 
@@ -63,10 +74,13 @@ See `13_custom_elements/`, `14_oauth_authentication/`, `15_langgraph_visualizati
 - [ ] Add video tutorial URLs to `utils/media.py`
 - [ ] Wire forms to action buttons (show_problem_form, show_scenario_form)
 
-### Phase 2 (Short-term)
+### Phase 2 (Short-term) - v4.0 Quick Wins
+- [ ] Expose Cynefin domain classification in UI
+- [ ] Add Cynefin-aware bot boosting to agent suggestions
+- [ ] Add Devil's Advocate mode toggle to Red Team
+- [ ] Auto-trigger Beautiful Questions based on conversation phase
 - [ ] Implement Smart Router for automatic methodology selection
 - [ ] Create Workshop Pipeline Engine for strict phase progression
-- [ ] Add more form types (JTBD setup, S-Curve analysis)
 
 ### Phase 3 (Medium-term)
 - [ ] Build adapter system for modular methodology enhancement
