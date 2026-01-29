@@ -3,7 +3,7 @@ from .larry_core import LARRY_RAG_SYSTEM_PROMPT
 from .tta_workshop import TTA_WORKSHOP_PROMPT
 from .jtbd_workshop import JTBD_WORKSHOP_PROMPT
 from .scurve_workshop import SCURVE_WORKSHOP_PROMPT
-from .redteam import REDTEAM_PROMPT
+from .redteam import REDTEAM_PROMPT, EXTREME_OPPOSITION_PROMPT, get_redteam_prompt
 from .ackoff_workshop import ACKOFF_WORKSHOP_PROMPT
 from .bono_master import BONO_MASTER_PROMPT
 from .known_unknowns import KNOWN_UNKNOWNS_PROMPT

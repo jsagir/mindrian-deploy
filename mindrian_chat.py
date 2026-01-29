@@ -1628,6 +1628,63 @@ async def suggest_agents_from_context(
                     agent_scores["tta"] = {"keyword_score": 0, "description": AGENT_TRIGGERS.get("tta", {}).get("description", "")}
                 agent_scores["tta"]["keyword_score"] = agent_scores["tta"].get("keyword_score", 0) + 0.3
 
+    # ═══════════════════════════════════════════════════════════════════════════
+    # v4.0 ENHANCEMENT: Cynefin Domain-Aware Agent Boosting
+    # ═══════════════════════════════════════════════════════════════════════════
+    cynefin_domain = None
+    try:
+        from tools.graph_orchestrator import discover_research_plan
+        plan = discover_research_plan(recent_text[:300])
+        cynefin_domain = plan.cynefin_domain
+
+        if cynefin_domain:
+            # Boost agents based on Cynefin domain complexity
+            cynefin_boosts = {
+                "simple": {"ackoff": 0.25, "validation": 0.2},  # Clear domain - validate with evidence
+                "complicated": {"scurve": 0.25, "jtbd": 0.2, "investment": 0.15},  # Expert analysis needed
+                "complex": {"tta": 0.3, "scenario": 0.25, "beautiful_question": 0.2},  # Probe-sense-respond
+                "chaotic": {"redteam": 0.3, "knowns": 0.25},  # Act-sense-respond, manage unknowns
+            }
+            boosts = cynefin_boosts.get(cynefin_domain.lower(), {})
+            for agent_id, boost in boosts.items():
+                if agent_id != current_bot and agent_id in AGENT_TRIGGERS:
+                    if agent_id not in agent_scores:
+                        agent_scores[agent_id] = {"keyword_score": 0, "description": AGENT_TRIGGERS.get(agent_id, {}).get("description", "")}
+                    agent_scores[agent_id]["keyword_score"] = agent_scores[agent_id].get("keyword_score", 0) + boost
+    except Exception as e:
+        print(f"[v4.0] Cynefin boost skipped: {e}")
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # v4.0 ENHANCEMENT: Beautiful Questions Phase Auto-Trigger
+    # ═══════════════════════════════════════════════════════════════════════════
+    if extraction and not extraction.get("empty"):
+        counts = extraction.get("counts", {})
+        quality = extraction.get("quality_signals", {})
+        certainty = counts.get("certainty_statements", 0)
+        problems = counts.get("problems", 0)
+        solutions = counts.get("solutions", 0)
+
+        # WHY phase: High certainty but no clear problem definition
+        if certainty >= 2 and problems == 0:
+            if "beautiful_question" in AGENT_TRIGGERS and current_bot != "beautiful_question":
+                if "beautiful_question" not in agent_scores:
+                    agent_scores["beautiful_question"] = {"keyword_score": 0, "description": "Clarify with WHY questions"}
+                agent_scores["beautiful_question"]["keyword_score"] += 0.35
+
+        # WHAT IF phase: Problem defined, exploring solutions
+        elif problems > 0 and solutions < 2:
+            if "beautiful_question" in AGENT_TRIGGERS and current_bot != "beautiful_question":
+                if "beautiful_question" not in agent_scores:
+                    agent_scores["beautiful_question"] = {"keyword_score": 0, "description": "Explore possibilities with WHAT IF questions"}
+                agent_scores["beautiful_question"]["keyword_score"] += 0.25
+
+        # HOW phase: Has solutions, needs implementation validation
+        elif solutions >= 2 and quality.get("is_forward_looking"):
+            if "beautiful_question" in AGENT_TRIGGERS and current_bot != "beautiful_question":
+                if "beautiful_question" not in agent_scores:
+                    agent_scores["beautiful_question"] = {"keyword_score": 0, "description": "Validate approach with HOW questions"}
+                agent_scores["beautiful_question"]["keyword_score"] += 0.2
+
     # Merge: final_score = keyword_score + (graph_score * 1.5)
     all_agent_ids = set(agent_scores.keys()) | set(graph_scores.keys())
     merged_scores = {}
@@ -1641,18 +1698,23 @@ async def suggest_agents_from_context(
             desc = agent_scores.get(agent_id, {}).get("description") or AGENT_TRIGGERS.get(agent_id, {}).get("description", "")
             merged_scores[agent_id] = {"score": round(final, 2), "description": desc}
 
-    # Trace for logging (Constraint 2)
+    # Trace for logging (Constraint 2) - v4.0: Added Cynefin domain
     import logging
     _logger = logging.getLogger("mindrian")
     sorted_merged = sorted(merged_scores.items(), key=lambda x: x[1]["score"], reverse=True)
     trace = {
         "query": recent_text[:120],
+        "cynefin_domain": cynefin_domain,  # v4.0: Expose Cynefin classification
         "keyword_scores": {k: v.get("keyword_score", 0) for k, v in agent_scores.items()},
         "graph_trace": graph_trace,
         "problem_trace": problem_trace,
         "final_ranked": [(a, s["score"]) for a, s in sorted_merged[:3]],
     }
     _logger.info("graph_route_trace: %s", trace)
+
+    # v4.0: Store Cynefin domain in session for UI display
+    if cynefin_domain:
+        cl.user_session.set("cynefin_domain", cynefin_domain)
 
     # Sort by score and take top suggestions
     sorted_agents = sorted_merged[:max_suggestions]
@@ -2089,6 +2151,15 @@ async def start():
                 label="Show S-Curve",
                 description="View the technology S-curve diagram",
                 tooltip="📈 View the technology adoption S-curve showing ferment→takeoff→maturity phases"
+            ))
+        elif chat_profile == "redteam":
+            # v4.0: Extreme Opposition Mode Toggle
+            actions.append(cl.Action(
+                name="toggle_extreme_opposition",
+                payload={"action": "toggle"},
+                label="🔴 Extreme Opposition",
+                description="Activate pure devil's advocate mode",
+                tooltip="🔴 Switch to Extreme Opposition mode - no mercy, find the fatal flaw"
             ))
         elif chat_profile == "domain":
             actions.append(cl.Action(
@@ -3087,6 +3158,69 @@ async def on_switch_to_scurve(action: cl.Action):
 @cl.action_callback("switch_to_redteam")
 async def on_switch_to_redteam(action: cl.Action):
     await handle_agent_switch("redteam")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# v4.0: Extreme Opposition Mode Toggle for Red Team
+# ═══════════════════════════════════════════════════════════════════════════════
+@cl.action_callback("toggle_extreme_opposition")
+async def on_toggle_extreme_opposition(action: cl.Action):
+    """Toggle Extreme Opposition mode for Red Team bot."""
+    bot = cl.user_session.get("bot", {})
+
+    # Only works for Red Team
+    if bot.get("name") != "Red Team":
+        await cl.Message(content="⚠️ Extreme Opposition mode is only available in Red Team.").send()
+        return
+
+    # Toggle the mode
+    extreme_mode = not bot.get("extreme_opposition_mode", False)
+    bot["extreme_opposition_mode"] = extreme_mode
+
+    # Update system prompt
+    from prompts.redteam import get_redteam_prompt
+    bot["system_prompt"] = get_redteam_prompt(extreme_mode=extreme_mode)
+
+    cl.user_session.set("bot", bot)
+
+    # Notify user
+    if extreme_mode:
+        msg = await cl.Message(
+            content="🔴 **EXTREME OPPOSITION MODE ACTIVATED**\n\n"
+                    "I'm now in pure opposition mode. I will:\n"
+                    "- Contradict your main thesis\n"
+                    "- Find counter-evidence for every claim\n"
+                    "- Play strategic competitor\n"
+                    "- Escalate edge cases\n"
+                    "- Assume every assumption is wrong\n\n"
+                    "*No mercy. No balanced views. Just the fatal flaw.*",
+            actions=[
+                cl.Action(
+                    name="toggle_extreme_opposition",
+                    payload={"action": "toggle"},
+                    label="🟢 Return to Normal Mode",
+                    description="Switch back to balanced Red Team analysis"
+                )
+            ]
+        ).send()
+    else:
+        msg = await cl.Message(
+            content="🟢 **Normal Red Team Mode Restored**\n\n"
+                    "I'm back to balanced devil's advocate mode:\n"
+                    "- Challenge assumptions constructively\n"
+                    "- Find weaknesses AND suggest fixes\n"
+                    "- Stress-test ideas fairly\n\n"
+                    "*Constructively brutal, but still helpful.*",
+            actions=[
+                cl.Action(
+                    name="toggle_extreme_opposition",
+                    payload={"action": "toggle"},
+                    label="🔴 Activate Extreme Opposition",
+                    description="Pure opposition mode - no mercy"
+                )
+            ]
+        ).send()
+
 
 @cl.action_callback("switch_to_ackoff")
 async def on_switch_to_ackoff(action: cl.Action):
