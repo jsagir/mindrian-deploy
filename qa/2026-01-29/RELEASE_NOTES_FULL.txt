@@ -1,0 +1,274 @@
+What's Live Right Now — Full Branch Release Notes
+================================================================
+Branch: claude/review-codebase-nRTQ3
+Date: January 29, 2026
+Total: 20 commits, +10,500 lines, 37 files changed
+
+================================================================
+CHANGES AND HOW THEY ADDRESS FEEDBACK
+================================================================
+
+1. "Research gives random results, not relevant to my problem" (Sagir)
+   → Fixed. Research now uses AI to filter and score every result.
+   5-phase workflow: Query Decomposition → Discovery → Source Evaluation → Gap Analysis → Synthesis.
+   Every result gets a relevance score (0.0-1.0) and is framed for PWS methodology.
+   Sources ranked by authority: .gov (0.98) > .edu (0.90) > news (0.75) > blogs (0.55).
+   Bad results filtered out before you see them.
+
+2. "I don't know which bot to use for my type of problem" (Team)
+   → Fixed. System now detects problem complexity using Cynefin framework.
+   Simple problems (clear cause-effect) → suggests Ackoff (validate with data).
+   Complicated problems (expertise needed) → suggests S-Curve, JTBD.
+   Complex problems (probe and learn) → suggests TTA, Scenario Analysis.
+   Chaotic problems (act fast) → suggests Red Team, Known Unknowns.
+   This happens automatically based on what you type.
+
+3. "Beautiful Questions should pop up when I need them" (Edwards)
+   → Done. System detects your conversation phase and suggests BQ bot:
+   Lots of certainty but no clear problem → suggests WHY questions.
+   Problem defined, exploring options → suggests WHAT IF questions.
+   Solutions ready, planning action → suggests HOW questions.
+   You don't have to remember to switch — it nudges you.
+
+4. "Red Team is too balanced sometimes, I want brutal feedback" (Sagir)
+   → Done. New "Extreme Opposition" toggle button in Red Team.
+   Click it → pure attack mode. No balanced views. No encouragement. No mercy.
+   Finds the single most devastating flaw. Plays strategic competitor.
+   Click again → back to normal balanced devil's advocate mode.
+   Button appears in Red Team actions automatically.
+
+5. "Next Phase button doesn't check if I'm ready" (Lawrence)
+   → Fixed. Clicking Next Phase now validates completion first.
+   Shows percentage complete and what you're missing.
+   Gives clear instructions for the next phase.
+   Fetches current news and trends for your specific topic.
+   "Proceed Anyway" button if you want to skip ahead.
+
+6. "I lose my progress when switching bots" (Team)
+   → Already working. Switch from Lawrence to Red Team and back.
+   Your full conversation history is preserved.
+   Phase progress saved. Context handed off between bots.
+   Works across browser refreshes too (PostgreSQL persistence).
+
+7. "Show Example gives the same example every time" (Lawrence)
+   → Fixed. Examples now come from 3 sources in priority order:
+   1. Neo4j LazyGraph (8,400+ real case studies)
+   2. File Search RAG (course materials)
+   3. Tavily web search (fresh examples)
+   Tracks what you've seen so you don't get repeats.
+
+8. "I want to see the bot's thinking process" (Edwards)
+   → Done. Chain-of-thought steps now visible in UI.
+   Spinners show: "Checking Phase Completion", "Preparing Next Phase", "Researching".
+   Collapsible steps show the reasoning. Toggle in settings if you want to hide.
+
+9. "OAuth login for tracking users" (Sagir)
+   → Ready. Google and GitHub OAuth callbacks implemented.
+   Requires CHAINLIT_AUTH_SECRET on Render (now set).
+   Callback URLs configured. Just need to enable in Google Cloud Console.
+
+10. "Multi-agent analysis is too hidden" (Edwards)
+    → Now available via button in Larry Playground.
+    Quick Analysis, Research + Explore, Validated Decision, Full Analysis modes.
+    Runs multiple bots in sequence, shows results with cl.Step visualization.
+    Hidden from Lawrence (simple mode) to reduce clutter.
+
+================================================================
+NEW BOTS ADDED
+================================================================
+
+Beautiful Questions Bot
+- WHY → WHAT IF → HOW methodology (Warren Berger)
+- 3-phase workshop structure
+- Auto-suggested based on conversation signals
+- Helps reframe problems as powerful questions
+
+Multi-Perspective Validation Bot
+- Extracts domains from your problem
+- Constructs expert personas
+- Runs parallel research from each perspective
+- Structured debate format
+- Generates validation report
+
+Domain Explorer Bot
+- Analyze CV/resume to find innovation domains
+- Analyze research papers for opportunities
+- Score domains by PWS criteria
+- Works with document upload
+
+================================================================
+NEW TOOLS ADDED
+================================================================
+
+Research Orchestrator (tools/research_orchestrator.py)
+- 5-phase Tavily workflow
+- Query decomposition into sub-queries
+- Source evaluation and ranking
+- Gap analysis for missing information
+- Final synthesis with PWS framing
+
+Result Synthesizer (tools/result_synthesizer.py)
+- AI-powered relevance scoring
+- Filters irrelevant results before display
+- Frames results for current bot/methodology
+- Configurable thresholds per bot
+
+Phase Validator (tools/phase_validator.py)
+- Checks workshop phase completion
+- Uses LangExtract patterns
+- Returns missing deliverables
+- Generates guidance for completion
+
+Phase Enricher (tools/phase_enricher.py)
+- Fetches news for user's domain
+- Fetches Google Trends data
+- Contextualizes phase transitions
+- Domain-specific examples
+
+Validation Workflow (tools/validation_workflow.py)
+- 6-phase agentic validation
+- Runs automatically through all phases
+- Extracts insights at each step
+- Generates comprehensive report
+
+API Validator (scripts/validate_apis.py)
+- Tests all 12+ API integrations
+- Color-coded pass/fail output
+- Suggests fixes for failures
+- Run with: python scripts/validate_apis.py
+
+================================================================
+WHAT TO TEST
+================================================================
+
+Open Mindrian in incognito → is Lawrence the default?
+
+Type "I want to start a plant-based meat company" → does Research give relevant, scored results?
+
+Type "My startup is in chaos, everything is breaking" → does it suggest Red Team? (Cynefin: chaotic)
+
+Type "I'm absolutely certain AI will replace all jobs" → does it suggest Beautiful Questions? (high certainty, no problem)
+
+Select Red Team → is "Extreme Opposition" button visible?
+
+Click Extreme Opposition → type an idea → is critique brutal and one-sided?
+
+Select Scenario Analysis → type a topic → click Next Phase → does it validate completion?
+
+Switch to JTBD → switch back to Scenario → is your phase progress saved?
+
+Click Show Example 3 times → are examples different each time?
+
+================================================================
+KNOWN ISSUES (DON'T REPORT THESE)
+================================================================
+
+Cynefin boosting requires Neo4j connection.
+If Neo4j not connected, agent suggestions still work (just no domain boost).
+
+Some research buttons may error if API keys not set on Render.
+Buttons degrade gracefully — they just won't return data.
+
+Beautiful Questions suggestions depend on LangExtract patterns.
+May not trigger on very short or vague messages.
+
+Extreme Opposition stays on until you toggle it off.
+Switching away from Red Team and back resets to normal mode.
+
+OAuth login shows but may not work until Google Cloud Console is fully configured.
+App works fine without login — just no user tracking.
+
+Voice input is experimental.
+Works but may have latency issues.
+
+PDF images not extracted (text only for now).
+
+================================================================
+API KEYS ON RENDER
+================================================================
+
+REQUIRED:
+  GOOGLE_API_KEY ✓
+
+FOR VOICE:
+  ELEVENLABS_API_KEY ✓
+  ELEVENLABS_VOICE_ID ✓
+
+FOR RESEARCH:
+  TAVILY_API_KEY ✓
+
+FOR PERSISTENCE:
+  CHAINLIT_DATABASE_URL ✓
+  CHAINLIT_AUTH_SECRET ✓ (just added)
+
+FOR GRAPH FEATURES:
+  NEO4J_URI
+  NEO4J_USERNAME
+  NEO4J_PASSWORD
+
+FOR EXTENDED RESEARCH:
+  SERPAPI_API_KEY (Google Trends, Patents)
+  FRED_API_KEY (economic data)
+  BLS_API_KEY (labor statistics)
+
+================================================================
+FILES CHANGED (37 files, +10,500 lines)
+================================================================
+
+New Features:
+  tools/research_orchestrator.py      - 5-phase research workflow
+  tools/result_synthesizer.py         - AI relevance scoring
+  tools/phase_validator.py            - phase completion checking
+  tools/phase_enricher.py             - news/trends fetching
+  tools/validation_workflow.py        - 6-phase agentic validation
+  prompts/beautiful_question.py       - new bot (496 lines)
+  prompts/scenario_phases.py          - phase definitions
+  prompts/redteam.py                  - added Extreme Opposition mode
+  agents/multi_agent_graph.py         - LangGraph orchestration
+  scripts/validate_apis.py            - API testing script
+
+UI Components:
+  public/elements/DIKWPyramid.jsx
+  public/elements/PhaseProgress.jsx
+  public/elements/ResearchMatrix.jsx
+  public/elements/ScenarioSetupForm.jsx
+  public/elements/ProblemDefinitionForm.jsx
+
+Main App:
+  mindrian_chat.py                    - Cynefin boost, BQ triggers, phase UX (+1,800 lines)
+
+Documentation:
+  R&D/16_v4_architecture/README.md
+  qa/2026-01-29/*.md (5 QA docs)
+  chainlit.md (rewritten)
+  CLAUDE.md (updated)
+
+================================================================
+HOW TO DEPLOY
+================================================================
+
+Currently deployed: claude/review-codebase-nRTQ3
+
+TO REVERT TO MAIN:
+  Render Dashboard → Settings → Build & Deploy
+  Change Branch to: main
+  Save → Auto-deploys
+
+TO MERGE TO MAIN (permanent):
+  git checkout main
+  git merge claude/review-codebase-nRTQ3
+  git push origin main
+
+================================================================
+FEEDBACK
+================================================================
+
+Drop your feedback in the group chat or send to Sagir:
+  - Which bot
+  - What you typed
+  - What happened vs. expected
+  - Screenshot if you can
+
+================================================================
+END OF RELEASE NOTES
+================================================================
