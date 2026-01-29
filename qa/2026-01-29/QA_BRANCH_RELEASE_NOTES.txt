@@ -1,0 +1,146 @@
+What's New in This Branch — and What It Does
+================================================================
+Date: January 29, 2026
+Branch: claude/review-codebase-nRTQ3
+
+================================================================
+CHANGES AND WHY THEY MATTER
+================================================================
+
+1. "Research gives random results, not relevant to my problem"
+   → Fixed. Research now uses AI to filter and score results.
+   5-phase workflow: Query → Discovery → Evaluation → Gap → Synthesis.
+   Every result gets a relevance score (0.0-1.0) and is framed for PWS.
+   Sources ranked by authority (.gov > .edu > news > blogs).
+
+2. "I don't know which bot to use for my type of problem"
+   → Fixed. System now detects problem complexity automatically.
+   Simple problems → suggests Ackoff (validate with data).
+   Complicated problems → suggests S-Curve, JTBD (expert analysis).
+   Complex problems → suggests TTA, Scenario (explore possibilities).
+   Chaotic problems → suggests Red Team (act fast, challenge everything).
+
+3. "Beautiful Questions should pop up when I need them"
+   → Done. System detects conversation phase and suggests BQ bot:
+   High certainty but no clear problem → suggests WHY questions.
+   Problem defined, exploring options → suggests WHAT IF questions.
+   Solutions ready, planning action → suggests HOW questions.
+
+4. "Red Team is too balanced, I want brutal feedback sometimes"
+   → Done. New "Extreme Opposition" toggle in Red Team.
+   Click it → pure attack mode. No balanced views. No encouragement.
+   Finds the fatal flaw. Plays strategic competitor.
+   Click again → back to normal balanced mode.
+
+5. "Next Phase button doesn't check if I'm ready"
+   → Fixed. Clicking Next Phase now checks completion first.
+   Shows what you're missing if incomplete.
+   Gives clear instructions for next phase.
+   Fetches current news/trends for your topic.
+
+6. "I lose my progress when switching bots"
+   → Already working. Switch from Lawrence to Red Team and back.
+   Your conversation and phase progress are preserved.
+
+================================================================
+WHAT TO TEST
+================================================================
+
+Open Mindrian → Select Lawrence → is Research button visible?
+
+Chat 3-4 messages about a business idea → does it suggest relevant bots?
+
+Select Red Team → is "Extreme Opposition" button visible?
+
+Click Extreme Opposition → does it show "MODE ACTIVATED" message?
+
+Type an idea → is the critique brutal and one-sided?
+
+Click "Return to Normal Mode" → does it confirm normal mode?
+
+Select Scenario Analysis → type a topic → click Next Phase.
+Does it check completion? Show instructions?
+
+Switch to JTBD → switch back to Scenario → is progress saved?
+
+Click Deep Research → do results have relevance scores?
+
+================================================================
+KNOWN ISSUES (DON'T REPORT THESE)
+================================================================
+
+Cynefin boosting only works if Neo4j is connected on the server.
+If not connected, agent suggestions still work (just no domain boost).
+
+Some research buttons may error if API keys not set on Render yet.
+Buttons degrade gracefully — they just won't return data.
+
+Beautiful Questions bot suggestions depend on LangExtract patterns.
+May not trigger on very short or vague messages.
+
+Extreme Opposition stays on until you toggle it off.
+Switching away from Red Team and back resets to normal mode.
+
+================================================================
+API KEYS NEEDED
+================================================================
+
+REQUIRED:
+  GOOGLE_API_KEY (Gemini)
+
+FOR VOICE:
+  ELEVENLABS_API_KEY
+
+FOR RESEARCH:
+  TAVILY_API_KEY
+
+FOR CYNEFIN BOOST (optional):
+  NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD
+
+================================================================
+HOW TO DEPLOY
+================================================================
+
+TO DEPLOY THIS BRANCH:
+  1. Render Dashboard → Settings → Build & Deploy
+  2. Change Branch to: claude/review-codebase-nRTQ3
+  3. Save → Manual Deploy
+
+TO REVERT TO MAIN:
+  1. Render Dashboard → Settings → Build & Deploy
+  2. Change Branch to: main
+  3. Save → Auto-deploys
+
+================================================================
+FEEDBACK
+================================================================
+
+Drop your feedback in the group chat or send to Sagir:
+  - Which bot
+  - What you typed
+  - What happened vs. expected
+  - Screenshot if you can
+
+================================================================
+FILES CHANGED (37 files, +10,483 lines)
+================================================================
+
+New Features:
+  tools/research_orchestrator.py     - 5-phase research workflow
+  tools/result_synthesizer.py        - AI relevance scoring
+  tools/phase_validator.py           - phase completion checking
+  tools/phase_enricher.py            - news/trends fetching
+  prompts/beautiful_question.py      - new bot
+  prompts/redteam.py                 - extreme opposition mode
+
+UI Components:
+  public/elements/DIKWPyramid.jsx
+  public/elements/PhaseProgress.jsx
+  public/elements/ResearchMatrix.jsx
+
+Main App:
+  mindrian_chat.py                   - Cynefin boost, BQ triggers, actions
+
+================================================================
+END
+================================================================
