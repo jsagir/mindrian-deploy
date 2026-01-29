@@ -4565,97 +4565,164 @@ async def on_speak_response(action: cl.Action):
 
 async def _research_sources_first(recent_context: str, bot_name: str, search_depth: str, history: list):
     """
-    Sources-First research: show clickable sources immediately,
-    then offer deep analysis (Minto Pyramid) as an optional button.
+    Advanced research workflow: multi-phase research with AI synthesis.
+
+    Uses the Research Orchestrator for:
+    1. Query decomposition (multiple targeted queries)
+    2. Source evaluation (authority scoring)
+    3. Deep extraction from high-quality sources
+    4. Gap analysis (identify missing information)
+    5. Synthesis with PWS methodology framing
     """
-    from tools.tavily_search import search_web
+    from tools.research_orchestrator import (
+        run_research_workflow,
+        quick_research,
+        format_research_report,
+    )
 
     msg = cl.Message(content="")
     await msg.send()
-    await msg.stream_token("**🔍 Searching for relevant sources...**\n\n")
 
-    # Step 1: Use Gemini to compose a good search query from conversation
+    # Get bot context
+    bot = cl.user_session.get("bot", BOTS["lawrence"])
+    chat_profile = cl.user_session.get("chat_profile", "lawrence")
+
+    # Determine research depth based on mode
+    is_simple = bot.get("simple_mode", False)
+    research_depth = "quick" if is_simple else ("standard" if search_depth == "basic" else "deep")
+
+    # Extract the main question from context
     try:
         query_response = client.models.generate_content(
             model="gemini-2.0-flash",
             contents=(
-                f"Based on this conversation, write ONE concise web search query "
-                f"(max 12 words) to find relevant sources, evidence, or data. "
-                f"Return ONLY the search query, nothing else.\n\n"
-                f"Conversation:\n{recent_context[:800]}"
+                f"Based on this conversation, identify the main research question or topic. "
+                f"Return a clear, specific question (max 30 words).\n\n"
+                f"Conversation:\n{recent_context[:1000]}"
             ),
-            config=types.GenerateContentConfig(temperature=0.2, max_output_tokens=40),
+            config=types.GenerateContentConfig(temperature=0.2, max_output_tokens=60),
         )
-        search_query = query_response.text.strip().strip('"').strip("'")
+        research_question = query_response.text.strip().strip('"').strip("'")
     except Exception:
         # Fallback: use last user message
-        search_query = recent_context.split("user:")[-1][:100].strip()
+        research_question = recent_context.split("user:")[-1][:150].strip()
 
-    if not search_query or len(search_query) < 3:
-        await msg.stream_token("Could not determine what to search for. Try asking a more specific question.")
+    if not research_question or len(research_question) < 5:
+        await msg.stream_token("Could not determine what to research. Try asking a more specific question.")
         await msg.update()
         return
 
-    await msg.stream_token(f"*Searching: \"{search_query}\"*\n\n")
+    # Show research progress
+    await msg.stream_token(f"## 🔬 Research Workflow\n\n")
+    await msg.stream_token(f"**Question:** {research_question}\n\n")
+    await msg.stream_token(f"**Depth:** {research_depth.title()}\n\n")
+    await msg.stream_token("---\n\n")
 
-    # Step 2: Run Tavily search
+    # Phase indicators
+    phases = ["🎯 Query Decomposition", "🔍 Discovery Search", "📊 Source Evaluation",
+              "📖 Deep Extraction", "🔎 Gap Analysis", "✨ Synthesis"]
+
     try:
-        results = search_web(search_query, search_depth=search_depth, max_results=8)
+        # Run the full research workflow
+        async with cl.Step(name="🔬 Research Workflow", type="run") as research_step:
+            research_step.input = f"Researching: {research_question}"
+
+            # Show phase progress
+            for i, phase in enumerate(phases[:3 if research_depth == "quick" else len(phases)]):
+                await msg.stream_token(f"- {phase}...\n")
+
+            # Execute research
+            report = await run_research_workflow(
+                question=research_question,
+                user_context=recent_context[:500],
+                bot_id=chat_profile,
+                depth=research_depth,
+            )
+
+            research_step.output = f"Found {len(report.findings)} findings from {report.sources_evaluated} sources"
+
+        # Format and display results
+        await msg.stream_token("\n---\n\n")
+
+        # Show synthesis first (most important)
+        if report.synthesis:
+            await msg.stream_token(f"### 💡 Key Insights\n\n{report.synthesis}\n\n")
+
+        # Show top findings with confidence indicators
+        if report.findings:
+            await msg.stream_token(f"### 📚 Research Findings ({len(report.findings)} sources)\n\n")
+            for i, finding in enumerate(report.findings[:6], 1):
+                confidence_icon = {"high": "🟢", "medium": "🟡", "low": "🟠"}.get(finding.confidence, "⚪")
+                # Extract URL from sources
+                source_url = finding.sources[0] if finding.sources else ""
+                fact_preview = finding.fact[:200] if finding.fact else ""
+
+                await msg.stream_token(f"**{i}. {confidence_icon}** {fact_preview}...\n")
+                if source_url:
+                    await msg.stream_token(f"   *[Source]({source_url})*\n")
+                await msg.stream_token("\n")
+
+        # PWS Implications
+        if report.pws_implications:
+            await msg.stream_token(f"### 🎯 PWS Implications\n\n{report.pws_implications}\n\n")
+
+        # Recommended actions
+        if report.recommended_actions:
+            await msg.stream_token("### ✅ Recommended Next Steps\n\n")
+            for action in report.recommended_actions[:3]:
+                await msg.stream_token(f"- {action}\n")
+            await msg.stream_token("\n")
+
+        # Evidence gaps (questions to explore)
+        if report.evidence_gaps:
+            await msg.stream_token("### ❓ Questions to Explore\n\n")
+            for gap in report.evidence_gaps[:3]:
+                await msg.stream_token(f"- {gap}\n")
+
+        # Metadata
+        metadata = report.metadata
+        await msg.stream_token(f"\n---\n*{report.queries_executed} queries | ")
+        await msg.stream_token(f"{metadata.get('primary_sources', 0)} primary sources | ")
+        await msg.stream_token(f"{metadata.get('secondary_sources', 0)} secondary sources*\n")
+
     except Exception as e:
-        print(f"[RESEARCH] Tavily search error: {e}")
-        await msg.stream_token(f"⚠️ Search failed: {e}")
-        await msg.update()
-        return
+        print(f"[RESEARCH] Orchestrator error: {e}")
+        import traceback
+        traceback.print_exc()
 
-    sources = results.get("results", [])
-    tavily_answer = results.get("answer", "")
-    error = results.get("error", "")
+        # Fallback to simple search
+        await msg.stream_token(f"\n⚠️ Advanced research failed, using simple search...\n\n")
+        from tools.tavily_search import search_web
 
-    if error:
-        print(f"[RESEARCH] Tavily error: {error}")
-        await msg.stream_token(f"⚠️ Search error: {error}")
-        await msg.update()
-        return
+        try:
+            results = search_web(research_question, search_depth=search_depth, max_results=8)
+            sources = results.get("results", [])
 
-    if not sources:
-        await msg.stream_token("No sources found. Try rephrasing your topic or question.")
-        await msg.update()
-        return
+            if sources:
+                await msg.stream_token(f"**Found {len(sources)} sources:**\n\n")
+                for i, src in enumerate(sources, 1):
+                    title = src.get("title", "Untitled")
+                    url = src.get("url", "")
+                    content = src.get("content", "")[:200]
+                    await msg.stream_token(f"**{i}. [{title}]({url})**\n")
+                    if content:
+                        await msg.stream_token(f"   {content}...\n\n")
+        except Exception as e2:
+            await msg.stream_token(f"Search failed: {e2}")
 
-    # Step 3: Format sources with clickable links
-    output = f"## 📚 Research Results: {search_query}\n\n"
-
-    if tavily_answer:
-        output += f"**Summary:** {tavily_answer}\n\n---\n\n"
-
-    output += f"**Found {len(sources)} sources:**\n\n"
-
-    for i, src in enumerate(sources, 1):
-        title = src.get("title", "Untitled")
-        url = src.get("url", "")
-        content = src.get("content", "")[:200]
-        score = src.get("score", 0)
-
-        output += f"**{i}. [{title}]({url})**\n"
-        if content:
-            output += f"   {content}...\n"
-        output += "\n"
-
-    await msg.stream_token(output)
-
-    # Add "Deep Analyze" button to offer Minto Pyramid as optional
+    # Add action buttons
     msg.actions = [
         cl.Action(
             name="deep_research_full",
             payload={"action": "deep_research_full"},
-            label="🔬 Deep Analyze These Sources",
-            tooltip="Run full Minto Pyramid analysis on this topic",
+            label="🔬 Deep Analyze (Minto Pyramid)",
+            tooltip="Run full structured analysis with SCQA, Beautiful Questions, and Sequential Thinking",
         ),
     ]
     await msg.update()
 
     # Inject into history
-    history.append({"role": "model", "content": f"[Research results]\n{output}"})
+    history.append({"role": "model", "content": f"[Research completed for: {research_question}]"})
     cl.user_session.set("history", history)
 
 

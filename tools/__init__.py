@@ -17,6 +17,12 @@ from .result_synthesizer import (
     quick_synthesize,
     get_synthesis_config_for_bot,
 )
+from .research_orchestrator import (
+    run_research_workflow,
+    quick_research,
+    format_research_report,
+    decompose_query,
+)
 from .phase_validator import (
     validate_phase_completion,
     get_missing_deliverables,
@@ -64,4 +70,9 @@ __all__ = [
     "synthesize_research_batch",
     "quick_synthesize",
     "get_synthesis_config_for_bot",
+    # Research Orchestrator (full Tavily workflow)
+    "run_research_workflow",
+    "quick_research",
+    "format_research_report",
+    "decompose_query",
 ]
