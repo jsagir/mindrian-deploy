@@ -658,6 +658,178 @@ async def create_task_list(profile: str) -> Optional[cl.TaskList]:
     return task_list
 
 
+def get_contextual_actions(
+    bot: dict,
+    phases: list,
+    current_phase: int,
+    turn_count: int = 0,
+    is_simple: bool = False
+) -> list:
+    """
+    Get contextual actions based on current state.
+
+    Priority system:
+    - P0: Phase transition (when ready to advance)
+    - P1: Core workflow actions (2-3 max)
+    - P2: Secondary actions (collapsed or hidden)
+
+    Returns max 5 buttons to avoid overwhelm.
+    """
+    actions = []
+    has_phases = bot.get("has_phases", False)
+
+    # === P0: Phase Transition (most important for workshop bots) ===
+    if has_phases and phases and current_phase < len(phases) - 1:
+        next_phase_name = phases[current_phase + 1]["name"] if current_phase + 1 < len(phases) else None
+
+        # Make this the PRIMARY action - big and obvious
+        if next_phase_name:
+            actions.append(cl.Action(
+                name="next_phase",
+                payload={"action": "next"},
+                label=f"✅ Continue → {next_phase_name}",
+                description=f"Move to the next phase when you're ready",
+                tooltip="Click when you've completed this phase"
+            ))
+
+    # === P1: Core Workflow Actions (max 2) ===
+    actions.append(cl.Action(
+        name="deep_research",
+        payload={"action": "research"},
+        label="🔍 Research",
+        tooltip="Search for evidence and data"
+    ))
+
+    actions.append(cl.Action(
+        name="show_example",
+        payload={"action": "example"},
+        label="📖 Example",
+        tooltip="See a real-world example"
+    ))
+
+    # === P2: Secondary Actions (only if not too many already) ===
+    if len(actions) < 4:
+        actions.append(cl.Action(
+            name="synthesize_conversation",
+            payload={"action": "synthesize"},
+            label="📥 Synthesize",
+            tooltip="Summarize key insights"
+        ))
+
+    # Think button only for non-simple modes
+    if not is_simple and len(actions) < 5:
+        actions.append(cl.Action(
+            name="think_through",
+            payload={"action": "think"},
+            label="🧠 Think",
+            tooltip="Structured problem breakdown"
+        ))
+
+    return actions[:5]  # Never more than 5 buttons
+
+
+async def send_phase_transition_card(
+    phases: list,
+    current_phase: int,
+    bot_name: str,
+    is_auto: bool = False
+):
+    """
+    Send an explicit, unmissable phase transition message with clear instructions.
+
+    Args:
+        phases: List of phase dicts
+        current_phase: Current phase index (just moved to this)
+        bot_name: Name of the current bot
+        is_auto: Whether this was auto-detected
+    """
+    total = len(phases)
+    current_name = phases[current_phase]["name"] if current_phase < total else "Complete"
+
+    # Progress bar with emojis
+    progress_bar = " ".join([
+        "✅" if i < current_phase else "🔵" if i == current_phase else "⚪"
+        for i in range(total)
+    ])
+
+    # Try to get detailed phase instructions
+    phase_instructions = None
+    phase_prompt = None
+    bot_id = cl.user_session.get("bot_id", "scenario")
+
+    try:
+        if bot_id == "scenario":
+            from prompts.scenario_phases import get_phase_by_index
+            phase_config = get_phase_by_index(current_phase)
+            if phase_config:
+                phase_instructions = phase_config.get("instructions", [])
+                phase_prompt = phase_config.get("prompt", "")
+    except ImportError:
+        pass
+
+    # Build the card
+    content = f"""
+---
+
+## 📍 Phase {current_phase + 1}/{total}: {current_name}
+
+{progress_bar}
+
+"""
+
+    if is_auto:
+        content += f"*I've automatically advanced us based on our progress.*\n\n"
+
+    # Add clear instructions for what to do
+    if phase_instructions:
+        content += f"### What to do in this phase:\n\n"
+        for i, instruction in enumerate(phase_instructions, 1):
+            content += f"{i}. {instruction}\n"
+        content += "\n"
+    else:
+        content += f"**Focus:** Work through {current_name}\n\n"
+
+    # Add help option
+    content += "---\n\n"
+    content += "**Choose how to proceed:**\n\n"
+
+    # Build actions based on state
+    actions = []
+
+    # Primary action: Help me start this phase
+    actions.append(cl.Action(
+        name="help_start_phase",
+        payload={"phase": current_phase, "phase_name": current_name},
+        label=f"🚀 Help me start {current_name}",
+        tooltip="Get guided through this phase step by step"
+    ))
+
+    # Secondary: Let me work on my own
+    actions.append(cl.Action(
+        name="acknowledge_phase",
+        payload={},
+        label="👍 Got it, I'll work on this",
+        tooltip="Dismiss this card and continue on your own"
+    ))
+
+    # Show next phase preview
+    if current_phase + 1 < total:
+        next_name = phases[current_phase + 1]["name"]
+        content += f"\n*Coming up next: {next_name}*\n"
+
+        # Add skip option
+        actions.append(cl.Action(
+            name="next_phase",
+            payload={"action": "next"},
+            label=f"⏭️ Skip to {next_name}",
+            tooltip="Skip ahead if you've already covered this"
+        ))
+
+    content += "\n---"
+
+    await cl.Message(content=content, actions=actions).send()
+
+
 async def update_phase(profile: str, phase_index: int, new_status: str):
     """Update a workshop phase status."""
     phases = cl.user_session.get("phases", [])
@@ -3051,6 +3223,132 @@ async def on_show_progress(action: cl.Action):
     await cl.Message(content=progress_text).send()
 
 
+@cl.action_callback("help_start_phase")
+async def on_help_start_phase(action: cl.Action):
+    """
+    Help user start the current phase by generating a guided response.
+    This directly calls the LLM to walk them through the phase.
+    """
+    phase_name = action.payload.get("phase_name", "this phase")
+    phase_idx = action.payload.get("phase", 0)
+    bot_id = cl.user_session.get("bot_id", "scenario")
+    bot = BOTS.get(bot_id, BOTS["lawrence"])
+
+    # Get phase-specific instructions and prompt
+    phase_instructions = []
+    phase_prompt = ""
+    try:
+        if bot_id == "scenario":
+            from prompts.scenario_phases import get_phase_by_index
+            phase_config = get_phase_by_index(phase_idx)
+            if phase_config:
+                phase_instructions = phase_config.get("instructions", [])
+                phase_prompt = phase_config.get("prompt", "")
+    except ImportError:
+        pass
+
+    # Build the help request
+    help_request = f"Help me start {phase_name}."
+
+    # Show user's request
+    await cl.Message(content=help_request, author="User").send()
+
+    # Add to history
+    history = cl.user_session.get("history", [])
+    history.append({"role": "user", "content": help_request})
+
+    # Build context for LLM
+    phase_context = f"\n\n[PHASE GUIDANCE: The user is starting '{phase_name}'. "
+    if phase_instructions:
+        phase_context += f"They need to: {'; '.join(phase_instructions)}. "
+    if phase_prompt:
+        phase_context += f"Start with this question: {phase_prompt}"
+    phase_context += "]"
+
+    # Generate response
+    msg = cl.Message(content="")
+    await msg.send()
+
+    try:
+        from google import genai
+        from google.genai import types
+
+        client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
+
+        # Build messages
+        messages = []
+        for h in history[-10:]:  # Last 10 messages for context
+            role = "user" if h.get("role") == "user" else "model"
+            messages.append({"role": role, "parts": [{"text": h.get("content", "")}]})
+
+        # Add the help request with phase context
+        messages.append({"role": "user", "parts": [{"text": help_request + phase_context}]})
+
+        response_stream = client.models.generate_content_stream(
+            model="gemini-2.0-flash",
+            contents=messages,
+            config=types.GenerateContentConfig(
+                system_instruction=bot.get("system_prompt", ""),
+                temperature=0.7,
+                max_output_tokens=800
+            )
+        )
+
+        full_response = ""
+        for chunk in response_stream:
+            if chunk.text:
+                full_response += chunk.text
+                await msg.stream_token(chunk.text)
+
+        await msg.update()
+
+        # Update history
+        history.append({"role": "model", "content": full_response})
+        cl.user_session.set("history", history)
+
+    except Exception as e:
+        await msg.stream_token(f"I'll help you with **{phase_name}**. Let's start!\n\n")
+        if phase_instructions:
+            for i, instruction in enumerate(phase_instructions, 1):
+                await msg.stream_token(f"{i}. {instruction}\n")
+        if phase_prompt:
+            await msg.stream_token(f"\n**Let's begin:** {phase_prompt}")
+        await msg.update()
+
+    # Reset turn counter
+    cl.user_session.set("phase_turn_count", 0)
+
+
+@cl.action_callback("acknowledge_phase")
+async def on_acknowledge_phase(action: cl.Action):
+    """User acknowledges they understand the phase and will work on it."""
+    phases = cl.user_session.get("phases", [])
+    current_phase = cl.user_session.get("current_phase", 0)
+    current_name = phases[current_phase]["name"] if current_phase < len(phases) else "current phase"
+
+    await cl.Message(
+        content=f"👍 Great! I'm here to help with **{current_name}**. Just ask when you need guidance.",
+    ).send()
+
+    # Reset turn counter
+    cl.user_session.set("phase_turn_count", 0)
+
+
+@cl.action_callback("stay_phase")
+async def on_stay_phase(action: cl.Action):
+    """User wants to continue working on current phase (from nudge)."""
+    phases = cl.user_session.get("phases", [])
+    current_phase = cl.user_session.get("current_phase", 0)
+    current_name = phases[current_phase]["name"] if current_phase < len(phases) else "current phase"
+
+    await cl.Message(
+        content=f"👍 No problem! Let's keep working on **{current_name}**. What would you like to explore?",
+    ).send()
+
+    # Reset turn counter
+    cl.user_session.set("phase_turn_count", 0)
+
+
 @cl.action_callback("show_dikw_pyramid")
 async def on_show_dikw_pyramid(action: cl.Action):
     """Handle showing the DIKW pyramid visualization."""
@@ -5249,22 +5547,41 @@ The user expects you to understand the context and add your specialized value.
                     tooltip="Comprehensive AI research (5-15 min) — 50+ sources analyzed autonomously",
                 ))
 
-            # Add workshop-specific actions
+            # Use contextual actions for workshop bots (cleaner, fewer buttons)
             if bot.get("has_phases"):
-                actions.extend([
-                    cl.Action(
-                        name="show_example",
-                        payload={"action": "example"},
-                        label="📖 Example",
-                        tooltip="View a real-world example of this methodology",
-                    ),
-                    cl.Action(
-                        name="next_phase",
-                        payload={"action": "next"},
-                        label="➡️ Next Phase",
-                        tooltip="Progress to the next workshop phase",
-                    ),
-                ])
+                # Get phase-aware contextual actions
+                turn_count = cl.user_session.get("phase_turn_count", 0)
+                actions = get_contextual_actions(
+                    bot=bot,
+                    phases=phases,
+                    current_phase=current_phase,
+                    turn_count=turn_count,
+                    is_simple=is_simple
+                )
+
+                # Increment turn counter for nudge system
+                cl.user_session.set("phase_turn_count", turn_count + 1)
+
+                # After 4+ turns in same phase, send a nudge
+                if turn_count >= 4 and current_phase < len(phases) - 1:
+                    next_name = phases[current_phase + 1]["name"]
+                    await cl.Message(
+                        content=f"💡 **You've been working on this phase for a while.**\n\n"
+                                f"Ready to move on? When you're done, click the button below.",
+                        actions=[
+                            cl.Action(
+                                name="next_phase",
+                                payload={"from_nudge": True},
+                                label=f"✅ Yes, Continue → {next_name}"
+                            ),
+                            cl.Action(
+                                name="stay_phase",
+                                payload={},
+                                label="🔄 Keep working on this phase"
+                            ),
+                        ]
+                    ).send()
+                    cl.user_session.set("phase_turn_count", 0)  # Reset counter
             else:
                 # Non-workshop bots get example; multi-agent only for non-simple bots
                 actions.append(cl.Action(
@@ -5341,6 +5658,14 @@ The user expects you to understand the context and add your specialized value.
                     cl.user_session.set("phases", phases)
                     cl.user_session.set("current_phase", current_phase)
                     print(f"[PHASE] Auto-advanced to phase {current_phase + 1}: {phases[current_phase]['name']}")
+
+                    # Send explicit phase transition card so user knows what happened
+                    await send_phase_transition_card(
+                        phases=phases,
+                        current_phase=current_phase,
+                        bot_name=bot.get("name", "Workshop"),
+                        is_auto=True
+                    )
             except Exception as e:
                 print(f"[PHASE] Auto-detect error (non-critical): {e}")
 
