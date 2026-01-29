@@ -1,0 +1,254 @@
+================================================================================
+QA REPORT: SMART PHASE TRANSITIONS
+================================================================================
+Date: January 29, 2026
+For: Professor Lawrence Aronhime
+Purpose: Testing guide for new phase transition system
+
+================================================================================
+SUMMARY - WHAT CHANGED
+================================================================================
+
+The "Next Phase" button in workshop bots (especially Scenario Analysis) now
+does something useful instead of just showing a generic message.
+
+BEFORE:
+- Click "Next Phase" -> See "Moving to Phase 2" with no context
+- No validation if you actually completed the current phase
+- No instructions on what to do next
+- Phases lost when switching between bots
+
+AFTER:
+- Click "Next Phase" -> System checks if you completed the phase
+- If incomplete, shows what's missing and lets you proceed anyway
+- If complete, shows a smart transition with:
+  * Summary of what you accomplished
+  * Clear instructions for the next phase
+  * Relevant frameworks/examples from the knowledge base
+  * Specific opening question to get you started
+- Phases are saved when switching between bots
+
+================================================================================
+FILES CREATED
+================================================================================
+
+1. prompts/scenario_phases.py
+   - Enhanced phase definitions for Scenario Analysis
+   - Each phase has: name, description, instructions, deliverables, patterns
+   - 6 phases fully defined with clear guidance
+
+2. tools/phase_validator.py
+   - Checks if user completed current phase deliverables
+   - Uses pattern matching to extract what user discussed
+   - Returns completion score (0-100%) and missing items
+
+3. tools/phase_enricher.py
+   - Queries Neo4j knowledge graph for relevant context
+   - Provides frameworks, case studies, tips for each phase
+   - Generates smart transition messages
+
+================================================================================
+FILES MODIFIED
+================================================================================
+
+1. mindrian_chat.py
+   - on_next_phase() callback completely rewritten
+   - Now shows cl.Step workflow visualization
+   - Validates completion before advancing
+   - Generates smart transitions with context
+   - Added phase_context session variable
+   - Fixed QA-002: Phases now sync to context_store
+   - Fixed QA-006: Phases persist across bot switches
+
+2. prompts/__init__.py
+   - Added exports for SCENARIO_PHASES
+
+3. tools/__init__.py
+   - Added exports for phase_validator and phase_enricher
+
+4. BOT_RESEARCH_HINTS (line 1366)
+   - Added "scenario" bot with research hints
+
+================================================================================
+HOW TO TEST - SCENARIO ANALYSIS BOT
+================================================================================
+
+TEST 1: Basic Phase Flow
+------------------------
+1. Open Mindrian, select "Scenario Analysis" bot
+2. Start a conversation about a domain (e.g., "I want to explore the future of higher education")
+3. Click "Next Phase" button
+4. EXPECTED: See a cl.Step spinner "Checking Phase Completion"
+5. EXPECTED: See transition message with:
+   - What you established in Introduction
+   - Description of "Domain & Driving Forces" phase
+   - Clear instructions (brainstorm STEEP forces)
+   - Opening question
+
+TEST 2: Incomplete Phase Warning
+--------------------------------
+1. Select Scenario Analysis bot
+2. Say something vague like "hello"
+3. Immediately click "Next Phase"
+4. EXPECTED: See "Phase Progress: XX%" message
+5. EXPECTED: See what's missing (domain, focal question, time horizon)
+6. EXPECTED: See "Proceed Anyway" button
+7. Click "Proceed Anyway"
+8. EXPECTED: Advances to next phase
+
+TEST 3: Phase Persistence (QA-006 Fix)
+--------------------------------------
+1. Select Scenario Analysis bot
+2. Complete 2-3 phases
+3. Switch to a different bot (e.g., JTBD)
+4. Switch BACK to Scenario Analysis
+5. EXPECTED: Your phase progress is RESTORED (not reset to Phase 1)
+6. EXPECTED: Task list shows correct completion status
+
+TEST 4: Research Hints (QA-010/011 Fix)
+---------------------------------------
+1. Select Scenario Analysis bot
+2. Ask about uncertainty or driving forces
+3. Look for research buttons
+4. EXPECTED: See research buttons with scenario-specific tooltips:
+   - "Scenario Analysis - validate uncertainty axes with Google Trends"
+   - "Scenario Analysis - current events inform scenario drivers"
+
+TEST 5: News & Trends Enrichment
+--------------------------------
+1. Select Scenario Analysis bot
+2. Say: "I want to explore the future of renewable energy"
+3. Click "Next Phase" to go to Driving Forces
+4. EXPECTED: Transition message includes:
+   - Current trends for "renewable energy" (rising/stable/declining)
+   - Rising related queries
+   - Recent news headlines about renewable energy
+5. If NEWSMESH_API_KEY not set: News section will be empty (ok)
+6. If SERPAPI_API_KEY not set: Trends section will be empty (ok)
+
+================================================================================
+WHAT EACH PHASE SHOULD VALIDATE
+================================================================================
+
+Phase 1 - Introduction
+  Deliverables: domain, focal_question, time_horizon
+  Example: "I want to explore healthcare in 2035 to decide if I should invest"
+
+Phase 2 - Driving Forces
+  Deliverables: social, technological, economic, environmental, political forces
+  Example: User lists forces in each STEEP category
+
+Phase 3 - Uncertainty Assessment
+  Deliverables: predetermined forces, uncertain forces, top uncertainties
+  Example: "Aging population is predetermined, but regulation is uncertain"
+
+Phase 4 - Scenario Matrix
+  Deliverables: axis_1, axis_2, 4 quadrant names
+  Example: "Axis 1: High vs Low Regulation. Axis 2: Centralized vs Distributed"
+
+Phase 5 - Scenario Narratives
+  Deliverables: 4 narrative stories
+  Example: Detailed description of each future scenario
+
+Phase 6 - Synthesis
+  Deliverables: robust problems, contingent opportunities, strategy test
+  Example: "Healthcare access appears in all scenarios - robust problem"
+
+================================================================================
+NEWS & TRENDS INTEGRATION
+================================================================================
+
+The phase transitions now include real-world research:
+
+1. NewsMesh API (news_search.py)
+   - Fetches current news articles for the user's domain
+   - Shows relevant headlines during "Driving Forces" and "Narratives" phases
+   - Requires NEWSMESH_API_KEY environment variable
+
+2. Google Trends (trends_search.py)
+   - Shows trend direction (rising/stable/declining) for domain
+   - Displays rising related queries for inspiration
+   - Checks trend data for key uncertainties
+   - Requires SERPAPI_API_KEY environment variable
+
+WHICH PHASES GET RESEARCH:
+- Driving Forces: News + Trends (to inform STEEP analysis)
+- Uncertainty Assessment: Trends (to validate uncertainty direction)
+- Scenario Narratives: News + Trends (to ground stories in reality)
+- Synthesis: News (to check current events against scenarios)
+
+EXAMPLE TRANSITION WITH RESEARCH:
+----------------------------------
+When moving to "Driving Forces" phase for "healthcare" domain:
+
+**Introduction** [checkmark]
+You've established:
+  - Domain: healthcare
+  - Focal Question: Should I invest in telehealth?
+  - Time Horizon: 2035
+
+**Domain & Driving Forces**
+*Map all forces that could reshape your domain using STEEP analysis.*
+
+**What to do:**
+- Brainstorm SOCIAL forces (demographics, culture, lifestyle shifts)
+- Brainstorm TECHNOLOGICAL forces (innovation, automation, AI)
+...
+
+**Current Trends:**
+**healthcare**: [up arrow] Rising trend
+**Rising related:** telehealth, AI diagnostics, mental health apps
+
+**Recent News (healthcare):**
+- FDA approves new AI diagnostic tool (Reuters)
+- Hospital systems invest in virtual care (WSJ)
+- Healthcare costs continue to rise (Bloomberg)
+
+**Let's begin:** Let's brainstorm driving forces. Start with SOCIAL forces...
+----------------------------------
+
+================================================================================
+KNOWN LIMITATIONS
+================================================================================
+
+1. Smart transitions only work for Scenario Analysis bot (for now)
+   - Other workshop bots use fallback basic transitions
+   - Can extend to TTA, JTBD, etc. by creating similar phase definitions
+
+2. Pattern matching is regex-based
+   - May not catch all variations of user input
+   - Users can always "Proceed Anyway"
+
+3. Neo4j enrichment requires connection
+   - If Neo4j is down, transitions still work (without enrichment)
+   - Graceful degradation to basic transition
+
+================================================================================
+QUICK VERIFICATION CHECKLIST
+================================================================================
+
+[ ] Scenario Analysis bot loads correctly
+[ ] Next Phase shows cl.Step "Checking Phase Completion"
+[ ] Incomplete phases show warning with missing items
+[ ] "Proceed Anyway" button works
+[ ] Complete phases show smart transition with context
+[ ] Phase progress persists when switching bots
+[ ] Research buttons appear with scenario-specific tooltips
+[ ] Task list updates correctly as phases complete
+[ ] Workshop completion message appears at end
+[ ] News headlines appear in transitions (if API key set)
+[ ] Trend direction appears in transitions (if API key set)
+
+================================================================================
+CONTACT
+================================================================================
+
+If issues found, document:
+1. Which phase you were on
+2. What you typed before clicking Next Phase
+3. What you expected vs what happened
+4. Screenshot if possible
+
+================================================================================
+END OF REPORT
+================================================================================

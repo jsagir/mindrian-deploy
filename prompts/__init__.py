@@ -10,6 +10,7 @@ from .known_unknowns import KNOWN_UNKNOWNS_PROMPT
 from .domain_explorer import DOMAIN_EXPLORER_PROMPT
 from .pws_investment import PWS_INVESTMENT_PROMPT
 from .scenario_analysis import SCENARIO_ANALYSIS_PROMPT
+from .scenario_phases import SCENARIO_PHASES, get_phase_by_index, get_phase_key_by_index
 from .problem_classifier import PROBLEM_CLASSIFIER_PROMPT
 from .multi_perspective_validation import (
     MULTI_PERSPECTIVE_VALIDATION_PROMPT,
@@ -63,4 +64,7 @@ __all__ = [
     "RESEARCH_TRANSLATION_PROMPT",
     "MULTI_PERSPECTIVE_VALIDATION_PROMPT",
     "BEAUTIFUL_QUESTION_PROMPT",
+    "SCENARIO_PHASES",
+    "get_phase_by_index",
+    "get_phase_key_by_index",
 ]

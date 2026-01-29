@@ -1363,6 +1363,7 @@ async def suggest_research_tools(history: list, current_bot: str) -> list:
         "scurve":   {"patent": "S-Curve timing uses patent filing patterns", "trends": "S-Curve adoption maps to Google Trends interest curves", "govdata": "S-Curve industry analysis uses BLS/FRED economic data", "news": "S-Curve — news volume signals adoption phase"},
         "tta":      {"patent": "Trend analysis benefits from innovation landscape", "trends": "TTA extrapolation needs real trend baselines", "dataset": "TTA needs real data to validate trend extrapolations", "news": "TTA — current news validates or challenges trend direction"},
         "jtbd":     {"govdata": "JTBD customer research benefits from Census demographic data", "dataset": "JTBD needs behavioral/survey datasets for customer evidence"},
+        "scenario": {"trends": "Scenario Analysis — validate uncertainty axes with Google Trends", "news": "Scenario Analysis — current events inform scenario drivers", "govdata": "Scenario Analysis — economic data grounds scenario assumptions", "arxiv": "Scenario Analysis — academic research validates driving forces"},
     }
     bot_hints = BOT_RESEARCH_HINTS.get(current_bot, {})
     if "arxiv" in bot_hints and not arxiv_reasons:
@@ -1576,6 +1577,7 @@ async def start():
     if chat_profile in WORKSHOP_PHASES:
         phases = [p.copy() for p in WORKSHOP_PHASES[chat_profile]]
         cl.user_session.set("phases", phases)
+        cl.user_session.set("phase_context", {})  # For smart phase transitions
 
         # Create and send task list
         task_list = await create_task_list(chat_profile)
@@ -2501,17 +2503,37 @@ async def handle_agent_switch(new_agent_id: str):
     handoff = f"[CONTEXT HANDOFF: User switched from {old_bot.get('name')} to {new_bot.get('name')}. Previous conversation preserved.]"
     cl.user_session.set("context_handoff", handoff)
 
-    # Initialize phases for new bot if it's a workshop
+    # Initialize or restore phases for new bot if it's a workshop
+    context_key = get_context_key()  # Define early for use in both branches
     if new_agent_id in WORKSHOP_PHASES:
-        phases = [p.copy() for p in WORKSHOP_PHASES[new_agent_id]]
-        cl.user_session.set("phases", phases)
-        cl.user_session.set("current_phase", 0)
+        # Check if we have saved phase progress for this bot (QA-006 fix)
+        saved_context = context_store.get(context_key, {})
+        saved_bot_id = saved_context.get("bot_id")
+        saved_phases = saved_context.get("phases", [])
+        saved_current_phase = saved_context.get("current_phase", 0)
 
-        # Create task list
+        # Restore saved progress if switching back to same workshop bot
+        if saved_bot_id == new_agent_id and saved_phases:
+            phases = [p.copy() for p in saved_phases]
+            current_phase = saved_current_phase
+        else:
+            # Fresh start for this workshop
+            phases = [p.copy() for p in WORKSHOP_PHASES[new_agent_id]]
+            current_phase = 0
+
+        cl.user_session.set("phases", phases)
+        cl.user_session.set("current_phase", current_phase)
+
+        # Create task list showing current progress
         task_list = cl.TaskList()
         task_list.name = "Workshop Progress"
-        for phase in phases:
-            status = cl.TaskStatus.READY if phase["status"] == "ready" else cl.TaskStatus.RUNNING
+        for i, phase in enumerate(phases):
+            if phase["status"] == "done":
+                status = cl.TaskStatus.DONE
+            elif phase["status"] == "running" or i == current_phase:
+                status = cl.TaskStatus.RUNNING
+            else:
+                status = cl.TaskStatus.READY
             task = cl.Task(title=phase["name"], status=status)
             await task_list.add_task(task)
         await task_list.send()
@@ -2519,11 +2541,13 @@ async def handle_agent_switch(new_agent_id: str):
         cl.user_session.set("phases", [])
         cl.user_session.set("current_phase", 0)
 
-    # Update context store
-    context_key = get_context_key()
+    # Update context store - include phases for persistence across bot switches (QA-006 fix)
+    stored_phases = cl.user_session.get("phases", [])
     context_store[context_key] = {
         "bot_id": new_agent_id,
         "history": history.copy(),
+        "phases": [p.copy() for p in stored_phases] if stored_phases else [],
+        "current_phase": cl.user_session.get("current_phase", 0),
     }
 
     # Build actions for the new bot
@@ -2826,71 +2850,183 @@ async def _show_fallback_example(chat_profile: str, current_phase: int, session_
 
 @cl.action_callback("next_phase")
 async def on_next_phase(action: cl.Action):
-    """Handle next phase button click."""
-    current_phase = cl.user_session.get("current_phase", 0)
-    chat_profile = cl.user_session.get("chat_profile", "lawrence")
+    """
+    Handle next phase button click with smart validation and enrichment.
+
+    This is a proper workflow action that:
+    1. Validates current phase completion using LangExtract patterns
+    2. Provides guidance if phase is incomplete
+    3. Generates smart transition with Neo4j context enrichment
+    4. Shows clear instructions for the next phase
+    """
+    current_phase_idx = cl.user_session.get("current_phase", 0)
+    bot_id = cl.user_session.get("bot_id", "scenario")
     phases = cl.user_session.get("phases", [])
+    history = cl.user_session.get("history", [])
+    user_context = cl.user_session.get("phase_context", {})  # Accumulated context
+    force_advance = action.payload.get("force", False) if action.payload else False
 
-    if current_phase < len(phases) - 1:
-        # Mark current as done, next as running
-        phases[current_phase]["status"] = "done"
-        phases[current_phase + 1]["status"] = "running"
-        cl.user_session.set("phases", phases)
-        cl.user_session.set("current_phase", current_phase + 1)
-
-        # Update task list
-        task_list = cl.TaskList()
-        task_list.name = "Workshop Progress"
-
-        for i, phase in enumerate(phases):
-            if phase["status"] == "done":
-                status = cl.TaskStatus.DONE
-            elif phase["status"] == "running":
-                status = cl.TaskStatus.RUNNING
-            else:
-                status = cl.TaskStatus.READY
-            task = cl.Task(title=phase["name"], status=status)
-            await task_list.add_task(task)
-
-        await task_list.send()
-
-        phase_num = current_phase + 2  # +1 for 0-index, +1 because we moved forward
-        phase_name = phases[current_phase + 1]["name"]
-        completed_count = sum(1 for p in phases if p["status"] == "done")
-        total_count = len(phases)
-
-        phase_msg = cl.Message(
-            content=(
-                f"**✅ Moving to Phase {phase_num}/{total_count}: {phase_name}**\n\n"
-                f"*({completed_count} of {total_count} phases completed)*\n\n"
-                f"What would you like to explore in this phase?"
-            ),
-        )
-        phase_msg.actions = [
-            cl.Action(
-                name="next_phase",
-                payload={"action": "next"},
-                label="➡️ Next Phase",
-                tooltip="Skip ahead to the next phase",
-            ),
-            cl.Action(
-                name="deep_research",
-                payload={"action": "research"},
-                label="🔍 Research",
-                tooltip="Search for sources relevant to this phase",
-            ),
-            cl.Action(
-                name="show_example",
-                payload={"action": "example"},
-                label="📖 Example",
-                tooltip="See an example for this phase",
-            ),
-        ]
-        await phase_msg.send()
-    else:
+    # Check if workshop is complete
+    if current_phase_idx >= len(phases) - 1:
         await cl.Message(
-            content="**🎉 Workshop Complete!**\n\nYou've completed all phases. Would you like to review your progress or start fresh?"
+            content="**Workshop Complete!**\n\nYou've completed all phases. Would you like to:\n"
+                    "- Review your key insights\n"
+                    "- Start a new analysis\n"
+                    "- Switch to another methodology",
+            actions=[
+                cl.Action(name="show_progress", payload={}, label="Review Progress"),
+                cl.Action(name="clear_context", payload={}, label="Start Fresh"),
+            ]
         ).send()
+        return
+
+    # Try to load enhanced phase configs for scenario bot
+    current_config = {}
+    next_config = {}
+    use_smart_transition = False
+
+    if bot_id == "scenario":
+        try:
+            from prompts.scenario_phases import get_phase_by_index
+            current_config = get_phase_by_index(current_phase_idx)
+            next_config = get_phase_by_index(current_phase_idx + 1)
+            use_smart_transition = bool(current_config and next_config)
+        except ImportError:
+            pass
+
+    extracted = {}
+
+    # === STEP 1: Validate Current Phase ===
+    if use_smart_transition and current_config and not force_advance:
+        async with cl.Step(name="Checking Phase Completion", type="tool") as step:
+            step.input = f"Validating {current_config.get('name', 'current phase')} deliverables..."
+
+            try:
+                from tools.phase_validator import (
+                    validate_phase_completion,
+                    get_missing_deliverables,
+                    generate_completion_guidance
+                )
+
+                is_complete, score, extracted = validate_phase_completion(
+                    current_config, history, bot_id
+                )
+
+                # Store extracted context for future phases
+                user_context.update(extracted)
+                cl.user_session.set("phase_context", user_context)
+
+                step.output = f"Completion: {score:.0%} | Found: {len(extracted)} deliverables"
+
+            except Exception as e:
+                is_complete = True
+                score = 1.0
+                step.output = f"Validation skipped: {str(e)[:50]}"
+
+        # If incomplete and low score, offer guidance
+        if not is_complete and score < 0.5:
+            missing = get_missing_deliverables(current_config, extracted)
+            guidance = generate_completion_guidance(current_config, score, missing)
+
+            await cl.Message(
+                content=f"**Phase Progress: {score:.0%}**\n\n{guidance}\n\n"
+                        f"*You can proceed anyway or continue working on this phase.*",
+                actions=[
+                    cl.Action(name="next_phase", payload={"force": True}, label="Proceed Anyway"),
+                    cl.Action(name="show_example", payload={}, label="Show Example"),
+                ]
+            ).send()
+            return
+
+    # === STEP 2: Advance Phase State ===
+    phases[current_phase_idx]["status"] = "done"
+    phases[current_phase_idx + 1]["status"] = "running"
+    cl.user_session.set("phases", phases)
+    cl.user_session.set("current_phase", current_phase_idx + 1)
+
+    # Update task list UI
+    task_list = cl.TaskList()
+    task_list.name = "Workshop Progress"
+    for i, phase in enumerate(phases):
+        if phase["status"] == "done":
+            status = cl.TaskStatus.DONE
+        elif phase["status"] == "running":
+            status = cl.TaskStatus.RUNNING
+        else:
+            status = cl.TaskStatus.READY
+        task = cl.Task(title=phase["name"], status=status)
+        await task_list.add_task(task)
+    await task_list.send()
+
+    # Sync to context_store (QA-002 fix)
+    context_key = get_context_key()
+    if context_key in context_store:
+        context_store[context_key]["phases"] = [p.copy() for p in phases]
+        context_store[context_key]["current_phase"] = current_phase_idx + 1
+
+    # === STEP 3: Generate Smart Transition ===
+    if use_smart_transition and next_config:
+        async with cl.Step(name="Preparing Next Phase", type="tool") as step:
+            step.input = f"Loading context for {next_config.get('name', 'next phase')}..."
+
+            try:
+                from tools.phase_enricher import get_phase_transition_context
+
+                transition_content = get_phase_transition_context(
+                    from_phase=current_config,
+                    to_phase=next_config,
+                    user_context=user_context,
+                    extracted_deliverables=extracted
+                )
+
+                step.output = f"Ready: {next_config.get('name')}"
+
+            except Exception as e:
+                # Fallback to basic transition
+                transition_content = None
+                step.output = f"Using basic transition: {str(e)[:50]}"
+
+        if transition_content:
+            await cl.Message(
+                content=transition_content,
+                actions=[
+                    cl.Action(name="next_phase", payload={}, label="Next Phase"),
+                    cl.Action(name="deep_research", payload={}, label="Research"),
+                    cl.Action(name="show_example", payload={}, label="Example"),
+                ]
+            ).send()
+            return
+
+    # === FALLBACK: Basic Transition ===
+    phase_num = current_phase_idx + 2
+    phase_name = phases[current_phase_idx + 1]["name"]
+    completed_count = sum(1 for p in phases if p["status"] == "done")
+    total_count = len(phases)
+
+    # Get instructions from next_config if available
+    instructions_text = ""
+    if next_config and next_config.get("instructions"):
+        instructions_text = "\n\n**What to do:**\n" + "\n".join(
+            [f"- {inst}" for inst in next_config.get("instructions", [])[:4]]
+        )
+
+    prompt_text = ""
+    if next_config and next_config.get("prompt"):
+        prompt_text = f"\n\n**Let's begin:** {next_config.get('prompt')}"
+
+    await cl.Message(
+        content=(
+            f"**Phase {phase_num}/{total_count}: {phase_name}**\n\n"
+            f"*({completed_count} of {total_count} phases completed)*"
+            f"{instructions_text}"
+            f"{prompt_text}"
+        ),
+        actions=[
+            cl.Action(name="next_phase", payload={}, label="Next Phase"),
+            cl.Action(name="deep_research", payload={}, label="Research"),
+            cl.Action(name="show_example", payload={}, label="Example"),
+        ]
+    ).send()
 
 
 @cl.action_callback("show_progress")
