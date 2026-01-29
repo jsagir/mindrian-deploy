@@ -227,3 +227,74 @@ User speaks → Gemini STT → LLM Stream → TTS WebSocket → Browser Audio (r
 
 - `websockets>=12.0` (NOT aiohttp - ElevenLabs requires specific WebSocket library)
 - `chainlit>=2.9.0` (Required for send_audio_chunk support)
+
+---
+
+## Evaluation: OpenAI Realtime WebRTC (2026-01-29)
+
+**Question:** Should Mindrian adopt OpenAI Realtime API with WebRTC for voice?
+
+### What OpenAI Realtime Offers
+
+```
+User Speech <--WebRTC--> OpenAI Realtime API
+                              ↓
+                         GPT-4o Voice
+                              ↓
+                       Direct Audio Response
+```
+
+**Key features:**
+- Native voice-to-voice (no separate STT/TTS)
+- Sub-500ms latency
+- Natural interruption handling
+- Built-in turn detection
+
+### Comparison
+
+| Feature | Current (Gemini + ElevenLabs) | OpenAI Realtime |
+|---------|-------------------------------|-----------------|
+| STT Provider | Gemini | OpenAI (native) |
+| LLM Provider | Gemini | GPT-4o |
+| TTS Provider | ElevenLabs | OpenAI (native) |
+| Voice Quality | Excellent (custom voices) | Good (limited voices) |
+| Latency | 1-2s | <500ms |
+| Complexity | Medium | High (WebRTC) |
+| Cost | ~$0.01-0.03/msg | ~$0.06/min audio |
+| Customization | High | Limited |
+
+### Why NOT to Switch (Recommendation)
+
+1. **Consistency**: Mindrian uses Gemini throughout. Mixing OpenAI for voice creates cognitive dissonance.
+
+2. **Voice Quality**: ElevenLabs offers superior voice customization (cloning, tuning). OpenAI voices are limited.
+
+3. **Cost**: OpenAI Realtime is priced per minute of audio ($0.06/min input + $0.24/min output). For a workshop platform with longer sessions, this adds up quickly.
+
+4. **Complexity**: WebRTC requires:
+   - Ephemeral key server endpoint
+   - Browser peer connection management
+   - No direct Chainlit integration documented
+
+5. **Value Proposition**: Mindrian is a workshop/coaching platform where text interaction is primary. Voice is secondary/optional.
+
+### When OpenAI Realtime WOULD Make Sense
+
+- Building a voice-first product (phone bot, voice assistant)
+- Need native interruption handling
+- Already using OpenAI ecosystem
+- Latency is critical (<500ms)
+
+### Decision
+
+**Keep current architecture (Gemini + ElevenLabs).**
+
+The 1-2 second latency is acceptable for workshop use cases, and the flexibility of ElevenLabs voices + Gemini's multimodal capabilities is more valuable than raw speed.
+
+**Future consideration:** If Chainlit adds native OpenAI Realtime integration, revisit this evaluation.
+
+### Sources
+
+- [OpenAI Realtime API](https://platform.openai.com/docs/guides/realtime)
+- [OpenAI Realtime WebRTC Guide](https://platform.openai.com/docs/guides/realtime-webrtc)
+- [Chainlit OpenAI Integration](https://docs.chainlit.io/integrations/openai)

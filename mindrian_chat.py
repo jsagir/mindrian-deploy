@@ -64,6 +64,80 @@ def _check_api_keys():
 
 _check_api_keys()
 
+# === OAuth Authentication (Google/GitHub) ===
+# Requires environment variables:
+#   CHAINLIT_AUTH_SECRET - Secret key for signing auth tokens
+#   OAUTH_GOOGLE_CLIENT_ID, OAUTH_GOOGLE_CLIENT_SECRET - For Google OAuth
+#   OAUTH_GITHUB_CLIENT_ID, OAUTH_GITHUB_CLIENT_SECRET - For GitHub OAuth
+#
+# Callback URLs to configure in OAuth providers:
+#   Google: {CHAINLIT_URL}/auth/oauth/google/callback
+#   GitHub: {CHAINLIT_URL}/auth/oauth/github/callback
+
+@cl.oauth_callback
+def oauth_callback(
+    provider_id: str,
+    token: str,
+    raw_user_data: dict,
+    default_user: cl.User
+) -> Optional[cl.User]:
+    """
+    Handle OAuth callback from Google or GitHub.
+
+    This function is called after successful OAuth authentication.
+    Return a User to allow login, or None to deny access.
+
+    Args:
+        provider_id: The OAuth provider ("google" or "github")
+        token: The OAuth access token
+        raw_user_data: Raw user data from the provider
+        default_user: Pre-populated User object from Chainlit
+
+    Returns:
+        cl.User if authentication is successful, None to deny
+    """
+    # Log successful authentication (without sensitive data)
+    user_id = default_user.identifier
+    print(f"[OAuth] User authenticated via {provider_id}: {user_id}")
+
+    # Extract additional user info based on provider
+    if provider_id == "google":
+        # Google provides: sub, name, given_name, family_name, picture, email
+        email = raw_user_data.get("email", "")
+        name = raw_user_data.get("name", user_id)
+        picture = raw_user_data.get("picture", "")
+
+        return cl.User(
+            identifier=email or user_id,
+            metadata={
+                "name": name,
+                "image": picture,
+                "provider": "google",
+                "given_name": raw_user_data.get("given_name", ""),
+            }
+        )
+
+    elif provider_id == "github":
+        # GitHub provides: login, name, email, avatar_url
+        login = raw_user_data.get("login", user_id)
+        name = raw_user_data.get("name") or login
+        email = raw_user_data.get("email", "")
+        avatar = raw_user_data.get("avatar_url", "")
+
+        return cl.User(
+            identifier=email or login,
+            metadata={
+                "name": name,
+                "image": avatar,
+                "provider": "github",
+                "github_login": login,
+            }
+        )
+
+    # For other providers, use the default user
+    return default_user
+
+
 # === Stop Event for Cancellation ===
 stop_events: Dict[str, asyncio.Event] = {}
 
@@ -854,6 +928,187 @@ async def update_phase(profile: str, phase_index: int, new_status: str):
             await task_list.add_task(task)
 
         await task_list.send()
+
+
+# ============================================================================
+# CUSTOM ELEMENTS - Rich Interactive Components
+# ============================================================================
+
+async def show_phase_progress_element():
+    """
+    Show the interactive PhaseProgress custom element.
+    Displays workshop progress with clickable phase navigation.
+    """
+    phases = cl.user_session.get("phases", [])
+    current_phase = cl.user_session.get("current_phase", 0)
+    bot_id = cl.user_session.get("bot_id", "lawrence")
+    bot = BOTS.get(bot_id, BOTS["lawrence"])
+
+    if not phases:
+        return
+
+    # Format phases for the component
+    phase_data = [
+        {"name": p["name"], "status": p.get("status", "pending")}
+        for p in phases
+    ]
+
+    element = cl.CustomElement(
+        name="PhaseProgress",
+        props={
+            "phases": phase_data,
+            "currentPhase": current_phase,
+            "botName": bot.get("name", "Workshop"),
+            "botIcon": bot.get("icon", "🎯")
+        }
+    )
+
+    await cl.Message(content="", elements=[element]).send()
+
+
+async def show_dikw_pyramid_element(highlight_level: str = None, scores: dict = None):
+    """
+    Show the interactive DIKW Pyramid custom element.
+    Clickable levels that trigger exploration of each knowledge layer.
+
+    Args:
+        highlight_level: Which level to highlight (data, information, knowledge, wisdom)
+        scores: Optional dict with scores per level {data: 7, information: 5, ...}
+    """
+    element = cl.CustomElement(
+        name="DIKWPyramid",
+        props={
+            "highlightLevel": highlight_level,
+            "scores": scores or {},
+            "showDescriptions": True
+        }
+    )
+
+    await cl.Message(content="", elements=[element]).send()
+
+
+async def show_research_matrix_element(categories: dict, query: str = "", total_sources: int = 0):
+    """
+    Show research results in an interactive matrix visualization.
+
+    Args:
+        categories: Dict with research categories (why, what_if, how, validation, challenge)
+        query: The original research query
+        total_sources: Total number of sources found
+    """
+    element = cl.CustomElement(
+        name="ResearchMatrix",
+        props={
+            "categories": categories,
+            "query": query,
+            "totalSources": total_sources
+        }
+    )
+
+    await cl.Message(content="", elements=[element]).send()
+
+
+# ============================================================================
+# ELEMENT SIDEBAR - Reference Materials
+# ============================================================================
+
+async def setup_workshop_sidebar(bot_id: str):
+    """
+    Configure sidebar with workshop-relevant reference materials.
+    Shows methodology reference, phase checklist, and uploaded documents.
+    """
+    bot = BOTS.get(bot_id, BOTS["lawrence"])
+    elements = []
+
+    # Methodology quick reference
+    methodology_refs = {
+        "tta": "## Trending to the Absurd\n\n1. Identify current trends\n2. Extrapolate to absurd extremes\n3. Find problems worth solving\n4. Validate opportunities",
+        "jtbd": "## Jobs to Be Done\n\n1. Find the struggling moment\n2. Map functional, emotional, social jobs\n3. Identify competing solutions\n4. Write job statement",
+        "scurve": "## S-Curve Analysis\n\n1. Identify the technology\n2. Assess current era\n3. Gather evidence\n4. Evaluate ecosystem readiness\n5. Make timing decision",
+        "ackoff": "## Ackoff's DIKW Pyramid\n\n**Data** → **Information** → **Knowledge** → **Wisdom**\n\nApply Camera Test: Can you observe it?",
+        "redteam": "## Red Teaming\n\n1. Extract assumptions\n2. Prioritize by risk\n3. Attack each assumption\n4. Find breaking points\n5. Strengthen or pivot",
+        "scenario": "## Scenario Analysis\n\n1. Define domain & focal question\n2. Map STEEP driving forces\n3. Assess uncertainties\n4. Build 2x2 matrix\n5. Write scenario narratives\n6. Synthesize insights",
+    }
+
+    if bot_id in methodology_refs:
+        elements.append(cl.Text(
+            content=methodology_refs[bot_id],
+            name=f"{bot.get('name', 'Workshop')} Quick Reference"
+        ))
+
+    # Phase checklist for workshop bots
+    if bot.get("has_phases"):
+        phases = cl.user_session.get("phases", WORKSHOP_PHASES.get(bot_id, []))
+        current_phase = cl.user_session.get("current_phase", 0)
+
+        checklist_lines = ["## Phase Checklist\n"]
+        for i, p in enumerate(phases):
+            status = p.get("status", "pending")
+            if status == "done":
+                checklist_lines.append(f"- [x] ~~{p['name']}~~")
+            elif i == current_phase:
+                checklist_lines.append(f"- [ ] **{p['name']}** ← Current")
+            else:
+                checklist_lines.append(f"- [ ] {p['name']}")
+
+        elements.append(cl.Text(
+            content="\n".join(checklist_lines),
+            name="Phase Checklist"
+        ))
+
+    # Uploaded documents (if any)
+    uploaded_docs = cl.user_session.get("uploaded_files", [])
+    for doc in uploaded_docs[:3]:
+        if doc.get("path"):
+            if doc.get("type") == "application/pdf":
+                elements.append(cl.Pdf(path=doc["path"], name=doc.get("name", "Document")))
+            else:
+                elements.append(cl.File(path=doc["path"], name=doc.get("name", "File")))
+
+    # Set sidebar if we have elements
+    if elements:
+        try:
+            await cl.ElementSidebar.set_elements(elements)
+            await cl.ElementSidebar.set_title(f"📚 {bot.get('name', 'Workshop')} Resources")
+        except Exception as e:
+            # ElementSidebar may not be available in all Chainlit versions
+            print(f"[SIDEBAR] Could not set sidebar: {e}")
+
+
+async def update_sidebar_phase(current_phase: int):
+    """Update sidebar to reflect current phase progress."""
+    bot_id = cl.user_session.get("bot_id", "lawrence")
+    bot = BOTS.get(bot_id, BOTS["lawrence"])
+
+    if not bot.get("has_phases"):
+        return
+
+    phases = cl.user_session.get("phases", [])
+    if not phases:
+        return
+
+    # Rebuild checklist with current progress
+    checklist_lines = ["## Phase Checklist\n"]
+    for i, p in enumerate(phases):
+        status = p.get("status", "pending")
+        if status == "done":
+            checklist_lines.append(f"- [x] ~~{p['name']}~~ ✅")
+        elif i == current_phase:
+            checklist_lines.append(f"- [ ] **{p['name']}** 🔵 Current")
+        else:
+            checklist_lines.append(f"- [ ] {p['name']}")
+
+    elements = [
+        cl.Text(
+            content="\n".join(checklist_lines),
+            name="Phase Checklist"
+        )
+    ]
+
+    try:
+        await cl.ElementSidebar.set_elements(elements)
+    except Exception:
+        pass
 
 
 @cl.set_chat_profiles
@@ -1965,6 +2220,10 @@ async def start():
             tooltip="🗑️ Clear conversation history and start fresh with this bot"
         ))
 
+    # Initialize ElementSidebar for workshop bots
+    if bot.get("has_phases"):
+        await setup_workshop_sidebar(chat_profile or "lawrence")
+
     # Send welcome message with context info if switching
     if is_bot_switch:
         previous_bot_name = BOTS.get(previous_bot, {}).get("name", previous_bot)
@@ -2481,6 +2740,221 @@ async def on_clear_context(action: cl.Action):
     await cl.Message(
         content=f"**Context cleared.** Starting fresh with {bot.get('name', 'Larry')}.\n\n{bot.get('welcome', 'How can I help?')}"
     ).send()
+
+
+# === Form Submission Callbacks (AskElementMessage) ===
+
+@cl.action_callback("form_submit")
+async def on_form_submit(action: cl.Action):
+    """
+    Handle form submissions from custom JSX elements.
+
+    Supports multiple form types:
+    - scenario_setup: Scenario Analysis initialization
+    - problem_definition: PWS problem definition
+
+    The form data is stored in session and used to initialize the conversation.
+    """
+    form_type = action.payload.get("formType", "")
+    form_data = action.payload.get("data", {})
+
+    if not form_data:
+        await cl.Message(content="No form data received. Please try again.").send()
+        return
+
+    if form_type == "scenario_setup":
+        await handle_scenario_setup_form(form_data)
+    elif form_type == "problem_definition":
+        await handle_problem_definition_form(form_data)
+    else:
+        # Generic form handling - store data and continue conversation
+        cl.user_session.set("form_data", form_data)
+        await cl.Message(
+            content=f"**Form received.** Processing {form_type} data...\n\n"
+                    f"Fields: {', '.join(form_data.keys())}"
+        ).send()
+
+
+async def handle_scenario_setup_form(data: dict):
+    """Process Scenario Analysis setup form."""
+    domain = data.get("domain", "")
+    focal_question = data.get("focalQuestion", "")
+    time_horizon = data.get("timeHorizon", "2035")
+    stakeholders = data.get("stakeholders", "")
+    decision_context = data.get("decisionContext", "")
+
+    # Store structured data in session for phase context
+    phase_context = {
+        "domain": domain,
+        "focal_question": focal_question,
+        "time_horizon": time_horizon,
+        "stakeholders": [s.strip() for s in stakeholders.split(",") if s.strip()],
+        "decision_context": decision_context
+    }
+    cl.user_session.set("phase_context", phase_context)
+
+    # Build summary message
+    summary = f"""**🔮 Scenario Analysis Setup Complete**
+
+**Domain:** {domain}
+**Focal Question:** {focal_question}
+**Time Horizon:** {time_horizon}"""
+
+    if stakeholders:
+        summary += f"\n**Key Stakeholders:** {stakeholders}"
+    if decision_context:
+        summary += f"\n**Context:** {decision_context[:150]}..."
+
+    summary += """
+
+---
+
+**You've completed Phase 1: Introduction.**
+
+Now let's move to **Phase 2: Domain & Driving Forces**.
+
+I'll help you identify the STEEP forces (Social, Technological, Economic, Environmental, Political) that could reshape your domain.
+
+**Let's start:** What SOCIAL forces (demographics, culture, lifestyle) might impact {domain}?"""
+
+    # Advance to Phase 2
+    phases = cl.user_session.get("phases", [])
+    if phases and len(phases) > 1:
+        phases[0]["status"] = "done"
+        phases[1]["status"] = "running"
+        cl.user_session.set("phases", phases)
+        cl.user_session.set("current_phase", 1)
+        await update_sidebar_phase(1)
+
+    await cl.Message(
+        content=summary.format(domain=domain),
+        actions=[
+            cl.Action(name="show_example", payload={}, label="Show STEEP Example"),
+            cl.Action(name="deep_research", payload={}, label="Research Trends"),
+        ]
+    ).send()
+
+
+async def handle_problem_definition_form(data: dict):
+    """Process Problem Definition form."""
+    problem_statement = data.get("problemStatement", "")
+    who_experiences = data.get("whoExperiences", "")
+    impact = data.get("impact", "")
+    current_solutions = data.get("currentSolutions", "")
+    why_now = data.get("whyNow", "")
+    camera_test = data.get("cameraTestPassed")
+
+    # Store in session
+    problem_data = {
+        "statement": problem_statement,
+        "who": who_experiences,
+        "impact": impact,
+        "current_solutions": current_solutions,
+        "why_now": why_now,
+        "camera_test_passed": camera_test
+    }
+    cl.user_session.set("problem_definition", problem_data)
+
+    # Build response
+    summary = f"""**📋 Problem Definition Captured**
+
+**Problem:** {problem_statement}
+**Who:** {who_experiences}"""
+
+    if impact:
+        summary += f"\n**Impact:** {impact}"
+    if current_solutions:
+        summary += f"\n**Current Solutions:** {current_solutions}"
+    if why_now:
+        summary += f"\n**Why Now:** {why_now}"
+
+    # Add Camera Test feedback
+    if camera_test is not None:
+        if camera_test:
+            summary += "\n\n✅ **Camera Test:** Passed - Your problem is observable."
+        else:
+            summary += "\n\n⚠️ **Camera Test:** Consider making this more observable. Can you describe what a camera would record?"
+
+    summary += """
+
+---
+
+**Great start!** Now I can help you explore this problem deeper.
+
+What would you like to do next?"""
+
+    # Add to conversation history as context
+    history = cl.user_session.get("history", [])
+    history.append({
+        "role": "user",
+        "content": f"My problem: {problem_statement}\nWho experiences it: {who_experiences}"
+    })
+    cl.user_session.set("history", history)
+
+    await cl.Message(
+        content=summary,
+        actions=[
+            cl.Action(name="think_through", payload={}, label="🧠 Analyze Problem"),
+            cl.Action(name="deep_research", payload={}, label="🔍 Research Context"),
+            cl.Action(name="multi_agent_analysis", payload={}, label="👥 Get Expert Perspectives"),
+        ]
+    ).send()
+
+
+@cl.action_callback("show_problem_form")
+async def on_show_problem_form(action: cl.Action):
+    """Show the Problem Definition form."""
+    try:
+        element = cl.CustomElement(
+            name="ProblemDefinitionForm",
+            props={
+                "showCameraTest": True,
+                "initialValues": {}
+            }
+        )
+
+        await cl.Message(
+            content="**Define your problem using the form below.**\n\n"
+                    "A well-defined problem is half-solved. Be specific and observable.",
+            elements=[element]
+        ).send()
+    except Exception as e:
+        # Fallback to text-based input
+        await cl.Message(
+            content=f"**Define your problem:**\n\n"
+                    f"Please describe:\n"
+                    f"1. What is the problem? (be specific and observable)\n"
+                    f"2. Who experiences it?\n"
+                    f"3. What's the impact?\n"
+                    f"4. How do people currently deal with it?"
+        ).send()
+
+
+@cl.action_callback("show_scenario_form")
+async def on_show_scenario_form(action: cl.Action):
+    """Show the Scenario Analysis setup form."""
+    try:
+        element = cl.CustomElement(
+            name="ScenarioSetupForm",
+            props={
+                "initialValues": {}
+            }
+        )
+
+        await cl.Message(
+            content="**Set up your Scenario Analysis using the form below.**\n\n"
+                    "This will help structure your exploration of possible futures.",
+            elements=[element]
+        ).send()
+    except Exception as e:
+        # Fallback to text-based input
+        await cl.Message(
+            content=f"**Scenario Analysis Setup:**\n\n"
+                    f"Please tell me:\n"
+                    f"1. What domain/industry are you exploring?\n"
+                    f"2. What's your focal question (the decision you're trying to inform)?\n"
+                    f"3. What time horizon (2030, 2035, 2040, 2050)?"
+        ).send()
 
 
 # === Analytics & Dashboard Callbacks ===
@@ -3130,6 +3604,9 @@ async def on_next_phase(action: cl.Action):
         await task_list.add_task(task)
     await task_list.send()
 
+    # Update sidebar to reflect phase progress
+    await update_sidebar_phase(current_phase_idx + 1)
+
     # Sync to context_store (QA-002 fix)
     context_key = get_context_key()
     if context_key in context_store:
@@ -3203,24 +3680,50 @@ async def on_next_phase(action: cl.Action):
 
 @cl.action_callback("show_progress")
 async def on_show_progress(action: cl.Action):
-    """Handle show progress button click."""
+    """Handle show progress button click using custom PhaseProgress element."""
     phases = cl.user_session.get("phases", [])
     current_phase = cl.user_session.get("current_phase", 0)
+    bot_id = cl.user_session.get("bot_id", "lawrence")
+    bot = BOTS.get(bot_id, BOTS["lawrence"])
 
-    progress_text = "**📊 Workshop Progress:**\n\n"
-    for i, phase in enumerate(phases):
-        if phase["status"] == "done":
-            emoji = "✅"
-        elif phase["status"] == "running" or i == current_phase:
-            emoji = "🔄"
-        else:
-            emoji = "⬜"
-        progress_text += f"{emoji} **Phase {i+1}:** {phase['name']}\n"
+    if not phases:
+        await cl.Message(content="No workshop phases configured for this bot.").send()
+        return
 
-    completed = sum(1 for p in phases if p["status"] == "done")
-    progress_text += f"\n**Progress: {completed}/{len(phases)} phases complete**"
+    # Try to use custom element (falls back to text if element fails)
+    try:
+        phase_data = [
+            {"name": p["name"], "status": p.get("status", "pending")}
+            for p in phases
+        ]
 
-    await cl.Message(content=progress_text).send()
+        element = cl.CustomElement(
+            name="PhaseProgress",
+            props={
+                "phases": phase_data,
+                "currentPhase": current_phase,
+                "botName": bot.get("name", "Workshop"),
+                "botIcon": bot.get("icon", "🎯")
+            }
+        )
+
+        await cl.Message(content="", elements=[element]).send()
+    except Exception:
+        # Fallback to text-based progress
+        progress_text = "**📊 Workshop Progress:**\n\n"
+        for i, phase in enumerate(phases):
+            if phase["status"] == "done":
+                emoji = "✅"
+            elif phase["status"] == "running" or i == current_phase:
+                emoji = "🔄"
+            else:
+                emoji = "⬜"
+            progress_text += f"{emoji} **Phase {i+1}:** {phase['name']}\n"
+
+        completed = sum(1 for p in phases if p["status"] == "done")
+        progress_text += f"\n**Progress: {completed}/{len(phases)} phases complete**"
+
+        await cl.Message(content=progress_text).send()
 
 
 @cl.action_callback("help_start_phase")
@@ -3351,12 +3854,9 @@ async def on_stay_phase(action: cl.Action):
 
 @cl.action_callback("show_dikw_pyramid")
 async def on_show_dikw_pyramid(action: cl.Action):
-    """Handle showing the DIKW pyramid visualization."""
-    from utils.charts import create_dikw_pyramid
-
+    """Handle showing the DIKW pyramid visualization using interactive custom element."""
     # Get the current phase to potentially highlight
     current_phase = cl.user_session.get("current_phase", 0)
-    phases = cl.user_session.get("phases", [])
 
     # Map phase index to DIKW level for highlighting
     highlight_map = {
@@ -3369,12 +3869,37 @@ async def on_show_dikw_pyramid(action: cl.Action):
 
     highlight = highlight_map.get(current_phase)
 
-    pyramid_chart = await create_dikw_pyramid(
-        highlight_level=highlight,
-        title="Ackoff's DIKW Pyramid - Validation Framework"
-    )
+    explanation = """**The DIKW Pyramid** shows the hierarchy of understanding.
+Click any level to explore it in depth.
 
-    explanation = """**The DIKW Pyramid** shows the hierarchy of understanding:
+**Climb UP** to explore and understand a problem.
+**Climb DOWN** to validate that your solution is grounded in reality."""
+
+    # Try to use custom interactive element first
+    try:
+        element = cl.CustomElement(
+            name="DIKWPyramid",
+            props={
+                "highlightLevel": highlight,
+                "scores": {},
+                "showDescriptions": True
+            }
+        )
+
+        await cl.Message(
+            content=explanation,
+            elements=[element]
+        ).send()
+    except Exception:
+        # Fallback to Plotly chart
+        from utils.charts import create_dikw_pyramid
+
+        pyramid_chart = await create_dikw_pyramid(
+            highlight_level=highlight,
+            title="Ackoff's DIKW Pyramid - Validation Framework"
+        )
+
+        fallback_explanation = """**The DIKW Pyramid** shows the hierarchy of understanding:
 
 - **Data**: Raw observations (Camera Test: Could a camera record it?)
 - **Information**: Organized, contextualized data (What does it mean?)
@@ -3386,9 +3911,106 @@ async def on_show_dikw_pyramid(action: cl.Action):
 **Climb DOWN** to validate that your solution is grounded in reality.
 """
 
+        await cl.Message(
+            content=fallback_explanation,
+            elements=[pyramid_chart]
+        ).send()
+
+
+@cl.action_callback("explore_dikw_level")
+async def on_explore_dikw_level(action: cl.Action):
+    """Handle clicking on a DIKW pyramid level to explore it."""
+    level = action.payload.get("level", "data")
+
+    # Detailed explanations and guiding questions for each level
+    level_content = {
+        "data": {
+            "title": "📊 Data Level - Raw Observations",
+            "description": """**Data** is raw, unprocessed facts. The foundation of the pyramid.
+
+**Camera Test:** Could a video camera record this? If yes, it's data.
+
+**Examples of Data:**
+- "5 customers complained today"
+- "Sales were $50,000 last month"
+- "The button is red"
+- "Users spent 3 minutes on the page"
+
+**Guiding Questions:**
+1. What can you directly observe about your problem?
+2. What numbers or facts do you have?
+3. Can you point to specific, recordable events?
+
+**Action:** List 3-5 pieces of raw data relevant to your problem.""",
+        },
+        "information": {
+            "title": "📋 Information Level - Organized Data",
+            "description": """**Information** is data that has been processed, organized, or given context.
+
+**Transformation:** Data + Organization = Information
+
+**Examples of Information:**
+- "Customer complaints increased 25% this month" (data + comparison)
+- "Most complaints come from Enterprise users" (data + segmentation)
+- "Sales peak on Tuesdays" (data + pattern)
+
+**Guiding Questions:**
+1. What patterns do you see in your data?
+2. How can you categorize or segment your observations?
+3. What comparisons reveal insights?
+
+**Action:** Take your data and organize it - find patterns, make comparisons.""",
+        },
+        "knowledge": {
+            "title": "🧠 Knowledge Level - Understanding Relationships",
+            "description": """**Knowledge** is understanding how things relate and why.
+
+**Transformation:** Information + Relationships = Knowledge
+
+**Examples of Knowledge:**
+- "Enterprise complaints rise after we ship features without consulting them"
+- "Tuesday sales peak because that's when our newsletter goes out"
+- "Users leave after 3 minutes because the signup process is confusing"
+
+**Guiding Questions:**
+1. Why do these patterns exist?
+2. What causes lead to these effects?
+3. How do different pieces of information connect?
+
+**Action:** For each piece of information, ask "Why?" and "What causes this?" """,
+        },
+        "wisdom": {
+            "title": "💡 Wisdom Level - Good Judgment",
+            "description": """**Wisdom** is knowing what to do with your knowledge. It's judgment.
+
+**Transformation:** Knowledge + Judgment = Wisdom
+
+**Examples of Wisdom:**
+- "We should involve Enterprise customers in beta testing before shipping"
+- "We should send our newsletter on other days to spread revenue risk"
+- "We should simplify signup - it's more important than adding features"
+
+**Guiding Questions:**
+1. What should we do differently based on what we know?
+2. What trade-offs are we willing to make?
+3. What's the most important insight to act on first?
+
+**Action:** Based on your knowledge, what's one specific action you recommend?""",
+        },
+    }
+
+    content = level_content.get(level, level_content["data"])
+
     await cl.Message(
-        content=explanation,
-        elements=[pyramid_chart]
+        content=f"{content['title']}\n\n{content['description']}",
+        actions=[
+            cl.Action(
+                name="show_dikw_pyramid",
+                payload={},
+                label="↩️ Back to Pyramid",
+                description="Return to the full DIKW pyramid view"
+            )
+        ]
     ).send()
 
 

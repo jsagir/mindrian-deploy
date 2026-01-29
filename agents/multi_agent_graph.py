@@ -294,6 +294,174 @@ Example: larry,redteam,ackoff"""
     return await run_parallel_workflow(query, agent_list, include_synthesis=True)
 
 
+# === Chainlit Visualization Integration ===
+# Wraps LangGraph workflows with cl.Step for real-time visibility
+
+async def run_multi_agent_with_steps(
+    query: str,
+    agents: List[str],
+    mode: Literal["sequential", "parallel"] = "sequential"
+) -> dict:
+    """
+    Run multi-agent workflow with Chainlit cl.Step visualization.
+
+    Each agent's execution is displayed as a nested step in the UI,
+    providing real-time visibility into the multi-agent collaboration.
+
+    Args:
+        query: User's question or problem
+        agents: List of agent IDs to run
+        mode: "sequential" (agents build on each other) or "parallel"
+
+    Returns:
+        dict with agent_responses, synthesis, mode, and step_logs
+    """
+    try:
+        import chainlit as cl
+        HAS_CHAINLIT = True
+    except ImportError:
+        HAS_CHAINLIT = False
+
+    agent_responses = {}
+    step_logs = []
+
+    # Main workflow step
+    if HAS_CHAINLIT:
+        async with cl.Step(name="Multi-Agent Analysis", type="tool") as main_step:
+            main_step.input = f"Query: {query}\nAgents: {', '.join(agents)}\nMode: {mode}"
+
+            if mode == "sequential":
+                # Run sequentially with visible steps
+                context = ""
+                for agent_id in agents:
+                    if agent_id not in AGENTS:
+                        continue
+
+                    agent_name = AGENTS[agent_id]["name"]
+                    async with cl.Step(name=f"🤖 {agent_name}", type="llm") as agent_step:
+                        agent_step.input = query if not context else f"Building on previous insights:\n{context[:500]}..."
+
+                        response = await call_agent(agent_id, query, context)
+                        agent_responses[agent_id] = response
+
+                        # Update context for next agent
+                        context += f"\n\n**{agent_name}:** {response}"
+
+                        agent_step.output = response[:500] + "..." if len(response) > 500 else response
+                        step_logs.append({
+                            "agent": agent_id,
+                            "name": agent_name,
+                            "response_length": len(response)
+                        })
+
+            else:  # parallel
+                async with cl.Step(name="⚡ Parallel Execution", type="tool") as parallel_step:
+                    parallel_step.input = f"Running {len(agents)} agents simultaneously"
+
+                    # Create tasks
+                    tasks = []
+                    valid_agents = [a for a in agents if a in AGENTS]
+                    for agent_id in valid_agents:
+                        tasks.append(call_agent(agent_id, query, ""))
+
+                    # Run in parallel
+                    responses = await asyncio.gather(*tasks)
+
+                    # Map responses
+                    for agent_id, response in zip(valid_agents, responses):
+                        agent_responses[agent_id] = response
+                        step_logs.append({
+                            "agent": agent_id,
+                            "name": AGENTS[agent_id]["name"],
+                            "response_length": len(response)
+                        })
+
+                    parallel_step.output = f"Completed: {', '.join([AGENTS[a]['name'] for a in valid_agents])}"
+
+            # Synthesize
+            synthesis = ""
+            if len(agent_responses) > 1:
+                async with cl.Step(name="🔮 Synthesis", type="llm") as synth_step:
+                    synth_step.input = f"Synthesizing {len(agent_responses)} agent perspectives"
+                    synthesis = await synthesize_responses(query, agent_responses)
+                    synth_step.output = synthesis[:500] + "..." if len(synthesis) > 500 else synthesis
+
+            main_step.output = f"Analysis complete. {len(agent_responses)} agents consulted."
+
+    else:
+        # Fallback without Chainlit visualization
+        if mode == "sequential":
+            result = await run_sequential_workflow(query, agents)
+        else:
+            result = await run_parallel_workflow(query, agents)
+        return result
+
+    return {
+        "agent_responses": agent_responses,
+        "synthesis": synthesis,
+        "mode": mode,
+        "step_logs": step_logs
+    }
+
+
+async def visualize_langgraph_execution(
+    graph,
+    initial_state: dict,
+    step_name: str = "LangGraph Workflow"
+) -> dict:
+    """
+    Execute a compiled LangGraph with Chainlit step visualization.
+
+    This generic wrapper can visualize any LangGraph execution,
+    showing each node as it executes.
+
+    Args:
+        graph: Compiled LangGraph (from StateGraph.compile())
+        initial_state: Initial state dictionary
+        step_name: Name to display in the UI
+
+    Returns:
+        Final state after graph execution
+    """
+    try:
+        import chainlit as cl
+        HAS_CHAINLIT = True
+    except ImportError:
+        HAS_CHAINLIT = False
+
+    if not HAS_CHAINLIT:
+        # Execute without visualization
+        result = await graph.ainvoke(initial_state)
+        return result
+
+    async with cl.Step(name=step_name, type="tool") as main_step:
+        main_step.input = f"Starting {step_name}..."
+
+        # Execute with streaming to capture node transitions
+        final_state = None
+        current_node = None
+
+        async for event in graph.astream(initial_state):
+            # Each event is {node_name: state_update}
+            for node_name, state_update in event.items():
+                if node_name != current_node:
+                    # New node started
+                    current_node = node_name
+                    async with cl.Step(name=f"📍 {node_name}", type="llm") as node_step:
+                        # Show what this node produced
+                        if isinstance(state_update, dict):
+                            output_preview = str(state_update)[:300]
+                        else:
+                            output_preview = str(state_update)[:300]
+                        node_step.output = output_preview
+
+                final_state = state_update
+
+        main_step.output = f"Workflow completed through {current_node or 'unknown'}"
+
+    return final_state
+
+
 # === Main Entry Point ===
 
 async def run_multi_agent_workflow(
