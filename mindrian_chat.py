@@ -4913,6 +4913,72 @@ Your insights help us improve Mindrian!"""
         except Exception:
             pass
 
+    # === AGENTIC VALIDATION WORKFLOW ===
+    # When validation bot receives a substantive request, run the full workflow automatically
+    bot_id = cl.user_session.get("bot_id", "lawrence")
+    if bot_id == "validation" and len(message.content) > 50:
+        try:
+            from tools.validation_workflow import (
+                run_validation_workflow,
+                format_validation_report,
+                is_validation_request
+            )
+
+            # Check if this is a validation request (not just "hello" or button clicks)
+            if is_validation_request(message.content):
+                # Show workflow starting message
+                await cl.Message(
+                    content="""## 🎯 Multi-Perspective Validation Starting
+
+**Running autonomous 6-phase validation workflow...**
+
+| Phase | Status |
+|-------|--------|
+| 0. Domain Resolution | ⏳ Running... |
+| 1. Domain Extraction | ⬜ Pending |
+| 2. Persona Construction | ⬜ Pending |
+| 3. Parallel Research | ⬜ Pending |
+| 4. Structured Debate | ⬜ Pending |
+| 5. Validation Report | ⬜ Pending |
+
+*This runs automatically - no clicks needed.*"""
+                ).send()
+
+                # Run the full agentic workflow
+                state = await run_validation_workflow(message.content)
+
+                # Format and deliver the final report
+                if state.validation_report and state.validation_report.verdict:
+                    report_md = format_validation_report(state)
+                    await cl.Message(content=report_md).send()
+
+                    # Update history with the report
+                    history.append({"role": "user", "content": message.content})
+                    history.append({"role": "model", "content": report_md})
+                    cl.user_session.set("history", history)
+
+                    # Store validation state for potential follow-up
+                    cl.user_session.set("validation_state", state)
+                else:
+                    # Workflow failed - show errors
+                    error_msg = "## Validation Workflow Error\n\n"
+                    if state.errors:
+                        error_msg += "\n".join([f"- {e}" for e in state.errors])
+                    else:
+                        error_msg += "Unknown error occurred during validation."
+                    error_msg += f"\n\nCompleted phases: {state.current_phase}/5"
+                    await cl.Message(content=error_msg).send()
+
+                return  # Don't continue with normal LLM response
+
+        except ImportError as e:
+            print(f"Validation workflow import error: {e}")
+            # Fall through to normal response
+        except Exception as e:
+            print(f"Validation workflow error: {e}")
+            await cl.Message(content=f"Validation workflow error: {str(e)}. Falling back to normal response.").send()
+            # Fall through to normal response
+
     # Build multimodal content (supports images + text)
     user_parts = []
     if image_parts:
