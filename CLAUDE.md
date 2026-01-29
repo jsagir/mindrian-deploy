@@ -16,7 +16,7 @@ This file is for AI assistants (Claude Code, etc.) to quickly understand this pr
 python3 scripts/health_check.py
 ```
 
-This verifies: Gemini API, FileSearch RAG, Neo4j LazyGraph, Tavily, Supabase, ElevenLabs, LangExtract, optional research APIs, and code integrity. Fix any failures before proceeding with development work.
+This verifies: AI API, FileSearch RAG, Neo4j LazyGraph, Tavily, Supabase, ElevenLabs, LangExtract, optional research APIs, and code integrity. Fix any failures before proceeding with development work.
 
 You can also run it via: `/health-check`
 
@@ -34,12 +34,12 @@ A Chainlit-based multi-bot platform for PWS (Problems Worth Solving) methodology
 
 **Tech Stack:**
 - **Frontend/UI:** Chainlit 2.9+
-- **AI Model:** Google Gemini (gemini-3-flash-preview, gemini-2.0-flash)
-- **RAG:** Gemini File Search
-- **Database:** Supabase PostgreSQL (via SQLAlchemy + asyncpg)
-- **Storage:** Supabase Storage
-- **Voice:** ElevenLabs TTS
-- **Research:** Tavily Search API
+- **AI Model:** gemini-3-flash-preview, gemini-2.0-flash
+- **RAG:** File Search with semantic retrieval
+- **Database:** PostgreSQL
+- **Storage:** Cloud Storage
+- **Voice:** TTS integration
+- **Research:** Web search APIs
 
 ---
 
@@ -61,7 +61,7 @@ mindrian-deploy/
 │   └── langextract.py       # Zero-latency structured data extraction
 ├── utils/                   # Utility modules
 │   ├── charts.py            # Plotly visualizations (DIKW pyramid, S-curve, DataFrames)
-│   ├── gemini_rag.py        # Gemini File Search cache utilities
+│   ├── gemini_rag.py        # RAG cache utilities
 │   ├── file_processor.py    # PDF/DOCX/TXT extraction
 │   ├── media.py             # ElevenLabs TTS, videos, audiobook chapters, file exports
 │   ├── storage.py           # Supabase Storage integration
@@ -160,9 +160,9 @@ This creates all boilerplate automatically. If doing manually, follow ALL steps 
 
 | # | Task | File/Location | Status |
 |---|------|---------------|--------|
-| 13 | Upload workshop materials | Gemini File Search → `T2_Tools/` | ☐ |
+| 13 | Upload workshop materials | File Search → `T2_Tools/` | ☐ |
 | 14 | Add case studies | Neo4j → `CaseStudy` nodes | ☐ |
-| 15 | Create Gemini cache | `utils/gemini_rag.py` → `setup_X_cache()` | ☐ |
+| 15 | Create RAG cache | `utils/gemini_rag.py` → `setup_X_cache()` | ☐ |
 
 ---
 
@@ -346,9 +346,9 @@ NEWBOT_QUALITY_DIMENSIONS = {
 
 #### Step 13-15: Knowledge Base Setup
 
-**Upload to Gemini File Search (T2_Tools):**
+**Upload to File Search (T2_Tools):**
 ```bash
-# Use upload script or Gemini API
+# Use upload script
 python scripts/upload_workshop_materials.py newbot /path/to/materials/
 ```
 
@@ -366,7 +366,7 @@ MATCH (f:Framework {name: "Methodology Name"})
 CREATE (cs)-[:APPLIED_FRAMEWORK]->(f)
 ```
 
-**Create Gemini Cache:**
+**Create RAG Cache:**
 ```python
 # utils/gemini_rag.py
 def setup_newbot_cache():
@@ -486,7 +486,7 @@ To add more MCP tools:
 ## Environment Variables
 
 Required:
-- `GOOGLE_API_KEY` - Google AI API key
+- `GOOGLE_API_KEY` - AI model API key
 
 Recommended:
 - `TAVILY_API_KEY` - Web research
@@ -586,7 +586,7 @@ python upload_new_workshop.py
 
 ## GraphRAG Lite - Knowledge Graph Integration
 
-GraphRAG Lite combines **Gemini File Search** (semantic/vector) with **Neo4j** (graph/structural) for conversational context enrichment.
+GraphRAG Lite combines **semantic vector search** with **graph-based relationships** for conversational context enrichment.
 
 ### Design Philosophy
 
@@ -621,7 +621,7 @@ if GRAPHRAG_ENABLED:
 ### Key Files
 
 - `tools/graphrag_lite.py` - Core implementation
-- `tools/pws_brain.py` - Gemini File Search integration
+- `tools/pws_brain.py` - File Search integration
 - `tools/neo4j_framework_discovery.py` - Neo4j utilities
 
 ### Example
@@ -928,4 +928,4 @@ result = await run_enhanced_workflow(
 
 - **GitHub:** https://github.com/jsagir/mindrian-deploy
 - **Live Demo:** https://mindrian.onrender.com
-- **Course:** EN.663.635 Problems Worth Solving - JHU
+- **Methodology:** Problems Worth Solving (PWS)

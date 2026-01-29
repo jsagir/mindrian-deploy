@@ -8,14 +8,17 @@ to actual execution by mapping tool names to Python callables.
 Architecture:
     Neo4j ResearchTool node → TOOL_REGISTRY → Python function → Result
 
+    With synthesis enabled:
+    Neo4j ResearchTool node → TOOL_REGISTRY → Python function → AI Synthesizer → Relevant Findings
+
 Available tools in Mindrian runtime:
     - Neo4j (graphrag_lite) — framework discovery, concept lookup, community context
     - Tavily (tavily_search) — web search, trend research, assumption validation
-    - Gemini (google.genai) — LLM reasoning, synthesis
+    - AI Synthesizer (result_synthesizer) — relevance scoring, filtering, PWS framing
 
 Available (API-based, no MCP server needed):
     - ArXiv (arxiv.py) — free, no API key required
-    - Google Patents (SerpApi + Tavily fallback) — works with or without SERPAPI_KEY
+    - Patents (SerpApi + Tavily fallback) — works with or without SERPAPI_KEY
 
 NOT available (graph has nodes, but no runtime):
     - Octagon Deep Research — no API key / client configured
@@ -319,3 +322,207 @@ def execute_pipeline(tool_names: List[str], query: str, pass_context: bool = Tru
             context_parts.append(str(result["context"])[:200])
 
     return results
+
+
+# ── Synthesized Execution (AI-powered relevance filtering) ────────────────────
+
+# Map tool categories to source_type for synthesizer
+CATEGORY_TO_SOURCE_TYPE = {
+    "tavily": "web",
+    "web": "web",
+    "search": "web",
+    "arxiv": "paper",
+    "patent": "patent",
+    "patents": "patent",
+    "neo4j": "knowledge_graph",
+    "news": "news",
+    "trends": "trends",
+    "dataset": "dataset",
+    "govdata": "govdata",
+}
+
+
+async def execute_tool_synthesized(
+    tool_name: str,
+    query: str,
+    user_context: str,
+    bot_id: str = "lawrence",
+    **kwargs
+) -> Dict:
+    """
+    Execute a tool and synthesize results for contextual relevance.
+
+    This wraps execute_tool() and passes results through the AI synthesizer
+    to filter, score, and frame findings for PWS methodology.
+
+    Args:
+        tool_name: The ResearchTool.name from Neo4j
+        query: The query/input to pass
+        user_context: What the user is researching (for relevance scoring)
+        bot_id: Current bot for framing context
+        **kwargs: Additional parameters
+
+    Returns:
+        Synthesized results with relevance scores and PWS framing.
+    """
+    # Execute the raw tool
+    raw_result = execute_tool(tool_name, query, **kwargs)
+
+    if raw_result.get("error") and "not_available" in str(raw_result.get("error", "")):
+        return raw_result
+
+    # Determine source type from category
+    category = raw_result.get("_trace", {}).get("category", "web")
+    source_type = CATEGORY_TO_SOURCE_TYPE.get(category, "web")
+
+    # Synthesize results
+    try:
+        from tools.result_synthesizer import synthesize_results
+        import asyncio
+
+        synthesis = await synthesize_results(
+            raw_results=raw_result,
+            source_type=source_type,
+            user_context=user_context,
+            bot_id=bot_id,
+        )
+
+        return {
+            "raw_result": raw_result,
+            "synthesis": synthesis,
+            "synthesized": True,
+            "_trace": raw_result.get("_trace", {}),
+        }
+
+    except Exception as e:
+        logger.warning("Synthesis failed (returning raw): %s", e)
+        return {
+            "raw_result": raw_result,
+            "synthesis": {"error": str(e)},
+            "synthesized": False,
+            "_trace": raw_result.get("_trace", {}),
+        }
+
+
+async def execute_pipeline_synthesized(
+    tool_names: List[str],
+    query: str,
+    user_context: str,
+    bot_id: str = "lawrence",
+) -> Dict:
+    """
+    Execute a pipeline of tools and synthesize all results together.
+
+    This executes tools sequentially (with context passing) and then
+    synthesizes all results into a unified report.
+
+    Args:
+        tool_names: Ordered list of ResearchTool node names
+        query: Initial query
+        user_context: What the user is researching
+        bot_id: Current bot for framing context
+
+    Returns:
+        Unified synthesis across all tool results.
+    """
+    # Execute pipeline
+    raw_results = execute_pipeline(tool_names, query)
+
+    # Organize by source type
+    sources = {}
+    for result in raw_results:
+        category = result.get("_trace", {}).get("category", "web")
+        source_type = CATEGORY_TO_SOURCE_TYPE.get(category, "web")
+        sources[source_type] = result
+
+    # Synthesize all results
+    try:
+        from tools.result_synthesizer import synthesize_research_batch
+
+        synthesis = await synthesize_research_batch(
+            sources=sources,
+            user_context=user_context,
+            bot_id=bot_id,
+        )
+
+        return {
+            "raw_results": raw_results,
+            "synthesis": synthesis,
+            "synthesized": True,
+            "tools_executed": tool_names,
+        }
+
+    except Exception as e:
+        logger.warning("Batch synthesis failed: %s", e)
+        return {
+            "raw_results": raw_results,
+            "synthesis": {"error": str(e)},
+            "synthesized": False,
+            "tools_executed": tool_names,
+        }
+
+
+def format_synthesized_results(synthesis: Dict, max_findings: int = 5) -> str:
+    """
+    Format synthesized results as markdown for display.
+
+    Args:
+        synthesis: Result from synthesize_results() or synthesize_research_batch()
+        max_findings: Maximum findings to show
+
+    Returns:
+        Formatted markdown string
+    """
+    if not synthesis.get("success", False):
+        return f"*Research synthesis unavailable: {synthesis.get('error', 'Unknown error')}*"
+
+    parts = []
+
+    # Summary
+    if synthesis.get("synthesis_summary"):
+        parts.append(f"**Summary:**\n{synthesis['synthesis_summary']}\n")
+
+    # Top findings
+    findings = synthesis.get("relevant_findings", []) or synthesis.get("top_findings", [])
+    if findings:
+        parts.append("**Key Findings:**")
+        for i, f in enumerate(findings[:max_findings], 1):
+            score = f.get("relevance_score", 0)
+            title = f.get("title", "Untitled")
+            summary = f.get("summary", "")[:200]
+
+            # Relevance indicator
+            if score >= 0.8:
+                indicator = "🟢"
+            elif score >= 0.6:
+                indicator = "🟡"
+            else:
+                indicator = "🟠"
+
+            parts.append(f"\n{i}. {indicator} **{title}** (relevance: {score:.0%})")
+            if summary:
+                parts.append(f"   {summary}")
+
+            # PWS insight
+            if f.get("pws_insight"):
+                parts.append(f"   💡 *{f['pws_insight']}*")
+
+    # PWS implications
+    if synthesis.get("pws_implications"):
+        parts.append(f"\n**PWS Implications:**\n{synthesis['pws_implications']}")
+
+    # Next steps
+    steps = synthesis.get("recommended_next_steps", [])
+    if steps:
+        parts.append("\n**Recommended Next Steps:**")
+        for step in steps[:3]:
+            parts.append(f"- {step}")
+
+    # Evidence gaps
+    gaps = synthesis.get("evidence_gaps", [])
+    if gaps:
+        parts.append("\n**Questions to Explore:**")
+        for gap in gaps[:3]:
+            parts.append(f"- {gap}")
+
+    return "\n".join(parts) if parts else "*No relevant findings.*"
