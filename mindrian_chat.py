@@ -65,7 +65,8 @@ def _check_api_keys():
 _check_api_keys()
 
 # === OAuth Authentication (Google/GitHub) ===
-# Requires environment variables:
+# DISABLED: Causing "User not found" errors when OAuth providers not fully configured.
+# To enable OAuth, uncomment the @cl.oauth_callback decorator below and ensure:
 #   CHAINLIT_AUTH_SECRET - Secret key for signing auth tokens
 #   OAUTH_GOOGLE_CLIENT_ID, OAUTH_GOOGLE_CLIENT_SECRET - For Google OAuth
 #   OAUTH_GITHUB_CLIENT_ID, OAUTH_GITHUB_CLIENT_SECRET - For GitHub OAuth
@@ -74,7 +75,7 @@ _check_api_keys()
 #   Google: {CHAINLIT_URL}/auth/oauth/google/callback
 #   GitHub: {CHAINLIT_URL}/auth/oauth/github/callback
 
-@cl.oauth_callback
+# @cl.oauth_callback  # DISABLED - uncomment when OAuth is fully configured
 def oauth_callback(
     provider_id: str,
     token: str,
