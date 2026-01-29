@@ -73,6 +73,13 @@ CHANGES AND HOW THEY ADDRESS FEEDBACK
     Runs multiple bots in sequence, shows results with cl.Step visualization.
     Hidden from Lawrence (simple mode) to reduce clutter.
 
+11. "Need persistent memory across conversations" (Team)
+    → Done. LangGraph Memory provides persistent conversation context.
+    State management across agent transitions.
+    Conversation history preserved in graph state.
+    Enables multi-turn reasoning across bot switches.
+    Access via: /langgraph-memory or Multi-Agent Analysis button.
+
 ================================================================
 NEW BOTS ADDED
 ================================================================
@@ -136,6 +143,13 @@ API Validator (scripts/validate_apis.py)
 - Color-coded pass/fail output
 - Suggests fixes for failures
 - Run with: python scripts/validate_apis.py
+
+LangGraph Memory (agents/multi_agent_graph.py)
+- Persistent conversation context with LangGraph
+- State management across agent transitions
+- Conversation history preserved in graph state
+- Enables multi-turn reasoning across bot switches
+- Access via: /langgraph-memory or Multi-Agent Analysis button
 
 ================================================================
 WHAT TO TEST
