@@ -28,6 +28,21 @@ except ImportError:
     GRAPHRAG_ENABLED = False
     print("GraphRAG Lite not available (Neo4j not configured)")
 
+# === Smart Phase Tracker - LLM-based phase detection ===
+try:
+    from tools.smart_phase_tracker import (
+        analyze_workshop_state,
+        format_progress_indicator,
+        should_show_advance_prompt,
+        get_smart_phase_message,
+        extract_phase_context
+    )
+    SMART_PHASE_ENABLED = True
+    print("Smart Phase Tracker enabled (LangChain + Gemini)")
+except ImportError as e:
+    SMART_PHASE_ENABLED = False
+    print(f"Smart Phase Tracker not available: {e}")
+
 # === Config ===
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("GOOGLE_AI_API_KEY")
 # FileSearch store owned by a different API key
@@ -4004,17 +4019,71 @@ async def on_next_phase(action: cl.Action):
 
 @cl.action_callback("show_progress")
 async def on_show_progress(action: cl.Action):
-    """Handle show progress button click using custom PhaseProgress element."""
+    """Handle show progress button click with smart phase analysis."""
     phases = cl.user_session.get("phases", [])
     current_phase = cl.user_session.get("current_phase", 0)
     bot_id = cl.user_session.get("bot_id", "lawrence")
     bot = BOTS.get(bot_id, BOTS["lawrence"])
+    history = cl.user_session.get("history", [])
 
     if not phases:
         await cl.Message(content="No workshop phases configured for this bot.").send()
         return
 
-    # Try to use custom element (falls back to text if element fails)
+    # === SMART PROGRESS ANALYSIS ===
+    if SMART_PHASE_ENABLED and len(history) >= 2:
+        try:
+            async with cl.Step(name="Analyzing Progress", type="tool") as step:
+                step.input = "Using AI to analyze actual conversation progress..."
+
+                workshop_state = await analyze_workshop_state(
+                    conversation_history=history,
+                    workshop_type=bot_id,
+                    current_phase_index=current_phase,
+                    phases=phases
+                )
+
+                # Build smart progress display
+                progress_text = f"**📊 Workshop Progress: {bot.get('name', 'Workshop')}**\n\n"
+
+                for i, phase_status in enumerate(workshop_state.phases):
+                    if phase_status.status == "completed":
+                        emoji = "✅"
+                        detail = f" - *{len(phase_status.completion_evidence)} criteria met*"
+                    elif phase_status.status == "in_progress":
+                        emoji = "🔵"
+                        missing = len(phase_status.missing_elements)
+                        detail = f" - *{missing} item{'s' if missing != 1 else ''} remaining*"
+                    else:
+                        emoji = "⚪"
+                        detail = ""
+
+                    progress_text += f"{emoji} **Phase {i+1}:** {phase_status.name}{detail}\n"
+
+                progress_text += f"\n---\n\n**Current Phase:** {workshop_state.current_phase_name}\n"
+                progress_text += f"**Next Step:** {workshop_state.next_action}\n\n"
+                progress_text += f"*{workshop_state.progress_summary}*"
+
+                step.output = f"Phase {workshop_state.current_phase_index + 1}/{len(phases)}"
+
+            # Show with actions
+            actions = []
+            if workshop_state.should_advance and current_phase < len(phases) - 1:
+                next_name = phases[current_phase + 1]["name"]
+                actions.append(cl.Action(
+                    name="next_phase",
+                    payload={"from_progress": True},
+                    label=f"✅ Advance to {next_name}"
+                ))
+
+            await cl.Message(content=progress_text, actions=actions if actions else None).send()
+            return
+
+        except Exception as e:
+            print(f"Smart progress analysis failed: {e}")
+            # Fall through to basic progress display
+
+    # === FALLBACK: Basic Progress Display ===
     try:
         phase_data = [
             {"name": p["name"], "status": p.get("status", "pending")}
@@ -6615,11 +6684,80 @@ The user expects you to understand the context and add your specialized value.
                     is_simple=is_simple
                 )
 
-                # Increment turn counter for nudge system
+                # Increment turn counter (still useful for basic tracking)
                 cl.user_session.set("phase_turn_count", turn_count + 1)
 
-                # After 4+ turns in same phase, send a nudge
-                if turn_count >= 4 and current_phase < len(phases) - 1:
+                # === SMART PHASE TRACKING ===
+                # Use LLM to analyze if we should advance, not just turn count
+                if SMART_PHASE_ENABLED and turn_count >= 2 and current_phase < len(phases) - 1:
+                    try:
+                        # Build conversation history for analysis
+                        analysis_history = history + [
+                            {"role": "user", "content": message.content},
+                            {"role": "model", "content": full_response}
+                        ]
+
+                        # Analyze workshop state with LLM
+                        workshop_state = await analyze_workshop_state(
+                            conversation_history=analysis_history,
+                            workshop_type=bot_id,
+                            current_phase_index=current_phase,
+                            phases=phases
+                        )
+
+                        # Save smart context for future reference
+                        phase_context = extract_phase_context(workshop_state)
+                        cl.user_session.set("smart_phase_context", phase_context)
+
+                        # If LLM thinks we should advance, show smart prompt
+                        if workshop_state.should_advance:
+                            next_name = phases[current_phase + 1]["name"]
+                            progress_display = format_progress_indicator(workshop_state, len(phases))
+
+                            await cl.Message(
+                                content=f"{progress_display}\n\n"
+                                        f"✅ **{workshop_state.current_phase_name}** appears complete!\n\n"
+                                        f"*{workshop_state.reasoning[:200]}*",
+                                actions=[
+                                    cl.Action(
+                                        name="next_phase",
+                                        payload={"from_smart": True, "state": phase_context},
+                                        label=f"✅ Continue → {next_name}"
+                                    ),
+                                    cl.Action(
+                                        name="stay_phase",
+                                        payload={},
+                                        label="🔄 Keep working here"
+                                    ),
+                                ]
+                            ).send()
+                            cl.user_session.set("phase_turn_count", 0)  # Reset
+
+                    except Exception as e:
+                        print(f"Smart phase tracking error: {e}")
+                        # Fallback to turn-based if smart tracking fails
+                        if turn_count >= 4:
+                            next_name = phases[current_phase + 1]["name"]
+                            await cl.Message(
+                                content=f"💡 **You've been working on this phase for a while.**\n\n"
+                                        f"Ready to move on? When you're done, click the button below.",
+                                actions=[
+                                    cl.Action(
+                                        name="next_phase",
+                                        payload={"from_nudge": True},
+                                        label=f"✅ Yes, Continue → {next_name}"
+                                    ),
+                                    cl.Action(
+                                        name="stay_phase",
+                                        payload={},
+                                        label="🔄 Keep working on this phase"
+                                    ),
+                                ]
+                            ).send()
+                            cl.user_session.set("phase_turn_count", 0)
+
+                elif not SMART_PHASE_ENABLED and turn_count >= 4 and current_phase < len(phases) - 1:
+                    # Fallback: original turn-based nudge if smart tracking not available
                     next_name = phases[current_phase + 1]["name"]
                     await cl.Message(
                         content=f"💡 **You've been working on this phase for a while.**\n\n"
