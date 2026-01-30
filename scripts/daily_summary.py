@@ -442,7 +442,9 @@ def send_daily_summary(
     Returns:
         True if sent successfully
     """
-    from utils.email_sender import send_email, is_email_configured
+    import sys
+    sys.path.insert(0, str(project_root / "utils"))
+    from email_sender import send_email, is_email_configured
 
     if not is_email_configured():
         print("Email not configured. Set SMTP_USER/SMTP_PASSWORD or SENDGRID_API_KEY")
