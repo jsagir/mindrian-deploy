@@ -18,42 +18,68 @@ Each subfolder represents a feature or capability that has been researched but n
 | `06_workshop_pipeline_engine` | HIGH | Research | Formalized phase progression as true pipeline |
 | `07_audiobook_content` | HIGH | TODO | PWS audiobook chapter URLs need to be added |
 | `08_video_tutorials` | HIGH | TODO | Workshop video URLs need to be added |
-| `09_graphrag_lite` | HIGH | **DONE** | Neo4j + Vector hybrid RAG for conversational context |
+| `09_graphrag_lite` | - | **DONE** | Neo4j + Vector hybrid RAG for conversational context |
 | `10_graphrag_knowledge_base` | HIGH | **ACTIVE** | Graph schema, skill file, problem taxonomy, reverse salient spec |
 | `11_gemini_deep_research` | MEDIUM | Research | Gemini's Deep Research API integration |
-| `12_smart_phase_transitions` | HIGH | **DONE** | LangExtract + LazyGraph for intelligent phase progression |
-| `13_custom_elements` | HIGH | **DONE** | Custom JSX elements + AskElementMessage forms |
-| `14_oauth_authentication` | MEDIUM | **DONE** | Google/GitHub OAuth social login |
-| `15_langgraph_visualization` | MEDIUM | **DONE** | Chainlit cl.Step integration for LangGraph workflows |
+| `12_smart_phase_transitions` | - | **DONE** | LangExtract + LazyGraph for intelligent phase progression |
+| `13_custom_elements` | - | **DONE** | Custom JSX elements + AskElementMessage forms |
+| `14_oauth_authentication` | - | **DONE** | Google/GitHub OAuth social login |
+| `15_langgraph_visualization` | - | **DONE** | Chainlit cl.Step integration for LangGraph workflows |
 | `16_v4_architecture` | HIGH | **ANALYSIS** | v4.0 Cynefin Router + Devil's Advocate + Multi-Agent Pipelines |
+| `17_agentic_tool_use` | HIGH | Research | ReAct pattern, dynamic tool selection |
+| `18_memory_systems` | MEDIUM | Research | Long-term user context, cross-session tracking |
+| `19_collaborative_workspaces` | LOW | Research | Multi-user workshop sessions |
+| `20_structured_output` | HIGH | Research | Pydantic validation, Instructor patterns |
+| `21_rag_quality` | MEDIUM | Research | Hybrid search, reranking, query expansion |
+| `22_evaluation_monitoring` | MEDIUM | Research | Quality metrics, A/B testing, regression tests |
+| `23_mcp_expansion` | MEDIUM | Research | Additional MCP tools (Notion, code sandbox, etc.) |
+| `24_export_integration` | MEDIUM | Research | Slides, Notion, Google Docs, Miro exports |
 
 ---
 
-## Recent Implementations (2026-01-29)
+## Recent Implementations (2026-01-30)
 
-### Research Enhancement
-- **Result Synthesizer**: AI-powered relevance scoring and PWS framing for all research tools
-- **Research Orchestrator**: Full 5-phase Tavily workflow (Query Decomposition → Discovery → Evaluation → Extraction → Synthesis)
-- **Source Authority Scoring**: .gov (0.98) > .edu (0.90) > news (0.75) > blogs (0.55) > forums (0.40)
+### Custom UI Elements
+- **GradeReveal.jsx**: Soft-landing grade reveal with 5 stages
+- **ScoreBreakdown.jsx**: Interactive component drill-down
+- **OpportunityCard.jsx**: Bank of Opportunities cards
+- **ui_elements.py**: Python helper module for all UI elements
 
-### P0 Features
-- **Custom JSX Elements**: PhaseProgress, DIKWPyramid, ResearchMatrix
-- **ElementSidebar**: Reference materials with live phase checklist
+### Assessment Engine v3.1
+- Evidence tagging by source (neo4j_*, filesearch_*, tavily_*, gemini_*)
+- Quality gates per module
+- Minto grading integration
 
-### P1 Features
-- **OAuth Authentication**: Google and GitHub social login
-- **LangGraph Visualization**: `run_multi_agent_with_steps()` for transparent workflows
+---
 
-### P2 Features
-- **OpenAI Realtime Evaluation**: Documented decision to keep Gemini+ElevenLabs
-- **AskElementMessage Forms**: ScenarioSetupForm, ProblemDefinitionForm with validation
+## Implementation Priority
 
-### v4.0 Architecture Analysis
-- **Fit Assessment**: 85-90% of v4.0 infrastructure already exists
-- **Key Gaps**: Cynefin UI exposure, Multi-agent pipelines, Cross-bot assumption tracking
-- **Estimated Effort**: 50-60 hours for full v4.0 implementation
+### Phase 1: Quick Wins (Week 1) - 12 hours
+- [ ] Expose Cynefin domain in UI
+- [ ] Cynefin-aware bot boosting
+- [ ] Devil's Advocate mode toggle
+- [ ] Beautiful Questions auto-trigger
+- [ ] Add audiobook chapter URLs
+- [ ] Add video tutorial URLs
 
-See `13_custom_elements/`, `14_oauth_authentication/`, `15_langgraph_visualization/`, `16_v4_architecture/` for details.
+### Phase 2: Intelligence (Week 2-3) - 30 hours
+- [ ] Smart Router implementation
+- [ ] Multi-agent pipeline basics
+- [ ] Assumption tracking across bots
+- [ ] Structured output validation
+
+### Phase 3: Advanced (Week 4+) - 40 hours
+- [ ] Full Workshop Pipeline Engine
+- [ ] Gemini Deep Research integration
+- [ ] Reverse Salient discovery queries
+- [ ] Agentic tool use patterns
+
+### Phase 4: Long-term Investments
+- [ ] Synthetic data generation
+- [ ] Fine-tuned PWS model
+- [ ] Memory systems
+- [ ] Collaborative workspaces
+- [ ] Export integrations
 
 ---
 
@@ -64,32 +90,32 @@ See `13_custom_elements/`, `14_oauth_authentication/`, `15_langgraph_visualizati
 - **LLM-Adapters Framework**: https://github.com/AGI-Edgerunners/LLM-Adapters
 - **Chainlit Documentation**: https://docs.chainlit.io/
 - **Chainlit Custom Elements**: https://docs.chainlit.io/custom-elements
+- **MCP Specification**: https://modelcontextprotocol.io/
+- **Instructor Library**: https://github.com/jxnl/instructor
 
 ---
 
-## Implementation Priority
+## Research Questions
 
-### Phase 1 (Immediate)
-- [ ] Add audiobook chapter URLs to `utils/media.py`
-- [ ] Add video tutorial URLs to `utils/media.py`
-- [ ] Wire forms to action buttons (show_problem_form, show_scenario_form)
-
-### Phase 2 (Short-term) - v4.0 Quick Wins
-- [ ] Expose Cynefin domain classification in UI
-- [ ] Add Cynefin-aware bot boosting to agent suggestions
-- [ ] Add Devil's Advocate mode toggle to Red Team
-- [ ] Auto-trigger Beautiful Questions based on conversation phase
-- [ ] Implement Smart Router for automatic methodology selection
-- [ ] Create Workshop Pipeline Engine for strict phase progression
-
-### Phase 3 (Medium-term)
-- [ ] Build adapter system for modular methodology enhancement
-- [ ] Role-based access control with OAuth users
-
-### Phase 4 (Long-term)
-- [ ] Synthetic data generation from workshop transcripts
-- [ ] Fine-tuned quality scoring model
+1. **Adapter vs. Bot Pattern:** Is composable methodology better than full bot switching?
+2. **Deep Research ROI:** At $2-5 per query, when is Deep Research worth it?
+3. **Fine-tuning Viability:** Would a PWS-specific Mistral 7B outperform Gemini for coaching?
+4. **Memory Trade-offs:** How much user context helps vs. privacy concerns?
+5. **Multi-user Complexity:** Is collaborative PWS worth the implementation effort?
+6. **Agentic vs. Explicit:** Should tool use be autonomous or user-triggered?
 
 ---
 
-*Last Updated: 2026-01-29*
+## External Resources to Monitor
+
+| Resource | Why | URL |
+|----------|-----|-----|
+| Chainlit Changelog | New features/elements | https://docs.chainlit.io/changelog |
+| Google AI Blog | Gemini updates | https://ai.googleblog.com/ |
+| Anthropic Research | Claude patterns | https://www.anthropic.com/research |
+| LangChain Blog | Agent patterns | https://blog.langchain.dev/ |
+| Simon Willison's Blog | LLM tooling | https://simonwillison.net/ |
+
+---
+
+*Last Updated: 2026-01-30*
