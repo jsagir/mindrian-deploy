@@ -3,11 +3,14 @@
 #
 # Add these lines to your crontab using: crontab -e
 #
-# Summary Email every 12 hours (8 AM and 8 PM UTC)
-0 8,20 * * * cd /home/user/mindrian-deploy && /usr/bin/python3 scripts/daily_summary.py >> logs/daily_summary.log 2>&1
+# Summary Email every 12 hours (8 AM and 8 PM Israel Time)
+# Israel Time = UTC+2 (winter) / UTC+3 (summer DST)
+# 8 AM Israel = 6 AM UTC (winter) / 5 AM UTC (summer)
+# 8 PM Israel = 6 PM UTC (winter) / 5 PM UTC (summer)
+0 6,18 * * * cd /home/user/mindrian-deploy && /usr/bin/python3 scripts/daily_summary.py >> logs/daily_summary.log 2>&1
 
-# Alternative: Every 12 hours from midnight
-# 0 */12 * * * cd /home/user/mindrian-deploy && /usr/bin/python3 scripts/daily_summary.py >> logs/daily_summary.log 2>&1
+# Alternative: Adjusted for Israel DST (summer)
+# 0 5,17 * * * cd /home/user/mindrian-deploy && /usr/bin/python3 scripts/daily_summary.py >> logs/daily_summary.log 2>&1
 
 # Health check (every 6 hours)
 0 */6 * * * cd /home/user/mindrian-deploy && /usr/bin/python3 scripts/health_check.py >> logs/health_check.log 2>&1

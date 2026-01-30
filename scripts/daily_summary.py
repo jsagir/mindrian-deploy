@@ -55,11 +55,16 @@ def get_supabase_client():
         return None
 
 
-def get_opportunities_summary(client, date_str: str = None) -> Dict[str, Any]:
+def get_opportunities_summary(client, date_str: str = None, last_24h: bool = False) -> Dict[str, Any]:
     """
     Get opportunity bank summary from Supabase.
 
     Returns counts, types breakdown, and recent opportunities.
+
+    Args:
+        client: Supabase client
+        date_str: Specific date to query (YYYY-MM-DD)
+        last_24h: If True, get data from last 24 hours (today + yesterday)
     """
     if not client:
         return {"error": "No Supabase client", "total": 0}
@@ -71,25 +76,32 @@ def get_opportunities_summary(client, date_str: str = None) -> Dict[str, Any]:
         # List files in opportunities folder
         opportunities = []
 
-        # Try to list today's opportunities
-        try:
-            today_files = client.storage.from_(SUPABASE_BUCKET).list(f"opportunities/{date_str}")
-            for f in today_files:
-                if f.get('name', '').endswith('.json'):
-                    opportunities.append({
-                        "date": date_str,
-                        "file": f.get('name'),
-                        "created": f.get('created_at', '')
-                    })
-        except Exception:
-            pass
+        # Dates to query
+        dates_to_query = [date_str]
+        if last_24h:
+            yesterday = (datetime.utcnow() - timedelta(days=1)).strftime("%Y-%m-%d")
+            dates_to_query = [date_str, yesterday]
 
-        # Get yesterday's opportunities for comparison
-        yesterday = (datetime.utcnow() - timedelta(days=1)).strftime("%Y-%m-%d")
-        yesterday_count = 0
+        # Get opportunities for the target date(s)
+        for query_date in dates_to_query:
+            try:
+                date_files = client.storage.from_(SUPABASE_BUCKET).list(f"opportunities/{query_date}")
+                for f in date_files:
+                    if f.get('name', '').endswith('.json'):
+                        opportunities.append({
+                            "date": query_date,
+                            "file": f.get('name'),
+                            "created": f.get('created_at', '')
+                        })
+            except Exception:
+                pass
+
+        # Get day before for comparison
+        compare_date = (datetime.utcnow() - timedelta(days=2 if last_24h else 1)).strftime("%Y-%m-%d")
+        compare_count = 0
         try:
-            yesterday_files = client.storage.from_(SUPABASE_BUCKET).list(f"opportunities/{yesterday}")
-            yesterday_count = len([f for f in yesterday_files if f.get('name', '').endswith('.json')])
+            compare_files = client.storage.from_(SUPABASE_BUCKET).list(f"opportunities/{compare_date}")
+            compare_count = len([f for f in compare_files if f.get('name', '').endswith('.json')])
         except Exception:
             pass
 
@@ -104,12 +116,15 @@ def get_opportunities_summary(client, date_str: str = None) -> Dict[str, Any]:
         except Exception:
             total_count = len(opportunities)
 
+        period_label = "last 24h" if last_24h else "today"
         return {
             "date": date_str,
-            "today_count": len(opportunities),
-            "yesterday_count": yesterday_count,
+            "period": period_label,
+            "period_count": len(opportunities),
+            "today_count": len(opportunities),  # backward compat
+            "yesterday_count": compare_count,
             "total_count": total_count,
-            "change": len(opportunities) - yesterday_count,
+            "change": len(opportunities) - compare_count,
             "recent": opportunities[:10]
         }
 
@@ -118,9 +133,14 @@ def get_opportunities_summary(client, date_str: str = None) -> Dict[str, Any]:
         return {"error": str(e), "total": 0}
 
 
-def get_feedback_summary(client, date_str: str = None) -> Dict[str, Any]:
+def get_feedback_summary(client, date_str: str = None, last_24h: bool = False) -> Dict[str, Any]:
     """
     Get user engagement/feedback summary from Supabase.
+
+    Args:
+        client: Supabase client
+        date_str: Specific date to query (YYYY-MM-DD)
+        last_24h: If True, get data from last 24 hours (today + yesterday)
     """
     if not client:
         return {"error": "No Supabase client", "total": 0}
@@ -133,33 +153,40 @@ def get_feedback_summary(client, date_str: str = None) -> Dict[str, Any]:
         positive = 0
         negative = 0
 
-        # List today's feedback files
-        try:
-            today_files = client.storage.from_(SUPABASE_BUCKET).list(f"feedback/{date_str}")
-            for f in today_files:
-                if f.get('name', '').endswith('.json'):
-                    # Download and parse feedback
-                    try:
-                        content = client.storage.from_(SUPABASE_BUCKET).download(
-                            f"feedback/{date_str}/{f['name']}"
-                        )
-                        data = json.loads(content.decode('utf-8'))
-                        feedback_items.append(data)
-                        if str(data.get('value')) == '1':
-                            positive += 1
-                        else:
-                            negative += 1
-                    except Exception:
-                        pass
-        except Exception:
-            pass
+        # Dates to query
+        dates_to_query = [date_str]
+        if last_24h:
+            yesterday = (datetime.utcnow() - timedelta(days=1)).strftime("%Y-%m-%d")
+            dates_to_query = [date_str, yesterday]
 
-        # Get yesterday for comparison
-        yesterday = (datetime.utcnow() - timedelta(days=1)).strftime("%Y-%m-%d")
-        yesterday_count = 0
+        # Get feedback for target date(s)
+        for query_date in dates_to_query:
+            try:
+                date_files = client.storage.from_(SUPABASE_BUCKET).list(f"feedback/{query_date}")
+                for f in date_files:
+                    if f.get('name', '').endswith('.json'):
+                        try:
+                            content = client.storage.from_(SUPABASE_BUCKET).download(
+                                f"feedback/{query_date}/{f['name']}"
+                            )
+                            data = json.loads(content.decode('utf-8'))
+                            data['_query_date'] = query_date
+                            feedback_items.append(data)
+                            if str(data.get('value')) == '1':
+                                positive += 1
+                            else:
+                                negative += 1
+                        except Exception:
+                            pass
+            except Exception:
+                pass
+
+        # Get comparison period
+        compare_date = (datetime.utcnow() - timedelta(days=2 if last_24h else 1)).strftime("%Y-%m-%d")
+        compare_count = 0
         try:
-            yesterday_files = client.storage.from_(SUPABASE_BUCKET).list(f"feedback/{yesterday}")
-            yesterday_count = len([f for f in yesterday_files if f.get('name', '').endswith('.json')])
+            compare_files = client.storage.from_(SUPABASE_BUCKET).list(f"feedback/{compare_date}")
+            compare_count = len([f for f in compare_files if f.get('name', '').endswith('.json')])
         except Exception:
             pass
 
@@ -177,10 +204,13 @@ def get_feedback_summary(client, date_str: str = None) -> Dict[str, Any]:
             else:
                 by_bot[bot]['negative'] += 1
 
+        period_label = "last 24h" if last_24h else "today"
         return {
             "date": date_str,
+            "period": period_label,
             "today_count": total,
-            "yesterday_count": yesterday_count,
+            "period_count": total,
+            "yesterday_count": compare_count,
             "positive": positive,
             "negative": negative,
             "satisfaction_rate": round(satisfaction, 1),
@@ -197,7 +227,7 @@ def get_feedback_summary(client, date_str: str = None) -> Dict[str, Any]:
         return {"error": str(e), "total": 0}
 
 
-def get_session_summary(client) -> Dict[str, Any]:
+def get_session_summary(client, last_24h: bool = False) -> Dict[str, Any]:
     """
     Get session/usage summary.
 
@@ -205,7 +235,7 @@ def get_session_summary(client) -> Dict[str, Any]:
     This provides an estimate based on feedback activity.
     """
     # Estimate based on feedback (rough proxy for sessions)
-    feedback = get_feedback_summary(client)
+    feedback = get_feedback_summary(client, last_24h=last_24h)
 
     # Assume ~10 messages per feedback interaction
     estimated_messages = feedback.get('today_count', 0) * 10
@@ -430,7 +460,8 @@ def generate_text_report(
 
 def send_daily_summary(
     recipient: str = DEFAULT_RECIPIENT,
-    date_str: str = None
+    date_str: str = None,
+    last_24h: bool = False
 ) -> bool:
     """
     Compile and send daily summary email.
@@ -438,6 +469,7 @@ def send_daily_summary(
     Args:
         recipient: Email address to send to
         date_str: Date to report on (defaults to today)
+        last_24h: Include last 24 hours of data (today + yesterday)
 
     Returns:
         True if sent successfully
@@ -453,25 +485,27 @@ def send_daily_summary(
     if not date_str:
         date_str = datetime.utcnow().strftime("%Y-%m-%d")
 
-    print(f"Generating daily summary for {date_str}...")
+    period_label = "Last 24 Hours" if last_24h else date_str
+    print(f"Generating summary for {period_label}...")
 
     # Get Supabase client
     client = get_supabase_client()
 
     # Collect data
-    opportunities = get_opportunities_summary(client, date_str)
-    feedback = get_feedback_summary(client, date_str)
-    sessions = get_session_summary(client)
+    opportunities = get_opportunities_summary(client, date_str, last_24h=last_24h)
+    feedback = get_feedback_summary(client, date_str, last_24h=last_24h)
+    sessions = get_session_summary(client, last_24h=last_24h)
 
-    print(f"  - Opportunities: {opportunities.get('today_count', 0)} today, {opportunities.get('total_count', 0)} total")
-    print(f"  - Feedback: {feedback.get('today_count', 0)} ratings, {feedback.get('satisfaction_rate', 0)}% satisfaction")
+    print(f"  - Opportunities: {opportunities.get('period_count', 0)} in period, {opportunities.get('total_count', 0)} total")
+    print(f"  - Feedback: {feedback.get('period_count', 0)} ratings, {feedback.get('satisfaction_rate', 0)}% satisfaction")
 
     # Generate reports
-    html_report = generate_html_report(opportunities, feedback, sessions, date_str)
-    text_report = generate_text_report(opportunities, feedback, sessions, date_str)
+    report_title = f"Last 24 Hours ({date_str})" if last_24h else date_str
+    html_report = generate_html_report(opportunities, feedback, sessions, report_title)
+    text_report = generate_text_report(opportunities, feedback, sessions, report_title)
 
     # Send email
-    subject = f"Mindrian Daily Summary - {date_str}"
+    subject = f"Mindrian Summary - {period_label}"
 
     success = send_email(
         to_email=recipient,
@@ -481,9 +515,9 @@ def send_daily_summary(
     )
 
     if success:
-        print(f"Daily summary sent to {recipient}")
+        print(f"Summary sent to {recipient}")
     else:
-        print(f"Failed to send daily summary to {recipient}")
+        print(f"Failed to send summary to {recipient}")
 
     return success
 
@@ -504,6 +538,11 @@ def main():
         help='Date to report on (YYYY-MM-DD, default: today)'
     )
     parser.add_argument(
+        '--last-24h', '-24',
+        action='store_true',
+        help='Include data from last 24 hours (today + yesterday)'
+    )
+    parser.add_argument(
         '--dry-run',
         action='store_true',
         help='Generate report but do not send email'
@@ -511,21 +550,26 @@ def main():
 
     args = parser.parse_args()
 
+    last_24h = getattr(args, 'last_24h', False)
+    date_str = args.date or datetime.utcnow().strftime("%Y-%m-%d")
+    period_label = "Last 24 Hours" if last_24h else date_str
+
     if args.dry_run:
-        print("DRY RUN - generating report without sending...")
+        print(f"DRY RUN - generating report for {period_label}...")
         client = get_supabase_client()
-        date_str = args.date or datetime.utcnow().strftime("%Y-%m-%d")
 
-        opportunities = get_opportunities_summary(client, date_str)
-        feedback = get_feedback_summary(client, date_str)
-        sessions = get_session_summary(client)
+        opportunities = get_opportunities_summary(client, date_str, last_24h=last_24h)
+        feedback = get_feedback_summary(client, date_str, last_24h=last_24h)
+        sessions = get_session_summary(client, last_24h=last_24h)
 
-        print("\n" + generate_text_report(opportunities, feedback, sessions, date_str))
+        report_title = f"Last 24 Hours ({date_str})" if last_24h else date_str
+        print("\n" + generate_text_report(opportunities, feedback, sessions, report_title))
         return
 
     success = send_daily_summary(
         recipient=args.recipient,
-        date_str=args.date
+        date_str=args.date,
+        last_24h=last_24h
     )
 
     sys.exit(0 if success else 1)
