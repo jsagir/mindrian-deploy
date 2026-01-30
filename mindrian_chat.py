@@ -1010,8 +1010,8 @@ async def send_phase_transition_card(
 
 """
 
-    if is_auto:
-        content += f"*I've automatically advanced us based on our progress.*\n\n"
+    # NOTE: Removed auto-advance message per user feedback
+    # User controls ALL navigation - phases only advance when user explicitly clicks
 
     # Add clear instructions for what to do
     if phase_instructions:
@@ -3826,23 +3826,45 @@ async def _show_fallback_example(chat_profile: str, current_phase: int, session_
 @cl.action_callback("next_phase")
 async def on_next_phase(action: cl.Action):
     """
-    Handle next phase button click with smart validation and enrichment.
+    Handle next phase button click with user-controlled navigation.
 
-    This is a proper workflow action that:
-    1. Validates current phase completion using LangExtract patterns
-    2. Provides guidance if phase is incomplete
-    3. Generates smart transition with Neo4j context enrichment
-    4. Shows clear instructions for the next phase
+    User explicitly chooses to advance - no auto-detection or auto-advance.
     """
-    current_phase_idx = cl.user_session.get("current_phase", 0)
-    bot_id = cl.user_session.get("bot_id", "scenario")
-    phases = cl.user_session.get("phases", [])
-    history = cl.user_session.get("history", [])
-    user_context = cl.user_session.get("phase_context", {})  # Accumulated context
-    force_advance = action.payload.get("force", False) if action.payload else False
+    try:
+        current_phase_idx = cl.user_session.get("current_phase", 0)
+        bot_id = cl.user_session.get("bot_id", "scenario")
+        phases = cl.user_session.get("phases", [])
+        history = cl.user_session.get("history", [])
+        user_context = cl.user_session.get("phase_context", {})
+        force_advance = action.payload.get("force", False) if action.payload else False
 
-    # Check if workshop is complete
-    if current_phase_idx >= len(phases) - 1:
+        # === VALIDATION: Check for required data ===
+        if not phases:
+            await cl.Message(
+                content="⚠️ **No workshop phases loaded.**\n\n"
+                        "Please start a workshop first by selecting a methodology.",
+                actions=[
+                    cl.Action(name="switch_to_scenario", payload={}, label="🎯 Start Scenario Planning"),
+                    cl.Action(name="switch_to_tta", payload={}, label="🔮 Start TTA Workshop")
+                ]
+            ).send()
+            return
+
+        if current_phase_idx is None:
+            current_phase_idx = 0
+            cl.user_session.set("current_phase", 0)
+
+        # Validate phase index is within bounds
+        if current_phase_idx < 0 or current_phase_idx >= len(phases):
+            await cl.Message(
+                content=f"⚠️ **Phase tracking issue detected.**\n\n"
+                        f"Resetting to Phase 1. Your conversation history is preserved."
+            ).send()
+            cl.user_session.set("current_phase", 0)
+            current_phase_idx = 0
+
+        # Check if workshop is complete
+        if current_phase_idx >= len(phases) - 1:
         await cl.Message(
             content="**Workshop Complete!**\n\nYou've completed all phases. Would you like to:\n"
                     "- Review your key insights\n"
@@ -4006,6 +4028,20 @@ async def on_next_phase(action: cl.Action):
         ]
     ).send()
 
+    except Exception as e:
+        # Graceful error handling - don't crash, help the user
+        print(f"Phase transition error: {e}")
+        await cl.Message(
+            content=f"⚠️ **Unable to transition to next phase.**\n\n"
+                    f"This may be due to missing session data. "
+                    f"Your conversation is preserved - you can continue working here.\n\n"
+                    f"*Error: {str(e)[:100]}*",
+            actions=[
+                cl.Action(name="show_progress", payload={}, label="📊 View Progress"),
+                cl.Action(name="stay_phase", payload={}, label="Continue Here"),
+            ]
+        ).send()
+
 
 @cl.action_callback("show_progress")
 async def on_show_progress(action: cl.Action):
@@ -4056,17 +4092,24 @@ async def on_show_progress(action: cl.Action):
 
                 step.output = f"Phase {workshop_state.current_phase_index + 1}/{len(phases)}"
 
-            # Show with actions
+            # Show with user-controlled actions (always available, not based on should_advance)
             actions = []
-            if workshop_state.should_advance and current_phase < len(phases) - 1:
+            if current_phase < len(phases) - 1:
                 next_name = phases[current_phase + 1]["name"]
                 actions.append(cl.Action(
                     name="next_phase",
                     payload={"from_progress": True},
-                    label=f"✅ Advance to {next_name}"
+                    label=f"→ Move to {next_name}"
                 ))
 
-            await cl.Message(content=progress_text, actions=actions if actions else None).send()
+            # Always show "keep working" option
+            actions.append(cl.Action(
+                name="stay_phase",
+                payload={},
+                label="Continue Working Here"
+            ))
+
+            await cl.Message(content=progress_text, actions=actions).send()
             return
 
         except Exception as e:
@@ -6816,73 +6859,19 @@ The user expects you to understand the context and add your specialized value.
                         phase_context = extract_phase_context(workshop_state)
                         cl.user_session.set("smart_phase_context", phase_context)
 
-                        # If LLM thinks we should advance, show smart prompt
-                        if workshop_state.should_advance:
-                            next_name = phases[current_phase + 1]["name"]
-                            progress_display = format_progress_indicator(workshop_state, len(phases))
-
-                            await cl.Message(
-                                content=f"{progress_display}\n\n"
-                                        f"✅ **{workshop_state.current_phase_name}** appears complete!\n\n"
-                                        f"*{workshop_state.reasoning[:200]}*",
-                                actions=[
-                                    cl.Action(
-                                        name="next_phase",
-                                        payload={"from_smart": True, "state": phase_context},
-                                        label=f"✅ Continue → {next_name}"
-                                    ),
-                                    cl.Action(
-                                        name="stay_phase",
-                                        payload={},
-                                        label="🔄 Keep working here"
-                                    ),
-                                ]
-                            ).send()
-                            cl.user_session.set("phase_turn_count", 0)  # Reset
+                        # NOTE: Removed auto-advance prompts per user feedback
+                        # User controls ALL navigation - we only track state silently
+                        # The should_advance flag is now used for internal tracking only
+                        # Users can see their progress with "show progress" button and
+                        # explicitly choose to advance with "next_phase" button
 
                     except Exception as e:
                         print(f"Smart phase tracking error: {e}")
-                        # Fallback to turn-based if smart tracking fails
-                        if turn_count >= 4:
-                            next_name = phases[current_phase + 1]["name"]
-                            await cl.Message(
-                                content=f"💡 **You've been working on this phase for a while.**\n\n"
-                                        f"Ready to move on? When you're done, click the button below.",
-                                actions=[
-                                    cl.Action(
-                                        name="next_phase",
-                                        payload={"from_nudge": True},
-                                        label=f"✅ Yes, Continue → {next_name}"
-                                    ),
-                                    cl.Action(
-                                        name="stay_phase",
-                                        payload={},
-                                        label="🔄 Keep working on this phase"
-                                    ),
-                                ]
-                            ).send()
-                            cl.user_session.set("phase_turn_count", 0)
+                        # NOTE: Removed turn-based nudges per user feedback
+                        # User controls ALL navigation - no auto-prompts to advance
 
-                elif not SMART_PHASE_ENABLED and turn_count >= 4 and current_phase < len(phases) - 1:
-                    # Fallback: original turn-based nudge if smart tracking not available
-                    next_name = phases[current_phase + 1]["name"]
-                    await cl.Message(
-                        content=f"💡 **You've been working on this phase for a while.**\n\n"
-                                f"Ready to move on? When you're done, click the button below.",
-                        actions=[
-                            cl.Action(
-                                name="next_phase",
-                                payload={"from_nudge": True},
-                                label=f"✅ Yes, Continue → {next_name}"
-                            ),
-                            cl.Action(
-                                name="stay_phase",
-                                payload={},
-                                label="🔄 Keep working on this phase"
-                            ),
-                        ]
-                    ).send()
-                    cl.user_session.set("phase_turn_count", 0)  # Reset counter
+                # NOTE: Removed turn-based nudges per user feedback
+                # User controls ALL navigation - no auto-prompts based on turn count
             else:
                 # Non-workshop bots get example; multi-agent only for non-simple bots
                 actions.append(cl.Action(
