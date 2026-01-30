@@ -142,6 +142,111 @@ def oauth_callback(
 # === Stop Event for Cancellation ===
 stop_events: Dict[str, asyncio.Event] = {}
 
+# === Extended Thinking UI ===
+# Captures and visualizes LLM reasoning steps
+
+async def show_thinking_panel(bot_id: str, steps: list, methodology: str = None):
+    """
+    Display thinking panel with reasoning steps.
+
+    Args:
+        bot_id: Current bot identifier
+        steps: List of {"name": str, "status": str, "output": str, "icon": str}
+        methodology: Optional methodology name to display
+    """
+    bot_titles = {
+        "lawrence": "Lawrence's Thinking",
+        "larry_playground": "Larry's Analysis",
+        "tta": "Trend Analysis",
+        "jtbd": "Job Analysis",
+        "scurve": "Timing Analysis",
+        "redteam": "Attack Analysis",
+        "ackoff": "DIKW Analysis",
+        "scenario": "Scenario Analysis",
+        "beautiful_question": "Question Analysis",
+    }
+    title = bot_titles.get(bot_id, "Thinking")
+
+    # Create custom element for thinking panel
+    thinking_element = cl.CustomElement(
+        name="ThinkingPanel",
+        props={
+            "steps": steps,
+            "title": title,
+            "botId": bot_id,
+            "methodology": methodology,
+            "collapsed": False,
+        },
+        display="inline"
+    )
+    return thinking_element
+
+
+async def capture_reasoning_steps(user_message: str, bot_id: str, history: list = None) -> list:
+    """
+    Quick reasoning extraction to show what the bot is thinking about.
+    Returns list of thinking steps.
+    """
+    steps = []
+
+    # Step 1: Understand the question
+    steps.append({
+        "name": "Understanding the question",
+        "status": "complete",
+        "icon": "🔍",
+        "output": f"User is asking about: {user_message[:100]}..."
+    })
+
+    # Step 2: Check for assumptions (quick pattern match)
+    assumption_patterns = ["assume", "think", "believe", "should", "must", "obviously", "clearly"]
+    has_assumptions = any(p in user_message.lower() for p in assumption_patterns)
+    if has_assumptions:
+        steps.append({
+            "name": "Detecting assumptions",
+            "status": "complete",
+            "icon": "⚠️",
+            "output": "Found assumption language - will probe for validation"
+        })
+
+    # Step 3: Check for solution-jumping
+    solution_patterns = ["we should", "let's build", "the solution is", "i want to create", "my idea is"]
+    has_solution_jump = any(p in user_message.lower() for p in solution_patterns)
+    if has_solution_jump:
+        steps.append({
+            "name": "Checking problem definition",
+            "status": "complete",
+            "icon": "🎯",
+            "output": "Solution language detected - will redirect to problem first"
+        })
+
+    # Step 4: Select methodology
+    methodology_map = {
+        "tta": "Trending to the Absurd",
+        "jtbd": "Jobs to Be Done",
+        "scurve": "S-Curve Analysis",
+        "redteam": "Red Team Challenge",
+        "ackoff": "DIKW Pyramid",
+        "scenario": "Scenario Planning",
+        "beautiful_question": "Beautiful Questions",
+    }
+    if bot_id in methodology_map:
+        steps.append({
+            "name": f"Applying {methodology_map[bot_id]}",
+            "status": "active",
+            "icon": "📚",
+            "output": None
+        })
+    else:
+        steps.append({
+            "name": "Formulating PWS response",
+            "status": "active",
+            "icon": "💭",
+            "output": None
+        })
+
+    return steps
+
+
 # === Context Preservation for Profile Switching ===
 # Store conversation history by user/thread to persist across bot switches
 context_store: Dict[str, Dict[str, Any]] = {}
@@ -6250,6 +6355,49 @@ Your insights help us improve Mindrian!"""
         role="user",
         parts=user_parts
     ))
+
+    # === Extended Thinking UI ===
+    # Show thinking panel for non-simple bots or when explicitly enabled
+    settings = cl.user_session.get("settings", {})
+    show_thinking = settings.get("show_thinking", True)  # Default to showing thinking
+    bot_id = cl.user_session.get("bot_id", "lawrence")
+
+    if show_thinking and not bot.get("simple_mode", False):
+        # Capture reasoning steps before generating response
+        thinking_steps = await capture_reasoning_steps(message.content, bot_id, history)
+
+        # Show thinking as collapsible section
+        methodology_map = {
+            "tta": "Trending to the Absurd",
+            "jtbd": "Jobs to Be Done",
+            "scurve": "S-Curve Analysis",
+            "redteam": "Red Team Challenge",
+            "ackoff": "DIKW Pyramid",
+            "scenario": "Scenario Planning",
+            "beautiful_question": "Beautiful Questions",
+        }
+        methodology = methodology_map.get(bot_id)
+
+        # Build thinking display
+        thinking_md = f"""<details>
+<summary>🧠 **{BOTS.get(bot_id, {}).get('name', 'Larry')}'s Thinking** (click to expand)</summary>
+
+"""
+        for step in thinking_steps:
+            status_icon = "✅" if step["status"] == "complete" else "🔄" if step["status"] == "active" else "⏳"
+            thinking_md += f"- {status_icon} **{step['name']}**"
+            if step.get("output"):
+                thinking_md += f": {step['output']}"
+            thinking_md += "\n"
+
+        if methodology:
+            thinking_md += f"\n*Applying: {methodology}*\n"
+
+        thinking_md += "\n</details>\n"
+
+        # Show thinking panel
+        thinking_msg = cl.Message(content=thinking_md)
+        await thinking_msg.send()
 
     # Create streaming message
     msg = cl.Message(content="")
