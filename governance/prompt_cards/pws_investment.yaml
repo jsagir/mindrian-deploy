@@ -3,8 +3,8 @@
 
 bot_id: pws_investment
 name: PWS Investment Analyzer
-model: gemini-2.0-flash
-model_version: "2.0"
+model: gemini-2.5-pro-preview
+model_version: "2.5-pro-preview"
 prompt_version: "1.0.0"
 prompt_file: prompts/pws_investment.py
 prompt_variable: PWS_INVESTMENT_PROMPT

@@ -3,8 +3,8 @@
 
 bot_id: jtbd
 name: Jobs to Be Done
-model: gemini-2.0-flash
-model_version: "2.0"
+model: gemini-2.5-pro-preview
+model_version: "2.5-pro-preview"
 prompt_version: "1.0.0"
 prompt_file: prompts/jtbd_workshop.py
 prompt_variable: JTBD_WORKSHOP_PROMPT

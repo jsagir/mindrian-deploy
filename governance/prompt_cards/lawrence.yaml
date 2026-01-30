@@ -3,8 +3,8 @@
 
 bot_id: lawrence
 name: Lawrence
-model: gemini-2.5-pro-preview
-model_version: "2.5-preview"
+model: gemini-3-flash-preview
+model_version: "3.0-flash-preview"
 prompt_version: "1.0.0"
 prompt_file: prompts/larry_core.py
 prompt_variable: LARRY_RAG_SYSTEM_PROMPT
