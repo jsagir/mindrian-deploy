@@ -718,53 +718,78 @@ structured = await background_extract_conversation(history, bot_name)
 
 ---
 
-## User Feedback System
+## User Feedback System (Native Chainlit)
 
-Capture user feedback (thumbs up/down) for QA and analytics.
+Built-in human feedback system using Chainlit's native feedback collection with automatic UI.
 
 ### How It Works
 
-1. Chainlit shows thumbs up/down buttons on AI messages (when data persistence is enabled)
-2. User clicks to rate a response
-3. Feedback is stored in Supabase for analytics
+1. **Automatic UI**: Chainlit shows thumbs up/down buttons on ALL AI messages automatically
+2. **User clicks** to rate a response (and optionally add a comment)
+3. **Native data layer** (`utils/data_layer.py`) handles storage via `upsert_feedback()`
+4. **Multi-storage**: PostgreSQL (via SQLAlchemy), CSV export, and Supabase
 
-### Storage
+### Configuration
 
-Feedback is stored in `utils/feedback.py` with Supabase persistence:
+**Step 1: Enable in Config** (already done)
+```toml
+# .chainlit/config.toml
+[features]
+feedback = true
+```
 
-- **In-memory cache**: Fast access during session
-- **Supabase bucket**: Persistent storage in `feedback/{date}/{message_id}.json`
+**Step 2: Data Layer** (already configured)
+The `MindrianDataLayer` in `utils/data_layer.py` extends Chainlit's SQLAlchemyDataLayer with:
+- Automatic CSV export to `analytics/feedback_analytics.csv`
+- Supabase storage in `feedback/{date}/{feedback_id}.json`
+- In-memory cache for fast analytics
+
+### Storage Locations
+
+| Storage | Location | Purpose |
+|---------|----------|---------|
+| PostgreSQL | `DATABASE_URL` | Primary persistence (Chainlit native) |
+| CSV | `analytics/feedback_analytics.csv` | Local analytics export |
+| Supabase | `feedback/{date}/{id}.json` | Cloud backup |
+| Memory | `data_layer.feedback_cache` | Session analytics |
 
 ### Feedback Data Structure
 
 ```json
 {
-  "message_id": "abc123...",
-  "thread_id": "session_xyz",
-  "score": 1,  // 1 = thumbs up, 0 = thumbs down
-  "rating": "positive",
+  "feedback_id": "abc123...",
+  "message_id": "msg456...",
+  "value": 1,
   "comment": "Optional user comment",
-  "bot_id": "lawrence",
-  "phase": "Phase 3",
-  "message_preview": "First 500 chars of AI response...",
-  "user_message_preview": "What user asked...",
   "timestamp": "2026-01-22T10:30:00Z",
-  "date": "2026-01-22"
+  "date": "2026-01-22",
+  "user_id": "user@email.com",
+  "bot_id": "lawrence",
+  "phase": "Introduction",
+  "rating": "positive"
 }
 ```
 
 ### Feedback Analytics
 
 ```python
-from utils.feedback import get_feedback_stats, export_feedback_report
+# Access via data layer
+data_layer = cl.data._data_layer
+stats = data_layer.get_feedback_stats(date="2026-01-22", bot_id="lawrence")
+# Returns: total, positive, negative, satisfaction_rate, by_bot, recent_negative
 
-# Get statistics
-stats = get_feedback_stats(date="2026-01-22", bot_id="lawrence")
-# Returns: total, positive, negative, positive_rate, by_bot, recent_negative
+report = data_layer.export_feedback_report()  # Markdown report
 
-# Export report
-report = export_feedback_report(date="2026-01-22")  # Returns markdown report
+# Or use standalone CSV function
+from utils.data_layer import get_csv_feedback_stats
+stats = get_csv_feedback_stats()
 ```
+
+### Key Files
+
+- `utils/data_layer.py` - MindrianDataLayer with feedback handling
+- `.chainlit/config.toml` - `feedback = true` setting
+- `analytics/feedback_analytics.csv` - Exported feedback data
 
 ---
 

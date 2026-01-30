@@ -21,7 +21,10 @@ allow_origins = ["*"]
 # Enables editing of sent messages
 edit_message = true
 
-# Enable feedback buttons (thumbs up/down)
+# Enable feedback buttons (thumbs up/down) on AI messages
+feedback = true
+
+# Enable prompt playground
 prompt_playground = false
 
 # Enable Chat History

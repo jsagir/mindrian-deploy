@@ -304,26 +304,26 @@ AGENT_TRIGGERS = {
     },
 }
 
-# === Data Persistence Setup ===
+# === Data Persistence Setup with Native Feedback System ===
+# Using MindrianDataLayer which extends SQLAlchemyDataLayer with:
+# - Automatic feedback collection (thumbs up/down UI on all AI messages)
+# - CSV export for analytics
+# - Supabase storage integration
 if DATABASE_URL:
     try:
-        from chainlit.data.sql_alchemy import SQLAlchemyDataLayer
+        from utils.data_layer import create_mindrian_data_layer
 
-        # Convert postgresql:// to postgresql+asyncpg:// for async support
-        db_url = DATABASE_URL
-        if db_url.startswith("postgresql://"):
-            db_url = db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
-        elif db_url.startswith("postgres://"):
-            db_url = db_url.replace("postgres://", "postgresql+asyncpg://", 1)
-
-        # Initialize SQLAlchemy data layer for conversation persistence
-        cl.data._data_layer = SQLAlchemyDataLayer(
-            conninfo=db_url,
-            ssl_require=True
-        )
-        print("✅ Data persistence enabled with PostgreSQL (asyncpg)")
+        # Create custom data layer with feedback analytics
+        data_layer = create_mindrian_data_layer(DATABASE_URL)
+        if data_layer:
+            cl.data._data_layer = data_layer
+            print("✅ Data persistence enabled with MindrianDataLayer (PostgreSQL + Feedback Analytics)")
+        else:
+            print("⚠️ Data layer creation failed")
     except Exception as e:
         print(f"⚠️ Data persistence disabled: {e}")
+        import traceback
+        traceback.print_exc()
 else:
     print("ℹ️ Data persistence disabled (no DATABASE_URL)")
 
@@ -3213,16 +3213,25 @@ async def on_show_scenario_form(action: cl.Action):
 
 @cl.action_callback("show_feedback_dashboard")
 async def on_show_feedback_dashboard(action: cl.Action):
-    """Show the feedback analytics dashboard."""
-    from utils.feedback import get_feedback_dashboard, format_dashboard_message
+    """Show the feedback analytics dashboard using native Chainlit feedback data."""
 
     async with cl.Step(name="Loading Feedback Analytics", type="tool") as step:
-        step.input = "Fetching feedback data from Supabase..."
+        step.input = "Fetching feedback data..."
 
-        dashboard = await get_feedback_dashboard(days=7)
-        message = format_dashboard_message(dashboard)
-
-        step.output = f"Found {dashboard.get('total_feedback', 0)} feedback entries"
+        # Try to use the new MindrianDataLayer first (native Chainlit feedback)
+        data_layer = cl.data._data_layer
+        if hasattr(data_layer, 'get_feedback_stats'):
+            # Using MindrianDataLayer with built-in analytics
+            stats = data_layer.get_feedback_stats()
+            report = data_layer.export_feedback_report()
+            step.output = f"Found {stats.get('total', 0)} feedback entries (from native data layer)"
+            message = report
+        else:
+            # Fallback to old feedback module
+            from utils.feedback import get_feedback_dashboard, format_dashboard_message
+            dashboard = await get_feedback_dashboard(days=7)
+            message = format_dashboard_message(dashboard)
+            step.output = f"Found {dashboard.get('total_feedback', 0)} feedback entries (from Supabase)"
 
     await cl.Message(content=message).send()
 
