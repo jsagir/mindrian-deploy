@@ -6357,9 +6357,9 @@ Your insights help us improve Mindrian!"""
                 elements=image_elements
             ).send()
 
-    # === GRADING BOT: ONE-SHOT AUTOMATIC GRADING ===
-    # When using the grading bot, automatically run the full grading pipeline
-    # when content is provided (file upload or substantial text)
+    # === GRADING BOT: ONE-SHOT AUTONOMOUS ASSESSMENT ===
+    # When using the grading bot, automatically run the full modular assessment engine
+    # with tool calling (Neo4j, FileSearch, Tavily, LangExtract)
     bot_id = cl.user_session.get("bot_id", "lawrence")
     if bot_id == "grading":
         grading_content = None
@@ -6373,78 +6373,96 @@ Your insights help us improve Mindrian!"""
             grading_content = message.content
 
         if grading_content:
-            # Run the full grading pipeline automatically
-            status_msg = cl.Message(content="📝 **Grading submission received.**\n\nRunning complete grading pipeline...")
+            # Run the full modular assessment engine
+            status_msg = cl.Message(content="📝 **Assessment submission received.**\n\n🔄 Running modular assessment engine...")
             await status_msg.send()
 
             try:
-                from tools.grading_workflow import run_grading_pipeline
+                from tools.assessment_engine import run_full_assessment
 
-                # Run all phases automatically
-                async with cl.Step(name="Running Grading Pipeline", type="llm") as step:
-                    step.input = f"Analyzing {len(grading_content):,} characters of student work"
+                session_id = str(cl.user_session.get("id", "anonymous"))
+                user_id = session_id
 
-                    report, results = await run_grading_pipeline(
-                        student_work=grading_content,
-                        student_id=str(cl.user_session.get("id", "anonymous")),
-                        document_id="submission",
-                    )
+                # Module progress tracking
+                async with cl.Step(name="Module 1: Graph Analysis (Neo4j)", type="tool") as step1:
+                    step1.input = "Querying knowledge graph for frameworks, differentials, patterns"
+                    await status_msg.stream_token("\n\n**Module 1:** Analyzing knowledge graph...")
 
-                    step.output = f"Grade: {results.get('letter_grade', 'N/A')} ({results.get('final_score', 0):.1f}/100)"
+                async with cl.Step(name="Module 2: Pattern Discovery (FileSearch)", type="tool") as step2:
+                    step2.input = "Semantic search for cross-domain patterns"
+                    await status_msg.stream_token("\n**Module 2:** Discovering patterns...")
+
+                async with cl.Step(name="Module 3: External Validation (Tavily)", type="tool") as step3:
+                    step3.input = "Validating claims with external research"
+                    await status_msg.stream_token("\n**Module 3:** Validating with research...")
+
+                async with cl.Step(name="Module 4: Synthesis Engine", type="llm") as step4:
+                    step4.input = "Integrating findings, generating insights"
+                    await status_msg.stream_token("\n**Module 4:** Synthesizing findings...")
+
+                # Run the full assessment
+                report, assessment_state = await run_full_assessment(
+                    content=grading_content,
+                    project_name="Student Submission",
+                    project_domain="Problem Discovery",
+                    student_id=session_id
+                )
+
+                await status_msg.stream_token("\n**Module 5:** Generating report...")
+
+                # Extract results for legacy compatibility
+                results = {
+                    "letter_grade": "See Report",
+                    "final_score": 0,
+                    "evidence_count": len(assessment_state.evidence_trail),
+                    "modules_completed": assessment_state.modules_completed,
+                    "phases": {"bias_detection": {"can_proceed": True}}  # Assessment engine doesn't block
+                }
 
                 await status_msg.remove()
 
-                # Check if bias detection blocked the grading
-                if not results.get("phases", {}).get("bias_detection", {}).get("can_proceed", True):
-                    bias_issues = results.get("phases", {}).get("bias_detection", {}).get("issues", [])
-                    await cl.Message(
-                        content=f"⚠️ **Grading Blocked: Critical Bias Detected**\n\n"
-                                f"The submission contains critical cognitive biases that must be addressed:\n\n"
-                                f"{chr(10).join('- ' + issue for issue in bias_issues[:5])}\n\n"
-                                f"*Student should revise and resubmit after addressing these issues.*"
-                    ).send()
-                else:
-                    # Extract and store opportunities found in student work
-                    try:
-                        from tools.opportunity_bank import extract_and_store_opportunities
+                # Extract and store opportunities found in student work
+                try:
+                    from tools.opportunity_bank import extract_and_store_opportunities
 
-                        opps, opp_summary = await extract_and_store_opportunities(
-                            conversation=[{"role": "user", "content": grading_content}],
-                            bot_id="grading",
-                            methodology="Problem Discovery Assessment",
-                            phase="grading",
-                            conversation_id=str(conversation_id),
-                            user_id=str(user_id)
+                    opps, opp_summary = await extract_and_store_opportunities(
+                        conversation=[{"role": "user", "content": grading_content}],
+                        bot_id="grading",
+                        methodology="Problem Discovery Assessment",
+                        phase="grading",
+                        conversation_id=session_id,
+                        user_id=user_id
+                    )
+
+                    if opps:
+                        opp_note = f"\n\n---\n📊 **{len(opps)} opportunity/opportunities extracted** and stored in the Bank of Opportunities."
+                        report += opp_note
+                except Exception as opp_err:
+                    print(f"Opportunity extraction error: {opp_err}")
+
+                # Store assessment results in session for discussion
+                cl.user_session.set("last_grading_results", results)
+                cl.user_session.set("last_grading_report", report)
+                cl.user_session.set("last_graded_content", grading_content[:5000])
+                cl.user_session.set("last_assessment_state", assessment_state.to_dict())
+
+                # Display full assessment report with discussion option
+                await cl.Message(
+                    content=report,
+                    actions=[
+                        cl.Action(
+                            name="discuss_grade",
+                            payload={"grade": "Assessment Complete"},
+                            label="💬 Discuss Assessment with Lawrence",
+                            description="Open conversation to discuss, clarify, or argue the assessment"
+                        ),
+                        cl.Action(
+                            name="grade_student_work",
+                            payload={},
+                            label="📝 Assess Another Submission"
                         )
-
-                        if opps:
-                            opp_note = f"\n\n---\n📊 **{len(opps)} opportunity/opportunities extracted** and stored in the Bank of Opportunities."
-                            report += opp_note
-                    except Exception as opp_err:
-                        print(f"Opportunity extraction error: {opp_err}")
-
-                    # Store grading results in session for discussion
-                    cl.user_session.set("last_grading_results", results)
-                    cl.user_session.set("last_grading_report", report)
-                    cl.user_session.set("last_graded_content", grading_content[:5000])
-
-                    # Display full grading report with discussion option
-                    await cl.Message(
-                        content=report,
-                        actions=[
-                            cl.Action(
-                                name="discuss_grade",
-                                payload={"grade": results.get("letter_grade", "N/A")},
-                                label="💬 Discuss Grade with Lawrence",
-                                description="Open conversation to discuss, clarify, or argue the grading"
-                            ),
-                            cl.Action(
-                                name="grade_student_work",
-                                payload={},
-                                label="📝 Grade Another Submission"
-                            )
-                        ]
-                    ).send()
+                    ]
+                ).send()
 
                 return  # Done - don't continue with normal conversation
 
