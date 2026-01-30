@@ -151,6 +151,20 @@ LangGraph Memory (agents/multi_agent_graph.py)
 - Enables multi-turn reasoning across bot switches
 - Access via: /langgraph-memory or Multi-Agent Analysis button
 
+Extended Thinking UI (public/elements/ThinkingPanel.jsx)
+- Visualizes LLM reasoning steps in collapsible panel
+- Shows thinking BEFORE response is generated
+- Detects assumptions, solution-jumping
+- Applies methodology-specific reasoning
+- Works across all workshop bots (not simple Lawrence)
+
+Voice & Real-Time Audio (utils/realtime_stt.py, utils/elevenlabs_streaming.py)
+- Real-time speech-to-text via Deepgram WebSocket
+- Fallback to Gemini transcription if Deepgram unavailable
+- ElevenLabs TTS with streaming audio output
+- Sub-second response time when Deepgram enabled
+- 3,000+ voice options for brand consistency
+
 ================================================================
 WHAT TO TEST
 ================================================================
@@ -166,6 +180,10 @@ Type "I'm absolutely certain AI will replace all jobs" → does it suggest Beaut
 Select Red Team → is "Extreme Opposition" button visible?
 
 Click Extreme Opposition → type an idea → is critique brutal and one-sided?
+
+Select TTA bot → type a question → do you see "🧠 TTA's Thinking" panel before response?
+
+Click the microphone icon → speak a question → does it transcribe and respond?
 
 Select Scenario Analysis → type a topic → click Next Phase → does it validate completion?
 
