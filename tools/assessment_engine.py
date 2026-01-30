@@ -1259,14 +1259,15 @@ async def run_full_assessment(
             await progress_callback(message)
 
     # Determine which modules to run based on mode
-    run_graph = mode in ["complete", "framework", "progressive", "quick"]
-    run_pattern = mode in ["complete", "pattern", "progressive"]
-    run_validation = mode in ["complete", "validation", "progressive"]
-    run_synthesis = True  # Always run synthesis
-    run_report = True  # Always generate report
+    # NOTE: Using should_ prefix to avoid shadowing function names
+    should_run_graph = mode in ["complete", "framework", "progressive", "quick"]
+    should_run_pattern = mode in ["complete", "pattern", "progressive"]
+    should_run_validation = mode in ["complete", "validation", "progressive"]
+    should_run_synthesis = True  # Always run synthesis
+    should_run_report = True  # Always generate report
 
     # === Module 1: Graph Analysis ===
-    if run_graph:
+    if should_run_graph:
         await notify_progress("Module 1: Querying knowledge graph (Neo4j)...")
         graph_result = await run_graph_analysis(state, content)
         state.module_outputs["graph_analysis"] = graph_result
@@ -1284,7 +1285,7 @@ async def run_full_assessment(
         await notify_progress(f"Module 1 complete: {metrics['frameworks_count']} frameworks found")
 
     # === Module 2: Pattern Discovery ===
-    if run_pattern:
+    if should_run_pattern:
         await notify_progress("Module 2: Discovering patterns (FileSearch)...")
         pattern_result = await run_pattern_discovery(
             state, content,
@@ -1307,7 +1308,7 @@ async def run_full_assessment(
         await notify_progress(f"Module 2 complete: {metrics['patterns_count']} patterns found")
 
     # === Module 3: External Validation ===
-    if run_validation:
+    if should_run_validation:
         await notify_progress("Module 3: Validating with research (Tavily)...")
         validation_result = await run_external_validation(state, content)
         state.module_outputs["external_validation"] = validation_result
@@ -1329,7 +1330,7 @@ async def run_full_assessment(
         await notify_progress(f"Module 3 complete: {rate:.0%} validation rate")
 
     # === Module 4: Synthesis ===
-    if run_synthesis:
+    if should_run_synthesis:
         await notify_progress("Module 4: Synthesizing findings (Gemini)...")
         synthesis_result = await run_synthesis(state)
         state.module_outputs["synthesis"] = synthesis_result
@@ -1346,7 +1347,7 @@ async def run_full_assessment(
         await notify_progress(f"Module 4 complete: {metrics['insights_count']} insights generated")
 
     # === Module 5: Report Generation ===
-    if run_report:
+    if should_run_report:
         await notify_progress("Module 5: Generating report...")
         report = await generate_assessment_report(state)
         state.modules_completed.append("report_generation")
