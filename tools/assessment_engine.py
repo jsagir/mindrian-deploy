@@ -24,7 +24,7 @@ import os
 import json
 import asyncio
 from datetime import datetime
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional, Tuple, Callable
 from dataclasses import dataclass, field, asdict
 from enum import Enum
 import hashlib
@@ -72,12 +72,61 @@ except ImportError:
 # MODULE 0: CORE ENGINE & STATE MANAGEMENT
 # ==============================================================================
 
+# Quality Gates - Minimum thresholds for each module
+QUALITY_GATES = {
+    "graph_analysis": {
+        "frameworks_min": 3,
+        "description": "At least 3 relevant frameworks found"
+    },
+    "pattern_discovery": {
+        "patterns_min": 5,
+        "description": "At least 5 patterns discovered"
+    },
+    "external_validation": {
+        "validation_rate_min": 0.70,
+        "description": "At least 70% of insights validated"
+    },
+    "synthesis": {
+        "insights_min": 3,
+        "description": "At least 3 strategic insights generated"
+    }
+}
+
+# Evidence Tagging Format
+EVIDENCE_TAG_FORMAT = {
+    "neo4j_framework": "Neo4j-Framework-Query-{n}",
+    "neo4j_differential": "Neo4j-Differential-Query-{n}",
+    "neo4j_innovation": "Neo4j-Innovation-Query-{n}",
+    "neo4j_problem": "Neo4j-Problem-Query-{n}",
+    "neo4j_case": "Neo4j-Case-Query-{n}",
+    "filesearch_pattern": "FileSearch-Pattern-{n}",
+    "filesearch_gap": "FileSearch-Gap-{n}",
+    "filesearch_cross": "FileSearch-CrossDomain-{n}",
+    "tavily_validation": "Web-Validation-{n}",
+    "tavily_market": "Web-Market-Research-{n}",
+    "tavily_expert": "Expert-Validation-{n}",
+    "tavily_academic": "Academic-Validation-{n}",
+    "gemini_synthesis": "Synthesis-Internal-{n}",
+    "langextract": "LangExtract-Pattern-{n}"
+}
+
+# Execution Modes
+class ExecutionMode(str, Enum):
+    COMPLETE = "complete"           # Full assessment: Modules 0→1→2→3→4→5
+    FRAMEWORK_ONLY = "framework"    # Framework analysis: Modules 0→1→5
+    PROGRESSIVE = "progressive"     # With checkpoints between modules
+    PATTERN_FOCUSED = "pattern"     # Pattern discovery: Modules 0→2→5
+    VALIDATION_ONLY = "validation"  # Validation focus: Modules 0→3→5
+    QUICK = "quick"                 # Fast assessment: Modules 0→1→4→5 (skip validation)
+
+
 class ModuleStatus(str, Enum):
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
     FAILED = "failed"
     SKIPPED = "skipped"
+    BORDERLINE = "borderline"  # Completed but below quality threshold
 
 
 @dataclass
@@ -114,23 +163,31 @@ class AssessmentState:
     """Complete state of an assessment session."""
     # Metadata
     session_id: str
-    version: str = "3.0-modular"
+    version: str = "3.1-enhanced"
     created_at: str = ""
     updated_at: str = ""
+    execution_mode: str = "complete"
 
     # Project context
     project_name: str = ""
     project_domain: str = ""
     project_description: str = ""
     student_id: str = ""
+    team: List[str] = field(default_factory=list)
+    tools_used: List[str] = field(default_factory=list)
 
     # Module tracking
     modules_completed: List[str] = field(default_factory=list)
     current_module: str = ""
     checkpoints: List[Dict] = field(default_factory=list)
 
+    # Quality tracking
+    quality_warnings: List[Dict] = field(default_factory=list)
+    quality_scores: Dict[str, float] = field(default_factory=dict)
+
     # Evidence trail
     evidence_trail: List[EvidenceItem] = field(default_factory=list)
+    evidence_counter: Dict[str, int] = field(default_factory=dict)
 
     # Module outputs
     module_outputs: Dict[str, ModuleOutput] = field(default_factory=dict)
@@ -145,9 +202,72 @@ class AssessmentState:
         if not self.created_at:
             self.created_at = datetime.utcnow().isoformat()
         self.updated_at = self.created_at
+        # Track which tools are available
+        self.tools_used = []
+        if NEO4J_AVAILABLE:
+            self.tools_used.append("Neo4j")
+        if FILESEARCH_AVAILABLE:
+            self.tools_used.append("FileSearch")
+        if TAVILY_AVAILABLE:
+            self.tools_used.append("Tavily")
+        if LANGEXTRACT_AVAILABLE:
+            self.tools_used.append("LangExtract")
+        if GEMINI_AVAILABLE:
+            self.tools_used.append("Gemini")
 
-    def add_evidence(self, evidence: EvidenceItem):
+    def add_evidence(self, evidence: EvidenceItem, tag_type: str = None):
+        """Add evidence with proper tagging format."""
+        if tag_type and tag_type in EVIDENCE_TAG_FORMAT:
+            # Get counter for this tag type
+            count = self.evidence_counter.get(tag_type, 0) + 1
+            self.evidence_counter[tag_type] = count
+            # Update evidence ID with proper tag format
+            evidence.id = EVIDENCE_TAG_FORMAT[tag_type].format(n=count)
         self.evidence_trail.append(evidence)
+
+    def add_quality_warning(self, module: str, warning: str, severity: str = "warning"):
+        """Add a quality warning for borderline results."""
+        self.quality_warnings.append({
+            "module": module,
+            "warning": warning,
+            "severity": severity,  # warning, critical
+            "timestamp": datetime.utcnow().isoformat()
+        })
+
+    def check_quality_gate(self, module: str, metrics: Dict) -> Tuple[bool, List[str]]:
+        """Check if module output meets quality gates."""
+        if module not in QUALITY_GATES:
+            return True, []
+
+        gate = QUALITY_GATES[module]
+        warnings = []
+        passed = True
+
+        if module == "graph_analysis":
+            if metrics.get("frameworks_count", 0) < gate["frameworks_min"]:
+                warnings.append(f"Only {metrics.get('frameworks_count', 0)} frameworks found (min: {gate['frameworks_min']})")
+                passed = False
+
+        elif module == "pattern_discovery":
+            if metrics.get("patterns_count", 0) < gate["patterns_min"]:
+                warnings.append(f"Only {metrics.get('patterns_count', 0)} patterns found (min: {gate['patterns_min']})")
+                passed = False
+
+        elif module == "external_validation":
+            rate = metrics.get("validation_rate", 0)
+            if rate < gate["validation_rate_min"]:
+                warnings.append(f"Validation rate {rate:.0%} below threshold ({gate['validation_rate_min']:.0%})")
+                passed = False
+
+        elif module == "synthesis":
+            if metrics.get("insights_count", 0) < gate["insights_min"]:
+                warnings.append(f"Only {metrics.get('insights_count', 0)} insights generated (min: {gate['insights_min']})")
+                passed = False
+
+        # Store quality score
+        self.quality_scores[module] = 1.0 if passed else 0.5
+
+        return passed, warnings
 
     def checkpoint(self) -> Dict:
         """Create a checkpoint for resumption."""
@@ -156,7 +276,8 @@ class AssessmentState:
             "timestamp": datetime.utcnow().isoformat(),
             "current_module": self.current_module,
             "modules_completed": self.modules_completed.copy(),
-            "evidence_count": len(self.evidence_trail)
+            "evidence_count": len(self.evidence_trail),
+            "quality_warnings": len(self.quality_warnings)
         }
         self.checkpoints.append(cp)
         return cp
@@ -165,11 +286,16 @@ class AssessmentState:
         return {
             "session_id": self.session_id,
             "version": self.version,
+            "execution_mode": self.execution_mode,
             "created_at": self.created_at,
             "project_name": self.project_name,
             "project_domain": self.project_domain,
+            "team": self.team,
+            "tools_used": self.tools_used,
             "modules_completed": self.modules_completed,
             "evidence_count": len(self.evidence_trail),
+            "quality_warnings": self.quality_warnings,
+            "quality_scores": self.quality_scores,
             "checkpoints": self.checkpoints,
             "module_outputs": {k: asdict(v) if hasattr(v, '__dataclass_fields__') else v
                               for k, v in self.module_outputs.items()}
@@ -399,9 +525,21 @@ async def run_graph_analysis(
             error=str(e)
         )
 
-    # Add evidence to state
+    # Add evidence to state with proper tagging
     for ev in evidence:
-        state.add_evidence(ev)
+        # Determine tag type based on source_id
+        if "framework_discovery" in ev.source_id:
+            state.add_evidence(ev, tag_type="neo4j_framework")
+        elif "differential" in ev.source_id:
+            state.add_evidence(ev, tag_type="neo4j_differential")
+        elif "innovation" in ev.source_id:
+            state.add_evidence(ev, tag_type="neo4j_innovation")
+        elif "problem" in ev.source_id:
+            state.add_evidence(ev, tag_type="neo4j_problem")
+        elif "case" in ev.source_id:
+            state.add_evidence(ev, tag_type="neo4j_case")
+        else:
+            state.add_evidence(ev)
 
     state.frameworks_found = results["frameworks"]
 
@@ -544,9 +682,17 @@ async def run_pattern_discovery(
             error=str(e)
         )
 
-    # Add evidence to state
+    # Add evidence to state with proper tagging
     for ev in evidence:
-        state.add_evidence(ev)
+        # Determine tag type based on source_id
+        if "pattern_search" in ev.source_id:
+            state.add_evidence(ev, tag_type="filesearch_pattern")
+        elif "gap_validation" in ev.source_id:
+            state.add_evidence(ev, tag_type="filesearch_gap")
+        elif "cross_domain" in ev.source_id:
+            state.add_evidence(ev, tag_type="filesearch_cross")
+        else:
+            state.add_evidence(ev)
 
     state.patterns_discovered = results["patterns"]
 
@@ -710,9 +856,18 @@ async def run_external_validation(
             error=str(e)
         )
 
-    # Add evidence to state
+    # Add evidence to state with proper tagging
     for ev in evidence:
-        state.add_evidence(ev)
+        # Determine tag type based on metadata or source
+        ev_type = ev.metadata.get("type", "")
+        if ev_type == "market_research":
+            state.add_evidence(ev, tag_type="tavily_market")
+        elif ev_type == "expert":
+            state.add_evidence(ev, tag_type="tavily_expert")
+        elif "claim" in ev.metadata:
+            state.add_evidence(ev, tag_type="tavily_validation")
+        else:
+            state.add_evidence(ev)
 
     state.validations = results["confirmed_insights"] + results["challenged_insights"]
 
@@ -858,7 +1013,7 @@ async def run_synthesis(state: AssessmentState) -> ModuleOutput:
 
         synthesis_data = json.loads(text)
 
-        # Add synthesis evidence
+        # Add synthesis evidence with proper tagging
         evidence = [EvidenceItem(
             id="synth_main",
             source_type="gemini",
@@ -867,6 +1022,10 @@ async def run_synthesis(state: AssessmentState) -> ModuleOutput:
             confidence=0.9,
             metadata={"themes": synthesis_data.get("key_themes", [])}
         )]
+
+        # Add evidence to state with gemini_synthesis tag
+        for ev in evidence:
+            state.add_evidence(ev, tag_type="gemini_synthesis")
 
         state.synthesis = synthesis_data
 
@@ -1066,10 +1225,21 @@ async def run_full_assessment(
     content: str,
     project_name: str = "Innovation Project",
     project_domain: str = "",
-    student_id: str = ""
+    student_id: str = "",
+    team: List[str] = None,
+    mode: str = "complete",
+    progress_callback: Callable = None
 ) -> Tuple[str, AssessmentState]:
     """
-    Run complete innovation assessment through all modules.
+    Run innovation assessment with configurable execution modes.
+
+    Modes:
+    - "complete": Full assessment (Modules 0→1→2→3→4→5)
+    - "framework": Framework analysis only (Modules 0→1→5)
+    - "progressive": With checkpoints between modules
+    - "pattern": Pattern discovery focus (Modules 0→2→5)
+    - "validation": Validation focus (Modules 0→3→5)
+    - "quick": Fast assessment (Modules 0→1→4→5)
 
     Returns: (report_string, assessment_state)
     """
@@ -1080,38 +1250,164 @@ async def run_full_assessment(
         project_description=content[:500],
         student_id=student_id
     )
+    state.execution_mode = mode
+    state.team = team or []
 
-    # Module 1: Graph Analysis
-    graph_result = await run_graph_analysis(state, content)
-    state.module_outputs["graph_analysis"] = graph_result
-    state.modules_completed.append("graph_analysis")
-    state.checkpoint()
+    async def notify_progress(message: str):
+        """Send progress update if callback provided."""
+        if progress_callback:
+            await progress_callback(message)
 
-    # Module 2: Pattern Discovery
-    pattern_result = await run_pattern_discovery(
-        state, content,
-        frameworks=graph_result.data.get("frameworks", [])
-    )
-    state.module_outputs["pattern_discovery"] = pattern_result
-    state.modules_completed.append("pattern_discovery")
-    state.checkpoint()
+    # Determine which modules to run based on mode
+    run_graph = mode in ["complete", "framework", "progressive", "quick"]
+    run_pattern = mode in ["complete", "pattern", "progressive"]
+    run_validation = mode in ["complete", "validation", "progressive"]
+    run_synthesis = True  # Always run synthesis
+    run_report = True  # Always generate report
 
-    # Module 3: External Validation
-    validation_result = await run_external_validation(state, content)
-    state.module_outputs["external_validation"] = validation_result
-    state.modules_completed.append("external_validation")
-    state.checkpoint()
+    # === Module 1: Graph Analysis ===
+    if run_graph:
+        await notify_progress("Module 1: Querying knowledge graph (Neo4j)...")
+        graph_result = await run_graph_analysis(state, content)
+        state.module_outputs["graph_analysis"] = graph_result
+        state.modules_completed.append("graph_analysis")
 
-    # Module 4: Synthesis
-    synthesis_result = await run_synthesis(state)
-    state.module_outputs["synthesis"] = synthesis_result
-    state.modules_completed.append("synthesis")
+        # Quality gate check
+        metrics = {"frameworks_count": len(graph_result.data.get("frameworks", []))}
+        passed, warnings = state.check_quality_gate("graph_analysis", metrics)
+        if not passed:
+            for w in warnings:
+                state.add_quality_warning("graph_analysis", w, "warning")
+            graph_result.status = ModuleStatus.BORDERLINE
 
-    # Module 5: Report Generation
-    report = await generate_assessment_report(state)
-    state.modules_completed.append("report_generation")
+        state.checkpoint()
+        await notify_progress(f"Module 1 complete: {metrics['frameworks_count']} frameworks found")
+
+    # === Module 2: Pattern Discovery ===
+    if run_pattern:
+        await notify_progress("Module 2: Discovering patterns (FileSearch)...")
+        pattern_result = await run_pattern_discovery(
+            state, content,
+            frameworks=state.module_outputs.get("graph_analysis", ModuleOutput(
+                module_id="", status="", data={}, evidence=[], execution_time_ms=0
+            )).data.get("frameworks", [])
+        )
+        state.module_outputs["pattern_discovery"] = pattern_result
+        state.modules_completed.append("pattern_discovery")
+
+        # Quality gate check
+        metrics = {"patterns_count": len(pattern_result.data.get("patterns", []))}
+        passed, warnings = state.check_quality_gate("pattern_discovery", metrics)
+        if not passed:
+            for w in warnings:
+                state.add_quality_warning("pattern_discovery", w, "warning")
+            pattern_result.status = ModuleStatus.BORDERLINE
+
+        state.checkpoint()
+        await notify_progress(f"Module 2 complete: {metrics['patterns_count']} patterns found")
+
+    # === Module 3: External Validation ===
+    if run_validation:
+        await notify_progress("Module 3: Validating with research (Tavily)...")
+        validation_result = await run_external_validation(state, content)
+        state.module_outputs["external_validation"] = validation_result
+        state.modules_completed.append("external_validation")
+
+        # Quality gate check
+        confirmed = len(validation_result.data.get("confirmed_insights", []))
+        challenged = len(validation_result.data.get("challenged_insights", []))
+        total = confirmed + challenged
+        rate = confirmed / total if total > 0 else 0
+        metrics = {"validation_rate": rate}
+        passed, warnings = state.check_quality_gate("external_validation", metrics)
+        if not passed:
+            for w in warnings:
+                state.add_quality_warning("external_validation", w, "warning")
+            validation_result.status = ModuleStatus.BORDERLINE
+
+        state.checkpoint()
+        await notify_progress(f"Module 3 complete: {rate:.0%} validation rate")
+
+    # === Module 4: Synthesis ===
+    if run_synthesis:
+        await notify_progress("Module 4: Synthesizing findings (Gemini)...")
+        synthesis_result = await run_synthesis(state)
+        state.module_outputs["synthesis"] = synthesis_result
+        state.modules_completed.append("synthesis")
+
+        # Quality gate check
+        metrics = {"insights_count": len(synthesis_result.data.get("strategic_insights", []))}
+        passed, warnings = state.check_quality_gate("synthesis", metrics)
+        if not passed:
+            for w in warnings:
+                state.add_quality_warning("synthesis", w, "warning")
+            synthesis_result.status = ModuleStatus.BORDERLINE
+
+        await notify_progress(f"Module 4 complete: {metrics['insights_count']} insights generated")
+
+    # === Module 5: Report Generation ===
+    if run_report:
+        await notify_progress("Module 5: Generating report...")
+        report = await generate_assessment_report(state)
+        state.modules_completed.append("report_generation")
+
+        # Export report to file
+        report_path = await export_assessment_report(state, report)
+        state.updated_at = datetime.utcnow().isoformat()
+
+        await notify_progress(f"Assessment complete! Report: {report_path}")
 
     return report, state
+
+
+async def export_assessment_report(state: AssessmentState, report: str) -> str:
+    """Export assessment report to file."""
+    import os
+    from pathlib import Path
+
+    # Create output directory
+    output_dir = Path("outputs/assessments")
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Generate filename
+    timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+    safe_name = "".join(c if c.isalnum() else "_" for c in state.project_name[:30])
+    filename = f"{safe_name}_{timestamp}.md"
+    filepath = output_dir / filename
+
+    # Write report
+    with open(filepath, 'w', encoding='utf-8') as f:
+        f.write(report)
+
+    # Also export state as JSON
+    state_filename = f"{safe_name}_{timestamp}_state.json"
+    state_filepath = output_dir / state_filename
+    with open(state_filepath, 'w', encoding='utf-8') as f:
+        json.dump(state.to_dict(), f, indent=2, default=str)
+
+    return str(filepath)
+
+
+# Convenience functions for different execution modes
+
+async def run_framework_assessment(content: str, project_name: str = "Project") -> Tuple[str, AssessmentState]:
+    """Run framework-only assessment (Neo4j + Report)."""
+    return await run_full_assessment(content, project_name, mode="framework")
+
+
+async def run_pattern_assessment(content: str, project_name: str = "Project") -> Tuple[str, AssessmentState]:
+    """Run pattern-focused assessment (FileSearch + Report)."""
+    return await run_full_assessment(content, project_name, mode="pattern")
+
+
+async def run_validation_assessment(content: str, project_name: str = "Project") -> Tuple[str, AssessmentState]:
+    """Run validation-focused assessment (Tavily + Report)."""
+    return await run_full_assessment(content, project_name, mode="validation")
+
+
+async def run_quick_assessment(content: str, project_name: str = "Project") -> Tuple[str, AssessmentState]:
+    """Run quick assessment (skip external validation)."""
+    return await run_full_assessment(content, project_name, mode="quick")
 
 
 # ==============================================================================
