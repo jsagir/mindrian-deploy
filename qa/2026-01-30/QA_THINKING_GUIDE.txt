@@ -1,0 +1,415 @@
+Let me challenge your thinking:
+
+> What if a QA checklist didn't just *list features* — but actually *taught you how to think* about what's changing in your system?
+
+That's what we're going to do here.
+
+---
+
+## FRAME THE JOURNEY
+
+**What are we trying to understand?**
+Whether the system behaves as intended after 27+ major codebase changes.
+
+**Why does it matter?**
+Because the illusion of progress is dangerous. Features aren't valuable if they aren't understood, tested, or used correctly.
+
+**What happens if we get it wrong?**
+Subtle failures hide in plain sight. UX confuses users. Bots act unpredictably. Confidence collapses.
+
+**What will we be able to do after this?**
+Systematically test each new behavior — not just *that* something changed, but *why*, *how*, and *what to expect next*.
+
+---
+
+# QA Review Guide: Thinking Through Change
+
+**Branch:** `claude/review-codebase-nRTQ3`
+**Commits:** 27+
+**Lines:** +15,000
+**Date:** Jan 29–30, 2026
+
+---
+
+## 🔍 FEATURE 1: Extended Thinking UI
+
+> *"What happens when a bot shows its work?"*
+
+**Before:** Responses just appeared.
+**Now:** A collapsible "🧠 Thinking" panel appears before every answer (in most bots).
+
+**Test for Understanding:**
+
+* Does the panel appear *before* the bot speaks?
+* Do you see ✅, 🔄, or ⚠️ status indicators?
+* Does Lawrence mode **not** show it?
+
+**Scenarios:**
+
+1. TTA → "What if everyone worked remotely forever?" → 🧠 shows reasoning steps.
+2. Red Team → "Our customers will definitely pay $100/month" → ⚠️ Assumptions flagged.
+3. Lawrence → "Help me explore a business idea" → NO panel (by design).
+
+---
+
+## 🧭 FEATURE 2: Cynefin-Aware Agent Suggestions
+
+> *"What if the system could diagnose the *type* of problem you're facing?"*
+
+Now it does. Based on the Cynefin framework:
+
+| Problem Type | Bot Suggested |
+| ------------ | ------------- |
+| Simple       | Ackoff        |
+| Complicated  | S-Curve, JTBD |
+| Complex      | TTA, Scenario |
+| Chaotic      | Red Team      |
+
+**Test:**
+
+* Lawrence → "Everything's breaking!" → Suggests Red Team.
+* Lawrence → "What's education in 20 years?" → Suggests TTA.
+* Lawrence → "When should we launch?" → Suggests S-Curve.
+
+---
+
+## ❓ FEATURE 3: Beautiful Questions Auto-Trigger
+
+> *"Are we asking the right question at the right time?"*
+
+System now detects whether you're in a:
+
+* **WHY** phase (certainty, no problem) → triggers BQ bot
+* **WHAT IF** phase (exploring) → triggers TTA
+* **HOW** phase (solutions) → triggers planning tools
+
+**Test:**
+
+* "AI will definitely replace most jobs" → Beautiful Questions bot should appear.
+
+---
+
+## 🛑 FEATURE 4: Extreme Opposition Mode
+
+> *"Can you survive a Red Team attack?"*
+
+**New toggle**: "🔴 Extreme Opposition"
+Once activated, Red Team drops all balance and attacks relentlessly.
+
+**Test Cases:**
+
+1. Turn it on → "EXTREME OPPOSITION MODE ACTIVATED"
+2. Say: "Sell premium bottled water" → Pure critique, no compliments.
+3. Turn it off → "Normal Mode Restored"
+
+---
+
+## 🧠 FEATURE 5: AI-Powered Research Synthesis
+
+> *"What if your bot could read like a grad student?"*
+
+"Deep Research" now returns:
+
+* Relevance scores (0.0–1.0)
+* Source authority rankings
+* Framed via the PWS model
+
+**Test:**
+
+1. TTA → "Explore plant-based meat" → Click **Deep Research**
+2. Watch the spinner → Get results with scores and insights.
+
+---
+
+## 🌀 FEATURE 6: Smart Phase Transitions
+
+> *"Don't move forward just because you can — do it because you're ready."*
+
+**New behaviors:**
+
+* Shows % complete before "Next Phase"
+* Warns if deliverables are missing
+* Offers "Proceed Anyway" override
+
+**Test:**
+
+* Say "hi" → click Next Phase → See progress status and override.
+* Click Next Phase multiple times, switch bots → Progress should persist.
+
+---
+
+## 🔁 FEATURE 7: Show Example Pipeline
+
+> *"Examples are only helpful if they're *different* every time."*
+
+"Show Example" pulls from 3 systems (LazyGraph → File Search → Tavily), and tracks what you've already seen.
+
+**Test:**
+
+* TTA → Click "Show Example" 3 times → Each example should be new.
+
+---
+
+## 🎙 FEATURE 8: Voice Input
+
+> *"Say it out loud. Let the system listen."*
+
+**Test:**
+
+1. Click the mic icon (bottom left)
+2. Speak: "What is a problem worth solving?"
+3. Check for correct transcription and thoughtful response.
+
+---
+
+## 🎓 FEATURE 9: Problem Discovery Grading Agent (NEW)
+
+> *"What if we could objectively measure whether students found REAL problems?"*
+
+This is the most sophisticated new addition. A complete grading pipeline that evaluates student work on problem discovery methodology.
+
+**The Core Question:**
+Did they find problems that are REAL, or just assumptions dressed up as insights?
+
+**Grading Formula:**
+```
+Discovery_Score = 0.35×PR + 0.25×PD + 0.20×FI + 0.10×MT + 0.05×CW + 0.05×IW
+```
+
+| Component | Weight | What It Measures |
+|-----------|--------|------------------|
+| Problem Reality (PR) | 35% | "Is it Real?" — evidence vs. assumptions |
+| Problem Discovery (PD) | 25% | How many validated problems found? |
+| Framework Integration (FI) | 20% | Did they use PWS tools correctly? |
+| Mindrian Thinking (MT) | 10% | Did they find hidden connections? |
+| Can We Win (CW) | 5% | Basic capability check |
+| Is it Worth It (IW) | 5% | Basic market sizing |
+
+**The 8-Phase Pipeline:**
+
+1. **Bias Detection (MANDATORY)** — 7 critical biases checked before grading proceeds
+2. **Domain Analysis** — What domains are addressed vs. overlooked?
+3. **Framework Validation** — Were JTBD, TTA, 5 Whys used correctly?
+4. **Problem Extraction** — Classify: validated / assumed / fantasy
+5. **Evidence Quality** — User quotes? Frequency data? Root cause?
+6. **Score Calculation** — Apply weighted formula
+7. **Quality Validation** — All thresholds met?
+8. **Report Generation** — Full structured output
+
+**Test Scenarios:**
+
+1. **Access the Grading Bot**
+   - Switch to "Problem Discovery Grading" in chat profiles
+   - See the welcome message explaining the grading approach
+
+2. **Full Grade Pipeline**
+   - Upload a student PDF/DOCX
+   - Click "Grade Student Work" or say "I want to grade student work"
+   - Watch the pipeline phases execute
+   - LOOK FOR:
+     - Bias detection completes (>= 75% confidence required)
+     - Grade breakdown table appears
+     - PWS quality scores shown
+     - JSON handoff generated
+
+3. **Quick Grade**
+   - Upload a document
+   - Click "Quick Grade"
+   - LOOK FOR:
+     - Faster result (no full pipeline)
+     - Letter grade and verdict
+     - Option to run full grade
+
+4. **Bias Detection Blocking**
+   - Upload obviously biased work
+   - LOOK FOR:
+     - "Grading Blocked" message if confidence < 75%
+     - List of detected biases
+     - Cannot proceed without addressing
+
+5. **Export & Explain**
+   - After grading completes
+   - Click "Export JSON" → structured data
+   - Click "Explain This Grade" → detailed rationale
+
+**Critical Understanding:**
+Finding ONE deeply validated real problem is worth more than 20 assumed problems. The grading reflects this.
+
+---
+
+## 📊 FEATURE 10: Claims-Aware Presentation Analyzer (NEW)
+
+> *"What if PDFs weren't just text dumps — but structured arguments to dissect?"*
+
+This feature transforms how we analyze uploaded presentations and PDFs.
+
+**Before:** Extract text, lose all visual context.
+**Now:** Convert PDF pages to images, analyze visually with Gemini multimodal, extract claims with PWS methodology.
+
+**What Gets Extracted:**
+
+| Category | Examples |
+|----------|----------|
+| Primary Thesis | The main argument in one sentence |
+| Key Claims | Supporting arguments (numbered) |
+| Evidence Anchors | Data, research, quotes supporting claims |
+| Presenters | Names, roles, affiliations |
+| Research Citations | Academic references, studies |
+| Links & Resources | URLs, external references |
+| Key Data Points | Statistics, metrics, numbers |
+
+**PWS Analysis Layer (via LangExtract):**
+
+| PWS Field | What It Catches |
+|-----------|-----------------|
+| Core Problem | Main problem being addressed |
+| Stated Assumptions | Explicit "we assume..." statements |
+| Hidden Assumptions | Implied but unstated assumptions |
+| Potential Biases | Confirmation bias, survivorship, etc. |
+| Open Questions | What remains unanswered |
+| PWS Quality Scores | Problem clarity, data grounding, assumption awareness (0-10) |
+| Coaching Hint | Invisible guidance for follow-up |
+
+**Test Scenarios:**
+
+1. **PDF Visual Analysis**
+   - Upload a slide deck PDF
+   - LOOK FOR:
+     - "Extracted X page images from PDF" message
+     - Visual elements described in output
+     - Slide-by-slide analysis
+
+2. **Claims Extraction**
+   - Upload any presentation
+   - LOOK FOR:
+     - Primary thesis identified
+     - Key claims numbered
+     - Evidence anchors listed
+     - Presenters extracted
+
+3. **PWS Methodology Section**
+   - Upload a business proposal PDF
+   - LOOK FOR:
+     - "🧪 PWS METHODOLOGY ANALYSIS" section
+     - Stated assumptions listed
+     - Hidden assumptions surfaced
+     - PWS quality scores (X/10)
+     - Suggested next steps
+
+4. **Content Signals**
+   - LOOK FOR at bottom of analysis:
+     - "📊 Data present" if statistics found
+     - "📚 Sources cited" if references found
+     - "🎯 PWS elements" if problems/assumptions detected
+     - "🔮 Forward-looking" if trends/predictions present
+
+5. **Coaching Hint**
+   - If student jumps to solutions without defining problem:
+   - LOOK FOR: "💡 COACHING INSIGHT" section
+   - Should redirect to problem definition
+
+**Note:** Requires `pdf2image` and `poppler-utils` installed on server for visual extraction. Falls back to text-only if unavailable.
+
+---
+
+## 🔬 EDGE CASE TESTS
+
+* Lawrence first message → No 🧠 panel? ✅
+* Switch bots mid-chat → Context preserved? ✅
+* No API key? → Error shown, others work? ✅
+* Grading bot + no document → Prompts for upload? ✅
+* PDF without images installed → Falls back to text? ✅
+* Bias detection fails → Blocks grading with explanation? ✅
+
+---
+
+## ✅ QUICK TEST CHECKLIST
+
+**Original Features:**
+* [ ] TTA → Question → 🧠 Panel visible?
+* [ ] "Chaos" prompt → Red Team suggested?
+* [ ] "AI will replace jobs" → BQ triggered?
+* [ ] Red Team → 🔴 Mode → Brutal feedback?
+* [ ] Deep Research → Scores and sources?
+* [ ] Next Phase → % complete? Override?
+* [ ] Show Example 3x → Unique outputs?
+* [ ] Voice input → Transcribed & processed?
+
+**Grading Agent (NEW):**
+* [ ] Grading bot → Welcome message with methodology table?
+* [ ] Upload PDF → Full grading pipeline runs?
+* [ ] Bias detection → 7 biases checked?
+* [ ] Grade output → Letter grade + breakdown table?
+* [ ] Export JSON → Structured data available?
+* [ ] Explain Grade → Rationale expanded?
+* [ ] Quick Grade → Faster result with verdict?
+
+**Presentation Analyzer (NEW):**
+* [ ] PDF upload → Page images extracted?
+* [ ] Claims → Primary thesis identified?
+* [ ] PWS Section → Assumptions listed?
+* [ ] Quality Scores → Problem clarity shown?
+* [ ] Coaching Hint → Appears when needed?
+
+---
+
+## 🛠 HOW TO REPORT BUGS
+
+Send to **Sagir** with:
+
+1. Feature (include "Grading Agent" or "Presentation Analyzer" if applicable)
+2. Bot
+3. What you typed / uploaded
+4. What you expected
+5. What happened
+6. Screenshot
+
+---
+
+## 🚫 Known Issues (Don't Report)
+
+* OAuth off
+* 🧠 Panel = Workshop bots only
+* Research errors if no API key
+* PDF visual extraction requires poppler-utils (text fallback works)
+* Grading requires gemini-3-flash-preview model access
+* Quick grade is simplified (no bias detection)
+
+---
+
+## 🧪 NEW DEPENDENCIES TO VERIFY
+
+For full functionality, ensure these are configured:
+
+| Dependency | Feature | Fallback |
+|------------|---------|----------|
+| pdf2image + poppler | PDF visual analysis | Text-only extraction |
+| Neo4j connection | Grading hidden connections | Reduced MT score |
+| FileSearch RAG | Framework validation | Limited context |
+| LangExtract | PWS pattern detection | Basic extraction |
+| gemini-3-flash-preview | Complex grading reasoning | gemini-2.0-flash |
+
+---
+
+### CRITICAL TAKEAWAY
+
+**Every new feature is a lens on thinking.**
+You're not just testing functionality — you're testing cognition.
+
+The Grading Agent asks: "Did they find REAL problems?"
+The Presentation Analyzer asks: "What claims are being made, and are they grounded?"
+
+Both are about **truth-seeking over confirmation**.
+
+---
+
+### NEXT STEP
+
+**Your mission**: Break it. Stretch it. Confuse it.
+Because *only in the breakdown* can we understand what really works.
+
+Upload the worst student work you can find.
+Upload a presentation full of assumptions.
+See what the system catches — and what it misses.
+
+**That's how we learn.**
