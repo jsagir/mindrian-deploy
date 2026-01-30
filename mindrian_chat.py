@@ -505,17 +505,7 @@ WORKSHOP_PHASES = {
         {"name": "HOW: MVP Design", "status": "pending"},
         {"name": "Action Plan", "status": "pending"},
     ],
-    "grading": [
-        {"name": "Upload Work", "status": "ready"},
-        {"name": "Bias Detection", "status": "pending"},
-        {"name": "Domain Analysis", "status": "pending"},
-        {"name": "Framework Validation", "status": "pending"},
-        {"name": "Problem Extraction", "status": "pending"},
-        {"name": "Evidence Quality", "status": "pending"},
-        {"name": "Score Calculation", "status": "pending"},
-        {"name": "Quality Validation", "status": "pending"},
-        {"name": "Report Generation", "status": "pending"},
-    ],
+    # Note: grading is one-shot, not a phased workshop
 }
 
 # === Bot Configurations ===
@@ -852,7 +842,7 @@ Tell me what problem you're trying to solve, and we'll start by questioning whet
         "emoji": "🎓",
         "description": "Grade student work on problem discovery and validation methodology",
         "system_prompt": GRADING_AGENT_PROMPT,
-        "has_phases": True,
+        "has_phases": False,  # One-shot grading, not a phased workshop
         "simple_mode": False,
         "welcome": """🎓 **Problem Discovery Grading Agent**
 ### Evaluating Real Problem Discovery
@@ -6367,6 +6357,105 @@ Your insights help us improve Mindrian!"""
                 elements=image_elements
             ).send()
 
+    # === GRADING BOT: ONE-SHOT AUTOMATIC GRADING ===
+    # When using the grading bot, automatically run the full grading pipeline
+    # when content is provided (file upload or substantial text)
+    bot_id = cl.user_session.get("bot_id", "lawrence")
+    if bot_id == "grading":
+        grading_content = None
+
+        # Check for uploaded document content
+        if file_context and len(file_context) > 200:
+            grading_content = file_context
+
+        # Or check for pasted text (substantial content = likely student work)
+        elif len(message.content) > 500:  # >500 chars = probably student work, not a question
+            grading_content = message.content
+
+        if grading_content:
+            # Run the full grading pipeline automatically
+            status_msg = cl.Message(content="📝 **Grading submission received.**\n\nRunning complete grading pipeline...")
+            await status_msg.send()
+
+            try:
+                from tools.grading_workflow import run_grading_pipeline
+
+                # Run all phases automatically
+                async with cl.Step(name="Running Grading Pipeline", type="llm") as step:
+                    step.input = f"Analyzing {len(grading_content):,} characters of student work"
+
+                    report, results = await run_grading_pipeline(
+                        student_work=grading_content,
+                        student_id=str(cl.user_session.get("id", "anonymous")),
+                        document_id="submission",
+                    )
+
+                    step.output = f"Grade: {results.get('letter_grade', 'N/A')} ({results.get('final_score', 0):.1f}/100)"
+
+                await status_msg.remove()
+
+                # Check if bias detection blocked the grading
+                if not results.get("phases", {}).get("bias_detection", {}).get("can_proceed", True):
+                    bias_issues = results.get("phases", {}).get("bias_detection", {}).get("issues", [])
+                    await cl.Message(
+                        content=f"⚠️ **Grading Blocked: Critical Bias Detected**\n\n"
+                                f"The submission contains critical cognitive biases that must be addressed:\n\n"
+                                f"{chr(10).join('- ' + issue for issue in bias_issues[:5])}\n\n"
+                                f"*Student should revise and resubmit after addressing these issues.*"
+                    ).send()
+                else:
+                    # Extract and store opportunities found in student work
+                    try:
+                        from tools.opportunity_bank import extract_and_store_opportunities
+
+                        opps, opp_summary = await extract_and_store_opportunities(
+                            conversation=[{"role": "user", "content": grading_content}],
+                            bot_id="grading",
+                            methodology="Problem Discovery Assessment",
+                            phase="grading",
+                            conversation_id=str(conversation_id),
+                            user_id=str(user_id)
+                        )
+
+                        if opps:
+                            opp_note = f"\n\n---\n📊 **{len(opps)} opportunity/opportunities extracted** and stored in the Bank of Opportunities."
+                            report += opp_note
+                    except Exception as opp_err:
+                        print(f"Opportunity extraction error: {opp_err}")
+
+                    # Store grading results in session for discussion
+                    cl.user_session.set("last_grading_results", results)
+                    cl.user_session.set("last_grading_report", report)
+                    cl.user_session.set("last_graded_content", grading_content[:5000])
+
+                    # Display full grading report with discussion option
+                    await cl.Message(
+                        content=report,
+                        actions=[
+                            cl.Action(
+                                name="discuss_grade",
+                                payload={"grade": results.get("letter_grade", "N/A")},
+                                label="💬 Discuss Grade with Lawrence",
+                                description="Open conversation to discuss, clarify, or argue the grading"
+                            ),
+                            cl.Action(
+                                name="grade_student_work",
+                                payload={},
+                                label="📝 Grade Another Submission"
+                            )
+                        ]
+                    ).send()
+
+                return  # Done - don't continue with normal conversation
+
+            except Exception as e:
+                await status_msg.remove()
+                await cl.Message(content=f"❌ **Grading Error**: {str(e)[:300]}\n\nPlease try again or contact support.").send()
+                return
+
+        # If no substantial content, just respond with instructions
+        # (handled by normal conversation flow below)
+
     # Build contents for Gemini
     contents = []
     for msg in history:
@@ -7863,6 +7952,75 @@ async def on_quick_grade(action: cl.Action):
 
     file = files[0]
     await _run_quick_grading(file.path, file.name)
+
+
+@cl.action_callback("discuss_grade")
+async def on_discuss_grade(action: cl.Action):
+    """Switch to Lawrence to discuss the grading results."""
+    # Get the grading context
+    grading_results = cl.user_session.get("last_grading_results", {})
+    grading_report = cl.user_session.get("last_grading_report", "")
+    graded_content = cl.user_session.get("last_graded_content", "")
+
+    if not grading_results:
+        await cl.Message(content="No recent grading results found. Please grade a submission first.").send()
+        return
+
+    # Switch to Lawrence
+    cl.user_session.set("bot_id", "lawrence")
+    cl.user_session.set("bot", BOTS["lawrence"])
+
+    # Prepare context for discussion
+    grade = grading_results.get("letter_grade", "N/A")
+    score = grading_results.get("final_score", 0)
+
+    discussion_context = f"""## Grading Discussion Context
+
+**Grade Received:** {grade} ({score:.1f}/100)
+
+**Grade Breakdown:**
+{grading_report[:3000] if grading_report else 'Not available'}
+
+**Student Work Summary:**
+{graded_content[:1000] if graded_content else 'Not available'}...
+
+---
+The student wants to discuss this grading. Help them understand the assessment, answer questions about specific scores, and if they present valid arguments, acknowledge where the grading might be adjusted.
+"""
+
+    # Add to history
+    history = cl.user_session.get("history", [])
+    history.append({"role": "user", "content": f"[SYSTEM: Student wants to discuss their grade: {grade}]"})
+    cl.user_session.set("history", history)
+    cl.user_session.set("grading_discussion_context", discussion_context)
+
+    await cl.Message(
+        content=f"""**💬 Grade Discussion Mode**
+
+You received: **{grade}** ({score:.1f}/100)
+
+I'm Lawrence, and I'm here to discuss your grade. You can:
+- Ask why you received a specific score on any component
+- Present evidence or arguments for reconsideration
+- Clarify aspects of the feedback
+- Understand how to improve for next time
+
+What would you like to discuss about your grade?""",
+        actions=[
+            cl.Action(name="show_full_report", payload={}, label="📄 Show Full Report"),
+            cl.Action(name="grade_student_work", payload={}, label="📝 Grade New Submission"),
+        ]
+    ).send()
+
+
+@cl.action_callback("show_full_report")
+async def on_show_full_report(action: cl.Action):
+    """Show the full grading report."""
+    report = cl.user_session.get("last_grading_report", "")
+    if report:
+        await cl.Message(content=report).send()
+    else:
+        await cl.Message(content="No grading report available.").send()
 
 
 async def _run_grading_pipeline(file_path: str, file_name: str):

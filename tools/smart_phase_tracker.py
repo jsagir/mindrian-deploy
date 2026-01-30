@@ -197,45 +197,46 @@ DEFAULT_PHASE_CRITERIA = {
 }
 
 
-PHASE_ANALYSIS_PROMPT = """You are an expert workshop facilitator analyzing conversation progress.
+PHASE_ANALYSIS_PROMPT = """You are analyzing workshop progress. Your job is to determine which phase the conversation is in.
 
 WORKSHOP TYPE: {workshop_type}
-WORKSHOP PHASES AND COMPLETION CRITERIA:
+
+EXACT PHASE NAMES (use these EXACTLY, do not make up new names):
+{actual_phase_names}
+
+PHASE COMPLETION CRITERIA:
 {phase_criteria}
 
-CONVERSATION HISTORY:
+CONVERSATION HISTORY (last messages):
 {conversation_history}
 
-CURRENT PHASE INDEX (system thinks): {current_phase_index}
+SYSTEM THINKS WE ARE AT: Phase {current_phase_index} ({current_phase_name})
 
-Analyze the conversation and determine:
-1. What phase are we ACTUALLY in based on conversation content?
-2. For each phase, what has been completed vs what's missing?
-3. Should we advance to the next phase?
-4. What should happen next?
+CRITICAL RULES:
+1. ONLY use phase names from the EXACT PHASE NAMES list above
+2. Do NOT invent new phase names like "Problem Definition" if it's not in the list
+3. The phase_assessments array MUST have exactly {num_phases} entries, one per phase
+4. Each entry MUST use the EXACT phase name from the list
 
-Respond with a JSON object (no markdown, just raw JSON):
+Respond with JSON only (no markdown):
 {{
-    "actual_phase_index": <0-based index of actual current phase>,
-    "actual_phase_name": "<name of actual current phase>",
+    "actual_phase_index": <0-based index>,
+    "actual_phase_name": "<EXACT name from list above>",
     "phase_assessments": [
         {{
-            "name": "<phase name>",
+            "name": "<EXACT phase name from list>",
             "status": "completed|in_progress|pending",
-            "completed_criteria": ["<criterion that was met>", ...],
-            "missing_criteria": ["<criterion still needed>", ...],
+            "completed_criteria": ["<what was done>"],
+            "missing_criteria": ["<what's needed>"],
             "confidence": <0.0-1.0>
         }}
     ],
     "should_advance": <true|false>,
-    "advance_reason": "<why or why not to advance>",
-    "next_action": "<specific next step for user>",
-    "progress_summary": "<1-2 sentence summary of where we are>",
-    "reasoning": "<your analysis of the conversation state>"
-}}
-
-Be accurate - don't say something is completed unless the conversation clearly shows it was done.
-If the system's current_phase_index doesn't match reality, correct it."""
+    "advance_reason": "<why>",
+    "next_action": "<specific next step>",
+    "progress_summary": "<1-2 sentences>",
+    "reasoning": "<your analysis>"
+}}"""
 
 
 async def analyze_workshop_state(
@@ -263,6 +264,17 @@ async def analyze_workshop_state(
     else:
         criteria = DEFAULT_PHASE_CRITERIA
 
+    # Use actual phases from session if provided, otherwise use criteria
+    if phases:
+        actual_phase_names = [p.get("name", f"Phase {i+1}") for i, p in enumerate(phases)]
+        num_phases = len(phases)
+    else:
+        actual_phase_names = [p.get("name", f"Phase {i+1}") for i, p in enumerate(criteria["phases"])]
+        num_phases = len(criteria["phases"])
+
+    # Get current phase name
+    current_phase_name = actual_phase_names[min(current_phase_index, num_phases - 1)] if actual_phase_names else "Unknown"
+
     # Format conversation history
     formatted_history = "\n".join([
         f"{'USER' if msg.get('role') == 'user' else 'ASSISTANT'}: {msg.get('content', '')[:500]}..."
@@ -274,12 +286,15 @@ async def analyze_workshop_state(
     # Format phase criteria
     phase_criteria_str = json.dumps(criteria["phases"], indent=2)
 
-    # Build prompt
+    # Build prompt with actual phase names
     prompt = PHASE_ANALYSIS_PROMPT.format(
         workshop_type=workshop_type,
+        actual_phase_names="\n".join([f"{i+1}. {name}" for i, name in enumerate(actual_phase_names)]),
         phase_criteria=phase_criteria_str,
         conversation_history=formatted_history,
-        current_phase_index=current_phase_index
+        current_phase_index=current_phase_index,
+        current_phase_name=current_phase_name,
+        num_phases=num_phases
     )
 
     try:
