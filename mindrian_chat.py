@@ -43,6 +43,25 @@ except ImportError as e:
     SMART_PHASE_ENABLED = False
     print(f"Smart Phase Tracker not available: {e}")
 
+# === UI Elements - Custom components for grading, opportunities, etc. ===
+try:
+    from utils.ui_elements import (
+        create_assessment_tasklist,
+        update_task_status,
+        create_grade_reveal,
+        create_score_breakdown,
+        create_opportunity_card,
+        create_report_download,
+        create_evidence_display,
+        display_grading_results,
+        display_opportunities,
+    )
+    UI_ELEMENTS_ENABLED = True
+    print("UI Elements module enabled (TaskList, GradeReveal, ScoreBreakdown)")
+except ImportError as e:
+    UI_ELEMENTS_ENABLED = False
+    print(f"UI Elements not available: {e}")
+
 # === Config ===
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("GOOGLE_AI_API_KEY")
 # FileSearch store owned by a different API key
@@ -3908,168 +3927,168 @@ async def on_next_phase(action: cl.Action):
 
         # Check if workshop is complete
         if current_phase_idx >= len(phases) - 1:
+            await cl.Message(
+                content="**Workshop Complete!**\n\nYou've completed all phases. Would you like to:\n"
+                        "- Review your key insights\n"
+                        "- Start a new analysis\n"
+                        "- Switch to another methodology",
+                actions=[
+                    cl.Action(name="show_progress", payload={}, label="Review Progress"),
+                    cl.Action(name="clear_context", payload={}, label="Start Fresh"),
+                ]
+            ).send()
+            return
+
+        # Try to load enhanced phase configs for scenario bot
+        current_config = {}
+        next_config = {}
+        use_smart_transition = False
+
+        if bot_id == "scenario":
+            try:
+                from prompts.scenario_phases import get_phase_by_index
+                current_config = get_phase_by_index(current_phase_idx)
+                next_config = get_phase_by_index(current_phase_idx + 1)
+                use_smart_transition = bool(current_config and next_config)
+            except ImportError:
+                pass
+
+        extracted = {}
+
+        # === STEP 1: Validate Current Phase ===
+        if use_smart_transition and current_config and not force_advance:
+            async with cl.Step(name="Checking Phase Completion", type="tool") as step:
+                step.input = f"Validating {current_config.get('name', 'current phase')} deliverables..."
+
+                try:
+                    from tools.phase_validator import (
+                        validate_phase_completion,
+                        get_missing_deliverables,
+                        generate_completion_guidance
+                    )
+
+                    is_complete, score, extracted = validate_phase_completion(
+                        current_config, history, bot_id
+                    )
+
+                    # Store extracted context for future phases
+                    user_context.update(extracted)
+                    cl.user_session.set("phase_context", user_context)
+
+                    step.output = f"Completion: {score:.0%} | Found: {len(extracted)} deliverables"
+
+                except Exception as e:
+                    is_complete = True
+                    score = 1.0
+                    step.output = f"Validation skipped: {str(e)[:50]}"
+
+            # If incomplete and low score, offer guidance
+            if not is_complete and score < 0.5:
+                missing = get_missing_deliverables(current_config, extracted)
+                guidance = generate_completion_guidance(current_config, score, missing)
+
+                await cl.Message(
+                    content=f"**Phase Progress: {score:.0%}**\n\n{guidance}\n\n"
+                            f"*You can proceed anyway or continue working on this phase.*",
+                    actions=[
+                        cl.Action(name="next_phase", payload={"force": True}, label="Proceed Anyway"),
+                        cl.Action(name="show_example", payload={}, label="Show Example"),
+                    ]
+                ).send()
+                return
+
+        # === STEP 2: Advance Phase State ===
+        phases[current_phase_idx]["status"] = "done"
+        phases[current_phase_idx + 1]["status"] = "running"
+        cl.user_session.set("phases", phases)
+        cl.user_session.set("current_phase", current_phase_idx + 1)
+
+        # Update task list UI
+        task_list = cl.TaskList()
+        task_list.name = "Workshop Progress"
+        for i, phase in enumerate(phases):
+            if phase["status"] == "done":
+                status = cl.TaskStatus.DONE
+            elif phase["status"] == "running":
+                status = cl.TaskStatus.RUNNING
+            else:
+                status = cl.TaskStatus.READY
+            task = cl.Task(title=phase["name"], status=status)
+            await task_list.add_task(task)
+        await task_list.send()
+
+        # Update sidebar to reflect phase progress
+        await update_sidebar_phase(current_phase_idx + 1)
+
+        # Sync to context_store (QA-002 fix)
+        context_key = get_context_key()
+        if context_key in context_store:
+            context_store[context_key]["phases"] = [p.copy() for p in phases]
+            context_store[context_key]["current_phase"] = current_phase_idx + 1
+
+        # === STEP 3: Generate Smart Transition ===
+        if use_smart_transition and next_config:
+            async with cl.Step(name="Preparing Next Phase", type="tool") as step:
+                step.input = f"Loading context for {next_config.get('name', 'next phase')}..."
+
+                try:
+                    from tools.phase_enricher import get_phase_transition_context
+
+                    transition_content = get_phase_transition_context(
+                        from_phase=current_config,
+                        to_phase=next_config,
+                        user_context=user_context,
+                        extracted_deliverables=extracted
+                    )
+
+                    step.output = f"Ready: {next_config.get('name')}"
+
+                except Exception as e:
+                    # Fallback to basic transition
+                    transition_content = None
+                    step.output = f"Using basic transition: {str(e)[:50]}"
+
+            if transition_content:
+                await cl.Message(
+                    content=transition_content,
+                    actions=[
+                        cl.Action(name="next_phase", payload={}, label="Next Phase"),
+                        cl.Action(name="deep_research", payload={}, label="Research"),
+                        cl.Action(name="show_example", payload={}, label="Example"),
+                    ]
+                ).send()
+                return
+
+        # === FALLBACK: Basic Transition ===
+        phase_num = current_phase_idx + 2
+        phase_name = phases[current_phase_idx + 1]["name"]
+        completed_count = sum(1 for p in phases if p["status"] == "done")
+        total_count = len(phases)
+
+        # Get instructions from next_config if available
+        instructions_text = ""
+        if next_config and next_config.get("instructions"):
+            instructions_text = "\n\n**What to do:**\n" + "\n".join(
+                [f"- {inst}" for inst in next_config.get("instructions", [])[:4]]
+            )
+
+        prompt_text = ""
+        if next_config and next_config.get("prompt"):
+            prompt_text = f"\n\n**Let's begin:** {next_config.get('prompt')}"
+
         await cl.Message(
-            content="**Workshop Complete!**\n\nYou've completed all phases. Would you like to:\n"
-                    "- Review your key insights\n"
-                    "- Start a new analysis\n"
-                    "- Switch to another methodology",
+            content=(
+                f"**Phase {phase_num}/{total_count}: {phase_name}**\n\n"
+                f"*({completed_count} of {total_count} phases completed)*"
+                f"{instructions_text}"
+                f"{prompt_text}"
+            ),
             actions=[
-                cl.Action(name="show_progress", payload={}, label="Review Progress"),
-                cl.Action(name="clear_context", payload={}, label="Start Fresh"),
+                cl.Action(name="next_phase", payload={}, label="Next Phase"),
+                cl.Action(name="deep_research", payload={}, label="Research"),
+                cl.Action(name="show_example", payload={}, label="Example"),
             ]
         ).send()
-        return
-
-    # Try to load enhanced phase configs for scenario bot
-    current_config = {}
-    next_config = {}
-    use_smart_transition = False
-
-    if bot_id == "scenario":
-        try:
-            from prompts.scenario_phases import get_phase_by_index
-            current_config = get_phase_by_index(current_phase_idx)
-            next_config = get_phase_by_index(current_phase_idx + 1)
-            use_smart_transition = bool(current_config and next_config)
-        except ImportError:
-            pass
-
-    extracted = {}
-
-    # === STEP 1: Validate Current Phase ===
-    if use_smart_transition and current_config and not force_advance:
-        async with cl.Step(name="Checking Phase Completion", type="tool") as step:
-            step.input = f"Validating {current_config.get('name', 'current phase')} deliverables..."
-
-            try:
-                from tools.phase_validator import (
-                    validate_phase_completion,
-                    get_missing_deliverables,
-                    generate_completion_guidance
-                )
-
-                is_complete, score, extracted = validate_phase_completion(
-                    current_config, history, bot_id
-                )
-
-                # Store extracted context for future phases
-                user_context.update(extracted)
-                cl.user_session.set("phase_context", user_context)
-
-                step.output = f"Completion: {score:.0%} | Found: {len(extracted)} deliverables"
-
-            except Exception as e:
-                is_complete = True
-                score = 1.0
-                step.output = f"Validation skipped: {str(e)[:50]}"
-
-        # If incomplete and low score, offer guidance
-        if not is_complete and score < 0.5:
-            missing = get_missing_deliverables(current_config, extracted)
-            guidance = generate_completion_guidance(current_config, score, missing)
-
-            await cl.Message(
-                content=f"**Phase Progress: {score:.0%}**\n\n{guidance}\n\n"
-                        f"*You can proceed anyway or continue working on this phase.*",
-                actions=[
-                    cl.Action(name="next_phase", payload={"force": True}, label="Proceed Anyway"),
-                    cl.Action(name="show_example", payload={}, label="Show Example"),
-                ]
-            ).send()
-            return
-
-    # === STEP 2: Advance Phase State ===
-    phases[current_phase_idx]["status"] = "done"
-    phases[current_phase_idx + 1]["status"] = "running"
-    cl.user_session.set("phases", phases)
-    cl.user_session.set("current_phase", current_phase_idx + 1)
-
-    # Update task list UI
-    task_list = cl.TaskList()
-    task_list.name = "Workshop Progress"
-    for i, phase in enumerate(phases):
-        if phase["status"] == "done":
-            status = cl.TaskStatus.DONE
-        elif phase["status"] == "running":
-            status = cl.TaskStatus.RUNNING
-        else:
-            status = cl.TaskStatus.READY
-        task = cl.Task(title=phase["name"], status=status)
-        await task_list.add_task(task)
-    await task_list.send()
-
-    # Update sidebar to reflect phase progress
-    await update_sidebar_phase(current_phase_idx + 1)
-
-    # Sync to context_store (QA-002 fix)
-    context_key = get_context_key()
-    if context_key in context_store:
-        context_store[context_key]["phases"] = [p.copy() for p in phases]
-        context_store[context_key]["current_phase"] = current_phase_idx + 1
-
-    # === STEP 3: Generate Smart Transition ===
-    if use_smart_transition and next_config:
-        async with cl.Step(name="Preparing Next Phase", type="tool") as step:
-            step.input = f"Loading context for {next_config.get('name', 'next phase')}..."
-
-            try:
-                from tools.phase_enricher import get_phase_transition_context
-
-                transition_content = get_phase_transition_context(
-                    from_phase=current_config,
-                    to_phase=next_config,
-                    user_context=user_context,
-                    extracted_deliverables=extracted
-                )
-
-                step.output = f"Ready: {next_config.get('name')}"
-
-            except Exception as e:
-                # Fallback to basic transition
-                transition_content = None
-                step.output = f"Using basic transition: {str(e)[:50]}"
-
-        if transition_content:
-            await cl.Message(
-                content=transition_content,
-                actions=[
-                    cl.Action(name="next_phase", payload={}, label="Next Phase"),
-                    cl.Action(name="deep_research", payload={}, label="Research"),
-                    cl.Action(name="show_example", payload={}, label="Example"),
-                ]
-            ).send()
-            return
-
-    # === FALLBACK: Basic Transition ===
-    phase_num = current_phase_idx + 2
-    phase_name = phases[current_phase_idx + 1]["name"]
-    completed_count = sum(1 for p in phases if p["status"] == "done")
-    total_count = len(phases)
-
-    # Get instructions from next_config if available
-    instructions_text = ""
-    if next_config and next_config.get("instructions"):
-        instructions_text = "\n\n**What to do:**\n" + "\n".join(
-            [f"- {inst}" for inst in next_config.get("instructions", [])[:4]]
-        )
-
-    prompt_text = ""
-    if next_config and next_config.get("prompt"):
-        prompt_text = f"\n\n**Let's begin:** {next_config.get('prompt')}"
-
-    await cl.Message(
-        content=(
-            f"**Phase {phase_num}/{total_count}: {phase_name}**\n\n"
-            f"*({completed_count} of {total_count} phases completed)*"
-            f"{instructions_text}"
-            f"{prompt_text}"
-        ),
-        actions=[
-            cl.Action(name="next_phase", payload={}, label="Next Phase"),
-            cl.Action(name="deep_research", payload={}, label="Research"),
-            cl.Action(name="show_example", payload={}, label="Example"),
-        ]
-    ).send()
 
     except Exception as e:
         # Graceful error handling - don't crash, help the user
@@ -6459,42 +6478,64 @@ Your insights help us improve Mindrian!"""
             grading_content = message.content
 
         if grading_content:
-            # Run the full modular assessment engine
-            status_msg = cl.Message(content="📝 **Assessment submission received.**\n\n🔄 Running modular assessment engine...")
-            await status_msg.send()
-
+            # Run the full modular assessment engine with real-time TaskList progress
             try:
                 from tools.assessment_engine import run_full_assessment
 
                 session_id = str(cl.user_session.get("id", "anonymous"))
                 user_id = session_id
 
-                # Module progress tracking
-                async with cl.Step(name="Module 1: Graph Analysis (Neo4j)", type="tool") as step1:
-                    step1.input = "Querying knowledge graph for frameworks, differentials, patterns"
-                    await status_msg.stream_token("\n\n**Module 1:** Analyzing knowledge graph...")
+                # === TASKLIST: Real-time progress tracking ===
+                if UI_ELEMENTS_ENABLED:
+                    task_list = await create_assessment_tasklist()
+                    progress_msg = cl.Message(
+                        content="## 📝 Assessment in Progress",
+                        elements=[task_list]
+                    )
+                    await progress_msg.send()
 
-                async with cl.Step(name="Module 2: Pattern Discovery (FileSearch)", type="tool") as step2:
-                    step2.input = "Semantic search for cross-domain patterns"
-                    await status_msg.stream_token("\n**Module 2:** Discovering patterns...")
+                    # Progress callback for assessment engine
+                    async def progress_callback(message: str):
+                        # Update TaskList based on module progress
+                        if "Module 1" in message and "complete" in message:
+                            await update_task_status(task_list, 0, cl.TaskStatus.DONE, message.split(":")[-1].strip() if ":" in message else "")
+                            await update_task_status(task_list, 1, cl.TaskStatus.RUNNING)
+                        elif "Module 2" in message and "complete" in message:
+                            await update_task_status(task_list, 1, cl.TaskStatus.DONE, message.split(":")[-1].strip() if ":" in message else "")
+                            await update_task_status(task_list, 2, cl.TaskStatus.RUNNING)
+                        elif "Module 3" in message and "complete" in message:
+                            await update_task_status(task_list, 2, cl.TaskStatus.DONE, message.split(":")[-1].strip() if ":" in message else "")
+                            await update_task_status(task_list, 3, cl.TaskStatus.RUNNING)
+                        elif "Module 4" in message and "complete" in message:
+                            await update_task_status(task_list, 3, cl.TaskStatus.DONE, message.split(":")[-1].strip() if ":" in message else "")
+                            await update_task_status(task_list, 4, cl.TaskStatus.RUNNING)
+                        elif "Module 5" in message or "report" in message.lower():
+                            await update_task_status(task_list, 4, cl.TaskStatus.DONE)
+                        elif "Module 1" in message:
+                            await update_task_status(task_list, 0, cl.TaskStatus.RUNNING)
 
-                async with cl.Step(name="Module 3: External Validation (Tavily)", type="tool") as step3:
-                    step3.input = "Validating claims with external research"
-                    await status_msg.stream_token("\n**Module 3:** Validating with research...")
+                    # Start first module
+                    await update_task_status(task_list, 0, cl.TaskStatus.RUNNING)
+                else:
+                    # Fallback to simple status message
+                    progress_msg = cl.Message(content="📝 **Assessment submission received.**\n\n🔄 Running modular assessment engine...")
+                    await progress_msg.send()
+                    progress_callback = None
 
-                async with cl.Step(name="Module 4: Synthesis Engine", type="llm") as step4:
-                    step4.input = "Integrating findings, generating insights"
-                    await status_msg.stream_token("\n**Module 4:** Synthesizing findings...")
-
-                # Run the full assessment
+                # Run the full assessment with progress callback
                 report, assessment_state = await run_full_assessment(
                     content=grading_content,
                     project_name="Student Submission",
                     project_domain="Problem Discovery",
-                    student_id=session_id
+                    student_id=session_id,
+                    progress_callback=progress_callback if UI_ELEMENTS_ENABLED else None
                 )
 
-                await status_msg.stream_token("\n**Module 5:** Generating report...")
+                # Mark all tasks complete
+                if UI_ELEMENTS_ENABLED:
+                    for i in range(5):
+                        task_list.tasks[i].status = cl.TaskStatus.DONE
+                    await task_list.send()
 
                 # Extract results for legacy compatibility
                 results = {
@@ -6505,9 +6546,8 @@ Your insights help us improve Mindrian!"""
                     "phases": {"bias_detection": {"can_proceed": True}}  # Assessment engine doesn't block
                 }
 
-                await status_msg.remove()
-
                 # Extract and store opportunities found in student work
+                opps = []
                 try:
                     from tools.opportunity_bank import extract_and_store_opportunities
 
@@ -6532,29 +6572,199 @@ Your insights help us improve Mindrian!"""
                 cl.user_session.set("last_graded_content", grading_content[:5000])
                 cl.user_session.set("last_assessment_state", assessment_state.to_dict())
 
-                # Display full assessment report with discussion option
-                await cl.Message(
-                    content=report,
-                    actions=[
-                        cl.Action(
-                            name="discuss_grade",
-                            payload={"grade": "Assessment Complete"},
-                            label="💬 Discuss Assessment with Lawrence",
-                            description="Open conversation to discuss, clarify, or argue the assessment"
-                        ),
-                        cl.Action(
-                            name="grade_student_work",
-                            payload={},
-                            label="📝 Assess Another Submission"
-                        )
-                    ]
-                ).send()
+                # === UI ELEMENTS: Enhanced display with GradeReveal and downloads ===
+                if UI_ELEMENTS_ENABLED:
+                    # Parse grade from report (look for grade pattern)
+                    import re
+                    grade_match = re.search(r'(?:Grade|GRADE)[:\s]*([A-F][+-]?)', report)
+                    score_match = re.search(r'(\d{1,3}(?:\.\d+)?)\s*/\s*100', report)
+                    grade = grade_match.group(1) if grade_match else "B"
+                    score = float(score_match.group(1)) if score_match else 75.0
+
+                    # Extract strengths and growth areas from report
+                    strengths = []
+                    growth_areas = []
+
+                    # Look for strengths section
+                    if "strength" in report.lower() or "well" in report.lower():
+                        strength_section = re.search(r'(?:Strengths?|What.*Well|Positives?)[\s\S]*?(?=(?:Growth|Improvement|Missing|Weakness|$))', report, re.IGNORECASE)
+                        if strength_section:
+                            bullets = re.findall(r'[-•✓]\s*(.+?)(?=\n|$)', strength_section.group(0))
+                            strengths = bullets[:5] if bullets else ["Evidence-based analysis attempted"]
+
+                    # Look for growth areas
+                    if "growth" in report.lower() or "improve" in report.lower() or "missing" in report.lower():
+                        growth_section = re.search(r'(?:Growth|Improvement|Missing|Areas? for)[\s\S]*?(?=(?:Recommendation|Next|Action|$))', report, re.IGNORECASE)
+                        if growth_section:
+                            bullets = re.findall(r'[-•→]\s*(.+?)(?=\n|$)', growth_section.group(0))
+                            growth_areas = bullets[:5] if bullets else ["Continue developing evidence"]
+
+                    # Default values if extraction failed
+                    if not strengths:
+                        strengths = ["Submitted work for assessment", "Engaged with the grading process"]
+                    if not growth_areas:
+                        growth_areas = ["Review the detailed report for specific improvements"]
+
+                    # Build components for score breakdown
+                    components = []
+                    state_dict = assessment_state.to_dict() if hasattr(assessment_state, 'to_dict') else {}
+                    module_outputs = state_dict.get("module_outputs", {})
+
+                    if module_outputs:
+                        # Graph Analysis
+                        graph_data = module_outputs.get("graph_analysis", {}).get("data", {})
+                        components.append({
+                            "name": "Framework Analysis",
+                            "weight": 25,
+                            "score": min(10, len(graph_data.get("frameworks", [])) * 2),
+                            "assessment": f"Found {len(graph_data.get('frameworks', []))} relevant frameworks",
+                            "evidence": [f["name"] if isinstance(f, dict) else str(f) for f in graph_data.get("frameworks", [])[:3]],
+                            "missing": ["More framework application needed"] if len(graph_data.get("frameworks", [])) < 3 else []
+                        })
+
+                        # Pattern Discovery
+                        pattern_data = module_outputs.get("pattern_discovery", {}).get("data", {})
+                        components.append({
+                            "name": "Pattern Discovery",
+                            "weight": 25,
+                            "score": min(10, len(pattern_data.get("patterns", [])) * 2),
+                            "assessment": f"Discovered {len(pattern_data.get('patterns', []))} patterns",
+                            "evidence": pattern_data.get("patterns", [])[:3],
+                            "missing": ["More cross-domain patterns needed"] if len(pattern_data.get("patterns", [])) < 3 else []
+                        })
+
+                        # External Validation
+                        validation_data = module_outputs.get("external_validation", {}).get("data", {})
+                        confirmed = len(validation_data.get("confirmed_insights", []))
+                        challenged = len(validation_data.get("challenged_insights", []))
+                        val_score = min(10, (confirmed * 2) - challenged) if (confirmed + challenged) > 0 else 5
+                        components.append({
+                            "name": "External Validation",
+                            "weight": 25,
+                            "score": max(0, val_score),
+                            "assessment": f"{confirmed} confirmed, {challenged} challenged insights",
+                            "evidence": validation_data.get("confirmed_insights", [])[:3],
+                            "missing": validation_data.get("challenged_insights", [])[:2]
+                        })
+
+                        # Synthesis
+                        synthesis_data = module_outputs.get("synthesis", {}).get("data", {})
+                        insights = synthesis_data.get("strategic_insights", [])
+                        components.append({
+                            "name": "Synthesis Quality",
+                            "weight": 25,
+                            "score": min(10, len(insights) * 2 + 4),
+                            "assessment": f"Generated {len(insights)} strategic insights",
+                            "evidence": [i.get("insight", str(i)) if isinstance(i, dict) else str(i) for i in insights[:3]],
+                            "missing": []
+                        })
+
+                    # Create GradeReveal element (starts at context stage for soft landing)
+                    grade_reveal = create_grade_reveal(
+                        grade=grade,
+                        score=score,
+                        verdict=f"Analyzed {results['evidence_count']} evidence items across {len(results['modules_completed'])} modules",
+                        strengths=strengths,
+                        growth_areas=growth_areas,
+                        evidence_count=results['evidence_count'],
+                        components=components,
+                        stage="context",  # Soft landing - start with context
+                        bot_type=bot_id
+                    )
+
+                    # Create report download
+                    from datetime import datetime
+                    report_file = create_report_download(
+                        content=report,
+                        filename=f"assessment_{datetime.utcnow().strftime('%Y%m%d_%H%M')}.md"
+                    )
+
+                    # Create evidence display
+                    evidence_items = [
+                        {
+                            "source_type": ev.get("source_type", "unknown"),
+                            "tag_type": ev.get("tag_type", ""),
+                            "confidence": ev.get("confidence", 0.5),
+                            "content": ev.get("content", "")[:200]
+                        }
+                        for ev in assessment_state.evidence_trail[:20]
+                    ] if hasattr(assessment_state, 'evidence_trail') else []
+
+                    evidence_text = create_evidence_display(evidence_items) if evidence_items else None
+
+                    # Display with custom elements
+                    elements = [grade_reveal, report_file]
+                    if evidence_text:
+                        elements.append(evidence_text)
+
+                    # Add opportunity cards if found
+                    if opps:
+                        for opp in opps[:3]:  # Show top 3
+                            opp_card = create_opportunity_card(
+                                opportunity_id=opp.get("id", ""),
+                                title=opp.get("title", "Opportunity"),
+                                problem=opp.get("description", opp.get("problem", "")),
+                                evidence_quality=opp.get("evidence_quality", 3),
+                                domain=opp.get("domain", "General"),
+                                priority=opp.get("priority", "medium"),
+                                source="Assessment",
+                                frameworks=opp.get("frameworks", [])
+                            )
+                            elements.append(opp_card)
+
+                    await cl.Message(
+                        content="## Assessment Complete\n\nClick through the stages below to see your results:",
+                        elements=elements,
+                        actions=[
+                            cl.Action(
+                                name="discuss_grade",
+                                payload={"grade": grade, "score": score, "bot_type": bot_id},
+                                label="💬 Discuss with Lawrence",
+                                description="Open conversation to discuss, clarify, or argue the assessment"
+                            ),
+                            cl.Action(
+                                name="view_full_report",
+                                payload={},
+                                label="📄 View Full Report"
+                            ),
+                            cl.Action(
+                                name="grade_student_work",
+                                payload={},
+                                label="📝 Assess Another"
+                            )
+                        ]
+                    ).send()
+                else:
+                    # Fallback: Display full assessment report with discussion option (original behavior)
+                    await progress_msg.remove()
+                    await cl.Message(
+                        content=report,
+                        actions=[
+                            cl.Action(
+                                name="discuss_grade",
+                                payload={"grade": "Assessment Complete"},
+                                label="💬 Discuss Assessment with Lawrence",
+                                description="Open conversation to discuss, clarify, or argue the assessment"
+                            ),
+                            cl.Action(
+                                name="grade_student_work",
+                                payload={},
+                                label="📝 Assess Another Submission"
+                            )
+                        ]
+                    ).send()
 
                 return  # Done - don't continue with normal conversation
 
             except Exception as e:
-                await status_msg.remove()
+                if 'progress_msg' in locals():
+                    try:
+                        await progress_msg.remove()
+                    except:
+                        pass
                 await cl.Message(content=f"❌ **Grading Error**: {str(e)[:300]}\n\nPlease try again or contact support.").send()
+                import traceback
+                print(f"[GRADING] Error: {traceback.format_exc()}")
                 return
 
         # If no substantial content, just respond with instructions
@@ -8114,6 +8324,120 @@ async def on_show_full_report(action: cl.Action):
         await cl.Message(content=report).send()
     else:
         await cl.Message(content="No grading report available.").send()
+
+
+@cl.action_callback("view_full_report")
+async def on_view_full_report(action: cl.Action):
+    """View the full grading report with download option."""
+    report = cl.user_session.get("last_grading_report", "")
+    if report:
+        elements = []
+        if UI_ELEMENTS_ENABLED:
+            from datetime import datetime
+            report_file = create_report_download(
+                content=report,
+                filename=f"assessment_{datetime.utcnow().strftime('%Y%m%d_%H%M')}.md"
+            )
+            elements.append(report_file)
+        await cl.Message(content=report, elements=elements).send()
+    else:
+        await cl.Message(content="No grading report available.").send()
+
+
+@cl.action_callback("view_evidence")
+async def on_view_evidence(action: cl.Action):
+    """View the evidence chain from the assessment."""
+    assessment_state = cl.user_session.get("last_assessment_state", {})
+    evidence_trail = assessment_state.get("evidence_trail", [])
+
+    if not evidence_trail:
+        await cl.Message(content="No evidence chain available.").send()
+        return
+
+    elements = []
+    if UI_ELEMENTS_ENABLED:
+        evidence_text = create_evidence_display(evidence_trail[:30])
+        elements.append(evidence_text)
+
+    # Group evidence by source
+    by_source = {}
+    for ev in evidence_trail:
+        source = ev.get("source_type", ev.get("tag_type", "unknown")).split("_")[0]
+        if source not in by_source:
+            by_source[source] = []
+        by_source[source].append(ev)
+
+    summary = "## Evidence Chain\n\n"
+    for source, items in by_source.items():
+        summary += f"### {source.upper()} ({len(items)} items)\n"
+        for item in items[:5]:
+            content = item.get("content", "")[:150]
+            tag = item.get("tag_type", "")
+            summary += f"- **{tag}**: {content}...\n"
+        if len(items) > 5:
+            summary += f"  *...and {len(items) - 5} more*\n"
+        summary += "\n"
+
+    await cl.Message(content=summary, elements=elements).send()
+
+
+@cl.action_callback("discuss_component")
+async def on_discuss_component(action: cl.Action):
+    """Discuss a specific grade component with Lawrence."""
+    component = action.payload.get("component", "this score")
+    score = action.payload.get("score", "")
+
+    # Switch to Lawrence if not already
+    current_bot = cl.user_session.get("bot_id", "lawrence")
+    if current_bot != "lawrence":
+        cl.user_session.set("bot_id", "lawrence")
+        cl.user_session.set("bot", BOTS["lawrence"])
+
+    grading_report = cl.user_session.get("last_grading_report", "")
+
+    # Add context to history
+    history = cl.user_session.get("history", [])
+    history.append({
+        "role": "user",
+        "content": f"[SYSTEM: The student wants to discuss their {component} score ({score}/10). You are the grader who assigned this score. Explain your reasoning based on the evidence you found.]"
+    })
+    cl.user_session.set("history", history)
+
+    score_text = f" ({score}/10)" if score else ""
+
+    await cl.Message(
+        content=f"""**Discussing: {component}{score_text}**
+
+I assigned this score based on the evidence I found in your submission. Let me explain my reasoning.
+
+What specifically would you like to understand about this component?
+
+- Why did you score me here?
+- What evidence was I missing?
+- How can I improve this score?""",
+        actions=[
+            cl.Action(name="show_full_report", payload={}, label="📄 See Full Report"),
+        ]
+    ).send()
+
+
+@cl.action_callback("remove_opportunity")
+async def on_remove_opportunity(action: cl.Action):
+    """Remove an opportunity from the bank."""
+    opp_id = action.payload.get("id", "")
+    title = action.payload.get("title", "opportunity")
+
+    try:
+        from tools.opportunity_bank import remove_opportunity
+        session_id = str(cl.user_session.get("id", "anonymous"))
+        success = await remove_opportunity(opp_id, session_id)
+
+        if success:
+            await cl.Message(content=f"Removed **{title}** from your opportunity bank.").send()
+        else:
+            await cl.Message(content=f"Could not remove opportunity. It may have already been removed.").send()
+    except Exception as e:
+        await cl.Message(content=f"Error removing opportunity: {str(e)[:100]}").send()
 
 
 async def _run_grading_pipeline(file_path: str, file_name: str):
