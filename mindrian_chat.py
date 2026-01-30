@@ -342,6 +342,7 @@ from prompts import (
     SCENARIO_ANALYSIS_PROMPT,
     MULTI_PERSPECTIVE_VALIDATION_PROMPT,
     BEAUTIFUL_QUESTION_PROMPT,
+    GRADING_AGENT_PROMPT,  # Problem Discovery Grading Agent
     CV_EXTRACTION_PROMPT,
     DOMAIN_GENERATION_PROMPT,
     DOMAIN_SCORING_PROMPT,
@@ -488,6 +489,17 @@ WORKSHOP_PHASES = {
         {"name": "HOW: Rapid Prototyping", "status": "pending"},
         {"name": "HOW: MVP Design", "status": "pending"},
         {"name": "Action Plan", "status": "pending"},
+    ],
+    "grading": [
+        {"name": "Upload Work", "status": "ready"},
+        {"name": "Bias Detection", "status": "pending"},
+        {"name": "Domain Analysis", "status": "pending"},
+        {"name": "Framework Validation", "status": "pending"},
+        {"name": "Problem Extraction", "status": "pending"},
+        {"name": "Evidence Quality", "status": "pending"},
+        {"name": "Score Calculation", "status": "pending"},
+        {"name": "Quality Validation", "status": "pending"},
+        {"name": "Report Generation", "status": "pending"},
     ],
 }
 
@@ -818,6 +830,42 @@ Most people jump to solutions before understanding problems. I'll help you ask b
 **What challenge are you exploring?**
 
 Tell me what problem you're trying to solve, and we'll start by questioning whether you're solving the right problem."""
+    },
+    "grading": {
+        "name": "Problem Discovery Grading",
+        "icon": "/public/icons/grading.svg",
+        "emoji": "🎓",
+        "description": "Grade student work on problem discovery and validation methodology",
+        "system_prompt": GRADING_AGENT_PROMPT,
+        "has_phases": True,
+        "simple_mode": False,
+        "welcome": """🎓 **Problem Discovery Grading Agent**
+### Evaluating Real Problem Discovery
+
+Hello, I'm your Problem Discovery Grading Agent.
+
+I evaluate students' ability to **systematically discover and validate REAL problems worth solving**. I prioritize problem reality over business viability—this is discovery phase, not investment.
+
+**My Grading Approach:**
+
+| Component | Weight | Focus |
+|-----------|--------|-------|
+| **Problem Reality** | 35% | "Is it Real?" validation |
+| **Problem Discovery** | 25% | Quantity & quality of problems |
+| **Framework Integration** | 20% | Proper use of PWS tools |
+| **Mindrian Thinking** | 10% | Hidden connections found |
+| **Can We Win?** | 5% | Basic capability check |
+| **Is it Worth It?** | 5% | Basic market sizing |
+
+**I Use These Tools:**
+- 🧠 **Neo4j (Mindrian_Brain)** — Validate frameworks and find missed connections
+- 📚 **FileSearch RAG** — Course materials and case studies
+- 🔍 **LangExtract** — Structured PWS pattern detection
+- 🤖 **Gemini 3 Preview Pro** — Advanced reasoning for bias detection
+
+**Upload student work (PDF, DOCX, TXT) or paste the content directly.**
+
+I'll run the complete grading pipeline including mandatory bias detection."""
     }
 }
 
@@ -1292,6 +1340,11 @@ async def chat_profiles():
             markdown_description=BOTS["beautiful_question"]["description"],
             icon=BOTS["beautiful_question"]["icon"],
         ),
+        cl.ChatProfile(
+            name="grading",
+            markdown_description=BOTS["grading"]["description"],
+            icon=BOTS["grading"]["icon"],
+        ),
     ]
 
 
@@ -1580,6 +1633,28 @@ STARTERS = {
         cl.Starter(
             label="Show the methodology",
             message="Explain Warren Berger's Beautiful Question methodology and show me an example.",
+            icon="/public/icons/example.svg",
+        ),
+    ],
+    "grading": [
+        cl.Starter(
+            label="Grade student work",
+            message="I want to grade student work on problem discovery methodology. I'll upload the document.",
+            icon="/public/icons/grading.svg",
+        ),
+        cl.Starter(
+            label="Quick grade",
+            message="Give me a quick assessment of this problem discovery work without the full pipeline.",
+            icon="/public/icons/speed.svg",
+        ),
+        cl.Starter(
+            label="Explain grading rubric",
+            message="Explain your grading methodology and what you look for in problem discovery work.",
+            icon="/public/icons/info.svg",
+        ),
+        cl.Starter(
+            label="Show grading example",
+            message="Show me an example of how you grade problem discovery work with a sample assessment.",
             icon="/public/icons/example.svg",
         ),
     ],
@@ -7603,3 +7678,216 @@ Structure your response as:
     except Exception as e:
         await status_msg.remove()
         await cl.Message(content=f"Deep dive error: {str(e)[:200]}").send()
+
+
+# ==============================================================================
+# GRADING AGENT ACTION CALLBACKS
+# ==============================================================================
+
+@cl.action_callback("grade_student_work")
+async def on_grade_student_work(action: cl.Action):
+    """Run the full grading pipeline on student work."""
+    files = await cl.AskFileMessage(
+        content="Upload student work to grade (PDF, DOCX, or TXT).\n\nI'll run the complete grading pipeline including bias detection, domain analysis, framework validation, and evidence quality assessment.",
+        accept=["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "text/plain"],
+        max_size_mb=20,
+    ).send()
+
+    if not files:
+        await cl.Message(content="No file uploaded. You can try again by clicking **Grade Student Work**.").send()
+        return
+
+    file = files[0]
+    await _run_grading_pipeline(file.path, file.name)
+
+
+@cl.action_callback("quick_grade")
+async def on_quick_grade(action: cl.Action):
+    """Run quick grading without the full pipeline."""
+    files = await cl.AskFileMessage(
+        content="Upload student work for quick grading (PDF, DOCX, or TXT).\n\nThis provides a quick assessment without the full bias detection and quality validation pipeline.",
+        accept=["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "text/plain"],
+        max_size_mb=20,
+    ).send()
+
+    if not files:
+        await cl.Message(content="No file uploaded.").send()
+        return
+
+    file = files[0]
+    await _run_quick_grading(file.path, file.name)
+
+
+async def _run_grading_pipeline(file_path: str, file_name: str):
+    """Run the complete grading pipeline."""
+    status_msg = cl.Message(content="Starting grading pipeline...")
+    await status_msg.send()
+
+    try:
+        # Extract text from document
+        async with cl.Step(name="Extracting Document", type="tool") as step:
+            step.input = f"Processing {file_name}"
+            from utils.file_processor import process_uploaded_file
+            content, metadata = process_uploaded_file(file_path, file_name)
+            if not content or len(content.strip()) < 100:
+                await cl.Message(content="Could not extract sufficient text from the file. Please try a different format.").send()
+                return
+            step.output = f"Extracted {len(content)} characters"
+
+        # Import grading workflow
+        from tools.grading_workflow import run_grading_pipeline
+
+        # Update status
+        await status_msg.stream_token("\n\nRunning full grading pipeline...")
+
+        # Phase 1: Bias Detection
+        async with cl.Step(name="Phase 1: Bias Detection (MANDATORY)", type="llm") as step:
+            step.input = "Detecting 7 critical cognitive biases"
+
+        # Run the full pipeline
+        report, results = await run_grading_pipeline(
+            student_work=content,
+            student_id=str(cl.user_session.get("id", "anonymous")),
+            document_id=file_name,
+        )
+
+        # Display results
+        await status_msg.remove()
+
+        # Check if bias detection blocked the grading
+        if not results.get("phases", {}).get("bias_detection", {}).get("can_proceed", True):
+            await cl.Message(content=report).send()
+            return
+
+        # Display the full report
+        final_msg = cl.Message(content=report)
+        await final_msg.send()
+
+        # Store results in session for follow-up
+        cl.user_session.set("last_grading_results", results)
+
+        # Add follow-up actions
+        await cl.Message(
+            content="Grading complete. What would you like to do next?",
+            actions=[
+                cl.Action(name="export_grading_json", payload={"action": "export"}, label="Export JSON"),
+                cl.Action(name="explain_grade", payload={"action": "explain"}, label="Explain This Grade"),
+            ]
+        ).send()
+
+    except Exception as e:
+        await status_msg.remove()
+        await cl.Message(content=f"Grading pipeline error: {str(e)[:300]}").send()
+        print(f"[GRADING] Pipeline error: {e}")
+
+
+async def _run_quick_grading(file_path: str, file_name: str):
+    """Run quick grading without the full pipeline."""
+    status_msg = cl.Message(content="Running quick grade...")
+    await status_msg.send()
+
+    try:
+        # Extract text
+        from utils.file_processor import process_uploaded_file
+        content, metadata = process_uploaded_file(file_path, file_name)
+        if not content or len(content.strip()) < 100:
+            await cl.Message(content="Could not extract sufficient text.").send()
+            return
+
+        # Import quick grade
+        from tools.grading_workflow import quick_grade
+
+        # Run quick grade
+        verdict, score, letter = await quick_grade(content)
+
+        await status_msg.remove()
+
+        # Display results
+        result_msg = f"""## Quick Grade: {file_name}
+
+### GRADE: **{letter}** ({score:.1f}/100)
+
+**Verdict:** {verdict}
+
+---
+
+*This is a quick assessment. For a full evaluation with bias detection, domain analysis, and framework validation, use the **Full Grade** option.*
+"""
+        await cl.Message(
+            content=result_msg,
+            actions=[
+                cl.Action(name="grade_student_work", payload={}, label="Run Full Grade"),
+            ]
+        ).send()
+
+    except Exception as e:
+        await status_msg.remove()
+        await cl.Message(content=f"Quick grading error: {str(e)[:200]}").send()
+
+
+@cl.action_callback("export_grading_json")
+async def on_export_grading_json(action: cl.Action):
+    """Export grading results as JSON."""
+    results = cl.user_session.get("last_grading_results")
+    if not results:
+        await cl.Message(content="No grading results available to export.").send()
+        return
+
+    import json
+    json_output = json.dumps(results, indent=2, default=str)
+
+    # Create downloadable file
+    await cl.Message(
+        content=f"**Grading Results JSON:**\n```json\n{json_output[:3000]}...\n```\n\n*Full JSON is available in the session data.*"
+    ).send()
+
+
+@cl.action_callback("explain_grade")
+async def on_explain_grade(action: cl.Action):
+    """Explain the grading rationale in more detail."""
+    results = cl.user_session.get("last_grading_results")
+    if not results:
+        await cl.Message(content="No grading results available to explain.").send()
+        return
+
+    scores = results.get("scores", {})
+    phases = results.get("phases", {})
+
+    explanation = f"""## Grade Explanation
+
+### Why This Grade?
+
+The grade reflects:
+
+**Problem Reality (35% weight):**
+- Students must demonstrate that problems are REAL, not assumed
+- Evidence quality matters more than quantity
+- Direct user quotes/observations score higher than assumptions
+
+**Problem Discovery (25% weight):**
+- How many real problems were identified?
+- What was the validation rate?
+- Did they explore different problem categories?
+
+**Framework Integration (20% weight):**
+- Were PWS frameworks used correctly?
+- Which tools were missing?
+- How well integrated was the methodology?
+
+**Mindrian Thinking (10% weight):**
+- Did they find hidden connections?
+- Did they leverage the knowledge graph?
+
+**Can We Win + Is it Worth It (10% combined):**
+- Basic capability and market sizing checks
+
+---
+
+**Key Findings from This Assessment:**
+{json.dumps(phases.get('problem_extraction', {}), indent=2, default=str)[:1500]}
+
+---
+
+*Want to discuss specific aspects of this grade?*
+"""
+    await cl.Message(content=explanation).send()
