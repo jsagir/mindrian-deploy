@@ -1,0 +1,426 @@
+QA Review Guide: All Branch Changes
+================================================================
+Branch: claude/review-codebase-nRTQ3
+Date: January 29-30, 2026
+Commits: 25 | Lines: +12,000
+
+================================================================
+FEATURE 1: Extended Thinking UI
+================================================================
+
+What Changed
+────────────────────────────────────────
+Before each response, workshop bots now show a collapsible "Thinking" panel
+that reveals the bot's reasoning process. This helps users understand HOW
+the AI is analyzing their input before seeing the answer.
+
+What You'll See
+────────────────────────────────────────
+After typing a message to any workshop bot (TTA, JTBD, S-Curve, Red Team,
+Ackoff, Scenario, Beautiful Questions), you'll see:
+
+🧠 **TTA's Thinking** (click to expand)
+
+- ✅ **Understanding the question**: User is asking about...
+- ✅ **Detecting assumptions**: Found assumption language
+- 🔄 **Applying Trending to the Absurd**
+
+*Applying: Trending to the Absurd*
+
+Test Scenarios
+────────────────────────────────────────
+Scenario 1: TTA Bot - Thinking Panel
+
+1. Switch to Trending to the Absurd
+2. Say: "What if everyone worked remotely forever?"
+3. LOOK FOR:
+   - Collapsible "🧠 TTA's Thinking" section appears BEFORE the response
+   - Click to expand shows reasoning steps
+   - Steps show ✅ complete or 🔄 active status
+
+Scenario 2: Red Team - Assumption Detection
+
+1. Switch to Red Team
+2. Say: "I believe our customers will definitely pay $100/month"
+3. LOOK FOR:
+   - Thinking panel shows "⚠️ Detecting assumptions"
+   - Output mentions "assumption language detected"
+
+Scenario 3: JTBD - Solution Jumping Detection
+
+1. Switch to Jobs to Be Done
+2. Say: "We should build an app that tracks plant watering schedules"
+3. LOOK FOR:
+   - Thinking panel shows "🎯 Checking problem definition"
+   - Output mentions "solution language detected - will redirect to problem"
+
+Scenario 4: Lawrence (Simple Mode) - No Thinking Panel
+
+1. Switch to Lawrence (default)
+2. Say: "Help me explore a business idea"
+3. LOOK FOR:
+   - NO thinking panel appears (Lawrence is simple_mode=True)
+   - Response appears directly
+
+================================================================
+FEATURE 2: Cynefin Domain-Aware Agent Suggestions
+================================================================
+
+What Changed
+────────────────────────────────────────
+The system now detects problem complexity using the Cynefin framework and
+suggests appropriate bots based on the domain:
+
+Domain: Simple (clear cause-effect)
+Suggested Bots: Ackoff (validate with data)
+────────────────────────────────────────
+Domain: Complicated (expertise needed)
+Suggested Bots: S-Curve, JTBD, Investment
+────────────────────────────────────────
+Domain: Complex (probe and learn)
+Suggested Bots: TTA, Scenario, Beautiful Questions
+────────────────────────────────────────
+Domain: Chaotic (act fast)
+Suggested Bots: Red Team, Known Unknowns
+
+Test Scenarios
+────────────────────────────────────────
+Scenario 1: Chaotic Domain
+
+1. Stay on Lawrence
+2. Say: "My startup is in chaos, everything is breaking, we're losing customers"
+3. LOOK FOR:
+   - Red Team suggested with higher prominence
+   - Known Unknowns may also appear
+
+Scenario 2: Complex Domain
+
+1. Stay on Lawrence
+2. Say: "I want to explore what education might look like in 20 years"
+3. LOOK FOR:
+   - TTA suggested (complex, probe-sense-respond)
+   - Scenario Analysis may also appear
+
+Scenario 3: Complicated Domain
+
+1. Stay on Lawrence
+2. Say: "I need to analyze the right timing for launching our new technology"
+3. LOOK FOR:
+   - S-Curve suggested (complicated, expert analysis needed)
+
+================================================================
+FEATURE 3: Beautiful Questions Auto-Trigger
+================================================================
+
+What Changed
+────────────────────────────────────────
+The system detects conversation phase and suggests Beautiful Questions bot:
+
+WHY Phase: High certainty but no clear problem definition
+WHAT IF Phase: Problem defined, exploring possibilities
+HOW Phase: Solutions ready, planning action
+
+Test Scenarios
+────────────────────────────────────────
+Scenario 1: WHY Phase Trigger
+
+1. Stay on Lawrence
+2. Say: "I'm absolutely certain that AI will replace most jobs in 5 years"
+3. LOOK FOR:
+   - Beautiful Questions bot suggested
+   - Description mentions "WHY questions" or "clarify"
+
+Scenario 2: WHAT IF Phase Trigger
+
+1. Stay on Lawrence
+2. Say: "The problem is that elderly people are lonely. I'm exploring solutions."
+3. LOOK FOR:
+   - Beautiful Questions may be suggested
+   - Description mentions "WHAT IF" or "explore possibilities"
+
+================================================================
+FEATURE 4: Extreme Opposition Mode (Red Team)
+================================================================
+
+What Changed
+────────────────────────────────────────
+Red Team now has a toggle button for "Extreme Opposition" mode - pure attack
+with no balanced views, no encouragement, just finding the fatal flaw.
+
+What You'll See
+────────────────────────────────────────
+Button: 🔴 Extreme Opposition
+When Clicked: "EXTREME OPPOSITION MODE ACTIVATED" message
+Behavior: Brutal, one-sided critique only
+Toggle Back: "🟢 Return to Normal Mode" button appears
+
+Test Scenarios
+────────────────────────────────────────
+Scenario 1: Activate Extreme Opposition
+
+1. Switch to Red Team
+2. LOOK FOR: "🔴 Extreme Opposition" button in actions
+3. Click the button
+4. LOOK FOR:
+   - "EXTREME OPPOSITION MODE ACTIVATED" message
+   - List of what it will do (contradict, find counter-evidence, etc.)
+   - "🟢 Return to Normal Mode" button
+
+Scenario 2: Test Extreme Mode
+
+1. With Extreme Opposition active
+2. Say: "My idea is to sell premium bottled water"
+3. LOOK FOR:
+   - NO balanced views or encouragement
+   - Pure attack: "This will fail because..."
+   - Competitive threats highlighted
+   - No suggestions for improvement (that's for normal mode)
+
+Scenario 3: Return to Normal
+
+1. Click "🟢 Return to Normal Mode"
+2. LOOK FOR:
+   - "Normal Red Team Mode Restored" message
+   - Next response should be more balanced
+
+================================================================
+FEATURE 5: AI-Powered Research Synthesis
+================================================================
+
+What Changed
+────────────────────────────────────────
+Research results are now filtered and scored by AI before display:
+
+- 5-phase workflow: Query → Discovery → Evaluation → Gap → Synthesis
+- Relevance score (0.0-1.0) for each result
+- PWS-framed presentation
+- Source authority ranking (.gov > .edu > news > blogs)
+
+Test Scenarios
+────────────────────────────────────────
+Scenario 1: Deep Research Button
+
+1. Switch to any workshop bot
+2. Say: "I want to explore plant-based meat market opportunities"
+3. Click "Deep Research" button
+4. LOOK FOR:
+   - Spinner showing research phases
+   - Results with relevance indicators
+   - PWS-framed synthesis (not raw dumps)
+   - Source quality mentioned
+
+Scenario 2: Compare Quality
+
+1. Click Deep Research on a vague topic: "business ideas"
+2. Click Deep Research on specific topic: "tahini market size Israel 2025"
+3. COMPARE:
+   - Specific query should have higher relevance scores
+   - Better source quality indicators
+
+================================================================
+FEATURE 6: Smart Phase Transitions
+================================================================
+
+What Changed
+────────────────────────────────────────
+"Next Phase" button now validates completion before transitioning:
+
+- Shows percentage complete
+- Lists missing deliverables
+- Fetches news/trends for your domain
+- "Proceed Anyway" option if you want to skip
+
+Test Scenarios
+────────────────────────────────────────
+Scenario 1: Incomplete Phase Warning
+
+1. Switch to Scenario Analysis
+2. Say: "hi"
+3. Click "Next Phase" immediately
+4. LOOK FOR:
+   - "Phase Progress: XX%" message
+   - List of what's missing
+   - "Proceed Anyway" button
+
+Scenario 2: Complete Phase Transition
+
+1. Switch to TTA
+2. Say: "Let's explore remote work trends. The trend is that more companies
+   are going fully remote. I'm exploring problems in collaboration tools."
+3. Click "Next Phase"
+4. LOOK FOR:
+   - Higher completion percentage
+   - Clear instructions for next phase
+   - News/trends about remote work (if API configured)
+
+Scenario 3: Progress Persistence
+
+1. In Scenario Analysis, click "Next Phase" 2-3 times
+2. Switch to JTBD bot
+3. Switch BACK to Scenario Analysis
+4. LOOK FOR:
+   - Progress still there (not reset to Phase 1)
+   - Task list shows completed phases
+
+================================================================
+FEATURE 7: Show Example Pipeline
+================================================================
+
+What Changed
+────────────────────────────────────────
+"Show Example" button now uses a 3-source pipeline:
+
+1. Neo4j LazyGraph (8,400+ real case studies)
+2. File Search RAG (course materials)
+3. Tavily web search (fresh examples)
+
+Examples are tracked so you don't see repeats.
+
+Test Scenarios
+────────────────────────────────────────
+Scenario 1: Example Variety
+
+1. Switch to TTA
+2. Click "Show Example"
+3. Note the example topic
+4. Click "Show Example" again
+5. Click "Show Example" a third time
+6. LOOK FOR:
+   - Different examples each time
+   - Real company names or case studies
+   - Relevant to current phase/methodology
+
+================================================================
+FEATURE 8: Voice Input/Output
+================================================================
+
+What Changed
+────────────────────────────────────────
+Voice features use:
+- Deepgram WebSocket for real-time STT (if configured)
+- Gemini fallback for transcription
+- ElevenLabs for TTS output
+
+Test Scenarios
+────────────────────────────────────────
+Scenario 1: Voice Input
+
+1. Click the microphone icon (bottom left)
+2. Speak: "What is a problem worth solving?"
+3. LOOK FOR:
+   - Transcription appears in chat
+   - Bot responds to your spoken question
+
+Scenario 2: Listen to Response (if TTS enabled)
+
+1. After bot responds
+2. LOOK FOR: Audio playback option or automatic voice response
+3. NOTE: Requires ELEVENLABS_API_KEY on server
+
+================================================================
+EDGE CASES TO TEST
+================================================================
+
+Test: First message in conversation
+Expected: No thinking panel (Lawrence), or minimal thinking (workshops)
+────────────────────────────────────────
+Test: Very short message ("yes", "ok")
+Expected: Thinking panel still shows but with minimal steps
+────────────────────────────────────────
+Test: Switch bots mid-conversation
+Expected: Context preserved, new bot acknowledges handoff
+────────────────────────────────────────
+Test: Neo4j is down
+Expected: Features degrade gracefully (no Cynefin boost, examples still work)
+────────────────────────────────────────
+Test: API key missing (e.g., no TAVILY_API_KEY)
+Expected: Research buttons show error, other features unaffected
+────────────────────────────────────────
+Test: OAuth callback (DISABLED)
+Expected: No "User not found" errors, app works without login
+
+================================================================
+ENVIRONMENT VARIABLES REQUIRED
+================================================================
+
+┌─────────────────────────────┬──────────────────────────────────────────┐
+│ Variable                    │ What It Enables                          │
+├─────────────────────────────┼──────────────────────────────────────────┤
+│ GOOGLE_API_KEY              │ REQUIRED - Gemini AI                     │
+├─────────────────────────────┼──────────────────────────────────────────┤
+│ TAVILY_API_KEY              │ Deep Research, web search                │
+├─────────────────────────────┼──────────────────────────────────────────┤
+│ ELEVENLABS_API_KEY          │ Voice TTS output                         │
+├─────────────────────────────┼──────────────────────────────────────────┤
+│ DEEPGRAM_API_KEY            │ Real-time voice STT (faster)             │
+├─────────────────────────────┼──────────────────────────────────────────┤
+│ NEO4J_URI + credentials     │ Cynefin boost, LazyGraph examples        │
+├─────────────────────────────┼──────────────────────────────────────────┤
+│ CHAINLIT_DATABASE_URL       │ Conversation persistence                 │
+├─────────────────────────────┼──────────────────────────────────────────┤
+│ CHAINLIT_AUTH_SECRET        │ Required if OAuth enabled (currently off)│
+├─────────────────────────────┼──────────────────────────────────────────┤
+│ SERPAPI_API_KEY             │ Google Trends, Patents                   │
+├─────────────────────────────┼──────────────────────────────────────────┤
+│ FRED_API_KEY                │ Economic data (BLS, FRED)                │
+└─────────────────────────────┴──────────────────────────────────────────┘
+
+================================================================
+FILES ADDED/CHANGED
+================================================================
+
+┌─────────────────────────────────────────┬────────────────────────────────────────┐
+│ File                                    │ What It Is                             │
+├─────────────────────────────────────────┼────────────────────────────────────────┤
+│ public/elements/ThinkingPanel.jsx       │ Extended Thinking UI component         │
+├─────────────────────────────────────────┼────────────────────────────────────────┤
+│ tools/research_orchestrator.py          │ 5-phase Tavily workflow (954 lines)    │
+├─────────────────────────────────────────┼────────────────────────────────────────┤
+│ tools/result_synthesizer.py             │ AI relevance scoring (636 lines)       │
+├─────────────────────────────────────────┼────────────────────────────────────────┤
+│ tools/phase_validator.py                │ Phase completion checking              │
+├─────────────────────────────────────────┼────────────────────────────────────────┤
+│ tools/phase_enricher.py                 │ News/trends for phase transitions      │
+├─────────────────────────────────────────┼────────────────────────────────────────┤
+│ tools/validation_workflow.py            │ 6-phase agentic validation             │
+├─────────────────────────────────────────┼────────────────────────────────────────┤
+│ prompts/beautiful_question.py           │ Beautiful Questions bot (496 lines)    │
+├─────────────────────────────────────────┼────────────────────────────────────────┤
+│ prompts/redteam.py                      │ Added EXTREME_OPPOSITION_PROMPT        │
+├─────────────────────────────────────────┼────────────────────────────────────────┤
+│ prompts/scenario_phases.py              │ Scenario phase definitions             │
+├─────────────────────────────────────────┼────────────────────────────────────────┤
+│ agents/multi_agent_graph.py             │ LangGraph multi-agent orchestration    │
+├─────────────────────────────────────────┼────────────────────────────────────────┤
+│ scripts/validate_apis.py                │ API testing script                     │
+├─────────────────────────────────────────┼────────────────────────────────────────┤
+│ mindrian_chat.py                        │ +2,000 lines: thinking, Cynefin, etc.  │
+└─────────────────────────────────────────┴────────────────────────────────────────┘
+
+================================================================
+HOW TO REPORT BUGS
+================================================================
+
+Tell us:
+1. Which feature you were testing (from list above)
+2. Which bot you were using
+3. What you typed (exact message)
+4. What you expected to see
+5. What you actually saw
+6. Screenshot if possible
+
+Send to: Sagir (group chat or direct)
+
+================================================================
+KNOWN ISSUES (DON'T REPORT)
+================================================================
+
+- OAuth is disabled (was causing "User not found" errors)
+- Thinking panel only shows for workshop bots, not Lawrence
+- Some research buttons may error if API keys not configured
+- Voice latency depends on Deepgram configuration
+- PDF image extraction not implemented (text only)
+
+================================================================
+END OF QA GUIDE
+================================================================
