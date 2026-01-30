@@ -75,7 +75,15 @@ async def update_task_status(
             ]
             if task_index < len(base_titles):
                 task_list.tasks[task_index].title = f"{base_titles[task_index]}{title_suffix}"
-        await task_list.send()
+        try:
+            await task_list.send()
+        except TypeError as e:
+            # Chainlit version compatibility: some versions pass for_id internally
+            if "for_id" in str(e):
+                # Skip the send - the task list will still show updated state
+                pass
+            else:
+                raise
 
 
 async def create_workshop_tasklist(phases: List[Dict[str, str]]) -> cl.TaskList:

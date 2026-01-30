@@ -62,6 +62,23 @@ except ImportError as e:
     UI_ELEMENTS_ENABLED = False
     print(f"UI Elements not available: {e}")
 
+
+# === TaskList Compatibility Helper ===
+async def safe_task_list_send(task_list):
+    """
+    Send TaskList with error handling for Chainlit version compatibility.
+    Some Chainlit versions pass 'for_id' internally which causes TypeError.
+    """
+    try:
+        await safe_task_list_send(task_list)
+    except TypeError as e:
+        if "for_id" in str(e):
+            # Skip - Chainlit version incompatibility, state still updated
+            pass
+        else:
+            raise
+
+
 # === Config ===
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("GOOGLE_AI_API_KEY")
 # FileSearch store owned by a different API key
@@ -1121,7 +1138,7 @@ async def update_phase(profile: str, phase_index: int, new_status: str):
             task = cl.Task(title=phase["name"], status=status)
             await task_list.add_task(task)
 
-        await task_list.send()
+        await safe_task_list_send(task_list)
 
 
 # ============================================================================
@@ -2319,7 +2336,7 @@ async def start():
         # Create and send task list
         task_list = await create_task_list(chat_profile)
         if task_list:
-            await task_list.send()
+            await safe_task_list_send(task_list)
 
     # Build action buttons for workshop bots
     actions = []
@@ -2614,7 +2631,7 @@ async def on_chat_resume(thread: dict):
             task = cl.Task(title=phase["name"], status=status)
             await task_list.add_task(task)
 
-        await task_list.send()
+        await safe_task_list_send(task_list)
 
     # Restore conversation history from thread messages
     history = []
@@ -3573,7 +3590,7 @@ async def handle_agent_switch(new_agent_id: str):
                 status = cl.TaskStatus.READY
             task = cl.Task(title=phase["name"], status=status)
             await task_list.add_task(task)
-        await task_list.send()
+        await safe_task_list_send(task_list)
     else:
         cl.user_session.set("phases", [])
         cl.user_session.set("current_phase", 0)
@@ -4015,7 +4032,7 @@ async def on_next_phase(action: cl.Action):
                 status = cl.TaskStatus.READY
             task = cl.Task(title=phase["name"], status=status)
             await task_list.add_task(task)
-        await task_list.send()
+        await safe_task_list_send(task_list)
 
         # Update sidebar to reflect phase progress
         await update_sidebar_phase(current_phase_idx + 1)
@@ -6535,7 +6552,7 @@ Your insights help us improve Mindrian!"""
                 if UI_ELEMENTS_ENABLED:
                     for i in range(5):
                         task_list.tasks[i].status = cl.TaskStatus.DONE
-                    await task_list.send()
+                    await safe_task_list_send(task_list)
 
                 # Extract results for legacy compatibility
                 results = {
@@ -7226,7 +7243,7 @@ The user expects you to understand the context and add your specialized value.
                         status = cl.TaskStatus.READY
                     task = cl.Task(title=phase["name"], status=status)
                     await task_list.add_task(task)
-                await task_list.send()
+                await safe_task_list_send(task_list)
             except Exception:
                 pass
 
