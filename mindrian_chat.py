@@ -366,6 +366,12 @@ from prompts import (
     DOMAIN_GENERATION_FROM_RESEARCH_PROMPT,
     RESEARCH_DOMAIN_SCORING_PROMPT,
     RESEARCH_TRANSLATION_PROMPT,
+    # Minto Grading
+    MINTO_GRADING_PROMPT,
+    MINTO_WELCOME,
+    POST_GRADING_LAWRENCE_CONTEXT,
+    calculate_minto_score,
+    get_minto_letter_grade,
 )
 
 # === RAG Cache Support ===
@@ -871,6 +877,16 @@ I evaluate students' ability to **systematically discover and validate REAL prob
 **Upload student work (PDF, DOCX, TXT) or paste the content directly.**
 
 I'll run the complete grading pipeline including mandatory bias detection."""
+    },
+    "minto": {
+        "name": "Minto Problem Discovery Grading",
+        "icon": "/public/icons/grading.svg",
+        "emoji": "📊",
+        "description": "One-shot autonomous grading focused on problem reality validation",
+        "system_prompt": MINTO_GRADING_PROMPT,
+        "has_phases": False,  # One-shot grading, no phases
+        "simple_mode": False,
+        "welcome": MINTO_WELCOME
     }
 }
 
@@ -1350,6 +1366,11 @@ async def chat_profiles():
             markdown_description=BOTS["grading"]["description"],
             icon=BOTS["grading"]["icon"],
         ),
+        cl.ChatProfile(
+            name="minto",
+            markdown_description=BOTS["minto"]["description"],
+            icon=BOTS["minto"]["icon"],
+        ),
     ]
 
 
@@ -1660,6 +1681,28 @@ STARTERS = {
         cl.Starter(
             label="Show grading example",
             message="Show me an example of how you grade problem discovery work with a sample assessment.",
+            icon="/public/icons/example.svg",
+        ),
+    ],
+    "minto": [
+        cl.Starter(
+            label="Grade problem discovery work",
+            message="I want to grade student work using the Minto Problem Reality framework. I'll upload the document.",
+            icon="/public/icons/grading.svg",
+        ),
+        cl.Starter(
+            label="Explain Minto approach",
+            message="Explain the Minto grading approach - what does 'Problem Reality First' mean?",
+            icon="/public/icons/info.svg",
+        ),
+        cl.Starter(
+            label="Show component weights",
+            message="Show me the detailed breakdown of how you weight each component in the Minto framework.",
+            icon="/public/icons/chart.svg",
+        ),
+        cl.Starter(
+            label="Example assessment",
+            message="Show me an example of a Minto-style assessment with the full breakdown.",
             icon="/public/icons/example.svg",
         ),
     ],
@@ -6400,11 +6443,11 @@ Your insights help us improve Mindrian!"""
                 elements=image_elements
             ).send()
 
-    # === GRADING BOT: ONE-SHOT AUTONOMOUS ASSESSMENT ===
-    # When using the grading bot, automatically run the full modular assessment engine
+    # === GRADING BOTS: ONE-SHOT AUTONOMOUS ASSESSMENT ===
+    # When using grading or minto bot, automatically run the full modular assessment engine
     # with tool calling (Neo4j, FileSearch, Tavily, LangExtract)
     bot_id = cl.user_session.get("bot_id", "lawrence")
-    if bot_id == "grading":
+    if bot_id in ["grading", "minto"]:
         grading_content = None
 
         # Check for uploaded document content
@@ -7963,11 +8006,13 @@ async def on_quick_grade(action: cl.Action):
 
 @cl.action_callback("discuss_grade")
 async def on_discuss_grade(action: cl.Action):
-    """Switch to Lawrence to discuss the grading results."""
+    """Switch to Lawrence to discuss the grading results - as if Lawrence did the grading."""
     # Get the grading context
     grading_results = cl.user_session.get("last_grading_results", {})
     grading_report = cl.user_session.get("last_grading_report", "")
     graded_content = cl.user_session.get("last_graded_content", "")
+    assessment_state = cl.user_session.get("last_assessment_state", {})
+    original_bot = cl.user_session.get("bot_id", "grading")
 
     if not grading_results:
         await cl.Message(content="No recent grading results found. Please grade a submission first.").send()
@@ -7977,40 +8022,81 @@ async def on_discuss_grade(action: cl.Action):
     cl.user_session.set("bot_id", "lawrence")
     cl.user_session.set("bot", BOTS["lawrence"])
 
-    # Prepare context for discussion
+    # Extract scores from assessment state if available
     grade = grading_results.get("letter_grade", "N/A")
     score = grading_results.get("final_score", 0)
 
-    discussion_context = f"""## Grading Discussion Context
+    # Try to extract more detailed info from the report
+    verdict = "See report for details"
+    limiting_factor = "Review detailed breakdown"
+    opportunities_saved = "Check Bank of Opportunities"
 
-**Grade Received:** {grade} ({score:.1f}/100)
+    # Build comprehensive context for Lawrence to act as the grader
+    discussion_context = f"""## YOU ARE THE GRADER - DISCUSSION MODE
 
-**Grade Breakdown:**
-{grading_report[:3000] if grading_report else 'Not available'}
+You (Lawrence) have just completed grading this student's work. You have full knowledge of everything in this assessment. Respond as if YOU personally reviewed every detail.
 
-**Student Work Summary:**
-{graded_content[:1000] if graded_content else 'Not available'}...
+### Your Grading Summary
+- **Final Grade:** {grade} ({score}/100 if known)
+- **Grading Bot Used:** {original_bot}
+- **Modules Completed:** {', '.join(grading_results.get('modules_completed', ['Assessment Complete']))}
+- **Evidence Items Collected:** {grading_results.get('evidence_count', 'Multiple')}
 
----
-The student wants to discuss this grading. Help them understand the assessment, answer questions about specific scores, and if they present valid arguments, acknowledge where the grading might be adjusted.
-"""
+### Full Assessment Report
+{grading_report[:4000] if grading_report else 'Not available'}
 
-    # Add to history
+### Student Work (First 2000 chars)
+{graded_content[:2000] if graded_content else 'Not available'}...
+
+### Your Role in This Discussion
+
+You ARE the grader. This is not a handoff - you did this grading. Respond accordingly:
+
+1. **Own the Assessment** - Say "I found..." not "The system found..."
+2. **Explain Reasoning** - When asked WHY a score, explain based on evidence quality
+3. **Reference Their Work** - Point to specific parts of their submission
+4. **Be Direct but Constructive** - Help them improve, don't just defend scores
+5. **Acknowledge Valid Arguments** - If they present new evidence, consider it
+
+### Common Discussion Points
+
+If they ask "Why did I get X on Problem Reality?":
+- Explain what evidence was present vs. missing
+- Distinguish validated problems from assumptions
+- Reference specific quotes or data they should have had
+
+If they disagree with Framework Integration score:
+- Point out which frameworks were used properly vs. superficially
+- Reference Neo4j findings on missed frameworks
+- Suggest how to better integrate tools
+
+If they want to argue for a higher grade:
+- Ask what additional evidence they can provide
+- Be open to valid new arguments
+- But don't inflate grades without substance
+
+Remember: You read their work, you used the tools, you made these judgments. Own it."""
+
+    # Add to history as system context
     history = cl.user_session.get("history", [])
-    history.append({"role": "user", "content": f"[SYSTEM: Student wants to discuss their grade: {grade}]"})
+    history.append({"role": "user", "content": f"[SYSTEM CONTEXT: You just graded this student's work. Grade: {grade}. They want to discuss it with you. Act as the grader who personally reviewed everything.]"})
     cl.user_session.set("history", history)
     cl.user_session.set("grading_discussion_context", discussion_context)
 
     await cl.Message(
         content=f"""**💬 Grade Discussion Mode**
 
-You received: **{grade}** ({score:.1f}/100)
+You received: **{grade}**
 
-I'm Lawrence, and I'm here to discuss your grade. You can:
-- Ask why you received a specific score on any component
-- Present evidence or arguments for reconsideration
-- Clarify aspects of the feedback
-- Understand how to improve for next time
+I'm Lawrence, and I personally graded your submission. I reviewed your work using our full tool stack - Neo4j for framework validation, FileSearch for course materials, and research validation.
+
+I'm here to discuss your grade. You can:
+- Ask me why you received specific scores on any component
+- Challenge my assessment with new evidence or arguments
+- Get clarification on any feedback
+- Understand specifically how to improve
+
+I'll explain my reasoning based on what I found in your work.
 
 What would you like to discuss about your grade?""",
         actions=[
