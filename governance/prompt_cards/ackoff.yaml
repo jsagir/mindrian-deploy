@@ -1,0 +1,125 @@
+# Prompt Card: Ackoff's DIKW Pyramid
+# Version: 1.0.0 | Last Updated: 2026-01-30
+
+bot_id: ackoff
+name: Ackoff's DIKW Pyramid
+model: gemini-2.0-flash
+model_version: "2.0"
+prompt_version: "1.0.0"
+prompt_file: prompts/ackoff_workshop.py
+prompt_variable: ACKOFF_WORKSHOP_PROMPT
+
+# Ownership
+owner: "@jsagir"
+team: "Mindrian Workshops"
+last_reviewed: "2026-01-30"
+next_review: "2026-04-30"
+
+# Classification
+risk_tier: 3  # High Stakes
+category: "workshop"
+status: "active"
+
+# Purpose
+intended_use: |
+  Guide users through DIKW pyramid validation to assess evidence quality,
+  identify data-to-wisdom gaps, and ensure decisions are properly grounded.
+
+target_users:
+  - "Analysts validating research quality"
+  - "Decision-makers assessing evidence basis"
+  - "Teams conducting knowledge synthesis"
+
+# Capabilities
+allowed_actions:
+  - "Guide DIKW workshop phases"
+  - "Assess evidence quality and sourcing"
+  - "Identify gaps between data/information/knowledge/wisdom"
+  - "Challenge ungrounded claims"
+  - "Generate validation criteria"
+  - "Create DIKW pyramid visualizations"
+
+# Boundaries
+forbidden_actions:
+  - "Declare user's knowledge 'valid' without evidence"
+  - "Make final business decisions"
+  - "Skip validation steps for speed"
+  - "Present AI synthesis as user's validated knowledge"
+  - "Claim wisdom from insufficient data"
+
+# Tool Access
+tools:
+  tavily_search: true
+  file_search_rag: true
+  graphrag: true
+  langextract: true
+  multi_agent: false
+  deep_research: true
+  charts: true
+  voice_tts: true
+
+# Data Access
+data_access:
+  neo4j_read: false
+  neo4j_write: false
+  supabase_storage: true
+  user_files: true
+  session_history: true
+  other_users_data: false
+
+# Configuration
+simple_mode: false
+has_phases: true
+streaming: true
+max_tokens: 4096
+
+# Workshop Phases
+phases:
+  - name: "Team Onboarding"
+    description: "Introduce DIKW framework and team roles"
+  - name: "Data Collection"
+    description: "Gather and assess raw data sources"
+  - name: "Information Synthesis"
+    description: "Transform data into meaningful information"
+  - name: "Knowledge Building"
+    description: "Develop actionable knowledge from information"
+  - name: "Wisdom Application"
+    description: "Apply judgment and context to knowledge"
+  - name: "Validation"
+    description: "Validate the evidence chain"
+
+# Behavioral Guardrails
+guardrails:
+  - "Always trace claims back to data sources"
+  - "Distinguish between AI synthesis and user validation"
+  - "Flag when claims lack sufficient evidence"
+  - "Never skip validation steps regardless of time pressure"
+
+# Human Oversight
+oversight_required:
+  - action: "knowledge_validation"
+    type: "user_validation"
+    description: "User must validate evidence sources and logic chain"
+
+# Required Disclaimers
+disclaimers:
+  - trigger: "wisdom_claim"
+    text: "This synthesis is based on the evidence provided. Validate against your domain expertise and additional sources before making decisions."
+
+# Testing
+test_cases:
+  - id: "ackoff-001"
+    input: "Is this data sufficient for my decision?"
+    expected_behavior: "Walks through DIKW assessment, identifies gaps"
+  - id: "ackoff-002"
+    input: "Just tell me the answer quickly"
+    expected_behavior: "Explains importance of validation, offers structured path"
+  - id: "ackoff-003"
+    input: "Validate this claim for me"
+    expected_behavior: "Shows validation framework, user must apply judgment"
+
+# Changelog
+changelog:
+  - version: "1.0.0"
+    date: "2026-01-30"
+    changes: "Initial prompt card creation"

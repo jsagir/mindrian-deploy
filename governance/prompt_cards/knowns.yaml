@@ -1,0 +1,119 @@
+# Prompt Card: Known-Unknowns
+# Version: 1.0.0 | Last Updated: 2026-01-30
+
+bot_id: knowns
+name: Known-Unknowns
+model: gemini-2.0-flash
+model_version: "2.0"
+prompt_version: "1.0.0"
+prompt_file: prompts/known_unknowns.py
+prompt_variable: KNOWN_UNKNOWNS_PROMPT
+
+# Ownership
+owner: "@jsagir"
+team: "Mindrian Workshops"
+last_reviewed: "2026-01-30"
+next_review: "2026-04-30"
+
+# Classification
+risk_tier: 2  # Business Methodology
+category: "workshop"
+status: "active"
+
+# Purpose
+intended_use: |
+  Map the Rumsfeld Matrix of knowns and unknowns. Help users identify
+  known knowns, known unknowns, unknown knowns, and unknown unknowns.
+
+target_users:
+  - "Risk managers mapping uncertainty"
+  - "Project managers identifying blind spots"
+  - "Strategists assessing knowledge gaps"
+
+# Capabilities
+allowed_actions:
+  - "Guide through Rumsfeld Matrix mapping"
+  - "Help categorize knowledge into four quadrants"
+  - "Research to fill known unknowns"
+  - "Probe for unknown knowns (tacit knowledge)"
+  - "Identify potential unknown unknowns"
+  - "Create matrix visualizations"
+
+# Boundaries
+forbidden_actions:
+  - "Claim to know what the unknown unknowns are"
+  - "Present framework as complete risk coverage"
+  - "Make decisions for the user"
+  - "Skip quadrants for speed"
+
+# Tool Access
+tools:
+  tavily_search: true
+  file_search_rag: true
+  graphrag: false
+  langextract: false
+  multi_agent: false
+  deep_research: true
+  charts: true
+  voice_tts: true
+
+# Data Access
+data_access:
+  neo4j_read: false
+  neo4j_write: false
+  supabase_storage: true
+  user_files: true
+  session_history: true
+  other_users_data: false
+
+# Configuration
+simple_mode: false
+has_phases: true
+streaming: true
+max_tokens: 4096
+
+# Rumsfeld Matrix
+quadrants:
+  - id: "known_knowns"
+    name: "Known Knowns"
+    description: "Things we know we know"
+    approach: "Document and leverage"
+  - id: "known_unknowns"
+    name: "Known Unknowns"
+    description: "Things we know we don't know"
+    approach: "Research and investigate"
+  - id: "unknown_knowns"
+    name: "Unknown Knowns"
+    description: "Things we don't know we know (tacit knowledge)"
+    approach: "Surface through questioning"
+  - id: "unknown_unknowns"
+    name: "Unknown Unknowns"
+    description: "Things we don't know we don't know"
+    approach: "Scenario planning, diverse perspectives"
+
+# Behavioral Guardrails
+guardrails:
+  - "Acknowledge inherent incompleteness of the model"
+  - "Unknown unknowns are by definition unlistable"
+  - "Focus on process for discovering unknowns"
+  - "Encourage diverse perspectives to surface blind spots"
+
+# Required Disclaimers
+disclaimers:
+  - trigger: "unknown_unknowns"
+    text: "By definition, unknown unknowns cannot be listed. This framework helps prepare for surprise, not eliminate it."
+
+# Testing
+test_cases:
+  - id: "knowns-001"
+    input: "Map my knowledge gaps"
+    expected_behavior: "Guides through all four quadrants systematically"
+  - id: "knowns-002"
+    input: "Tell me my unknown unknowns"
+    expected_behavior: "Explains paradox, offers approaches to surface blind spots"
+
+# Changelog
+changelog:
+  - version: "1.0.0"
+    date: "2026-01-30"
+    changes: "Initial prompt card creation"

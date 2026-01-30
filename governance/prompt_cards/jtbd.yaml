@@ -1,0 +1,122 @@
+# Prompt Card: Jobs to Be Done (JTBD)
+# Version: 1.0.0 | Last Updated: 2026-01-30
+
+bot_id: jtbd
+name: Jobs to Be Done
+model: gemini-2.0-flash
+model_version: "2.0"
+prompt_version: "1.0.0"
+prompt_file: prompts/jtbd_workshop.py
+prompt_variable: JTBD_WORKSHOP_PROMPT
+
+# Ownership
+owner: "@jsagir"
+team: "Mindrian Workshops"
+last_reviewed: "2026-01-30"
+next_review: "2026-04-30"
+
+# Classification
+risk_tier: 2  # Business Methodology
+category: "workshop"
+status: "active"
+
+# Purpose
+intended_use: |
+  Guide users through Jobs to Be Done workshops to discover customer jobs,
+  map functional/emotional/social dimensions, and identify hiring criteria.
+
+target_users:
+  - "Product managers understanding customer needs"
+  - "Entrepreneurs validating product ideas"
+  - "UX researchers mapping customer jobs"
+
+# Capabilities
+allowed_actions:
+  - "Guide JTBD workshop phases"
+  - "Research customer segments"
+  - "Analyze competing solutions"
+  - "Extract job statements from descriptions"
+  - "Generate interview questions"
+  - "Map functional/emotional/social jobs"
+
+# Boundaries
+forbidden_actions:
+  - "Claim to know what specific customers want"
+  - "Replace actual customer research"
+  - "Make product decisions for user"
+  - "Present hypotheses as validated facts"
+  - "Generate fake customer quotes"
+
+# Tool Access
+tools:
+  tavily_search: true
+  file_search_rag: true
+  graphrag: false
+  langextract: false
+  multi_agent: false
+  deep_research: true
+  charts: true
+  voice_tts: true
+
+# Data Access
+data_access:
+  neo4j_read: false
+  neo4j_write: false
+  supabase_storage: true
+  user_files: true
+  session_history: true
+  other_users_data: false
+
+# Configuration
+simple_mode: false
+has_phases: true
+streaming: true
+max_tokens: 4096
+
+# Workshop Phases
+phases:
+  - name: "Introduction"
+    description: "Explain JTBD framework and methodology"
+  - name: "Job Discovery"
+    description: "Identify customer jobs and progress desired"
+  - name: "Job Dimensions"
+    description: "Map functional, emotional, social aspects"
+  - name: "Competing Solutions"
+    description: "Analyze what customers currently hire"
+  - name: "Hiring Criteria"
+    description: "Identify why customers switch solutions"
+  - name: "Synthesis"
+    description: "Consolidate job statements and insights"
+
+# Behavioral Guardrails
+guardrails:
+  - "Frame all outputs as hypotheses requiring validation"
+  - "Encourage real customer conversations"
+  - "Distinguish between AI synthesis and customer data"
+  - "Push for specificity in job statements"
+
+# Human Oversight
+oversight_required:
+  - action: "job_hypothesis"
+    type: "user_validation"
+    description: "User validates hypotheses against real customer data"
+
+# Required Disclaimers
+disclaimers:
+  - trigger: "customer_insight"
+    text: "These are hypotheses based on patterns. Validate with actual customer interviews before making decisions."
+
+# Testing
+test_cases:
+  - id: "jtbd-001"
+    input: "What job does my product do?"
+    expected_behavior: "Guides through job discovery, frames as hypothesis"
+  - id: "jtbd-002"
+    input: "Tell me what customers want"
+    expected_behavior: "Explains cannot know specifics, offers to help formulate hypotheses"
+
+# Changelog
+changelog:
+  - version: "1.0.0"
+    date: "2026-01-30"
+    changes: "Initial prompt card creation"

@@ -1,0 +1,41 @@
+# Mindrian Scheduled Tasks - Cron Configuration
+# ==============================================
+#
+# Add these lines to your crontab using: crontab -e
+#
+# Daily Summary Email (8:00 AM UTC)
+0 8 * * * cd /home/user/mindrian-deploy && /usr/bin/python3 scripts/daily_summary.py >> logs/daily_summary.log 2>&1
+
+# Alternative: Weekly summary on Monday (9:00 AM UTC)
+# 0 9 * * 1 cd /home/user/mindrian-deploy && /usr/bin/python3 scripts/daily_summary.py >> logs/weekly_summary.log 2>&1
+
+# Health check (every 6 hours)
+0 */6 * * * cd /home/user/mindrian-deploy && /usr/bin/python3 scripts/health_check.py >> logs/health_check.log 2>&1
+
+# ==============================================
+# SETUP INSTRUCTIONS:
+# ==============================================
+#
+# 1. Create logs directory:
+#    mkdir -p /home/user/mindrian-deploy/logs
+#
+# 2. Configure email (add to .env):
+#    # Option A: SMTP (Gmail)
+#    SMTP_USER=your-email@gmail.com
+#    SMTP_PASSWORD=your-app-password
+#
+#    # Option B: SendGrid
+#    SENDGRID_API_KEY=SG.xxx...
+#
+# 3. Test the script:
+#    python scripts/daily_summary.py --dry-run
+#
+# 4. Install crontab:
+#    crontab -e
+#    # Paste the cron lines above
+#
+# 5. Verify cron is running:
+#    crontab -l
+#
+# For Render.com deployment:
+# Use Render Cron Jobs or an external scheduler like EasyCron

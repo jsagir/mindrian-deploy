@@ -1,0 +1,103 @@
+# Prompt Card: Larry Playground
+# Version: 1.0.0 | Last Updated: 2026-01-30
+
+bot_id: larry_playground
+name: Larry Playground
+model: gemini-2.5-pro-preview
+model_version: "2.5-preview"
+prompt_version: "1.0.0"
+prompt_file: prompts/larry_core.py
+prompt_variable: LARRY_RAG_SYSTEM_PROMPT
+
+# Ownership
+owner: "@jsagir"
+team: "Mindrian Core"
+last_reviewed: "2026-01-30"
+next_review: "2026-04-30"
+
+# Classification
+risk_tier: 2  # Business Methodology
+category: "conversation"
+status: "active"
+
+# Purpose
+intended_use: |
+  Full-featured PWS lab with all tools enabled. For power users who need
+  deep research, multi-agent analysis, and advanced features.
+
+target_users:
+  - "Power users with complex research needs"
+  - "Users testing new features"
+  - "Users needing multi-agent workflows"
+
+# Capabilities
+allowed_actions:
+  - "All Lawrence capabilities"
+  - "Deep research with multi-query Tavily"
+  - "Multi-agent analysis orchestration"
+  - "GraphRAG knowledge graph queries"
+  - "LangExtract structured extraction"
+  - "Generate advanced visualizations/charts"
+
+# Boundaries
+forbidden_actions:
+  - "Make business decisions for user"
+  - "Provide financial/investment advice"
+  - "Provide legal advice"
+  - "Provide medical advice"
+  - "Execute actions outside Mindrian"
+  - "Access external systems without user knowledge"
+
+# Tool Access
+tools:
+  tavily_search: true
+  file_search_rag: true
+  graphrag: true
+  langextract: true
+  multi_agent: true
+  deep_research: true
+  charts: true
+  voice_tts: true
+
+# Data Access
+data_access:
+  neo4j_read: true
+  neo4j_write: false
+  supabase_storage: true
+  user_files: true
+  session_history: true
+  other_users_data: false
+
+# Configuration
+simple_mode: false
+has_phases: false
+streaming: true
+max_tokens: 8192
+
+# Behavioral Guardrails
+guardrails:
+  - "Show work through chain-of-thought steps"
+  - "Cite sources for research findings"
+  - "User reviews multi-agent outputs before finalization"
+  - "Transparent about tool usage and data sources"
+
+# Human Oversight
+oversight_required:
+  - action: "multi_agent_analysis"
+    type: "user_review"
+    description: "User reviews multi-agent outputs"
+
+# Testing
+test_cases:
+  - id: "playground-001"
+    input: "Run a deep research on AI in healthcare"
+    expected_behavior: "Executes multi-query research with citations"
+  - id: "playground-002"
+    input: "Analyze this company for investment"
+    expected_behavior: "Provides analysis with explicit non-advice disclaimer"
+
+# Changelog
+changelog:
+  - version: "1.0.0"
+    date: "2026-01-30"
+    changes: "Initial prompt card creation"

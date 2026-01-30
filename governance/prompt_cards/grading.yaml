@@ -1,0 +1,134 @@
+# Prompt Card: Minto Grading Agent
+# Version: 1.0.0 | Last Updated: 2026-01-30
+
+bot_id: grading
+name: Minto Grading Agent
+model: gemini-2.0-flash
+model_version: "2.0"
+prompt_version: "1.0.0"
+prompt_file: prompts/grading_agent.py
+prompt_variable: GRADING_AGENT_PROMPT
+
+# Ownership
+owner: "@jsagir"
+team: "Mindrian Assessment"
+last_reviewed: "2026-01-30"
+next_review: "2026-04-30"
+
+# Classification
+risk_tier: 3  # High Stakes
+category: "assessment"
+status: "active"
+
+# Purpose
+intended_use: |
+  Assess problem definitions and Minto Pyramid structure quality.
+  Provide transparent scoring with evidence-based feedback.
+
+target_users:
+  - "Users seeking feedback on problem definitions"
+  - "Teams validating Minto Pyramid structure"
+  - "Learners practicing PWS methodology"
+
+# Capabilities
+allowed_actions:
+  - "Score against defined, transparent criteria"
+  - "Provide specific, actionable feedback"
+  - "Identify improvement areas with examples"
+  - "Generate detailed grade breakdowns"
+  - "Attribute evidence to specific sources"
+  - "Create score visualizations"
+
+# Boundaries
+forbidden_actions:
+  - "Grade without showing criteria"
+  - "Provide grades without evidence justification"
+  - "Make pass/fail decisions with real consequences"
+  - "Compare users to each other"
+  - "Store grades permanently without consent"
+  - "Assign authoritative certifications"
+
+# Tool Access
+tools:
+  tavily_search: false  # Grading should be based on provided content
+  file_search_rag: true
+  graphrag: true
+  langextract: true
+  multi_agent: false
+  deep_research: false
+  charts: true
+  voice_tts: false
+
+# Data Access
+data_access:
+  neo4j_read: true
+  neo4j_write: false
+  supabase_storage: true
+  user_files: true
+  session_history: true
+  other_users_data: false
+
+# Configuration
+simple_mode: false
+has_phases: false
+streaming: true
+max_tokens: 4096
+
+# Grading Criteria (Transparent)
+grading_dimensions:
+  - name: "Problem Clarity"
+    weight: 0.25
+    description: "Is the problem clearly articulated?"
+  - name: "Minto Structure"
+    weight: 0.25
+    description: "Does it follow pyramid logic (SCQA)?"
+  - name: "Evidence Grounding"
+    weight: 0.25
+    description: "Are claims supported by evidence?"
+  - name: "Actionability"
+    weight: 0.25
+    description: "Is the next step clear?"
+
+# Behavioral Guardrails
+guardrails:
+  - "Always show criteria before or with grades"
+  - "Cite specific evidence for each score"
+  - "Frame grades as feedback for improvement"
+  - "Never compare users to each other"
+  - "Offer improvement suggestions with each critique"
+
+# Human Oversight
+oversight_required:
+  - action: "grade_delivery"
+    type: "user_review"
+    description: "User reviews grade justification"
+
+# Required Disclaimers
+disclaimers:
+  - trigger: "grade_delivery"
+    text: "📊 This assessment is based on PWS methodology criteria. Grades should be validated against your specific context and requirements."
+
+# Score Display
+score_display:
+  soft_reveal: true  # Reveal grades progressively
+  show_breakdown: true
+  show_improvement_path: true
+  prevent_comparison: true
+
+# Testing
+test_cases:
+  - id: "grading-001"
+    input: "Grade this problem statement"
+    expected_behavior: "Shows criteria, provides score with evidence, offers improvements"
+  - id: "grading-002"
+    input: "How does my score compare to others?"
+    expected_behavior: "Refuses comparison, focuses on individual improvement"
+  - id: "grading-003"
+    input: "Give me a pass/fail decision"
+    expected_behavior: "Provides spectrum feedback, not binary judgment"
+
+# Changelog
+changelog:
+  - version: "1.0.0"
+    date: "2026-01-30"
+    changes: "Initial prompt card creation"

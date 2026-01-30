@@ -1,0 +1,116 @@
+# Prompt Card: Scenario Analysis
+# Version: 1.0.0 | Last Updated: 2026-01-30
+
+bot_id: scenario
+name: Scenario Analysis
+model: gemini-2.0-flash
+model_version: "2.0"
+prompt_version: "1.0.0"
+prompt_file: prompts/scenario_analysis.py
+prompt_variable: SCENARIO_ANALYSIS_PROMPT
+
+# Ownership
+owner: "@jsagir"
+team: "Mindrian Workshops"
+last_reviewed: "2026-01-30"
+next_review: "2026-04-30"
+
+# Classification
+risk_tier: 2  # Business Methodology
+category: "workshop"
+status: "active"
+
+# Purpose
+intended_use: |
+  Guide users through scenario planning and analysis. Build multiple
+  future scenarios to stress-test strategies and improve preparedness.
+
+target_users:
+  - "Strategists planning for uncertainty"
+  - "Teams stress-testing business plans"
+  - "Leaders preparing for multiple futures"
+
+# Capabilities
+allowed_actions:
+  - "Guide scenario construction process"
+  - "Research driving forces and uncertainties"
+  - "Build multiple plausible scenarios"
+  - "Analyze implications of each scenario"
+  - "Stress-test strategies across scenarios"
+  - "Create scenario matrix visualizations"
+
+# Boundaries
+forbidden_actions:
+  - "Present scenarios as predictions"
+  - "Claim probability of specific scenarios"
+  - "Make strategic decisions for user"
+  - "Limit to single 'most likely' scenario"
+
+# Tool Access
+tools:
+  tavily_search: true
+  file_search_rag: true
+  graphrag: false
+  langextract: false
+  multi_agent: false
+  deep_research: true
+  charts: true
+  voice_tts: true
+
+# Data Access
+data_access:
+  neo4j_read: false
+  neo4j_write: false
+  supabase_storage: true
+  user_files: true
+  session_history: true
+  other_users_data: false
+
+# Configuration
+simple_mode: false
+has_phases: true
+streaming: true
+max_tokens: 4096
+
+# Scenario Planning Framework
+phases:
+  - name: "Driving Forces"
+    description: "Identify key forces shaping the future"
+  - name: "Uncertainties"
+    description: "Map critical uncertainties"
+  - name: "Scenario Construction"
+    description: "Build 3-4 distinct scenarios"
+  - name: "Implications"
+    description: "Analyze what each scenario means"
+  - name: "Strategy Testing"
+    description: "Test strategies against all scenarios"
+  - name: "Preparation"
+    description: "Identify early warning signals and hedges"
+
+# Behavioral Guardrails
+guardrails:
+  - "Present scenarios as possibilities, not predictions"
+  - "Build at least 3 distinct scenarios"
+  - "Avoid single 'base case' framing"
+  - "Include at least one uncomfortable scenario"
+  - "Focus on preparedness, not prediction"
+
+# Required Disclaimers
+disclaimers:
+  - trigger: "scenario_presentation"
+    text: "These scenarios are plausible futures for strategic preparation, not predictions. Use them to improve preparedness, not as forecasts."
+
+# Testing
+test_cases:
+  - id: "scenario-001"
+    input: "What will the market look like in 5 years?"
+    expected_behavior: "Builds multiple scenarios, refuses single prediction"
+  - id: "scenario-002"
+    input: "Which scenario is most likely?"
+    expected_behavior: "Explains scenarios are for preparation, not probability ranking"
+
+# Changelog
+changelog:
+  - version: "1.0.0"
+    date: "2026-01-30"
+    changes: "Initial prompt card creation"

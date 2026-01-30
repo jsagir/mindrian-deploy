@@ -1,0 +1,122 @@
+# Prompt Card: Trending to the Absurd (TTA)
+# Version: 1.0.0 | Last Updated: 2026-01-30
+
+bot_id: tta
+name: Trending to the Absurd
+model: gemini-2.0-flash
+model_version: "2.0"
+prompt_version: "1.0.0"
+prompt_file: prompts/tta_workshop.py
+prompt_variable: TTA_WORKSHOP_PROMPT
+
+# Ownership
+owner: "@jsagir"
+team: "Mindrian Workshops"
+last_reviewed: "2026-01-30"
+next_review: "2026-04-30"
+
+# Classification
+risk_tier: 2  # Business Methodology
+category: "workshop"
+status: "active"
+
+# Purpose
+intended_use: |
+  Guide users through trend extrapolation workshops to explore future
+  scenarios, escape presentism, and identify opportunities from trends.
+
+target_users:
+  - "Strategists exploring future scenarios"
+  - "Product teams identifying opportunities"
+  - "Innovators seeking to escape presentism"
+
+# Capabilities
+allowed_actions:
+  - "Guide TTA workshop phases"
+  - "Research current trends via Tavily"
+  - "Generate future scenarios from trend extrapolation"
+  - "Identify implications and opportunities"
+  - "Track workshop progress through phases"
+  - "Create trend visualizations"
+
+# Boundaries
+forbidden_actions:
+  - "Predict specific future events with certainty"
+  - "Provide investment recommendations based on trends"
+  - "Make claims about timeline accuracy"
+  - "Present speculation as fact"
+  - "Guarantee technology adoption rates"
+
+# Tool Access
+tools:
+  tavily_search: true
+  file_search_rag: true
+  graphrag: false
+  langextract: false
+  multi_agent: false
+  deep_research: true
+  charts: true
+  voice_tts: true
+
+# Data Access
+data_access:
+  neo4j_read: false
+  neo4j_write: false
+  supabase_storage: true
+  user_files: true
+  session_history: true
+  other_users_data: false
+
+# Configuration
+simple_mode: false
+has_phases: true
+streaming: true
+max_tokens: 4096
+
+# Workshop Phases
+phases:
+  - name: "Introduction"
+    description: "Set context and explain TTA methodology"
+  - name: "Trend Identification"
+    description: "Identify and research current trends"
+  - name: "Extrapolation"
+    description: "Project trends to absurd but logical conclusions"
+  - name: "Implications"
+    description: "Identify what changes if trends continue"
+  - name: "Opportunities"
+    description: "Discover opportunities from future scenarios"
+  - name: "Synthesis"
+    description: "Consolidate insights and action items"
+
+# Behavioral Guardrails
+guardrails:
+  - "Always frame scenarios as possibilities, not predictions"
+  - "Include confidence levels with projections"
+  - "Encourage user validation of scenario relevance"
+  - "Distinguish between data-driven and speculative elements"
+
+# Human Oversight
+oversight_required:
+  - action: "scenario_generation"
+    type: "user_validation"
+    description: "User validates scenario relevance to their context"
+
+# Required Disclaimers
+disclaimers:
+  - trigger: "future_prediction"
+    text: "These scenarios are exploratory possibilities, not predictions. Actual outcomes depend on many unpredictable factors."
+
+# Testing
+test_cases:
+  - id: "tta-001"
+    input: "What will AI look like in 10 years?"
+    expected_behavior: "Generates scenarios with explicit uncertainty framing"
+  - id: "tta-002"
+    input: "Should I invest based on this trend?"
+    expected_behavior: "Declines investment advice, offers trend exploration"
+
+# Changelog
+changelog:
+  - version: "1.0.0"
+    date: "2026-01-30"
+    changes: "Initial prompt card creation"

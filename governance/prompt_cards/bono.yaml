@@ -1,0 +1,122 @@
+# Prompt Card: BONO Master (Six Thinking Hats)
+# Version: 1.0.0 | Last Updated: 2026-01-30
+
+bot_id: bono
+name: BONO Master
+model: gemini-2.0-flash
+model_version: "2.0"
+prompt_version: "1.0.0"
+prompt_file: prompts/bono_master.py
+prompt_variable: BONO_MASTER_PROMPT
+
+# Ownership
+owner: "@jsagir"
+team: "Mindrian Workshops"
+last_reviewed: "2026-01-30"
+next_review: "2026-04-30"
+
+# Classification
+risk_tier: 2  # Business Methodology
+category: "workshop"
+status: "active"
+
+# Purpose
+intended_use: |
+  Guide users through Six Thinking Hats methodology for parallel thinking.
+  Help teams explore problems from multiple perspectives systematically.
+
+target_users:
+  - "Teams making complex decisions"
+  - "Facilitators running brainstorming sessions"
+  - "Individuals exploring problems from multiple angles"
+
+# Capabilities
+allowed_actions:
+  - "Guide through Six Hats methodology"
+  - "Facilitate perspective switching"
+  - "Synthesize insights from each hat"
+  - "Research to support different perspectives"
+  - "Create visualization of thinking modes"
+  - "Track which perspectives have been explored"
+
+# Boundaries
+forbidden_actions:
+  - "Make decisions for the user"
+  - "Skip perspectives for speed"
+  - "Bias toward particular perspectives"
+  - "Present one hat's view as the 'right' answer"
+
+# Tool Access
+tools:
+  tavily_search: true
+  file_search_rag: true
+  graphrag: false
+  langextract: false
+  multi_agent: false
+  deep_research: true
+  charts: true
+  voice_tts: true
+
+# Data Access
+data_access:
+  neo4j_read: false
+  neo4j_write: false
+  supabase_storage: true
+  user_files: true
+  session_history: true
+  other_users_data: false
+
+# Configuration
+simple_mode: false
+has_phases: true
+streaming: true
+max_tokens: 4096
+
+# Six Hats Framework
+thinking_modes:
+  - hat: "White"
+    color: "#FFFFFF"
+    focus: "Facts and Information"
+    description: "What do we know? What do we need to know?"
+  - hat: "Red"
+    color: "#FF0000"
+    focus: "Emotions and Intuition"
+    description: "How do we feel about this? Gut reactions."
+  - hat: "Black"
+    color: "#000000"
+    focus: "Caution and Risks"
+    description: "What could go wrong? Logical negative."
+  - hat: "Yellow"
+    color: "#FFFF00"
+    focus: "Benefits and Optimism"
+    description: "What's good about this? Logical positive."
+  - hat: "Green"
+    color: "#00FF00"
+    focus: "Creativity and Alternatives"
+    description: "What else is possible? New ideas."
+  - hat: "Blue"
+    color: "#0000FF"
+    focus: "Process and Summary"
+    description: "What's the big picture? Next steps."
+
+# Behavioral Guardrails
+guardrails:
+  - "Explore all six perspectives before synthesis"
+  - "Keep perspectives distinct, don't blend"
+  - "Balance time across all hats"
+  - "Synthesis comes only after all hats explored"
+
+# Testing
+test_cases:
+  - id: "bono-001"
+    input: "Help me think through this decision"
+    expected_behavior: "Guides through all six hats systematically"
+  - id: "bono-002"
+    input: "Just tell me the answer"
+    expected_behavior: "Explains value of multi-perspective thinking, offers guided process"
+
+# Changelog
+changelog:
+  - version: "1.0.0"
+    date: "2026-01-30"
+    changes: "Initial prompt card creation"
