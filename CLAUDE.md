@@ -465,6 +465,98 @@ await cl.Message(content="Here's the chart:", elements=[chart]).send()
 
 ---
 
+## Adding Custom UI Components (SKILL)
+
+> **IMPORTANT:** When a new custom UI component is needed, consult `skills/chainlit-components.md` for best practices and patterns.
+
+Mindrian uses Chainlit's custom elements system for interactive UI components. These are React JSX files in `public/elements/`.
+
+### Quick Start
+
+```bash
+# Generate new component
+python scripts/create_component.py ComponentName
+python scripts/create_component.py ComponentName --template card
+```
+
+### Existing Components
+
+| Component | Purpose | Location |
+|-----------|---------|----------|
+| `GradeReveal` | Soft-landing grade reveal | `public/elements/GradeReveal.jsx` |
+| `ScoreBreakdown` | Interactive score drill-down | `public/elements/ScoreBreakdown.jsx` |
+| `OpportunityCard` | Bank of opportunities | `public/elements/OpportunityCard.jsx` |
+
+### Templates Available
+
+| Template | Use For | Location |
+|----------|---------|----------|
+| `BasicCard` | Cards with actions | `public/elements/templates/BasicCard.jsx` |
+| `FormCard` | Forms with validation | `public/elements/templates/FormCard.jsx` |
+| `DataTable` | Sortable data tables | `public/elements/templates/DataTable.jsx` |
+| `StatusTracker` | Progress visualization | `public/elements/templates/StatusTracker.jsx` |
+
+### Key Rules
+
+1. **JSX Only** - No TypeScript (`.jsx` not `.tsx`)
+2. **Global Props** - `const { prop } = props || {}` (NOT function arguments)
+3. **Default Export** - `export default function Name() {}`
+4. **Check APIs** - Always check if Chainlit APIs exist before calling
+
+### Pattern
+
+```jsx
+export default function MyComponent() {
+  // Chainlit APIs (global)
+  const { updateElement, callAction, sendUserMessage } = window.Chainlit || {}
+
+  // Props (global)
+  const { title = "Default", data = [] } = props || {}
+
+  // Handler
+  const handleClick = () => {
+    if (callAction) {
+      callAction({ name: "my_action", payload: { title } })
+    }
+  }
+
+  return (
+    <Card>
+      <CardTitle>{title}</CardTitle>
+      <Button onClick={handleClick}>Action</Button>
+    </Card>
+  )
+}
+```
+
+### Python Integration
+
+```python
+# Send element
+elements = [
+    cl.CustomElement(
+        name="MyComponent",  # Must match JSX filename!
+        props={"title": "Hello", "data": [1, 2, 3]},
+        display="inline"
+    )
+]
+await cl.Message(content="Result:", elements=elements).send()
+
+# Handle action
+@cl.action_callback("my_action")
+async def handle_my_action(action: cl.Action):
+    title = action.payload.get("title")
+    await cl.Message(content=f"Received: {title}").send()
+```
+
+### Full Documentation
+
+- **Skill Guide:** `skills/chainlit-components.md`
+- **Docs:** `docs/CHAINLIT_COMPONENTS.md`
+- **Generator:** `scripts/create_component.py`
+
+---
+
 ## Adding MCP Tools
 
 MCP (Model Context Protocol) tools are configured in `.chainlit/config.toml`:
