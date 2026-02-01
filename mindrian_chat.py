@@ -13,44 +13,58 @@ import sys
 import chainlit as cl
 from chainlit.input_widget import Select, Switch, Slider
 from chainlit.server import app as fastapi_app
-from fastapi.responses import JSONResponse
-from fastapi import APIRouter
+from fastapi.responses import JSONResponse, PlainTextResponse
+from fastapi import APIRouter, Request
+from starlette.middleware.base import BaseHTTPMiddleware
 from dotenv import load_dotenv
 from typing import Optional, Dict, Any
 
 load_dotenv()
 
-# === Cron API Endpoint for Daily Summary ===
-# Registered at module load time BEFORE Chainlit's catch-all route
-# This allows external cron services (e.g., cron-job.org) to trigger daily summary emails
+# === Cron API Endpoint via Middleware ===
+# Using middleware to intercept /api/daily-summary BEFORE Chainlit's catch-all routing
 
 CRON_SECRET = os.getenv("CRON_SECRET", "")
 
-async def _trigger_daily_summary(secret: str = ""):
-    """Trigger daily summary email via external cron."""
-    if CRON_SECRET and secret != CRON_SECRET:
-        return JSONResponse(status_code=403, content={"error": "Invalid secret", "success": False})
+class CronEndpointMiddleware(BaseHTTPMiddleware):
+    """Middleware to handle /api/daily-summary before Chainlit routing."""
 
-    try:
-        result = subprocess.run(
-            [sys.executable, "scripts/daily_summary.py", "--last-24h"],
-            capture_output=True, text=True, timeout=300,
-            cwd=os.path.dirname(os.path.abspath(__file__))
-        )
-        if result.returncode == 0:
-            return JSONResponse(content={"success": True, "message": "Daily summary sent", "output": result.stdout[-500:] if result.stdout else ""})
-        else:
-            return JSONResponse(status_code=500, content={"success": False, "error": result.stderr[-500:] if result.stderr else "Unknown error"})
-    except subprocess.TimeoutExpired:
-        return JSONResponse(status_code=500, content={"success": False, "error": "Timeout after 5 minutes"})
-    except Exception as e:
-        return JSONResponse(status_code=500, content={"success": False, "error": str(e)})
+    async def dispatch(self, request: Request, call_next):
+        if request.url.path == "/api/daily-summary":
+            # Handle cron endpoint
+            secret = request.query_params.get("secret", "")
 
-# Register route immediately at import time
-api_router = APIRouter()
-api_router.add_api_route("/api/daily-summary", _trigger_daily_summary, methods=["GET"])
-fastapi_app.include_router(api_router)
-print("[CRON] /api/daily-summary endpoint registered")
+            if CRON_SECRET and secret != CRON_SECRET:
+                return JSONResponse(status_code=403, content={"error": "Invalid secret", "success": False})
+
+            try:
+                result = subprocess.run(
+                    [sys.executable, "scripts/daily_summary.py", "--last-24h"],
+                    capture_output=True, text=True, timeout=300,
+                    cwd=os.path.dirname(os.path.abspath(__file__))
+                )
+                if result.returncode == 0:
+                    return JSONResponse(content={
+                        "success": True,
+                        "message": "Daily summary sent",
+                        "output": result.stdout[-500:] if result.stdout else ""
+                    })
+                else:
+                    return JSONResponse(status_code=500, content={
+                        "success": False,
+                        "error": result.stderr[-500:] if result.stderr else "Unknown error"
+                    })
+            except subprocess.TimeoutExpired:
+                return JSONResponse(status_code=500, content={"success": False, "error": "Timeout after 5 minutes"})
+            except Exception as e:
+                return JSONResponse(status_code=500, content={"success": False, "error": str(e)})
+
+        # Not our endpoint, continue to Chainlit
+        return await call_next(request)
+
+# Add middleware BEFORE any routes
+fastapi_app.add_middleware(CronEndpointMiddleware)
+print("[CRON] /api/daily-summary middleware registered")
 
 from google import genai
 from google.genai import types
