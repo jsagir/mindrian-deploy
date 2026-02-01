@@ -162,7 +162,7 @@ def build_cooccurrence_graph(
     all_concepts = Counter()
 
     for i, chunk in enumerate(chunks):
-        chunk_id = chunk.get("chunk_id", hashlib.sha1(chunk["content"].encode()).hexdigest())
+        chunk_id = chunk.get("chunk_id", hashlib.sha256(chunk["content"].encode()).hexdigest()[:40])
         content = chunk["content"]
 
         concepts = extract_concepts(nlp, content)

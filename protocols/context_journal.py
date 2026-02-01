@@ -244,25 +244,28 @@ class ContextJournal:
         )
         self.append_thinking_step(step)
 
-    # === Bash Integration ===
+    # === File Operations ===
 
-    def append_via_bash(self, content: str) -> bool:
-        """Append to journal using bash (for subprocess calls)."""
+    def append_via_file(self, content: str) -> bool:
+        """
+        Append content to journal file safely.
+
+        SECURITY FIX: Removed shell=True subprocess in favor of direct file write.
+        Previous implementation was vulnerable to shell injection.
+        """
         try:
-            # Escape content for bash
-            escaped = content.replace("'", "'\"'\"'")
-            cmd = f"echo '{escaped}' >> '{self.file_path}'"
-
-            result = subprocess.run(
-                cmd,
-                shell=True,
-                capture_output=True,
-                timeout=5
-            )
-            return result.returncode == 0
+            with open(self.file_path, 'a', encoding='utf-8') as f:
+                f.write(content)
+                f.write('\n')
+            return True
         except Exception as e:
-            print(f"Bash append failed: {e}")
+            print(f"File append failed: {e}")
             return False
+
+    # Legacy alias for backwards compatibility
+    def append_via_bash(self, content: str) -> bool:
+        """DEPRECATED: Use append_via_file() instead. This now calls append_via_file()."""
+        return self.append_via_file(content)
 
     def grep_pattern(self, pattern: str) -> List[str]:
         """Search journal for pattern using grep."""

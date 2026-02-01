@@ -217,7 +217,7 @@ def run_graph_push(max_chunks: int = None, resume: bool = True):
     # Filter pending
     pending = []
     for c in chunks:
-        chunk_id = c.get("chunk_id", hashlib.sha1(c["content"].encode()).hexdigest())
+        chunk_id = c.get("chunk_id", hashlib.sha256(c["content"].encode()).hexdigest()[:40])
         if chunk_id not in processed_set:
             pending.append((chunk_id, c))
 
