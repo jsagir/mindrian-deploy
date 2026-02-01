@@ -7292,9 +7292,14 @@ Your insights help us improve Mindrian!"""
                 # === TASKLIST: Real-time progress tracking ===
                 if UI_ELEMENTS_ENABLED:
                     task_list = await create_assessment_tasklist()
+                    # Send TaskList separately to avoid for_id compatibility issue
+                    try:
+                        await task_list.send()
+                    except TypeError as e:
+                        if "for_id" not in str(e):
+                            raise
                     progress_msg = cl.Message(
-                        content="## 📝 Assessment in Progress",
-                        elements=[task_list]
+                        content="## 📝 Assessment in Progress\n\nTracking progress in sidebar..."
                     )
                     await progress_msg.send()
 
