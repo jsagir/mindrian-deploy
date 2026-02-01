@@ -29,6 +29,9 @@ wheels/
 .chainlit/
 chainlit.log
 
+# Logs
+logs/*.log
+
 # IDE
 .vscode/
 .idea/
