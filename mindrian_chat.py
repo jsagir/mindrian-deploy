@@ -70,7 +70,7 @@ async def safe_task_list_send(task_list):
     Some Chainlit versions pass 'for_id' internally which causes TypeError.
     """
     try:
-        await safe_task_list_send(task_list)
+        await task_list.send()
     except TypeError as e:
         if "for_id" in str(e):
             # Skip - Chainlit version incompatibility, state still updated
