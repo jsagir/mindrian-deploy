@@ -4707,6 +4707,141 @@ async def on_show_full_progress(action: cl.Action):
     await on_show_progress(action)
 
 
+@cl.action_callback("summarize_journal")
+async def on_summarize_journal(action: cl.Action):
+    """
+    Generate an AI summary of the conversation journal.
+
+    Uses the LLM to create a concise summary of key insights,
+    decisions, and progress from the journal entries.
+    """
+    try:
+        session_id = str(cl.user_session.get("id", ""))
+        bot_id = cl.user_session.get("bot_id", "lawrence")
+
+        # Try to get entries from Supabase first
+        try:
+            from protocols.context_journal import get_journal
+
+            journal = get_journal(session_id)
+            entries = journal.get_entries_from_supabase(limit=30)
+
+            if not entries:
+                # Fallback to MD file
+                content = journal.read_all()
+                if not content or len(content) < 100:
+                    await cl.Message(content="📔 **Journal is empty**\n\nNo entries to summarize yet.").send()
+                    return
+                journal_text = content
+            else:
+                # Format entries for summarization
+                journal_text = "\n\n".join([
+                    f"[{e.get('entry_type', 'entry').upper()}] ({e.get('bot_id', 'agent')}): {e.get('content', '')}"
+                    for e in entries
+                ])
+
+        except ImportError:
+            await cl.Message(content="Journal system not available.").send()
+            return
+
+        # Generate summary using LLM
+        async with cl.Step(name="Summarizing Journal", type="llm") as step:
+            step.input = f"Summarizing {len(entries) if entries else 'all'} journal entries"
+
+            summary_prompt = f"""Summarize this conversation journal concisely. Focus on:
+1. Key insights discovered (💡)
+2. Important decisions made (✅)
+3. Main topics explored
+4. Current status and next steps
+
+Journal content:
+{journal_text[:8000]}
+
+Provide a clear, bulleted summary in 150-200 words."""
+
+            response = client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=summary_prompt
+            )
+
+            summary = response.text.strip()
+            step.output = f"Generated summary ({len(summary)} chars)"
+
+        await cl.Message(
+            content=f"## 📔 Journal Summary\n\n{summary}",
+            actions=[
+                cl.Action(name="view_full_journal", payload={}, label="📄 View Full Journal")
+            ]
+        ).send()
+
+    except Exception as e:
+        print(f"Journal summarize error: {e}")
+        await cl.Message(content=f"Could not generate summary: {str(e)[:100]}").send()
+
+
+@cl.action_callback("view_full_journal")
+async def on_view_full_journal(action: cl.Action):
+    """
+    Display the full conversation journal in a readable format.
+
+    Shows all entries from the current session's journal.
+    """
+    try:
+        session_id = str(cl.user_session.get("id", ""))
+
+        try:
+            from protocols.context_journal import get_journal
+
+            journal = get_journal(session_id)
+
+            # Try Supabase first
+            entries = journal.get_entries_from_supabase(limit=100)
+
+            if entries:
+                # Format entries nicely
+                formatted = "## 📔 Full Conversation Journal\n\n"
+                formatted += f"**Session:** `{session_id[:8]}...`\n"
+                formatted += f"**Entries:** {len(entries)}\n\n---\n\n"
+
+                for entry in entries:
+                    icon_map = {
+                        "insight": "💡", "decision": "✅", "reasoning": "🧠",
+                        "observation": "👁️", "action": "⚡", "switch": "🔄",
+                        "extraction": "📋"
+                    }
+                    icon = icon_map.get(entry.get("entry_type", "").lower(), "📝")
+                    entry_type = entry.get("entry_type", "entry").title()
+                    bot = entry.get("bot_id", "agent")
+                    turn = entry.get("turn_number", 0)
+                    content = entry.get("content", "")
+
+                    formatted += f"### {icon} {entry_type} ({bot}) — Turn {turn}\n"
+                    formatted += f"{content}\n\n"
+
+            else:
+                # Fallback to MD file
+                content = journal.read_all()
+                if content:
+                    formatted = f"## 📔 Full Conversation Journal\n\n{content}"
+                else:
+                    formatted = "📔 **Journal is empty**\n\nNo entries recorded yet."
+
+        except ImportError:
+            formatted = "Journal system not available."
+
+        # Send as text element for better readability
+        await cl.Message(
+            content=formatted[:10000],  # Limit to avoid message size issues
+            actions=[
+                cl.Action(name="summarize_journal", payload={}, label="✨ Summarize")
+            ]
+        ).send()
+
+    except Exception as e:
+        print(f"View journal error: {e}")
+        await cl.Message(content=f"Could not load journal: {str(e)[:100]}").send()
+
+
 @cl.action_callback("show_progress")
 async def on_show_progress(action: cl.Action):
     """Handle show progress button click with smart phase analysis."""

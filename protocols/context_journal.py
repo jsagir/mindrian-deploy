@@ -9,6 +9,8 @@ Features:
 - Key extractions appended automatically
 - Agent switches recorded
 - Can be shown to user as "what we've figured out"
+- Supabase persistence for cross-session analytics
+- Neo4j integration for insight nodes
 
 Author: Claude Code
 Date: 2026-02-01
@@ -18,11 +20,32 @@ import os
 import subprocess
 from datetime import datetime
 from typing import List, Dict, Optional, Any
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 import json
+import asyncio
 
+# Supabase configuration
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
 
 JOURNAL_DIR = "journals"
+
+# Supabase client singleton
+_supabase_client = None
+
+
+def get_supabase_client():
+    """Get or create Supabase client for journal persistence."""
+    global _supabase_client
+    if _supabase_client is None and SUPABASE_URL and SUPABASE_SERVICE_KEY:
+        try:
+            from supabase import create_client
+            _supabase_client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+        except ImportError:
+            print("Supabase not available for journal persistence")
+        except Exception as e:
+            print(f"Supabase client error: {e}")
+    return _supabase_client
 
 
 @dataclass
@@ -44,6 +67,7 @@ class ContextJournal:
     A living markdown document that tracks conversation context.
 
     Can be appended to via Python or Bash, and read by any agent.
+    Now with Supabase persistence for cross-session analytics.
     """
 
     def __init__(self, session_id: str, user_id: str = "anonymous"):
@@ -51,6 +75,11 @@ class ContextJournal:
         self.user_id = user_id
         self.file_path = self._get_journal_path()
         self._ensure_journal_exists()
+        self._turn_count = 0  # Track turn number for entries
+
+    def set_turn_count(self, turn: int):
+        """Update turn count from session."""
+        self._turn_count = turn
 
     def _get_journal_path(self) -> str:
         """Get path to journal file."""
@@ -247,6 +276,184 @@ class ContextJournal:
             return result.stdout.strip().split('\n') if result.stdout else []
         except Exception:
             return []
+
+    # === Supabase Persistence ===
+
+    def _persist_to_supabase(
+        self,
+        entry_type: str,
+        bot_id: str,
+        content: str,
+        metadata: Dict = None
+    ) -> bool:
+        """
+        Persist journal entry to Supabase for cross-session analytics.
+
+        Args:
+            entry_type: Type of entry (insight, decision, switch, etc.)
+            bot_id: Agent/bot that created the entry
+            content: Entry content text
+            metadata: Optional dict with extra data (concepts, evidence, etc.)
+
+        Returns:
+            True if persisted successfully
+        """
+        client = get_supabase_client()
+        if not client:
+            return False
+
+        try:
+            client.table("journal_entries").insert({
+                "session_id": self.session_id,
+                "user_id": self.user_id,
+                "turn_number": self._turn_count,
+                "entry_type": entry_type.lower(),
+                "bot_id": bot_id,
+                "content": content[:5000],  # Limit content length
+                "metadata": metadata or {}
+            }).execute()
+            return True
+        except Exception as e:
+            print(f"Supabase journal persist error: {e}")
+            return False
+
+    def get_entries_from_supabase(self, limit: int = 50) -> List[Dict]:
+        """
+        Fetch journal entries from Supabase for current session.
+
+        Returns list of entry dicts sorted by creation time.
+        """
+        client = get_supabase_client()
+        if not client:
+            return []
+
+        try:
+            response = client.table("journal_entries")\
+                .select("*")\
+                .eq("session_id", self.session_id)\
+                .order("created_at", desc=False)\
+                .limit(limit)\
+                .execute()
+            return response.data or []
+        except Exception as e:
+            print(f"Supabase journal fetch error: {e}")
+            return []
+
+    def get_entries_by_type(self, entry_type: str, limit: int = 20) -> List[Dict]:
+        """Fetch entries of a specific type from Supabase."""
+        client = get_supabase_client()
+        if not client:
+            return []
+
+        try:
+            response = client.table("journal_entries")\
+                .select("*")\
+                .eq("session_id", self.session_id)\
+                .eq("entry_type", entry_type.lower())\
+                .order("created_at", desc=True)\
+                .limit(limit)\
+                .execute()
+            return response.data or []
+        except Exception as e:
+            print(f"Supabase journal fetch error: {e}")
+            return []
+
+    def get_insights_for_qa(self, bot_id: str = None) -> List[Dict]:
+        """
+        Get all insights for QA analysis.
+
+        Useful for debugging and understanding AI reasoning.
+        """
+        client = get_supabase_client()
+        if not client:
+            return []
+
+        try:
+            query = client.table("journal_entries")\
+                .select("*")\
+                .eq("session_id", self.session_id)\
+                .in_("entry_type", ["insight", "decision", "reasoning"])
+
+            if bot_id:
+                query = query.eq("bot_id", bot_id)
+
+            response = query.order("created_at", desc=False).execute()
+            return response.data or []
+        except Exception as e:
+            print(f"Supabase QA fetch error: {e}")
+            return []
+
+    # === Neo4j Integration (Optional) ===
+
+    def _persist_insight_to_graph(self, content: str, concepts: List[str] = None):
+        """
+        Create Insight node in Neo4j linked to concepts.
+
+        Only called for 'insight' type entries when concepts are provided.
+        """
+        if not concepts:
+            return
+
+        try:
+            from tools.graphrag_lite import get_neo4j_driver
+
+            driver = get_neo4j_driver()
+            if not driver:
+                return
+
+            with driver.session() as session:
+                # Create Insight node
+                session.run("""
+                    CREATE (i:Insight {
+                        session_id: $session_id,
+                        content: $content,
+                        created_at: datetime(),
+                        concepts: $concepts
+                    })
+                """, session_id=self.session_id, content=content[:500], concepts=concepts)
+
+                # Link to existing Concept nodes if they exist
+                for concept in concepts[:5]:
+                    session.run("""
+                        MATCH (i:Insight {session_id: $session_id, content: $content})
+                        MATCH (c:Concept) WHERE toLower(c.name) CONTAINS toLower($concept)
+                        MERGE (i)-[:RELATES_TO]->(c)
+                    """, session_id=self.session_id, content=content[:500], concept=concept)
+
+        except ImportError:
+            pass  # Neo4j not available
+        except Exception as e:
+            print(f"Neo4j insight persist error: {e}")
+
+    # === Enhanced Logging with Persistence ===
+
+    def log_with_persistence(
+        self,
+        entry_type: str,
+        bot_id: str,
+        content: str,
+        metadata: Dict = None
+    ):
+        """
+        Log entry to both MD file and Supabase.
+
+        This is the primary logging method for new entries.
+        """
+        # Log to MD file
+        step = ThinkingStep(
+            agent=bot_id,
+            step_type=entry_type,
+            content=content,
+            turn=self._turn_count
+        )
+        self.append_thinking_step(step)
+
+        # Persist to Supabase
+        self._persist_to_supabase(entry_type, bot_id, content, metadata)
+
+        # For insights, optionally persist to Neo4j
+        if entry_type == "insight" and metadata and metadata.get("concepts"):
+            self._persist_insight_to_graph(content, metadata.get("concepts"))
 
     # === Context for Agents ===
 
