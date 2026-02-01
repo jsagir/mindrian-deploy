@@ -8,8 +8,12 @@ Chain-of-Thought Steps, Conversation Starters, and Session Resume
 import os
 import json
 import asyncio
+import subprocess
+import sys
 import chainlit as cl
 from chainlit.input_widget import Select, Switch, Slider
+from chainlit.server import app as fastapi_app
+from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 from typing import Optional, Dict, Any
 
@@ -1209,6 +1213,63 @@ async def create_or_update_roadmap(
         return None
 
     return roadmap
+
+
+# === Cron API Endpoint for Daily Summary ===
+# This endpoint can be called by external cron services (e.g., cron-job.org)
+# to trigger the daily summary email without needing a Background Worker.
+
+CRON_SECRET = os.getenv("CRON_SECRET", "")  # Optional secret for security
+
+@fastapi_app.get("/api/daily-summary")
+async def trigger_daily_summary(secret: str = ""):
+    """
+    Trigger daily summary email.
+
+    Called by external cron service (cron-job.org).
+    Optional: Add ?secret=YOUR_SECRET for security.
+    """
+    # Security check (optional but recommended)
+    if CRON_SECRET and secret != CRON_SECRET:
+        return JSONResponse(
+            status_code=403,
+            content={"error": "Invalid secret", "success": False}
+        )
+
+    try:
+        # Run the daily summary script
+        result = subprocess.run(
+            [sys.executable, "scripts/daily_summary.py", "--last-24h"],
+            capture_output=True,
+            text=True,
+            timeout=300,
+            cwd=os.path.dirname(os.path.abspath(__file__))
+        )
+
+        if result.returncode == 0:
+            return JSONResponse(content={
+                "success": True,
+                "message": "Daily summary sent",
+                "output": result.stdout[-500:] if result.stdout else ""
+            })
+        else:
+            return JSONResponse(
+                status_code=500,
+                content={
+                    "success": False,
+                    "error": result.stderr[-500:] if result.stderr else "Unknown error"
+                }
+            )
+    except subprocess.TimeoutExpired:
+        return JSONResponse(
+            status_code=500,
+            content={"success": False, "error": "Timeout after 5 minutes"}
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"success": False, "error": str(e)}
+        )
 
 
 @cl.action_callback("jump_to_phase")
