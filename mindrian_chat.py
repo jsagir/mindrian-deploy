@@ -988,6 +988,48 @@ def get_core_action_buttons(include_example: bool = True) -> list:
     return actions
 
 
+def get_phase_navigation_buttons(current_phase: int, total_phases: int, include_core: bool = True) -> list:
+    """
+    Build phase navigation buttons with optional core actions.
+
+    Args:
+        current_phase: 0-indexed current phase
+        total_phases: Total number of phases
+        include_core: Whether to include Research/Synthesize/Think buttons
+
+    Returns:
+        List of cl.Action objects for phase navigation
+    """
+    actions = []
+
+    # Back button (if not on first phase)
+    if current_phase > 0:
+        actions.append(cl.Action(
+            name="prev_phase",
+            payload={},
+            label="← Back",
+            tooltip="Return to the previous phase",
+        ))
+
+    # Next button (if not on last phase)
+    if current_phase < total_phases - 1:
+        actions.append(cl.Action(
+            name="next_phase",
+            payload={},
+            label="Next Phase →",
+            tooltip="Advance to the next phase",
+        ))
+
+    # Add core action buttons
+    if include_core:
+        actions.extend([
+            cl.Action(name="deep_research", payload={}, label="🔍 Research"),
+            cl.Action(name="show_example", payload={}, label="📖 Example"),
+        ])
+
+    return actions
+
+
 def get_contextual_actions(
     bot: dict,
     phases: list,
@@ -3993,13 +4035,16 @@ async def on_next_phase(action: cl.Action):
         # Check if workshop is complete
         if current_phase_idx >= len(phases) - 1:
             await cl.Message(
-                content="**Workshop Complete!**\n\nYou've completed all phases. Would you like to:\n"
-                        "- Review your key insights\n"
-                        "- Start a new analysis\n"
-                        "- Switch to another methodology",
+                content="🎉 **Workshop Complete!**\n\n"
+                        "You've completed all phases. What would you like to do?\n\n"
+                        "• **Review** — See what you've accomplished\n"
+                        "• **Synthesize** — Download a summary of your work\n"
+                        "• **Go Back** — Return to a previous phase",
                 actions=[
-                    cl.Action(name="show_progress", payload={}, label="Review Progress"),
-                    cl.Action(name="clear_context", payload={}, label="Start Fresh"),
+                    cl.Action(name="show_progress", payload={}, label="📊 Review Progress"),
+                    cl.Action(name="synthesize_conversation", payload={}, label="📥 Synthesize"),
+                    cl.Action(name="prev_phase", payload={}, label="← Go Back"),
+                    cl.Action(name="clear_context", payload={}, label="🔄 Start Fresh"),
                 ]
             ).send()
             return
@@ -4053,11 +4098,12 @@ async def on_next_phase(action: cl.Action):
                 guidance = generate_completion_guidance(current_config, score, missing)
 
                 await cl.Message(
-                    content=f"**Phase Progress: {score:.0%}**\n\n{guidance}\n\n"
+                    content=f"📊 **Phase Progress: {score:.0%}**\n\n{guidance}\n\n"
                             f"*You can proceed anyway or continue working on this phase.*",
                     actions=[
-                        cl.Action(name="next_phase", payload={"force": True}, label="Proceed Anyway"),
-                        cl.Action(name="show_example", payload={}, label="Show Example"),
+                        cl.Action(name="next_phase", payload={"force": True}, label="Proceed Anyway →"),
+                        cl.Action(name="show_example", payload={}, label="📖 Example"),
+                        cl.Action(name="deep_research", payload={}, label="🔍 Research"),
                     ]
                 ).send()
                 return
@@ -4114,17 +4160,15 @@ async def on_next_phase(action: cl.Action):
                     step.output = f"Using basic transition: {str(e)[:50]}"
 
             if transition_content:
+                # Soft transition with navigation buttons
                 await cl.Message(
-                    content=transition_content,
-                    actions=[
-                        cl.Action(name="next_phase", payload={}, label="Next Phase"),
-                        cl.Action(name="deep_research", payload={}, label="Research"),
-                        cl.Action(name="show_example", payload={}, label="Example"),
-                    ]
+                    content=f"───── 📍 Phase {current_phase_idx + 2}/{len(phases)}: {phases[current_phase_idx + 1]['name']} ─────\n\n"
+                            f"{transition_content}",
+                    actions=get_phase_navigation_buttons(current_phase_idx + 1, len(phases))
                 ).send()
                 return
 
-        # === FALLBACK: Basic Transition ===
+        # === FALLBACK: Soft Basic Transition ===
         phase_num = current_phase_idx + 2
         phase_name = phases[current_phase_idx + 1]["name"]
         completed_count = sum(1 for p in phases if p["status"] == "done")
@@ -4133,26 +4177,23 @@ async def on_next_phase(action: cl.Action):
         # Get instructions from next_config if available
         instructions_text = ""
         if next_config and next_config.get("instructions"):
-            instructions_text = "\n\n**What to do:**\n" + "\n".join(
-                [f"- {inst}" for inst in next_config.get("instructions", [])[:4]]
+            instructions_text = "\n\n" + "\n".join(
+                [f"• {inst}" for inst in next_config.get("instructions", [])[:4]]
             )
 
         prompt_text = ""
         if next_config and next_config.get("prompt"):
-            prompt_text = f"\n\n**Let's begin:** {next_config.get('prompt')}"
+            prompt_text = f"\n\n*{next_config.get('prompt')}*"
 
+        # Soft, non-disruptive phase transition (Quick Win UX)
         await cl.Message(
             content=(
-                f"**Phase {phase_num}/{total_count}: {phase_name}**\n\n"
-                f"*({completed_count} of {total_count} phases completed)*"
+                f"───── 📍 Phase {phase_num}/{total_count}: {phase_name} ─────\n\n"
+                f"*{completed_count} of {total_count} phases completed*"
                 f"{instructions_text}"
                 f"{prompt_text}"
             ),
-            actions=[
-                cl.Action(name="next_phase", payload={}, label="Next Phase"),
-                cl.Action(name="deep_research", payload={}, label="Research"),
-                cl.Action(name="show_example", payload={}, label="Example"),
-            ]
+            actions=get_phase_navigation_buttons(current_phase_idx + 1, total_count)
         ).send()
 
     except Exception as e:
@@ -4167,6 +4208,77 @@ async def on_next_phase(action: cl.Action):
                 cl.Action(name="show_progress", payload={}, label="📊 View Progress"),
                 cl.Action(name="stay_phase", payload={}, label="Continue Here"),
             ]
+        ).send()
+
+
+@cl.action_callback("prev_phase")
+async def on_prev_phase(action: cl.Action):
+    """
+    Navigate back to previous phase.
+
+    Quick Win UX improvement: Users should be able to go back
+    without losing their work or restarting the workshop.
+    """
+    try:
+        phases = cl.user_session.get("phases", [])
+        current_phase_idx = cl.user_session.get("current_phase", 0)
+        bot_id = cl.user_session.get("bot_id", "lawrence")
+        bot = BOTS.get(bot_id, BOTS["lawrence"])
+
+        # Validate we have phases
+        if not phases:
+            await cl.Message(content="⚠️ No workshop phases loaded.").send()
+            return
+
+        # Check if already at first phase
+        if current_phase_idx <= 0:
+            await cl.Message(
+                content="📍 You're already at the first phase.",
+                actions=get_phase_navigation_buttons(0, len(phases))
+            ).send()
+            return
+
+        # Update phase states
+        phases[current_phase_idx]["status"] = "pending"
+        phases[current_phase_idx - 1]["status"] = "running"
+
+        cl.user_session.set("phases", phases)
+        cl.user_session.set("current_phase", current_phase_idx - 1)
+
+        # Update task list UI
+        task_list = cl.TaskList()
+        task_list.name = "Workshop Progress"
+        for i, phase in enumerate(phases):
+            if phase["status"] == "done":
+                status = cl.TaskStatus.DONE
+            elif phase["status"] == "running":
+                status = cl.TaskStatus.RUNNING
+            else:
+                status = cl.TaskStatus.READY
+            task = cl.Task(title=phase["name"], status=status)
+            await task_list.add_task(task)
+        await safe_task_list_send(task_list)
+
+        # Sync to context_store
+        context_key = get_context_key()
+        if context_key in context_store:
+            context_store[context_key]["phases"] = [p.copy() for p in phases]
+            context_store[context_key]["current_phase"] = current_phase_idx - 1
+
+        # Soft transition message (non-disruptive)
+        phase_name = phases[current_phase_idx - 1]["name"]
+        new_phase_num = current_phase_idx  # 1-indexed for display
+
+        await cl.Message(
+            content=f"───── 📍 Phase {new_phase_num}/{len(phases)}: {phase_name} ─────\n\n"
+                    f"*Returned to previous phase. Your work is preserved.*",
+            actions=get_phase_navigation_buttons(current_phase_idx - 1, len(phases))
+        ).send()
+
+    except Exception as e:
+        print(f"Prev phase error: {e}")
+        await cl.Message(
+            content=f"⚠️ Unable to go back: {str(e)[:100]}"
         ).send()
 
 
