@@ -18,6 +18,8 @@ from .a2a_protocol import (
     load_handoff,
     inject_handoff_context,
     get_handoff_for_display,
+    validate_handoff_frontmatter,
+    get_handoff_schema,
 )
 
 from .context_journal import (
@@ -45,6 +47,8 @@ __all__ = [
     'load_handoff',
     'inject_handoff_context',
     'get_handoff_for_display',
+    'validate_handoff_frontmatter',
+    'get_handoff_schema',
     # Context Journal
     'ContextJournal',
     'ThinkingStep',

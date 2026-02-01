@@ -4,6 +4,7 @@ A2A Protocol - Agent-to-Agent Communication via Markdown Files
 Enables structured handoffs between agents with:
 - Human-readable markdown format
 - Machine-parseable YAML frontmatter
+- JSON schema validation for robustness
 - Context preservation across agent switches
 - Task delegation and return flows
 
@@ -19,6 +20,64 @@ from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from enum import Enum
+from pathlib import Path
+
+# JSON Schema validation
+SCHEMA_PATH = Path(__file__).parent / "schemas" / "a2a_handoff_v1.json"
+_schema_cache = None
+
+
+def get_handoff_schema() -> Optional[Dict]:
+    """Load and cache the A2A handoff JSON schema."""
+    global _schema_cache
+    if _schema_cache is None and SCHEMA_PATH.exists():
+        with open(SCHEMA_PATH, 'r') as f:
+            _schema_cache = json.load(f)
+    return _schema_cache
+
+
+def validate_handoff_frontmatter(frontmatter: Dict) -> tuple[bool, List[str]]:
+    """
+    Validate handoff frontmatter against JSON schema.
+
+    Args:
+        frontmatter: Dict parsed from YAML frontmatter
+
+    Returns:
+        Tuple of (is_valid, list of error messages)
+    """
+    errors = []
+
+    try:
+        import jsonschema
+        schema = get_handoff_schema()
+        if schema:
+            jsonschema.validate(frontmatter, schema)
+            return True, []
+    except ImportError:
+        # jsonschema not installed, fall back to manual validation
+        pass
+    except Exception as e:
+        errors.append(f"Schema validation error: {str(e)}")
+        return False, errors
+
+    # Manual validation fallback
+    required = ["protocol", "from_agent", "to_agent", "handoff_type"]
+    for field in required:
+        if field not in frontmatter:
+            errors.append(f"Missing required field: {field}")
+
+    if frontmatter.get("handoff_type") not in ["switch", "delegate", "consult", "return"]:
+        errors.append(f"Invalid handoff_type: {frontmatter.get('handoff_type')}")
+
+    if frontmatter.get("priority") and frontmatter["priority"] not in ["urgent", "normal", "background"]:
+        errors.append(f"Invalid priority: {frontmatter.get('priority')}")
+
+    protocol = frontmatter.get("protocol", "")
+    if not re.match(r'^a2a/v\d+$', protocol):
+        errors.append(f"Invalid protocol format: {protocol}")
+
+    return len(errors) == 0, errors
 
 
 class HandoffType(Enum):
@@ -154,8 +213,17 @@ class A2AHandoff:
         return "\n".join(md_parts)
 
     @classmethod
-    def from_markdown(cls, md_content: str) -> "A2AHandoff":
-        """Parse handoff from Markdown with YAML frontmatter."""
+    def from_markdown(cls, md_content: str, validate: bool = True) -> "A2AHandoff":
+        """
+        Parse handoff from Markdown with YAML frontmatter.
+
+        Args:
+            md_content: Full markdown content with YAML frontmatter
+            validate: Whether to validate against JSON schema (default True)
+
+        Raises:
+            ValueError: If frontmatter is missing or invalid
+        """
         # Extract frontmatter
         frontmatter_match = re.match(r'^---\n(.*?)\n---', md_content, re.DOTALL)
         if not frontmatter_match:
@@ -163,6 +231,12 @@ class A2AHandoff:
 
         frontmatter = yaml.safe_load(frontmatter_match.group(1))
         body = md_content[frontmatter_match.end():]
+
+        # Validate frontmatter against schema
+        if validate:
+            is_valid, errors = validate_handoff_frontmatter(frontmatter)
+            if not is_valid:
+                raise ValueError(f"Invalid handoff frontmatter: {'; '.join(errors)}")
 
         handoff = cls(
             protocol_version=frontmatter.get("protocol", "a2a/v1"),
