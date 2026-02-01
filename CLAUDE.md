@@ -1161,6 +1161,108 @@ result = await run_enhanced_workflow(
 
 ---
 
+## A2A Protocol - Agent-to-Agent Communication
+
+Structured handoff system using Markdown files for agent-to-agent communication.
+
+### Core Concept
+
+```
+┌─────────────┐    ┌──────────────────┐    ┌─────────────┐
+│   Agent A   │ -> │  handoff.md file │ -> │   Agent B   │
+│  (Lawrence) │    │  (structured)    │    │    (TTA)    │
+└─────────────┘    └──────────────────┘    └─────────────┘
+```
+
+### Handoff Types
+
+| Type | Purpose | Return Expected |
+|------|---------|-----------------|
+| `SWITCH` | User moves to different agent | No |
+| `DELEGATE` | Agent asks another for help | Yes |
+| `CONSULT` | Quick question | Yes (immediate) |
+| `RETURN` | Returning from delegation | No |
+
+### Handoff MD File Structure
+
+```markdown
+---
+protocol: a2a/v1
+from_agent: lawrence
+to_agent: tta
+handoff_type: delegate
+expects_return: true
+---
+
+# Agent Handoff: Lawrence → TTA
+
+## Context Summary
+User exploring urban farming. Need to stress-test assumption.
+
+## Key Entities Extracted
+- **Problem**: Urban farming economics
+- **Assumption**: Vertical farming is too expensive
+
+## Tasks for Receiving Agent
+- [ ] Apply TTA framework to assumption
+- [ ] Return synthesis when complete
+```
+
+### Context Journal
+
+A living MD document that evolves with conversation, tracking thinking steps:
+
+```markdown
+### 💡 Insight (Lawrence) — Turn 5
+*10:05:00*
+
+User is conflating "urban farming" with "vertical farming".
+This opens up the solution space significantly.
+
+### ✅ Decision (TTA) — Turn 13
+*10:18:00*
+
+Reframe completed. User now sees this as a logistics problem.
+```
+
+### Integration
+
+```python
+from protocols import (
+    create_switch_handoff,
+    save_handoff,
+    inject_handoff_context,
+    get_journal,
+    log_thinking,
+)
+
+# On agent switch
+handoff = await create_switch_handoff(
+    from_agent="lawrence",
+    to_agent="tta",
+    session_id=session_id,
+    history=history,
+    context_summary="User ready to stress-test assumptions"
+)
+save_handoff(handoff)
+
+# Log thinking steps
+journal = get_journal(session_id)
+journal.log_insight("lawrence", "User conflating two problem spaces")
+
+# Inject context into new agent
+system_prompt = inject_handoff_context(handoff, TTA_PROMPT)
+```
+
+### Key Files
+
+- `protocols/a2a_protocol.py` - Handoff creation, parsing, storage
+- `protocols/context_journal.py` - Living document management
+- `journals/` - Session journal files
+- `handoffs/` - Handoff MD files
+
+---
+
 ## Contact / Resources
 
 - **GitHub:** https://github.com/jsagir/mindrian-deploy
