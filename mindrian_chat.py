@@ -6947,8 +6947,13 @@ Your insights help us improve Mindrian!"""
                     history.append({"role": "model", "content": report_md})
                     cl.user_session.set("history", history)
 
-                    # Store validation state for potential follow-up
-                    cl.user_session.set("validation_state", state)
+                    # Store validation summary for potential follow-up (avoid storing complex dataclass)
+                    cl.user_session.set("validation_result", {
+                        "verdict": state.validation_report.verdict,
+                        "confidence": state.validation_report.confidence_level,
+                        "challenge": state.domain_extraction.challenge_summary if state.domain_extraction else "",
+                        "completed_phases": state.current_phase,
+                    })
                 else:
                     # Workflow failed - show errors
                     error_msg = "## Validation Workflow Error\n\n"

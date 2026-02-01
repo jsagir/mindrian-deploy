@@ -39,44 +39,74 @@ class SafeJSONEncoder(json.JSONEncoder):
     """
     Custom JSON encoder that handles non-serializable types gracefully.
     Converts problematic types to JSON-safe representations.
+    Includes protection against infinite recursion from circular references.
     """
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._seen_ids = set()  # Track object IDs to detect circular refs
+        self._depth = 0
+        self._max_depth = 20  # Prevent deep recursion
+
     def default(self, obj):
-        # Handle datetime objects
-        if isinstance(obj, datetime):
-            return {"__type__": "datetime", "value": obj.isoformat()}
-        if isinstance(obj, date):
-            return {"__type__": "date", "value": obj.isoformat()}
+        # Circular reference / depth protection
+        obj_id = id(obj)
+        if obj_id in self._seen_ids or self._depth > self._max_depth:
+            return {"__type__": "circular_or_deep", "repr": f"<{type(obj).__name__}>"}
 
-        # Handle bytes (e.g., image data accidentally in history)
-        if isinstance(obj, bytes):
-            try:
-                # Try to decode as UTF-8 text first
-                return {"__type__": "bytes_utf8", "value": obj.decode('utf-8')}
-            except UnicodeDecodeError:
-                # Fall back to base64 for binary data
-                return {"__type__": "bytes_b64", "value": base64.b64encode(obj).decode('ascii')}
+        self._seen_ids.add(obj_id)
+        self._depth += 1
 
-        # Handle Decimal
-        if isinstance(obj, Decimal):
-            return {"__type__": "decimal", "value": str(obj)}
-
-        # Handle sets
-        if isinstance(obj, set):
-            return {"__type__": "set", "value": list(obj)}
-
-        # Handle objects with __dict__ (custom classes)
-        if hasattr(obj, '__dict__'):
-            return {"__type__": "object", "class": obj.__class__.__name__, "value": obj.__dict__}
-
-        # Handle other iterables
         try:
-            return list(obj)
-        except TypeError:
-            pass
+            # Handle dataclasses specially (common in validation workflow)
+            if hasattr(obj, '__dataclass_fields__'):
+                from dataclasses import asdict
+                try:
+                    return asdict(obj)
+                except Exception:
+                    return {"__type__": "dataclass", "class": obj.__class__.__name__, "repr": repr(obj)[:200]}
 
-        # Last resort: convert to string representation
-        return {"__type__": "unknown", "repr": repr(obj)}
+            # Handle datetime objects
+            if isinstance(obj, datetime):
+                return {"__type__": "datetime", "value": obj.isoformat()}
+            if isinstance(obj, date):
+                return {"__type__": "date", "value": obj.isoformat()}
+
+            # Handle bytes (e.g., image data accidentally in history)
+            if isinstance(obj, bytes):
+                try:
+                    # Try to decode as UTF-8 text first
+                    return {"__type__": "bytes_utf8", "value": obj.decode('utf-8')}
+                except UnicodeDecodeError:
+                    # Fall back to base64 for binary data
+                    return {"__type__": "bytes_b64", "value": base64.b64encode(obj).decode('ascii')}
+
+            # Handle Decimal
+            if isinstance(obj, Decimal):
+                return {"__type__": "decimal", "value": str(obj)}
+
+            # Handle sets
+            if isinstance(obj, set):
+                return {"__type__": "set", "value": list(obj)}
+
+            # Handle objects with __dict__ (custom classes) - with depth limit
+            if hasattr(obj, '__dict__'):
+                # Don't recurse into complex objects beyond max depth
+                if self._depth > 10:
+                    return {"__type__": "object", "class": obj.__class__.__name__, "repr": repr(obj)[:200]}
+                return {"__type__": "object", "class": obj.__class__.__name__, "value": obj.__dict__}
+
+            # Handle other iterables
+            try:
+                return list(obj)
+            except TypeError:
+                pass
+
+            # Last resort: convert to string representation
+            return {"__type__": "unknown", "repr": repr(obj)[:200]}
+        finally:
+            self._depth -= 1
+            self._seen_ids.discard(obj_id)
 
 
 def safe_json_decode(obj: Dict) -> Any:
