@@ -43,6 +43,10 @@ except ImportError as e:
     SMART_PHASE_ENABLED = False
     print(f"Smart Phase Tracker not available: {e}")
 
+# === Custom Roadmap Feature Flag ===
+# Set to True to use the new WorkshopRoadmap CustomElement instead of TaskList
+USE_CUSTOM_ROADMAP = True  # Quick Win: Enabled by default
+
 # === UI Elements - Custom components for grading, opportunities, etc. ===
 try:
     from utils.ui_elements import (
@@ -77,6 +81,47 @@ async def safe_task_list_send(task_list):
             pass
         else:
             raise
+
+
+def extract_phase_insights(history: list, phases: list, current_phase: int) -> dict:
+    """
+    Extract brief insights for each completed phase from conversation history.
+
+    Returns a dict of {phase_index: "insight text"} for display in the sidebar.
+    This is a lightweight extraction - for full analysis use the Smart Phase Tracker.
+    """
+    insights = {}
+
+    # Simple keyword extraction per phase based on what was discussed
+    phase_keywords = {
+        "Introduction": "Started the workshop",
+        "Domain": "Defined the problem domain",
+        "Driving Forces": "Identified key driving forces",
+        "Uncertainty": "Assessed uncertainties",
+        "Matrix": "Built scenario matrix",
+        "Narratives": "Developed scenario stories",
+        "Synthesis": "Synthesized findings",
+        "Stakeholder": "Mapped stakeholders",
+        "Problem": "Clarified the problem",
+        "Validation": "Validated assumptions",
+        "Research": "Gathered research",
+        "Analysis": "Completed analysis",
+    }
+
+    for i in range(min(current_phase + 1, len(phases))):
+        phase_name = phases[i].get("name", "")
+
+        # Find matching keyword insight
+        for keyword, insight in phase_keywords.items():
+            if keyword.lower() in phase_name.lower():
+                insights[i] = insight
+                break
+        else:
+            # Default insight
+            if phases[i].get("status") == "done":
+                insights[i] = f"Completed {phase_name}"
+
+    return insights
 
 
 # === Config ===
@@ -928,14 +973,38 @@ I'll run the complete grading pipeline including mandatory bias detection."""
 
 
 async def create_task_list(profile: str) -> Optional[cl.TaskList]:
-    """Create a task list for workshop phases."""
+    """
+    Create a task list or custom roadmap for workshop phases.
+
+    If USE_CUSTOM_ROADMAP is enabled, creates an interactive WorkshopRoadmap
+    CustomElement instead of the basic TaskList.
+    """
     if profile not in WORKSHOP_PHASES:
         return None
 
+    bot = BOTS.get(profile, BOTS.get("lawrence", {}))
+    phases = [p.copy() for p in WORKSHOP_PHASES[profile]]
+
+    # Use custom roadmap if enabled
+    if USE_CUSTOM_ROADMAP:
+        try:
+            await create_or_update_roadmap(
+                phases=phases,
+                current_phase=0,
+                bot_name=bot.get("name", "Workshop"),
+                bot_icon=bot.get("icon", "🎯"),
+                phase_context={}
+            )
+            return None  # Roadmap handles its own display
+        except Exception as e:
+            print(f"Custom roadmap failed, falling back to TaskList: {e}")
+            # Fall through to TaskList
+
+    # Fallback: Standard TaskList
     task_list = cl.TaskList()
     task_list.name = "Workshop Progress"
 
-    for phase in WORKSHOP_PHASES[profile]:
+    for phase in phases:
         status = cl.TaskStatus.READY if phase["status"] == "ready" else cl.TaskStatus.RUNNING if phase["status"] == "running" else cl.TaskStatus.DONE if phase["status"] == "done" else cl.TaskStatus.READY
         task = cl.Task(title=phase["name"], status=status)
         await task_list.add_task(task)
@@ -1028,6 +1097,165 @@ def get_phase_navigation_buttons(current_phase: int, total_phases: int, include_
         ])
 
     return actions
+
+
+async def create_or_update_roadmap(
+    phases: list,
+    current_phase: int,
+    bot_name: str,
+    bot_icon: str = "🎯",
+    phase_context: dict = None
+) -> cl.CustomElement:
+    """
+    Create or update the WorkshopRoadmap custom sidebar element.
+
+    This replaces cl.TaskList with a richer, interactive component that:
+    - Shows visual progress bar
+    - Allows clicking to jump to completed phases
+    - Displays AI-extracted insights per phase
+    - Provides back/next navigation
+
+    Args:
+        phases: List of phase dicts with 'name' and 'status'
+        current_phase: 0-indexed current phase
+        bot_name: Display name for the workshop
+        bot_icon: Emoji icon for the workshop
+        phase_context: Dict of phase_index -> insight text
+
+    Returns:
+        The CustomElement (for reference, already sent/updated)
+    """
+    # Get existing roadmap or create new one
+    roadmap = cl.user_session.get("workshop_roadmap")
+
+    # Build props for the component
+    props = {
+        "phases": [{"name": p["name"], "status": p["status"]} for p in phases],
+        "currentPhase": current_phase,
+        "botName": bot_name,
+        "botIcon": bot_icon,
+        "phaseContext": phase_context or {},
+        "canGoBack": current_phase > 0,
+        "showInsights": bool(phase_context),
+        "completedInsights": [],
+    }
+
+    # Extract completed insights from phase_context
+    if phase_context:
+        for i in range(current_phase):
+            if i in phase_context:
+                props["completedInsights"].append(phase_context[i])
+
+    try:
+        if roadmap is None:
+            # Create new roadmap element
+            roadmap = cl.CustomElement(
+                name="WorkshopRoadmap",
+                props=props,
+                display="inline"  # Will appear in message flow
+            )
+            cl.user_session.set("workshop_roadmap", roadmap)
+
+            # Send as part of a minimal message
+            await cl.Message(
+                content="",
+                elements=[roadmap]
+            ).send()
+        else:
+            # Update existing roadmap
+            roadmap.props = props
+            await roadmap.update()
+
+    except Exception as e:
+        # Fallback to TaskList if CustomElement fails
+        print(f"WorkshopRoadmap error, falling back to TaskList: {e}")
+        task_list = cl.TaskList()
+        task_list.name = "Workshop Progress"
+        for i, phase in enumerate(phases):
+            if phase["status"] == "done":
+                status = cl.TaskStatus.DONE
+            elif i == current_phase:
+                status = cl.TaskStatus.RUNNING
+            else:
+                status = cl.TaskStatus.READY
+            task = cl.Task(title=phase["name"], status=status)
+            await task_list.add_task(task)
+        await safe_task_list_send(task_list)
+        return None
+
+    return roadmap
+
+
+@cl.action_callback("jump_to_phase")
+async def on_jump_to_phase(action: cl.Action):
+    """
+    Jump to a specific phase (clicked from WorkshopRoadmap sidebar).
+
+    Only allows jumping to completed phases or current phase.
+    """
+    try:
+        target_phase = action.payload.get("phase", 0)
+        phases = cl.user_session.get("phases", [])
+        current_phase = cl.user_session.get("current_phase", 0)
+        bot_id = cl.user_session.get("bot_id", "lawrence")
+        bot = BOTS.get(bot_id, BOTS["lawrence"])
+
+        # Validate target is accessible
+        if target_phase > current_phase:
+            await cl.Message(
+                content="⚠️ You can only jump to completed phases or the current phase."
+            ).send()
+            return
+
+        if target_phase < 0 or target_phase >= len(phases):
+            await cl.Message(content="⚠️ Invalid phase selection.").send()
+            return
+
+        # If jumping to current phase, just acknowledge
+        if target_phase == current_phase:
+            phase_name = phases[current_phase]["name"]
+            await cl.Message(
+                content=f"📍 You're already on Phase {target_phase + 1}: {phase_name}",
+                actions=get_phase_navigation_buttons(current_phase, len(phases))
+            ).send()
+            return
+
+        # Update phase states: mark all phases after target as pending
+        for i, phase in enumerate(phases):
+            if i < target_phase:
+                phase["status"] = "done"
+            elif i == target_phase:
+                phase["status"] = "running"
+            else:
+                phase["status"] = "pending"
+
+        cl.user_session.set("phases", phases)
+        cl.user_session.set("current_phase", target_phase)
+
+        # Sync to context_store
+        context_key = get_context_key()
+        if context_key in context_store:
+            context_store[context_key]["phases"] = [p.copy() for p in phases]
+            context_store[context_key]["current_phase"] = target_phase
+
+        # Update the roadmap
+        phase_context = cl.user_session.get("phase_context", {})
+        await create_or_update_roadmap(
+            phases, target_phase, bot.get("name", "Workshop"),
+            bot.get("icon", "🎯"), phase_context
+        )
+
+        # Soft transition message
+        phase_name = phases[target_phase]["name"]
+        await cl.Message(
+            content=f"───── 📍 Jumped to Phase {target_phase + 1}/{len(phases)}: {phase_name} ─────\n\n"
+                    f"*Returned to this phase. Your conversation history is preserved.*",
+            actions=get_phase_navigation_buttons(target_phase, len(phases))
+        ).send()
+
+    except Exception as e:
+        print(f"Jump to phase error: {e}")
+        await cl.Message(content=f"⚠️ Unable to jump to phase: {str(e)[:100]}").send()
 
 
 def get_contextual_actions(
@@ -4114,19 +4342,32 @@ async def on_next_phase(action: cl.Action):
         cl.user_session.set("phases", phases)
         cl.user_session.set("current_phase", current_phase_idx + 1)
 
-        # Update task list UI
-        task_list = cl.TaskList()
-        task_list.name = "Workshop Progress"
-        for i, phase in enumerate(phases):
-            if phase["status"] == "done":
-                status = cl.TaskStatus.DONE
-            elif phase["status"] == "running":
-                status = cl.TaskStatus.RUNNING
-            else:
-                status = cl.TaskStatus.READY
-            task = cl.Task(title=phase["name"], status=status)
-            await task_list.add_task(task)
-        await safe_task_list_send(task_list)
+        # Update progress UI (Roadmap or TaskList)
+        bot = BOTS.get(bot_id, BOTS["lawrence"])
+        if USE_CUSTOM_ROADMAP:
+            # Use custom roadmap with phase insights
+            phase_insights = extract_phase_insights(history, phases, current_phase_idx + 1)
+            await create_or_update_roadmap(
+                phases=phases,
+                current_phase=current_phase_idx + 1,
+                bot_name=bot.get("name", "Workshop"),
+                bot_icon=bot.get("icon", "🎯"),
+                phase_context=phase_insights
+            )
+        else:
+            # Fallback to TaskList
+            task_list = cl.TaskList()
+            task_list.name = "Workshop Progress"
+            for i, phase in enumerate(phases):
+                if phase["status"] == "done":
+                    status = cl.TaskStatus.DONE
+                elif phase["status"] == "running":
+                    status = cl.TaskStatus.RUNNING
+                else:
+                    status = cl.TaskStatus.READY
+                task = cl.Task(title=phase["name"], status=status)
+                await task_list.add_task(task)
+            await safe_task_list_send(task_list)
 
         # Update sidebar to reflect phase progress
         await update_sidebar_phase(current_phase_idx + 1)
@@ -4245,19 +4486,30 @@ async def on_prev_phase(action: cl.Action):
         cl.user_session.set("phases", phases)
         cl.user_session.set("current_phase", current_phase_idx - 1)
 
-        # Update task list UI
-        task_list = cl.TaskList()
-        task_list.name = "Workshop Progress"
-        for i, phase in enumerate(phases):
-            if phase["status"] == "done":
-                status = cl.TaskStatus.DONE
-            elif phase["status"] == "running":
-                status = cl.TaskStatus.RUNNING
-            else:
-                status = cl.TaskStatus.READY
-            task = cl.Task(title=phase["name"], status=status)
-            await task_list.add_task(task)
-        await safe_task_list_send(task_list)
+        # Update progress UI (Roadmap or TaskList)
+        history = cl.user_session.get("history", [])
+        if USE_CUSTOM_ROADMAP:
+            phase_insights = extract_phase_insights(history, phases, current_phase_idx - 1)
+            await create_or_update_roadmap(
+                phases=phases,
+                current_phase=current_phase_idx - 1,
+                bot_name=bot.get("name", "Workshop"),
+                bot_icon=bot.get("icon", "🎯"),
+                phase_context=phase_insights
+            )
+        else:
+            task_list = cl.TaskList()
+            task_list.name = "Workshop Progress"
+            for i, phase in enumerate(phases):
+                if phase["status"] == "done":
+                    status = cl.TaskStatus.DONE
+                elif phase["status"] == "running":
+                    status = cl.TaskStatus.RUNNING
+                else:
+                    status = cl.TaskStatus.READY
+                task = cl.Task(title=phase["name"], status=status)
+                await task_list.add_task(task)
+            await safe_task_list_send(task_list)
 
         # Sync to context_store
         context_key = get_context_key()
