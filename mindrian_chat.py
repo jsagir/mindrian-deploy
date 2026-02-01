@@ -943,6 +943,51 @@ async def create_task_list(profile: str) -> Optional[cl.TaskList]:
     return task_list
 
 
+def get_core_action_buttons(include_example: bool = True) -> list:
+    """
+    Build the core action buttons that should appear on most responses.
+
+    This ensures consistency - after Research, Synthesize, Think, etc. complete,
+    the user still has access to all core actions.
+
+    Args:
+        include_example: Whether to include the Example button
+
+    Returns:
+        List of cl.Action objects
+    """
+    actions = [
+        cl.Action(
+            name="deep_research",
+            payload={"action": "research"},
+            label="🔍 Research",
+            tooltip="Search the web for relevant data and evidence",
+        ),
+        cl.Action(
+            name="synthesize_conversation",
+            payload={"action": "synthesize"},
+            label="📥 Synthesize",
+            tooltip="Summarize conversation: key insights, breakthroughs, next steps",
+        ),
+        cl.Action(
+            name="think_through",
+            payload={"action": "think"},
+            label="🧠 Think",
+            tooltip="Run a structured analysis: define the problem → list assumptions → find gaps → suggest next steps",
+        ),
+    ]
+
+    if include_example:
+        actions.append(cl.Action(
+            name="show_example",
+            payload={"action": "example"},
+            label="📖 Example",
+            tooltip="View a real-world example of this methodology",
+        ))
+
+    return actions
+
+
 def get_contextual_actions(
     bot: dict,
     phases: list,
@@ -3848,6 +3893,8 @@ async def on_show_example(action: cl.Action):
                 source_note = f"\n\n*Sourced from: {', '.join(sources_used)}.*"
 
             await msg.stream_token(response.text.strip() + source_note)
+            # Add core action buttons so user can continue
+            msg.actions = get_core_action_buttons(include_example=True)
             await msg.update()
 
             # Inject into history so the bot can reference it
@@ -3860,6 +3907,7 @@ async def on_show_example(action: cl.Action):
 
     # --- Fallback ---
     await msg.stream_token("*(Showing a general example instead.)*\n\n")
+    msg.actions = get_core_action_buttons(include_example=True)
     await msg.update()
     await _show_fallback_example(chat_profile, current_phase, session_id)
 
@@ -4893,6 +4941,7 @@ Now synthesize this conversation in Larry's voice. Create a document titled "Con
         )
 
         # Show synthesis inline in chat AND offer download
+        # Include core action buttons so user can continue
         await cl.Message(
             content=f"""**📝 Larry's Synthesis Complete!**
 
@@ -4903,7 +4952,8 @@ Now synthesize this conversation in Larry's voice. Create a document titled "Con
 ---
 
 **Download your synthesis:**""",
-            elements=[file_element]
+            elements=[file_element],
+            actions=get_core_action_buttons(include_example=True)
         ).send()
 
     except Exception as e:
@@ -5215,15 +5265,15 @@ async def _research_sources_first(recent_context: str, bot_name: str, search_dep
         except Exception as e2:
             await msg.stream_token(f"Search failed: {e2}")
 
-    # Add action buttons
-    msg.actions = [
-        cl.Action(
-            name="deep_research_full",
-            payload={"action": "deep_research_full"},
-            label="🔬 Deep Analyze (Minto Pyramid)",
-            tooltip="Run full structured analysis with SCQA, Beautiful Questions, and Sequential Thinking",
-        ),
-    ]
+    # Add action buttons - include core buttons so user can continue
+    msg.actions = get_core_action_buttons(include_example=True)
+    # Add deep analyze as extra option
+    msg.actions.insert(0, cl.Action(
+        name="deep_research_full",
+        payload={"action": "deep_research_full"},
+        label="🔬 Deep Analyze (Minto Pyramid)",
+        tooltip="Run full structured analysis with SCQA, Beautiful Questions, and Sequential Thinking",
+    ))
     await msg.update()
 
     # Inject into history
@@ -6236,7 +6286,11 @@ Suggest 2-3 concrete, actionable next steps to move forward. Be specific."""
 ### Suggested Next Steps
 {next_steps}
 """
-        await cl.Message(content=full_analysis).send()
+        # Include core action buttons so user can continue
+        await cl.Message(
+            content=full_analysis,
+            actions=get_core_action_buttons(include_example=True)
+        ).send()
 
     except Exception as e:
         await cl.Message(content=f"Thinking error: {str(e)}").send()
