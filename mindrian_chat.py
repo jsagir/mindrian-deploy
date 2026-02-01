@@ -43,6 +43,24 @@ except ImportError as e:
     SMART_PHASE_ENABLED = False
     print(f"Smart Phase Tracker not available: {e}")
 
+# === Phase Insights - User-facing intelligence from smart_phase_tracker ===
+try:
+    from tools.phase_insights import (
+        generate_phase_insights,
+        should_show_insight,
+        append_insight_to_response,
+        get_insight_actions,
+        get_smart_sidebar_data,
+        get_phase_insight_for_response,
+        PhaseInsight,
+        InsightType
+    )
+    PHASE_INSIGHTS_ENABLED = True
+    print("Phase Insights module enabled (intelligent progress surfacing)")
+except ImportError as e:
+    PHASE_INSIGHTS_ENABLED = False
+    print(f"Phase Insights not available: {e}")
+
 # === Custom Roadmap Feature Flag ===
 # Set to True to use the new WorkshopRoadmap CustomElement instead of TaskList
 USE_CUSTOM_ROADMAP = True  # Quick Win: Enabled by default
@@ -83,16 +101,26 @@ async def safe_task_list_send(task_list):
             raise
 
 
-def extract_phase_insights(history: list, phases: list, current_phase: int) -> dict:
+def extract_phase_insights(history: list, phases: list, current_phase: int, workshop_state=None) -> dict:
     """
     Extract brief insights for each completed phase from conversation history.
 
-    Returns a dict of {phase_index: "insight text"} for display in the sidebar.
-    This is a lightweight extraction - for full analysis use the Smart Phase Tracker.
-    """
-    insights = {}
+    If workshop_state (from smart_phase_tracker) is provided, uses AI-extracted
+    evidence. Otherwise falls back to simple keyword matching.
 
-    # Simple keyword extraction per phase based on what was discussed
+    Returns a dict of {phase_index: "insight text"} for display in the sidebar.
+    """
+    # Use smart insights if workshop_state is available (from get_smart_sidebar_data)
+    if workshop_state and PHASE_INSIGHTS_ENABLED:
+        try:
+            sidebar_data = get_smart_sidebar_data(workshop_state, history)
+            return sidebar_data.get("phaseContext", {})
+        except Exception as e:
+            print(f"Smart insights fallback: {e}")
+            # Fall through to simple extraction
+
+    # Simple keyword extraction fallback
+    insights = {}
     phase_keywords = {
         "Introduction": "Started the workshop",
         "Domain": "Defined the problem domain",
@@ -110,14 +138,11 @@ def extract_phase_insights(history: list, phases: list, current_phase: int) -> d
 
     for i in range(min(current_phase + 1, len(phases))):
         phase_name = phases[i].get("name", "")
-
-        # Find matching keyword insight
         for keyword, insight in phase_keywords.items():
             if keyword.lower() in phase_name.lower():
                 insights[i] = insight
                 break
         else:
-            # Default insight
             if phases[i].get("status") == "done":
                 insights[i] = f"Completed {phase_name}"
 
@@ -4534,6 +4559,154 @@ async def on_prev_phase(action: cl.Action):
         ).send()
 
 
+@cl.action_callback("explore_gaps")
+async def on_explore_gaps(action: cl.Action):
+    """
+    Handle 'Explore Gaps' button from phase insights.
+
+    When the AI identifies missing elements in the current phase,
+    the user can click this to get guided exploration of those gaps.
+    """
+    try:
+        phases = cl.user_session.get("phases", [])
+        current_phase_idx = cl.user_session.get("current_phase", 0)
+        bot_id = cl.user_session.get("bot_id", "lawrence")
+        bot = BOTS.get(bot_id, BOTS["lawrence"])
+        history = cl.user_session.get("history", [])
+
+        if not phases or not SMART_PHASE_ENABLED:
+            await cl.Message(
+                content="Let's continue exploring this phase. What would you like to focus on?",
+                actions=get_phase_navigation_buttons(current_phase_idx, len(phases)) if phases else None
+            ).send()
+            return
+
+        # Get the current workshop state to find gaps
+        workshop_state = await analyze_workshop_state(
+            conversation_history=history,
+            workshop_type=bot_id,
+            current_phase_index=current_phase_idx,
+            phases=phases
+        )
+
+        # Find current phase gaps
+        current_phase_status = None
+        for phase in workshop_state.phases:
+            if phase.status == "in_progress":
+                current_phase_status = phase
+                break
+
+        if current_phase_status and current_phase_status.missing_elements:
+            gaps = current_phase_status.missing_elements[:3]
+            phase_name = current_phase_status.name
+
+            gaps_list = "\n".join([f"• {g}" for g in gaps])
+            guidance = f"**🎯 Exploring Remaining Topics in {phase_name}**\n\n"
+            guidance += f"Based on our conversation, here are areas we haven't fully covered:\n\n{gaps_list}\n\n"
+            guidance += "Which of these would you like to explore? Or share your thoughts on any of them."
+
+            await cl.Message(
+                content=guidance,
+                actions=get_phase_navigation_buttons(current_phase_idx, len(phases))
+            ).send()
+
+            # Add to history as system guidance
+            history.append({"role": "model", "content": f"[Phase guidance: Exploring gaps in {phase_name}]"})
+            cl.user_session.set("history", history)
+        else:
+            # No specific gaps - general encouragement
+            phase_name = phases[current_phase_idx]["name"] if current_phase_idx < len(phases) else "this phase"
+            await cl.Message(
+                content=f"**Let's continue with {phase_name}**\n\nWhat aspect would you like to explore further?",
+                actions=get_phase_navigation_buttons(current_phase_idx, len(phases))
+            ).send()
+
+    except Exception as e:
+        print(f"Explore gaps error: {e}")
+        await cl.Message(
+            content="Let's continue exploring. What would you like to discuss?",
+            actions=get_phase_navigation_buttons(
+                cl.user_session.get("current_phase", 0),
+                len(cl.user_session.get("phases", []))
+            )
+        ).send()
+
+
+@cl.action_callback("explore_more")
+async def on_explore_more(action: cl.Action):
+    """
+    Handle 'Explore More' button from phase completion insights.
+
+    When the AI thinks a phase is complete, the user can choose to
+    explore more before advancing.
+    """
+    try:
+        phases = cl.user_session.get("phases", [])
+        current_phase_idx = cl.user_session.get("current_phase", 0)
+        bot_id = cl.user_session.get("bot_id", "lawrence")
+        bot = BOTS.get(bot_id, BOTS["lawrence"])
+        history = cl.user_session.get("history", [])
+
+        phase_name = phases[current_phase_idx]["name"] if current_phase_idx < len(phases) else "this phase"
+
+        # Get workshop state for context
+        if SMART_PHASE_ENABLED and len(history) >= 2:
+            workshop_state = await analyze_workshop_state(
+                conversation_history=history,
+                workshop_type=bot_id,
+                current_phase_index=current_phase_idx,
+                phases=phases
+            )
+
+            # Find what was covered
+            current_phase_status = None
+            for phase in workshop_state.phases:
+                if phase.status == "in_progress" or phase.name.lower() == phase_name.lower():
+                    current_phase_status = phase
+                    break
+
+            if current_phase_status and current_phase_status.completion_evidence:
+                evidence = current_phase_status.completion_evidence[:3]
+                evidence_list = "\n".join([f"• {e}" for e in evidence])
+
+                guidance = f"**🔍 Continuing to Explore {phase_name}**\n\n"
+                guidance += f"We've covered:\n{evidence_list}\n\n"
+                guidance += "What else would you like to dive deeper into? Any questions or areas that need more attention?"
+            else:
+                guidance = f"**🔍 Exploring More in {phase_name}**\n\n"
+                guidance += "What aspect would you like to explore further? Any questions or insights?"
+        else:
+            guidance = f"**🔍 Exploring More in {phase_name}**\n\n"
+            guidance += "What would you like to discuss further?"
+
+        await cl.Message(
+            content=guidance,
+            actions=get_phase_navigation_buttons(current_phase_idx, len(phases))
+        ).send()
+
+    except Exception as e:
+        print(f"Explore more error: {e}")
+        await cl.Message(
+            content="Let's continue exploring. What would you like to discuss?",
+            actions=get_phase_navigation_buttons(
+                cl.user_session.get("current_phase", 0),
+                len(cl.user_session.get("phases", []))
+            )
+        ).send()
+
+
+@cl.action_callback("show_full_progress")
+async def on_show_full_progress(action: cl.Action):
+    """
+    Handle 'Full Progress' button from phase insights.
+
+    Shows detailed AI-analyzed progress across all phases.
+    Essentially a convenience redirect to show_progress with enhanced formatting.
+    """
+    # Delegate to existing show_progress handler
+    await on_show_progress(action)
+
+
 @cl.action_callback("show_progress")
 async def on_show_progress(action: cl.Action):
     """Handle show progress button click with smart phase analysis."""
@@ -7651,6 +7824,52 @@ The user expects you to understand the context and add your specialized value.
                     )
             except Exception as e:
                 print(f"[PHASE] Auto-detect error (non-critical): {e}")
+
+        # === Phase Insights: Surface AI intelligence to user ===
+        if phases and bot.get("has_phases") and PHASE_INSIGHTS_ENABLED and SMART_PHASE_ENABLED:
+            try:
+                # Track turns for insight frequency control
+                turn_count = cl.user_session.get("phase_turn_count", 0) + 1
+                last_insight_turn = cl.user_session.get("last_insight_turn", 0)
+                insight_preference = settings.get("insight_mode", "balanced")
+                cl.user_session.set("phase_turn_count", turn_count)
+
+                bot_id = cl.user_session.get("bot_id", "lawrence")
+
+                # Get intelligent phase insight (async call to smart_phase_tracker)
+                insight = await get_phase_insight_for_response(
+                    history=history,
+                    bot_id=bot_id,
+                    current_phase=current_phase,
+                    phases=phases,
+                    turn_count=turn_count,
+                    last_insight_turn=last_insight_turn,
+                    preference=insight_preference
+                )
+
+                if insight and insight.show:
+                    cl.user_session.set("last_insight_turn", turn_count)
+
+                    # Build insight actions as Chainlit Actions
+                    insight_actions = []
+                    for action_info in get_insight_actions(insight):
+                        insight_actions.append(cl.Action(
+                            name=action_info["name"],
+                            payload={"from_insight": True, "type": insight.type.value},
+                            label=action_info["label"],
+                            description=action_info.get("tooltip", "")
+                        ))
+
+                    # Send insight as follow-up message
+                    await cl.Message(
+                        content=insight.message,
+                        actions=insight_actions if insight_actions else None
+                    ).send()
+
+                    print(f"[INSIGHT] Showed {insight.type.value} insight (confidence: {insight.confidence:.2f})")
+
+            except Exception as e:
+                print(f"[PHASE INSIGHT] Error (non-critical): {e}")
 
         # Refresh task panel for workshop bots (keeps it in sync every message)
         if phases and bot.get("has_phases"):

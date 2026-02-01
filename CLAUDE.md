@@ -144,8 +144,9 @@ This creates all boilerplate automatically. If doing manually, follow ALL steps 
 | # | Task | File | Status |
 |---|------|------|--------|
 | 6 | Define workshop phases | `mindrian_chat.py` → `WORKSHOP_PHASES` | ☐ |
-| 7 | Add video URLs per phase | `utils/media.py` → `WORKSHOP_VIDEOS` | ☐ |
-| 8 | Add audiobook chapters | `utils/media.py` → `AUDIOBOOK_CHAPTERS` | ☐ |
+| 7 | Add phase completion criteria | Phase definitions (see Phase Insights below) | ☐ |
+| 8 | Add video URLs per phase | `utils/media.py` → `WORKSHOP_VIDEOS` | ☐ |
+| 9 | Add audiobook chapters | `utils/media.py` → `AUDIOBOOK_CHAPTERS` | ☐ |
 
 #### TIER 3: Dynamic Features (Required for Full Integration)
 
@@ -725,6 +726,125 @@ Larry: "There's JTBD - asking what progress they're making. Have you talked to c
 ```
 
 See `R&D/09_graphrag_lite/README.md` for full documentation.
+
+---
+
+## Phase Insights - Intelligent Progress Surfacing
+
+The Phase Insights system surfaces AI-analyzed progress to users in a non-intrusive, evidence-based way. It works with `smart_phase_tracker.py` to show users WHAT they've accomplished, not just progress percentages.
+
+### Design Principles
+
+1. **Show, don't force** — Surface what the AI knows, let user decide
+2. **Evidence-based** — Always show WHY the AI thinks something
+3. **Confidence-gated** — Only suggest when confidence is high
+4. **Contextual** — Guidance appears naturally, not as interruptions
+5. **Actionable** — Every insight comes with clear options
+
+### Insight Types
+
+| Type | When Shown | User Actions |
+|------|------------|--------------|
+| `READY` | Phase complete (confidence >0.8) | `next_phase`, `explore_more` |
+| `GAP` | Almost complete, missing elements | `explore_gaps`, `next_phase` |
+| `PROGRESS` | Making progress, encouragement | `continue`, `show_full_progress` |
+| `NONE` | Not enough confidence or too early | (silent) |
+
+### User Preferences
+
+Users can configure insight frequency via `insight_mode` setting:
+
+| Mode | Min Turns | Confidence Threshold | Shows |
+|------|-----------|---------------------|-------|
+| `minimal` | 8 | 0.9 | Only completion |
+| `balanced` | 4 | 0.7 | Progress + completion |
+| `detailed` | 2 | 0.5 | Frequent updates |
+
+### Integration for New Workshop Bots
+
+For a workshop bot to work with Phase Insights:
+
+#### 1. Enable `has_phases: True` in BOTS dict
+```python
+BOTS["myworkshop"] = {
+    "name": "My Workshop",
+    "has_phases": True,  # REQUIRED for phase insights
+    # ...
+}
+```
+
+#### 2. Define phases with clear names in WORKSHOP_PHASES
+```python
+WORKSHOP_PHASES["myworkshop"] = [
+    {"name": "Introduction", "status": "ready"},
+    {"name": "Problem Discovery", "status": "pending"},
+    {"name": "Solution Design", "status": "pending"},
+    {"name": "Validation", "status": "pending"},
+    {"name": "Synthesis", "status": "pending"},
+]
+```
+
+#### 3. System prompt should reference phase goals
+The bot's system prompt should include clear descriptions of what each phase accomplishes. This helps `smart_phase_tracker.py` detect completion:
+
+```python
+## Workshop Phases
+1. **Introduction** - User introduces their problem domain and context
+2. **Problem Discovery** - Identify root causes and stakeholders
+3. **Solution Design** - Generate and evaluate alternatives
+4. **Validation** - Test assumptions and gather evidence
+5. **Synthesis** - Consolidate findings and next steps
+```
+
+#### 4. Completion evidence keywords
+The smart phase tracker looks for evidence in conversation. Include methodology-specific keywords in your prompt that signal phase completion:
+
+- Introduction: "context", "background", "domain", "industry"
+- Problem phases: "root cause", "stakeholder", "constraint", "assumption"
+- Solution phases: "alternative", "option", "approach", "design"
+- Validation: "test", "evidence", "data", "confirmed"
+- Synthesis: "summary", "conclusion", "next steps", "action items"
+
+### Key Files
+
+- `tools/phase_insights.py` - User-facing insight generation
+- `tools/smart_phase_tracker.py` - LLM-based phase analysis
+- `public/elements/WorkshopRoadmap.jsx` - Visual sidebar component
+
+### Action Callbacks
+
+Phase insights generate these action callbacks:
+
+| Action | Handler | Purpose |
+|--------|---------|---------|
+| `next_phase` | `on_next_phase()` | Advance to next phase |
+| `prev_phase` | `on_prev_phase()` | Go back to previous phase |
+| `explore_gaps` | `on_explore_gaps()` | Explore missing elements |
+| `explore_more` | `on_explore_more()` | Continue in current phase |
+| `show_full_progress` | `on_show_full_progress()` | Detailed progress view |
+
+### Example Insight Flow
+
+```
+User: [Completes discussing problem stakeholders]
+AI Response: [Normal response about stakeholders]
+
+[If confidence > 0.7 and gaps identified]
+Phase Insight Message:
+───── 📍 Problem Discovery Progress ─────
+
+**Covered so far:**
+• Identified key stakeholders
+• Mapped decision-making process
+
+**Still to explore:**
+• Resource constraints
+• Timeline pressures
+
+*Would you like to dig into these, or move forward?*
+
+[Buttons: 🎯 Explore Gaps | Next Phase →]
+```
 
 ---
 
