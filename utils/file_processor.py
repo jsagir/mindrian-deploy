@@ -202,10 +202,145 @@ def format_file_context(file_name: str, content: str, metadata: dict) -> str:
     elif file_type == "text":
         header += f"(Text file: {metadata.get('line_count', '?')} lines, {metadata.get('char_count', 0):,} characters)\n"
 
+    # Document AI enhanced processing
+    if metadata.get("method") == "document_ai":
+        header += f"**Enhanced with Document AI** (confidence: {metadata.get('confidence', 0):.0%})\n"
+
     if metadata.get("truncated"):
         header += "**Note: Content was truncated due to length.**\n"
 
     if metadata.get("error"):
         return header + f"Error: {metadata['error']}\n---\n"
 
+    # Add equations if present
+    equations = metadata.get("equations", [])
+    if equations:
+        header += f"**{len(equations)} equations extracted (LaTeX)**\n"
+
+    # Add tables if present
+    tables = metadata.get("tables", [])
+    if tables:
+        header += f"**{len(tables)} tables extracted**\n"
+
     return header + "---\n" + content + "\n---\n"
+
+
+# =============================================================================
+# SMART PROCESSING WITH DOCUMENT AI FALLBACK
+# =============================================================================
+
+async def smart_process_file(
+    file_path: str,
+    file_name: str,
+    force_document_ai: bool = False
+) -> Tuple[str, dict]:
+    """
+    Smart file processor that uses Document AI when needed.
+
+    Automatically falls back to Document AI for:
+    - Scanned/image-only PDFs
+    - Image files (JPG, PNG, etc.)
+    - Documents with math equations
+    - Handwritten content
+
+    Args:
+        file_path: Path to the uploaded file
+        file_name: Original filename
+        force_document_ai: Force Document AI processing
+
+    Returns:
+        Tuple of (extracted_text, metadata_dict)
+    """
+    ext = Path(file_name).suffix.lower()
+
+    # First, try standard extraction
+    content, metadata = process_uploaded_file(file_path, file_name)
+
+    # Check if we need Document AI
+    needs_enhancement = False
+    reason = ""
+
+    # Image files always need OCR
+    if is_image_file(file_name):
+        needs_enhancement = True
+        reason = "image file requires OCR"
+
+    # Check if PDF extraction failed or returned very little
+    elif ext == '.pdf':
+        if metadata.get("error") or len(content.strip()) < 100:
+            needs_enhancement = True
+            reason = "PDF extraction failed or minimal content (likely scanned)"
+
+    # Check for math content
+    if not needs_enhancement and content:
+        try:
+            from tools.document_ai import detect_math_content
+            if detect_math_content(content):
+                needs_enhancement = True
+                reason = "math content detected - LaTeX extraction available"
+        except ImportError:
+            pass
+
+    # If enhancement needed or forced, try Document AI
+    if needs_enhancement or force_document_ai:
+        try:
+            from tools.document_ai import smart_process_document, is_document_ai_available
+
+            if is_document_ai_available():
+                # Read file content
+                with open(file_path, 'rb') as f:
+                    file_content = f.read()
+
+                # Process with Document AI
+                result = await smart_process_document(
+                    file_content=file_content,
+                    file_name=file_name,
+                    gemini_result=content if not metadata.get("error") else None,
+                    force_docai=force_document_ai
+                )
+
+                if result.get("enhanced") or result.get("method") == "document_ai":
+                    # Use Document AI result
+                    enhanced_content = result["text"]
+
+                    # Append equations in LaTeX format
+                    if result.get("equations"):
+                        from tools.document_ai import format_equations_for_display
+                        enhanced_content += "\n\n" + format_equations_for_display(result["equations"])
+
+                    # Append tables as markdown
+                    if result.get("tables"):
+                        from tools.document_ai import format_tables_as_markdown
+                        enhanced_content += "\n\n" + format_tables_as_markdown(result["tables"])
+
+                    enhanced_metadata = {
+                        **metadata,
+                        "method": "document_ai",
+                        "confidence": result.get("confidence", 0),
+                        "equations": result.get("equations", []),
+                        "tables": result.get("tables", []),
+                        "enhancement_reason": reason
+                    }
+
+                    print(f"✅ Document AI enhanced: {file_name} ({reason})")
+                    return enhanced_content, enhanced_metadata
+
+            else:
+                print(f"⚠️ Document AI needed for {file_name} ({reason}) but not configured")
+
+        except ImportError:
+            print("⚠️ Document AI module not available")
+        except Exception as e:
+            print(f"⚠️ Document AI error: {e}")
+
+    # Return standard extraction result
+    return content, metadata
+
+
+def is_document_ai_configured() -> bool:
+    """Check if Document AI is available and configured."""
+    try:
+        from tools.document_ai import is_document_ai_available
+        return is_document_ai_available()
+    except ImportError:
+        return False
