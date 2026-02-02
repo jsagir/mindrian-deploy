@@ -5,36 +5,47 @@
  *
  * Props:
  *   - diagram: Mermaid syntax string
+ *   - svg: Pre-rendered SVG (optional, from server-side rendering)
  *   - title: Optional title above diagram
  *   - theme: 'default', 'dark', 'forest', 'neutral' (default: 'default')
+ *   - serverRendered: Boolean indicating if SVG was pre-rendered
  */
 
 export default function MermaidDiagram() {
   const { updateElement, callAction } = window.Chainlit || {}
   const {
     diagram = '',
+    svg: preRenderedSvg = null,
     title = '',
     theme = 'default',
+    serverRendered = false,
     diagramId = 'mermaid-' + Math.random().toString(36).substr(2, 9)
   } = props || {}
 
-  const [svg, setSvg] = React.useState(null)
+  const [svg, setSvg] = React.useState(preRenderedSvg)
   const [error, setError] = React.useState(null)
-  const [loading, setLoading] = React.useState(true)
+  const [loading, setLoading] = React.useState(!preRenderedSvg)
 
-  // Load and render Mermaid
+  // If we have pre-rendered SVG, use it directly
   React.useEffect(() => {
+    if (preRenderedSvg) {
+      setSvg(preRenderedSvg)
+      setLoading(false)
+      return
+    }
+
     if (!diagram) {
       setLoading(false)
       return
     }
 
+    // Client-side rendering fallback
     const renderDiagram = async () => {
       try {
         // Load mermaid from CDN if not already loaded
         if (!window.mermaid) {
           const script = document.createElement('script')
-          script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js'
+          script.src = 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js'
           script.async = true
           await new Promise((resolve, reject) => {
             script.onload = resolve
@@ -72,7 +83,7 @@ export default function MermaidDiagram() {
     }
 
     renderDiagram()
-  }, [diagram, theme, diagramId])
+  }, [diagram, theme, diagramId, preRenderedSvg])
 
   // Export as PNG
   const handleExport = () => {
