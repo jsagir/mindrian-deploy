@@ -1,45 +1,35 @@
 /**
  * MermaidDiagram - Custom Chainlit element for rendering Mermaid diagrams
  *
+ * Loads Mermaid v11 from jsDelivr CDN and renders client-side.
  * Supports: mindmaps, flowcharts, sequence diagrams, class diagrams, etc.
  *
  * Props:
  *   - diagram: Mermaid syntax string
- *   - svg: Pre-rendered SVG (optional, from server-side rendering)
  *   - title: Optional title above diagram
  *   - theme: 'default', 'dark', 'forest', 'neutral' (default: 'default')
- *   - serverRendered: Boolean indicating if SVG was pre-rendered
  */
 
 export default function MermaidDiagram() {
   const { updateElement, callAction } = window.Chainlit || {}
   const {
     diagram = '',
-    svg: preRenderedSvg = null,
     title = '',
     theme = 'default',
-    serverRendered = false,
     diagramId = 'mermaid-' + Math.random().toString(36).substr(2, 9)
   } = props || {}
 
-  const [svg, setSvg] = React.useState(preRenderedSvg)
+  const [svg, setSvg] = React.useState(null)
   const [error, setError] = React.useState(null)
-  const [loading, setLoading] = React.useState(!preRenderedSvg)
+  const [loading, setLoading] = React.useState(true)
 
-  // If we have pre-rendered SVG, use it directly
+  // Load Mermaid from CDN and render diagram
   React.useEffect(() => {
-    if (preRenderedSvg) {
-      setSvg(preRenderedSvg)
-      setLoading(false)
-      return
-    }
-
     if (!diagram) {
       setLoading(false)
       return
     }
 
-    // Client-side rendering fallback
     const renderDiagram = async () => {
       try {
         // Load mermaid from CDN if not already loaded
@@ -83,7 +73,7 @@ export default function MermaidDiagram() {
     }
 
     renderDiagram()
-  }, [diagram, theme, diagramId, preRenderedSvg])
+  }, [diagram, theme, diagramId])
 
   // Export as PNG
   const handleExport = () => {

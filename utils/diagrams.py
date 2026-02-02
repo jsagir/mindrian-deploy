@@ -2,117 +2,38 @@
 Diagram utilities for Mindrian
 Generate Mermaid diagrams for mindmaps, flowcharts, and idea visualization
 
-Two rendering options:
-1. CustomElement (client-side) - MermaidDiagram.jsx loads mermaid.js from CDN
-2. Server-side SVG - Uses mermaid-cli or API to pre-render (more reliable)
+Rendering: Client-side via MermaidDiagram.jsx (loads Mermaid v11 from CDN)
 """
 
 import chainlit as cl
 from typing import List, Dict, Optional, Any
 import re
-import subprocess
-import tempfile
-import os
-import base64
-
-
-# Check if mermaid-cli is available for server-side rendering
-MERMAID_CLI_AVAILABLE = False
-try:
-    result = subprocess.run(["mmdc", "--version"], capture_output=True, timeout=5)
-    MERMAID_CLI_AVAILABLE = result.returncode == 0
-except (subprocess.SubprocessError, FileNotFoundError):
-    pass
-
-
-async def render_mermaid_to_svg(diagram: str, theme: str = "default") -> Optional[str]:
-    """
-    Render Mermaid diagram to SVG using mermaid-cli (server-side).
-
-    Args:
-        diagram: Mermaid syntax string
-        theme: 'default', 'dark', 'forest', 'neutral'
-
-    Returns:
-        SVG string or None if mermaid-cli not available
-    """
-    if not MERMAID_CLI_AVAILABLE:
-        return None
-
-    try:
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.mmd', delete=False) as f:
-            f.write(diagram)
-            input_file = f.name
-
-        output_file = input_file.replace('.mmd', '.svg')
-
-        result = subprocess.run(
-            ["mmdc", "-i", input_file, "-o", output_file, "-t", theme, "-b", "transparent"],
-            capture_output=True,
-            timeout=30
-        )
-
-        if result.returncode == 0 and os.path.exists(output_file):
-            with open(output_file, 'r') as f:
-                svg_content = f.read()
-            os.unlink(output_file)
-            os.unlink(input_file)
-            return svg_content
-
-        os.unlink(input_file)
-        return None
-
-    except Exception as e:
-        print(f"Mermaid CLI error: {e}")
-        return None
 
 
 async def create_mermaid_element(
     diagram: str,
     title: str = "",
-    theme: str = "default",
-    prefer_server_render: bool = True
+    theme: str = "default"
 ) -> cl.CustomElement:
     """
-    Create a Chainlit element for rendering a Mermaid diagram.
+    Create a Chainlit CustomElement for rendering a Mermaid diagram.
 
-    Uses server-side rendering (mermaid-cli) if available for reliability,
-    otherwise falls back to client-side rendering via MermaidDiagram.jsx.
+    Renders client-side using Mermaid v11 loaded from jsDelivr CDN.
 
     Args:
         diagram: Mermaid syntax string
         title: Optional title above diagram
         theme: 'default', 'dark', 'forest', 'neutral'
-        prefer_server_render: Try server-side SVG first (more reliable)
 
     Returns:
-        cl.CustomElement or cl.Image for display
+        cl.CustomElement for display
     """
-    # Try server-side rendering first (more reliable)
-    if prefer_server_render and MERMAID_CLI_AVAILABLE:
-        svg = await render_mermaid_to_svg(diagram, theme)
-        if svg:
-            # Return as inline HTML element with the SVG
-            return cl.CustomElement(
-                name="MermaidDiagram",
-                props={
-                    "diagram": diagram,
-                    "svg": svg,  # Pre-rendered SVG
-                    "title": title,
-                    "theme": theme,
-                    "serverRendered": True
-                },
-                display="inline"
-            )
-
-    # Fall back to client-side rendering
     return cl.CustomElement(
         name="MermaidDiagram",
         props={
             "diagram": diagram,
             "title": title,
-            "theme": theme,
-            "serverRendered": False
+            "theme": theme
         },
         display="inline"
     )
