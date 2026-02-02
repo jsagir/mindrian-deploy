@@ -26,7 +26,7 @@ from .classifier import classify, get_routing_recommendation
 logger = logging.getLogger(__name__)
 
 # Feature flag - set to True to enable orchestration
-A2A_ORCHESTRATION_ENABLED = False  # Start disabled, enable when ready
+A2A_ORCHESTRATION_ENABLED = True  # ENABLED - orchestration is live
 
 
 # === Session State Keys ===

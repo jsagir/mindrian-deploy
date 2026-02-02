@@ -20,6 +20,7 @@ from datetime import datetime
 from .context_manager import ContextManager, Artifact, Frame, ValidationSource
 from .phase_manager import PhaseManager, Phase, suggest_phase_from_classification
 from .classifier import classify, Classification, get_routing_recommendation
+from .supabase_storage import SupabaseStorage
 
 logger = logging.getLogger(__name__)
 
@@ -314,6 +315,9 @@ class A2AOrchestrator:
         self.red_team = RedTeamMiddleware(llm_client)
         self.journey = JourneyMapView(self.context, self.phases)
 
+        # Supabase storage (persists to cloud)
+        self.storage = SupabaseStorage(session_id)
+
         # Agent registry (existing bots wrapped with standard interface)
         self.agents = agent_registry or {}
 
@@ -571,10 +575,23 @@ class A2AOrchestrator:
             validation_source
         )
 
-    def save_state(self):
-        """Save all state to disk."""
+    async def save_state(self):
+        """Save all state to Supabase and local disk."""
+        # Save to local disk (backup)
         self.context.save()
         self.phases.save()
+
+        # Save to Supabase (primary)
+        await self.storage.save_full_state(
+            artifacts=[a.to_dict() for a in self.context.get_all_artifacts()],
+            frames={
+                agent: [f.to_dict() for f in frames.values()]
+                for agent, frames in self.context._frames.items()
+            },
+            phase_history=[t.to_dict() for t in self.phases.phase_history],
+            current_phase=self.phases.current_phase.value,
+            classification=self.classification.to_dict() if self.classification else None
+        )
 
     @classmethod
     def load(cls, session_id: str, llm_client: Any = None) -> "A2AOrchestrator":

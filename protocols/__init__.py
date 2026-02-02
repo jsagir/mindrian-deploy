@@ -49,6 +49,13 @@ from .orchestrator import (
     create_agent_wrapper,
 )
 
+from .supabase_storage import (
+    SupabaseStorage,
+    get_supabase_client,
+    get_migration_sql,
+    SUPABASE_MIGRATION_SQL,
+)
+
 from .chat_integration import (
     A2A_ORCHESTRATION_ENABLED,
     init_a2a_session,
@@ -160,6 +167,11 @@ __all__ = [
     'JourneyMap',
     'ValidationResult',
     'create_agent_wrapper',
+    # Supabase Storage
+    'SupabaseStorage',
+    'get_supabase_client',
+    'get_migration_sql',
+    'SUPABASE_MIGRATION_SQL',
     # Chat Integration
     'A2A_ORCHESTRATION_ENABLED',
     'init_a2a_session',
