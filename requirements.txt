@@ -51,3 +51,7 @@ asyncpg>=0.29.0
 
 # Audio Processing (optional)
 # openai-whisper>=20231117
+
+# Bank of Opportunities - PWS Extraction
+langextract>=0.1.0  # Google's structured extraction library
+neo4j>=5.0.0  # Neo4j driver for graph storage

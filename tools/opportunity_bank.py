@@ -59,6 +59,137 @@ SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
 SUPABASE_BUCKET = os.getenv("SUPABASE_BUCKET", "mindrian-files")
 
 
+# ==============================================================================
+# EMBEDDING GENERATION (Lazy Cache Pattern)
+# ==============================================================================
+
+class _LazyEmbeddingCache:
+    """
+    Bounded in-memory embedding cache.
+
+    Follows the lazy graph pattern from graphrag_lite:
+    - Limited size (~1MB for 100 embeddings @ 1536 dims)
+    - LRU eviction when full
+    - On-demand computation, never preload all
+    """
+    __slots__ = ("_cache", "_max_size", "_hits", "_misses")
+
+    def __init__(self, max_size: int = 100):
+        self._cache: Dict[str, List[float]] = {}
+        self._max_size = max_size
+        self._hits = 0
+        self._misses = 0
+
+    def get(self, key: str) -> Optional[List[float]]:
+        """Get embedding from cache if available."""
+        if key in self._cache:
+            self._hits += 1
+            return self._cache[key]
+        self._misses += 1
+        return None
+
+    def put(self, key: str, embedding: List[float]) -> None:
+        """Store embedding, evicting oldest if at capacity."""
+        if len(self._cache) >= self._max_size:
+            # Simple eviction: remove first key (oldest)
+            oldest = next(iter(self._cache))
+            del self._cache[oldest]
+        self._cache[key] = embedding
+
+    def stats(self) -> Dict[str, int]:
+        return {
+            "size": len(self._cache),
+            "max_size": self._max_size,
+            "hits": self._hits,
+            "misses": self._misses,
+            "hit_rate": self._hits / (self._hits + self._misses) if (self._hits + self._misses) > 0 else 0
+        }
+
+
+# Global lazy embedding cache (bounded, ~1MB)
+_embedding_cache = _LazyEmbeddingCache(max_size=100)
+
+
+def _embedding_cache_key(text: str) -> str:
+    """Generate cache key from text (truncated hash)."""
+    return hashlib.md5(text[:500].encode()).hexdigest()[:16]
+
+
+async def generate_embedding(text: str, use_cache: bool = True) -> Optional[List[float]]:
+    """
+    Generate embedding vector for semantic similarity search.
+
+    Uses Google's text-embedding-004 model (1536 dimensions).
+    Implements lazy cache pattern for bounded memory usage.
+
+    Args:
+        text: Text to embed (will be truncated to 2048 chars)
+        use_cache: Whether to use the in-memory cache (default: True)
+
+    Returns:
+        List of floats (embedding vector) or None on error
+    """
+    if not GEMINI_AVAILABLE:
+        return None
+
+    if not text or len(text.strip()) < 10:
+        return None
+
+    # Truncate to model limit
+    text = text[:2048]
+
+    # Check cache first (lazy pattern)
+    if use_cache:
+        cache_key = _embedding_cache_key(text)
+        cached = _embedding_cache.get(cache_key)
+        if cached is not None:
+            return cached
+
+    try:
+        client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
+
+        # Use embedding model
+        result = client.models.embed_content(
+            model="text-embedding-004",
+            content=text
+        )
+
+        if result and result.embedding:
+            embedding = list(result.embedding.values)
+
+            # Store in cache (lazy pattern - bounded memory)
+            if use_cache:
+                _embedding_cache.put(cache_key, embedding)
+
+            return embedding
+        return None
+
+    except Exception as e:
+        print(f"Embedding generation error: {e}")
+        return None
+
+
+async def generate_opportunity_embedding(opportunity: 'Opportunity') -> Optional[List[float]]:
+    """
+    Generate embedding for an opportunity based on key PWS fields.
+
+    Combines name, description, problem, and job_to_be_done for
+    comprehensive semantic representation.
+    """
+    # Build text from key fields
+    parts = [
+        opportunity.name,
+        opportunity.description,
+        opportunity.problem,
+        opportunity.job_to_be_done,
+        opportunity.solution_direction,
+        " ".join(opportunity.tags) if opportunity.tags else ""
+    ]
+    text = " ".join(p for p in parts if p)
+
+    return await generate_embedding(text)
+
+
 class OpportunityType(str, Enum):
     """PWS-compliant opportunity types."""
     PWS = "problem_worth_solving"
@@ -531,9 +662,16 @@ def generate_opportunity_id(name: str, conversation_id: str) -> str:
 # SUPABASE TABLE STORAGE (Primary)
 # ==============================================================================
 
-async def store_opportunity_to_table(opportunity: Opportunity) -> Optional[str]:
+async def store_opportunity_to_table(
+    opportunity: Opportunity,
+    generate_embedding_flag: bool = False
+) -> Optional[str]:
     """
     Store opportunity in Supabase opportunity_bank table.
+
+    Args:
+        opportunity: The Opportunity to store
+        generate_embedding_flag: If True, generate and store embedding vector
 
     Returns the UUID of the inserted row, or None on failure.
     """
@@ -543,6 +681,13 @@ async def store_opportunity_to_table(opportunity: Opportunity) -> Optional[str]:
 
     try:
         row = opportunity.to_supabase_row()
+
+        # Generate embedding if requested
+        if generate_embedding_flag:
+            embedding = await generate_opportunity_embedding(opportunity)
+            if embedding:
+                row["embedding"] = embedding
+                print(f"Generated embedding ({len(embedding)} dims) for {opportunity.id}")
 
         result = client.table("opportunity_bank").insert(row).execute()
 
@@ -756,6 +901,25 @@ async def store_opportunity_neo4j(opportunity: Opportunity) -> bool:
                     MERGE (o)-[:CREATED_BY]->(p)
                 """, {"opp_id": opportunity.id, "created_by": opportunity.created_by})
 
+            # Link to Source (SYNTHESIZED_FROM relationship)
+            if opportunity.source_id or opportunity.conversation_id:
+                source_id = opportunity.source_id or opportunity.conversation_id
+                source_type = opportunity.source_type or "conversation"
+                session.run("""
+                    MATCH (o:Opportunity {id: $opp_id})
+                    MERGE (s:Source {id: $source_id})
+                    SET s.type = $source_type,
+                        s.name = $source_name,
+                        s.bot = $source_bot
+                    MERGE (o)-[:SYNTHESIZED_FROM]->(s)
+                """, {
+                    "opp_id": opportunity.id,
+                    "source_id": source_id,
+                    "source_type": source_type,
+                    "source_name": opportunity.source_name or source_id,
+                    "source_bot": opportunity.source_bot
+                })
+
             opportunity.neo4j_synced = True
             opportunity.neo4j_node_id = opportunity.id
             print(f"Neo4j: Stored opportunity {opportunity.id}")
@@ -794,7 +958,10 @@ async def export_for_filesearch(opportunity: Opportunity, output_dir: str = "opp
 # MAIN STORAGE FUNCTION
 # ==============================================================================
 
-async def store_opportunity(opportunity: Opportunity) -> Dict[str, Any]:
+async def store_opportunity(
+    opportunity: Opportunity,
+    generate_embedding: bool = True
+) -> Dict[str, Any]:
     """
     Store opportunity in all configured storage backends.
 
@@ -804,18 +971,24 @@ async def store_opportunity(opportunity: Opportunity) -> Dict[str, Any]:
     3. Supabase JSON (legacy backup)
     4. FileSearch export
 
+    Args:
+        opportunity: The Opportunity to store
+        generate_embedding: If True, generate embedding for semantic search (default: True)
+
     Returns dict of {backend: success/id} status.
     """
     results = {
         "supabase_table": None,
         "neo4j": False,
         "supabase_json": False,
-        "filesearch": False
+        "filesearch": False,
+        "embedding": False
     }
 
-    # Primary: Supabase table
-    table_id = await store_opportunity_to_table(opportunity)
+    # Primary: Supabase table (with optional embedding)
+    table_id = await store_opportunity_to_table(opportunity, generate_embedding_flag=generate_embedding)
     results["supabase_table"] = table_id
+    results["embedding"] = generate_embedding and table_id is not None
 
     # If table storage failed, use JSON as fallback
     if not table_id:
@@ -1218,5 +1391,29 @@ async def get_opportunity_stats() -> Dict[str, Any]:
 
     except Exception as e:
         print(f"Stats query error: {e}")
+
+    return stats
+
+
+def get_embedding_cache_stats() -> Dict[str, Any]:
+    """
+    Get embedding cache statistics for monitoring.
+
+    Returns dict with:
+    - size: Current cache size
+    - max_size: Maximum cache capacity
+    - hits: Number of cache hits
+    - misses: Number of cache misses
+    - hit_rate: Ratio of hits to total requests
+    - memory_estimate: Estimated memory usage in MB
+
+    This follows the lazy graph pattern - bounded memory for
+    safe usage on 512MB instances (~1MB max for embeddings).
+    """
+    stats = _embedding_cache.stats()
+
+    # Estimate memory: 1536 floats * 8 bytes * num_embeddings
+    embedding_size_bytes = 1536 * 8  # ~12KB per embedding
+    stats["memory_estimate_mb"] = round(stats["size"] * embedding_size_bytes / (1024 * 1024), 3)
 
     return stats
