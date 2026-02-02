@@ -485,6 +485,8 @@ python scripts/create_component.py ComponentName --template card
 | Component | Purpose | Location |
 |-----------|---------|----------|
 | `MermaidDiagram` | Mermaid diagrams (mindmaps, flowcharts) | `public/elements/MermaidDiagram.jsx` |
+| `QuadrantChart` | 2x2 matrix (risk, priority, etc.) | `public/elements/QuadrantChart.jsx` |
+| `BusinessModelCanvas` | 9-box BMC / Lean Canvas | `public/elements/BusinessModelCanvas.jsx` |
 | `GradeReveal` | Soft-landing grade reveal | `public/elements/GradeReveal.jsx` |
 | `ScoreBreakdown` | Interactive score drill-down | `public/elements/ScoreBreakdown.jsx` |
 | `OpportunityCard` | Bank of opportunities | `public/elements/OpportunityCard.jsx` |
@@ -743,8 +745,73 @@ Users can click "🗺️ Map Ideas" to auto-generate a mindmap from the conversa
 
 ### Key Files
 
-- `public/elements/MermaidDiagram.jsx` - React component
+- `public/elements/MermaidDiagram.jsx` - Mermaid diagrams
+- `public/elements/QuadrantChart.jsx` - 2x2 matrix charts
+- `public/elements/BusinessModelCanvas.jsx` - BMC/Lean Canvas
 - `utils/diagrams.py` - Python generation utilities
+
+---
+
+## 2x2 Quadrant Charts
+
+Interactive matrix charts for analysis and prioritization.
+
+```python
+from utils.diagrams import create_quadrant_chart, create_risk_matrix, create_priority_matrix
+
+# Custom quadrant chart
+chart = await create_quadrant_chart(
+    title="Assumption Risk Matrix",
+    x_label="Certainty",
+    y_label="Impact",
+    items=[
+        {"name": "Market size", "x": 30, "y": 90, "color": "#ef4444"},
+        {"name": "Tech feasibility", "x": 80, "y": 70, "color": "#22c55e"},
+    ]
+)
+
+# Pre-configured risk matrix
+risk = await create_risk_matrix([
+    {"name": "Customers will pay", "certainty": 20, "impact": 95},
+    {"name": "Tech is feasible", "certainty": 80, "impact": 70},
+])
+
+# Eisenhower priority matrix
+priorities = await create_priority_matrix([
+    {"name": "Fix critical bug", "urgency": 90, "importance": 85},
+    {"name": "Refactor code", "urgency": 30, "importance": 60},
+])
+```
+
+---
+
+## Business Model Canvas
+
+Interactive 9-box canvas for business model design.
+
+```python
+from utils.diagrams import create_business_model_canvas, create_lean_canvas
+
+# Full Business Model Canvas
+bmc = await create_business_model_canvas(
+    title="Mindrian Business Model",
+    data={
+        "valuePropositions": ["AI coaching", "PWS methodology"],
+        "customerSegments": ["Students", "Entrepreneurs"],
+        "revenueStreams": ["Subscription", "Enterprise"]
+    },
+    editable=True  # Allow in-canvas editing
+)
+
+# Lean Canvas variant
+lean = await create_lean_canvas(
+    data={
+        "problem": ["Coaching doesn't scale"],
+        "solution": ["AI-powered guidance"],
+        "uniqueValue": ["Learn innovation with AI"]
+    }
+)
+```
 
 ---
 

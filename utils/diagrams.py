@@ -497,6 +497,289 @@ def _sanitize_id(text: str) -> str:
 
 
 # =============================================================================
+# 2x2 QUADRANT CHART
+# =============================================================================
+
+async def create_quadrant_chart(
+    items: List[Dict[str, Any]],
+    title: str = "2x2 Analysis",
+    x_label: str = "X Axis",
+    y_label: str = "Y Axis",
+    quadrant_labels: Dict[str, str] = None,
+    quadrant_colors: Dict[str, str] = None
+) -> cl.CustomElement:
+    """
+    Create an interactive 2x2 quadrant/matrix chart.
+
+    Perfect for: Risk/Impact, Effort/Value, Urgency/Importance, Assumption mapping
+
+    Args:
+        items: List of dicts with {name, x, y, color?, size?, description?}
+               x and y should be 0-100
+        title: Chart title
+        x_label: X-axis label (e.g., "Certainty", "Effort")
+        y_label: Y-axis label (e.g., "Impact", "Value")
+        quadrant_labels: Custom labels for each quadrant
+        quadrant_colors: Custom colors for each quadrant
+
+    Returns:
+        cl.CustomElement (QuadrantChart)
+
+    Example:
+        await create_quadrant_chart(
+            title="Assumption Risk Matrix",
+            x_label="Certainty",
+            y_label="Impact",
+            items=[
+                {"name": "Market size", "x": 30, "y": 90, "color": "#ef4444"},
+                {"name": "Tech feasibility", "x": 80, "y": 70, "color": "#22c55e"},
+                {"name": "Team capability", "x": 60, "y": 50, "color": "#3b82f6"},
+            ]
+        )
+    """
+    default_quadrant_labels = {
+        "topLeft": f"High {y_label} / Low {x_label}",
+        "topRight": f"High {y_label} / High {x_label}",
+        "bottomLeft": f"Low {y_label} / Low {x_label}",
+        "bottomRight": f"Low {y_label} / High {x_label}"
+    }
+
+    return cl.CustomElement(
+        name="QuadrantChart",
+        props={
+            "title": title,
+            "xLabel": x_label,
+            "yLabel": y_label,
+            "items": items,
+            "quadrantLabels": quadrant_labels or default_quadrant_labels,
+            "quadrantColors": quadrant_colors
+        },
+        display="inline"
+    )
+
+
+async def create_risk_matrix(
+    assumptions: List[Dict[str, Any]],
+    title: str = "Assumption Risk Matrix"
+) -> cl.CustomElement:
+    """
+    Create a risk matrix for assumption testing (PWS pattern).
+
+    Args:
+        assumptions: List of {name, certainty (0-100), impact (0-100), description?}
+
+    Example:
+        await create_risk_matrix([
+            {"name": "Customers will pay", "certainty": 20, "impact": 95},
+            {"name": "Tech is feasible", "certainty": 80, "impact": 70},
+        ])
+    """
+    items = [
+        {
+            "name": a["name"],
+            "x": a.get("certainty", 50),
+            "y": a.get("impact", 50),
+            "color": "#ef4444" if a.get("certainty", 50) < 50 and a.get("impact", 50) > 50 else "#22c55e",
+            "description": a.get("description", "")
+        }
+        for a in assumptions
+    ]
+
+    return await create_quadrant_chart(
+        items=items,
+        title=title,
+        x_label="Certainty",
+        y_label="Impact",
+        quadrant_labels={
+            "topLeft": "🔴 Test First",
+            "topRight": "✅ Strong Foundation",
+            "bottomLeft": "⚪ Low Priority",
+            "bottomRight": "🔵 Nice to Validate"
+        }
+    )
+
+
+async def create_priority_matrix(
+    tasks: List[Dict[str, Any]],
+    title: str = "Priority Matrix (Eisenhower)"
+) -> cl.CustomElement:
+    """
+    Create an Eisenhower priority matrix.
+
+    Args:
+        tasks: List of {name, urgency (0-100), importance (0-100)}
+    """
+    items = [
+        {
+            "name": t["name"],
+            "x": t.get("urgency", 50),
+            "y": t.get("importance", 50),
+            "description": t.get("description", "")
+        }
+        for t in tasks
+    ]
+
+    return await create_quadrant_chart(
+        items=items,
+        title=title,
+        x_label="Urgency",
+        y_label="Importance",
+        quadrant_labels={
+            "topLeft": "📅 Schedule",
+            "topRight": "🔥 Do First",
+            "bottomLeft": "🗑️ Eliminate",
+            "bottomRight": "👥 Delegate"
+        }
+    )
+
+
+# =============================================================================
+# BUSINESS MODEL CANVAS
+# =============================================================================
+
+async def create_business_model_canvas(
+    data: Dict[str, List[str]] = None,
+    title: str = "Business Model Canvas",
+    editable: bool = False,
+    variant: str = "bmc"
+) -> cl.CustomElement:
+    """
+    Create an interactive Business Model Canvas.
+
+    Args:
+        data: Dict with section arrays:
+            - keyPartners: []
+            - keyActivities: []
+            - keyResources: []
+            - valuePropositions: []
+            - customerRelationships: []
+            - channels: []
+            - customerSegments: []
+            - costStructure: []
+            - revenueStreams: []
+        title: Canvas title
+        editable: Enable in-canvas editing
+        variant: 'bmc' (Business Model Canvas) or 'lean' (Lean Canvas)
+
+    Returns:
+        cl.CustomElement (BusinessModelCanvas)
+
+    Example:
+        await create_business_model_canvas(
+            title="Mindrian Business Model",
+            data={
+                "valuePropositions": ["AI coaching for innovation", "PWS methodology"],
+                "customerSegments": ["Business students", "Entrepreneurs"],
+                "channels": ["Web app", "University partnerships"],
+                "revenueStreams": ["Subscription", "Enterprise licenses"]
+            },
+            editable=True
+        )
+    """
+    return cl.CustomElement(
+        name="BusinessModelCanvas",
+        props={
+            "title": title,
+            "data": data or {},
+            "editable": editable,
+            "variant": variant
+        },
+        display="inline"
+    )
+
+
+async def create_lean_canvas(
+    data: Dict[str, List[str]] = None,
+    title: str = "Lean Canvas",
+    editable: bool = False
+) -> cl.CustomElement:
+    """
+    Create a Lean Canvas (startup-focused variant).
+
+    Args:
+        data: Dict with sections:
+            - problem: []
+            - solution: []
+            - keyMetrics: []
+            - uniqueValue: []
+            - unfairAdvantage: []
+            - channels: []
+            - customerSegments: []
+            - costStructure: []
+            - revenueStreams: []
+
+    Example:
+        await create_lean_canvas(
+            title="Startup Validation",
+            data={
+                "problem": ["Manual coaching doesn't scale", "Students lack real-world exposure"],
+                "solution": ["AI-powered PWS coaching", "Real case study integration"],
+                "uniqueValue": ["Learn innovation methodology with AI guidance"]
+            }
+        )
+    """
+    return await create_business_model_canvas(
+        data=data,
+        title=title,
+        editable=editable,
+        variant="lean"
+    )
+
+
+# =============================================================================
+# AI PROMPT GENERATORS
+# =============================================================================
+
+def generate_quadrant_prompt(topic: str, x_axis: str, y_axis: str, context: str = "") -> str:
+    """
+    Generate a prompt for AI to create quadrant chart data.
+    """
+    return f"""Analyze this topic and place items on a 2x2 matrix.
+
+Topic: {topic}
+X-Axis: {x_axis} (0-100 scale)
+Y-Axis: {y_axis} (0-100 scale)
+Context: {context}
+
+Return a JSON object:
+{{
+  "items": [
+    {{"name": "Item 1", "x": 30, "y": 80, "description": "Why it's positioned here"}},
+    {{"name": "Item 2", "x": 70, "y": 40, "description": "Why it's positioned here"}}
+  ]
+}}
+
+Create 4-8 items with thoughtful positioning.
+Return ONLY valid JSON."""
+
+
+def generate_canvas_prompt(business_idea: str, context: str = "") -> str:
+    """
+    Generate a prompt for AI to create Business Model Canvas data.
+    """
+    return f"""Create a Business Model Canvas for this idea.
+
+Business Idea: {business_idea}
+Context: {context}
+
+Return a JSON object:
+{{
+  "valuePropositions": ["value 1", "value 2"],
+  "customerSegments": ["segment 1", "segment 2"],
+  "channels": ["channel 1"],
+  "customerRelationships": ["relationship type"],
+  "revenueStreams": ["revenue 1"],
+  "keyResources": ["resource 1"],
+  "keyActivities": ["activity 1"],
+  "keyPartners": ["partner 1"],
+  "costStructure": ["cost 1"]
+}}
+
+Fill each section with 1-4 concise items.
+Return ONLY valid JSON."""
+
+
+# =============================================================================
 # EXPORTS
 # =============================================================================
 
@@ -521,7 +804,18 @@ __all__ = [
     "create_assumption_map",
     "create_framework_flow",
 
+    # 2x2 Quadrant Charts
+    "create_quadrant_chart",
+    "create_risk_matrix",
+    "create_priority_matrix",
+
+    # Business Canvases
+    "create_business_model_canvas",
+    "create_lean_canvas",
+
     # AI prompt generation
     "generate_mindmap_prompt",
     "generate_flowchart_prompt",
+    "generate_quadrant_prompt",
+    "generate_canvas_prompt",
 ]
