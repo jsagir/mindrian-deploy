@@ -155,8 +155,9 @@ def lazy_concept_lookup(query: str, limit: int = 5) -> List[Dict]:
         t0 = time.monotonic()
         with driver.session() as session:
             # Try fulltext index (lazy_concept_search)
+            # Note: Use 'q' not 'query' to avoid Neo4j driver 5.x parameter conflict
             result = session.run("""
-                CALL db.index.fulltext.queryNodes('lazy_concept_search', $query)
+                CALL db.index.fulltext.queryNodes('lazy_concept_search', $q)
                 YIELD node, score
                 WHERE score > 0.5
                 RETURN node.name AS name,
@@ -166,7 +167,7 @@ def lazy_concept_lookup(query: str, limit: int = 5) -> List[Dict]:
                        score
                 ORDER BY score DESC
                 LIMIT $limit
-            """, query=query, limit=limit)
+            """, q=query, limit=limit)
 
             concepts = [dict(r) for r in result]
 
@@ -174,7 +175,7 @@ def lazy_concept_lookup(query: str, limit: int = 5) -> List[Dict]:
                 # Fallback: CONTAINS match
                 result = session.run("""
                     MATCH (c:LazyGraphConcept)
-                    WHERE toLower(c.name) CONTAINS toLower($query)
+                    WHERE toLower(c.name) CONTAINS toLower($q)
                     RETURN c.name AS name,
                            c.community_id AS community,
                            c.chunk_count AS freq,
@@ -182,7 +183,7 @@ def lazy_concept_lookup(query: str, limit: int = 5) -> List[Dict]:
                            1.0 AS score
                     ORDER BY c.chunk_count DESC
                     LIMIT $limit
-                """, query=query, limit=limit)
+                """, q=query, limit=limit)
                 concepts = [dict(r) for r in result]
 
         elapsed = time.monotonic() - t0
