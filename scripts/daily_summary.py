@@ -59,7 +59,7 @@ def get_opportunities_summary(client, date_str: str = None, last_24h: bool = Fal
     """
     Get opportunity bank summary from Supabase.
 
-    Returns counts, types breakdown, and recent opportunities.
+    Returns counts, types breakdown, and recent opportunities WITH CONTENT.
 
     Args:
         client: Supabase client
@@ -72,38 +72,54 @@ def get_opportunities_summary(client, date_str: str = None, last_24h: bool = Fal
     if not date_str:
         date_str = datetime.utcnow().strftime("%Y-%m-%d")
 
+    yesterday_str = (datetime.utcnow() - timedelta(days=1)).strftime("%Y-%m-%d")
+
     try:
-        # List files in opportunities folder
-        opportunities = []
+        # Separate counts for today and yesterday
+        today_opps = []
+        yesterday_opps = []
 
-        # Dates to query
-        dates_to_query = [date_str]
-        if last_24h:
-            yesterday = (datetime.utcnow() - timedelta(days=1)).strftime("%Y-%m-%d")
-            dates_to_query = [date_str, yesterday]
-
-        # Get opportunities for the target date(s)
-        for query_date in dates_to_query:
-            try:
-                date_files = client.storage.from_(SUPABASE_BUCKET).list(f"opportunities/{query_date}")
-                for f in date_files:
-                    if f.get('name', '').endswith('.json'):
-                        opportunities.append({
-                            "date": query_date,
-                            "file": f.get('name'),
-                            "created": f.get('created_at', '')
-                        })
-            except Exception:
-                pass
-
-        # Get day before for comparison
-        compare_date = (datetime.utcnow() - timedelta(days=2 if last_24h else 1)).strftime("%Y-%m-%d")
-        compare_count = 0
+        # Get today's opportunities with content
         try:
-            compare_files = client.storage.from_(SUPABASE_BUCKET).list(f"opportunities/{compare_date}")
-            compare_count = len([f for f in compare_files if f.get('name', '').endswith('.json')])
+            today_files = client.storage.from_(SUPABASE_BUCKET).list(f"opportunities/{date_str}")
+            for f in today_files:
+                if f.get('name', '').endswith('.json'):
+                    opp_data = {"date": date_str, "file": f.get('name'), "created": f.get('created_at', '')}
+                    # Read full content
+                    try:
+                        content = client.storage.from_(SUPABASE_BUCKET).download(
+                            f"opportunities/{date_str}/{f['name']}"
+                        )
+                        opp_data["content"] = json.loads(content.decode('utf-8'))
+                    except Exception:
+                        opp_data["content"] = None
+                    today_opps.append(opp_data)
         except Exception:
             pass
+
+        # Get yesterday's opportunities with content
+        try:
+            yesterday_files = client.storage.from_(SUPABASE_BUCKET).list(f"opportunities/{yesterday_str}")
+            for f in yesterday_files:
+                if f.get('name', '').endswith('.json'):
+                    opp_data = {"date": yesterday_str, "file": f.get('name'), "created": f.get('created_at', '')}
+                    # Read full content
+                    try:
+                        content = client.storage.from_(SUPABASE_BUCKET).download(
+                            f"opportunities/{yesterday_str}/{f['name']}"
+                        )
+                        opp_data["content"] = json.loads(content.decode('utf-8'))
+                    except Exception:
+                        opp_data["content"] = None
+                    yesterday_opps.append(opp_data)
+        except Exception:
+            pass
+
+        # Combine for period if last_24h
+        if last_24h:
+            period_opps = today_opps + yesterday_opps
+        else:
+            period_opps = today_opps
 
         # Try to get total count (list all date folders)
         total_count = 0
@@ -114,18 +130,21 @@ def get_opportunities_summary(client, date_str: str = None, last_24h: bool = Fal
                     folder_files = client.storage.from_(SUPABASE_BUCKET).list(f"opportunities/{folder['name']}")
                     total_count += len([f for f in folder_files if f.get('name', '').endswith('.json')])
         except Exception:
-            total_count = len(opportunities)
+            total_count = len(period_opps)
 
         period_label = "last 24h" if last_24h else "today"
         return {
             "date": date_str,
+            "yesterday_date": yesterday_str,
             "period": period_label,
-            "period_count": len(opportunities),
-            "today_count": len(opportunities),  # backward compat
-            "yesterday_count": compare_count,
+            "period_count": len(period_opps),
+            "today_count": len(today_opps),
+            "yesterday_count": len(yesterday_opps),
             "total_count": total_count,
-            "change": len(opportunities) - compare_count,
-            "recent": opportunities[:10]
+            "change": len(today_opps) - len(yesterday_opps),
+            "today_opportunities": today_opps,
+            "yesterday_opportunities": yesterday_opps,
+            "recent": period_opps[:10]
         }
 
     except Exception as e:
@@ -247,6 +266,52 @@ def get_session_summary(client, last_24h: bool = False) -> Dict[str, Any]:
     }
 
 
+def build_opportunities_html(opportunities_list: List[Dict], label: str = "Today") -> str:
+    """Build HTML for a list of opportunities with their content."""
+    if not opportunities_list:
+        return f'<p style="color: #6b7280; font-style: italic;">No opportunities discovered {label.lower()}</p>'
+
+    html_parts = []
+    for i, opp in enumerate(opportunities_list, 1):
+        content = opp.get('content') or {}
+        title = content.get('title', 'Untitled Opportunity')
+        description = content.get('description', 'No description available')
+        opp_type = content.get('opportunity_type', 'unknown').replace('_', ' ').title()
+        domain = content.get('domain', '')
+        confidence = content.get('confidence_score', 0)
+        confidence_pct = f"{confidence * 100:.0f}%" if confidence else "N/A"
+
+        # Truncate description if too long
+        if len(description) > 200:
+            description = description[:197] + "..."
+
+        # Type badge color
+        type_colors = {
+            'problem_worth_solving': '#6366f1',
+            'unmet_need': '#ec4899',
+            'market_gap': '#f59e0b',
+            'technology_opportunity': '#10b981',
+            'process_improvement': '#3b82f6',
+            'emerging_trend': '#8b5cf6',
+            'validated_insight': '#22c55e'
+        }
+        type_color = type_colors.get(content.get('opportunity_type', ''), '#6b7280')
+
+        html_parts.append(f'''
+        <div style="background: #f9fafb; border-left: 4px solid {type_color}; padding: 12px; margin-bottom: 12px; border-radius: 0 8px 8px 0;">
+            <div style="font-weight: 600; color: #111827; margin-bottom: 4px;">{i}. {title}</div>
+            <div style="font-size: 13px; color: #4b5563; margin-bottom: 8px;">{description}</div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; font-size: 11px;">
+                <span style="background: {type_color}; color: white; padding: 2px 8px; border-radius: 4px;">{opp_type}</span>
+                {f'<span style="color: #6b7280;">📍 {domain}</span>' if domain else ''}
+                <span style="color: #6b7280;">🎯 {confidence_pct} confidence</span>
+            </div>
+        </div>
+        ''')
+
+    return ''.join(html_parts)
+
+
 def generate_html_report(
     opportunities: Dict,
     feedback: Dict,
@@ -284,6 +349,10 @@ def generate_html_report(
 
     if not comments_html:
         comments_html = '<li style="color: #6b7280;">No negative comments today</li>'
+
+    # Build opportunities content sections
+    today_opps_html = build_opportunities_html(opportunities.get('today_opportunities', []), "Today")
+    yesterday_opps_html = build_opportunities_html(opportunities.get('yesterday_opportunities', []), "Yesterday")
 
     html = f"""
 <!DOCTYPE html>
@@ -345,6 +414,17 @@ def generate_html_report(
                 </tr>
             </table>
         </div>
+
+        <!-- Today's Opportunities Details -->
+        <div style="margin-bottom: 24px;">
+            <h2 style="font-size: 18px; color: #111827; margin: 0 0 12px 0; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb;">
+                🆕 Today's Opportunities
+            </h2>
+            {today_opps_html}
+        </div>
+
+        <!-- Yesterday's Opportunities Details (if any) -->
+        {'<div style="margin-bottom: 24px;"><h2 style="font-size: 18px; color: #111827; margin: 0 0 12px 0; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb;">📋 Yesterday Opportunities</h2>' + yesterday_opps_html + '</div>' if opportunities.get('yesterday_opportunities') else ''}
 
         <!-- User Engagement -->
         <div style="margin-bottom: 24px;">
@@ -419,6 +499,50 @@ def generate_text_report(
         f"Yesterday: {opportunities.get('yesterday_count', 0)}",
         f"Change: {'+' if opportunities.get('change', 0) > 0 else ''}{opportunities.get('change', 0)}",
         "",
+    ]
+
+    # Add today's opportunities details
+    today_opps = opportunities.get('today_opportunities', [])
+    if today_opps:
+        lines.extend([
+            "TODAY'S OPPORTUNITIES",
+            "-" * 30,
+        ])
+        for i, opp in enumerate(today_opps, 1):
+            content = opp.get('content') or {}
+            title = content.get('title', 'Untitled')
+            description = content.get('description', '')[:150]
+            opp_type = content.get('opportunity_type', 'unknown').replace('_', ' ').title()
+            domain = content.get('domain', '')
+            confidence = content.get('confidence_score', 0)
+            lines.append(f"  {i}. {title}")
+            lines.append(f"     Type: {opp_type} | Domain: {domain or 'N/A'} | Confidence: {confidence*100:.0f}%")
+            if description:
+                lines.append(f"     {description}...")
+            lines.append("")
+    else:
+        lines.extend([
+            "TODAY'S OPPORTUNITIES",
+            "-" * 30,
+            "  No opportunities discovered today",
+            "",
+        ])
+
+    # Add yesterday's opportunities details
+    yesterday_opps = opportunities.get('yesterday_opportunities', [])
+    if yesterday_opps:
+        lines.extend([
+            "YESTERDAY'S OPPORTUNITIES",
+            "-" * 30,
+        ])
+        for i, opp in enumerate(yesterday_opps, 1):
+            content = opp.get('content') or {}
+            title = content.get('title', 'Untitled')
+            opp_type = content.get('opportunity_type', 'unknown').replace('_', ' ').title()
+            lines.append(f"  {i}. {title} ({opp_type})")
+        lines.append("")
+
+    lines.extend([
         "USER ENGAGEMENT",
         "-" * 30,
         f"Total Feedback: {feedback.get('today_count', 0)}",
@@ -427,7 +551,7 @@ def generate_text_report(
         f"Satisfaction Rate: {feedback.get('satisfaction_rate', 0)}%",
         "",
         "By Bot:",
-    ]
+    ])
 
     for bot, data in feedback.get('by_bot', {}).items():
         total = data['positive'] + data['negative']
