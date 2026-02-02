@@ -220,6 +220,71 @@ def _analyze_signals_for_entry_point(signals: Dict, message: str) -> Dict[str, A
     content_type = signals.get("content_type", "general")
     quality = signals.get("quality_signals", {})
     counts = signals.get("counts", {})
+    msg_lower = message.lower()
+
+    # Keyword hints for short messages (boost detection)
+    BRAINSTORM_KEYWORDS = ["explore", "trend", "brainstorm", "future", "what if", "curious", "wondering", "possibilities"]
+    DOCUMENT_KEYWORDS = ["review", "pitch deck", "document", "analyze", "feedback", "deck", "pdf", "uploaded", "attached"]
+    VENTURE_KEYWORDS = ["startup", "venture", "build", "company", "business", "launch", "market", "customers", "idea", "product", "solve", "problem worth"]
+
+    brainstorm_score = sum(1 for kw in BRAINSTORM_KEYWORDS if kw in msg_lower)
+    document_score = sum(1 for kw in DOCUMENT_KEYWORDS if kw in msg_lower)
+    venture_score = sum(1 for kw in VENTURE_KEYWORDS if kw in msg_lower)
+
+    # If keywords strongly indicate an entry point, use that
+    max_score = max(brainstorm_score, document_score, venture_score)
+    if max_score >= 2:
+        if brainstorm_score == max_score:
+            return {
+                "entry_point": "brainstorming",
+                "confidence": 0.7 + (brainstorm_score * 0.05),
+                "mode": "sandbox",
+                "signals": signals,
+                "should_show_selector": False
+            }
+        elif document_score == max_score:
+            return {
+                "entry_point": "document_review",
+                "confidence": 0.7 + (document_score * 0.05),
+                "mode": "workshop",
+                "signals": signals,
+                "should_show_selector": False
+            }
+        elif venture_score == max_score:
+            return {
+                "entry_point": "build_venture",
+                "confidence": 0.7 + (venture_score * 0.05),
+                "mode": "sandbox",
+                "signals": signals,
+                "should_show_selector": False
+            }
+
+    # Single keyword with moderate confidence
+    if max_score == 1:
+        if brainstorm_score == 1:
+            return {
+                "entry_point": "brainstorming",
+                "confidence": 0.55,
+                "mode": "sandbox",
+                "signals": signals,
+                "should_show_selector": True  # Still show selector for confirmation
+            }
+        elif document_score == 1:
+            return {
+                "entry_point": "document_review",
+                "confidence": 0.55,
+                "mode": "workshop",
+                "signals": signals,
+                "should_show_selector": True
+            }
+        elif venture_score == 1:
+            return {
+                "entry_point": "build_venture",
+                "confidence": 0.55,
+                "mode": "sandbox",
+                "signals": signals,
+                "should_show_selector": True
+            }
 
     # Document Review: Has structure, PWS elements, data
     if quality.get("has_pws_elements") and quality.get("has_data"):
