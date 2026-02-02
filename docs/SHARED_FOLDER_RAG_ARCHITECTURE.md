@@ -162,7 +162,32 @@ This architecture solves collaboration without:
 
 ---
 
+## Ideas for Further Research
+
+1. **Google Drive API Integration** - How to connect a Drive folder to File Search automatically? Watch for file changes and trigger re-indexing.
+
+2. **Multi-Folder Federation** - Can Mindrian query across multiple team folders at once? "Imagine all the folders are somehow connected, and all the dumping you can talk with all the folders at once."
+
+3. **Permission Inheritance** - If user has access to Drive folder, do they automatically get RAG access? How to handle folder sharing permissions?
+
+4. **Incremental Indexing** - When a file is added/changed, how to index only the delta rather than re-indexing the whole folder?
+
+5. **Meeting Transcription Pipeline** - Google Meet → Auto-record → Save to folder → Auto-transcribe → Index. What's the latency? Cost?
+
+6. **Conflict Resolution** - If two users dump contradictory information, how does Mindrian reconcile? Should it flag conflicts?
+
+7. **Context Routing** - When user asks a question, how does system decide to query private RAG vs team RAG vs both?
+
+8. **Folder-as-Project** - Can each project have its own folder/RAG? How to switch between project contexts?
+
+9. **Export Back to Folder** - When Mindrian generates a synthesis, should it auto-dump back to the shared folder for others?
+
+10. **Version History** - Drive has version history. Can RAG query historical versions? "What did the team think about X last month?"
+
+---
+
 ## Related Documents
 - `GOOGLE_ECOSYSTEM_STRATEGY.md` - Full Google integration plan
 - `MEETING_INSIGHTS_FEB_2025.md` - Complete meeting notes
 - `PRODUCT_ROADMAP.md` - Implementation timeline
+- `transcripts/TEAM_MEETING_FEB_2025_FULL.md` - Full meeting transcript
