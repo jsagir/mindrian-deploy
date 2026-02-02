@@ -21,6 +21,29 @@ from typing import Optional, Dict, Any
 
 load_dotenv()
 
+# === Triple-Mode Architecture ===
+# Entry point routing, mode management, and grounding logic (v2 - LangExtract powered)
+try:
+    from protocols.triple_mode import (
+        init_triple_mode_session,
+        auto_detect_entry_point,
+        extract_and_update_progress,
+        check_semantic_grounding,
+        handle_entry_point_selection,
+        handle_mode_or_stage,
+        handle_grounding_response,
+        show_entry_point_selector,
+        show_exploration_progress_sidebar,
+        show_grounding_prompt,
+        get_entry_point_buttons,
+        get_coaching_hint_for_message,
+        restore_triple_mode_state,
+    )
+    TRIPLE_MODE_ENABLED = True
+except ImportError as e:
+    print(f"Triple-mode not available: {e}")
+    TRIPLE_MODE_ENABLED = False
+
 # === Cron API Endpoint via Middleware ===
 # Using middleware to intercept /api/daily-summary BEFORE Chainlit's catch-all routing
 
@@ -2962,6 +2985,10 @@ async def start():
     if bot.get("has_phases"):
         await setup_workshop_sidebar(chat_profile or "lawrence")
 
+    # === Triple-Mode: Initialize session variables ===
+    if TRIPLE_MODE_ENABLED:
+        init_triple_mode_session()
+
     # Send welcome message with context info if switching
     if is_bot_switch:
         previous_bot_name = BOTS.get(previous_bot, {}).get("name", previous_bot)
@@ -3001,6 +3028,17 @@ async def on_chat_resume(thread: dict):
     cl.user_session.set("bot", bot)
     cl.user_session.set("bot_id", chat_profile)
     cl.user_session.set("chat_profile", chat_profile)
+
+    # === Triple-Mode: Restore state from metadata ===
+    if TRIPLE_MODE_ENABLED:
+        restored = restore_triple_mode_state(metadata)
+        if restored:
+            entry_point = cl.user_session.get("entry_point")
+            print(f"[TRIPLE_MODE] Restored state: entry_point={entry_point}")
+
+            # Re-show exploration sidebar if in brainstorming mode
+            if entry_point == "brainstorming":
+                await show_exploration_progress_sidebar()
 
     # Initialize stop event
     session_id = cl.user_session.get("id")
@@ -3933,6 +3971,45 @@ async def on_switch_to_validation(action: cl.Action):
 @cl.action_callback("switch_to_beautiful_question")
 async def on_switch_to_beautiful_question(action: cl.Action):
     await handle_agent_switch("beautiful_question")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Triple-Mode Entry Point & Mode Callbacks
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# TRIPLE-MODE CONSOLIDATED CALLBACKS (3 instead of 7)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@cl.action_callback("select_entry_point")
+async def on_select_entry_point(action: cl.Action):
+    """
+    CONSOLIDATED: Handle all entry point selections.
+    Payload: { entry_point: "brainstorming" | "document_review" | "build_venture" }
+    """
+    if TRIPLE_MODE_ENABLED:
+        entry_point = action.payload.get("entry_point", "brainstorming")
+        await handle_entry_point_selection(entry_point)
+
+
+@cl.action_callback("mode_or_stage")
+async def on_mode_or_stage(action: cl.Action):
+    """
+    CONSOLIDATED: Handle mode toggle AND venture stage selection.
+    Payload: { mode: "sandbox" | "workshop" } OR { stage: "pre_opportunity" | ... }
+    """
+    if TRIPLE_MODE_ENABLED:
+        await handle_mode_or_stage(action.payload)
+
+
+@cl.action_callback("grounding_response")
+async def on_grounding_response(action: cl.Action):
+    """
+    CONSOLIDATED: Handle all grounding prompt responses.
+    Payload: { action: "acknowledge" | "skip" | "bank", reason: str }
+    """
+    if TRIPLE_MODE_ENABLED:
+        await handle_grounding_response(action.payload)
 
 
 async def handle_agent_switch(new_agent_id: str):
@@ -7143,6 +7220,27 @@ Your insights help us improve Mindrian!"""
                 # Fall through to regular processing if image generation failed
                 step.output = f"Image generation failed, falling back to text response"
 
+    # === Triple-Mode: Auto-detect entry point on first message ===
+    if TRIPLE_MODE_ENABLED:
+        entry_point = cl.user_session.get("entry_point")
+        if entry_point is None:
+            # First real message - auto-detect entry point
+            has_attachment = bool(message.elements)
+            detection = await auto_detect_entry_point(message.content, has_attachment)
+
+            if detection["should_show_selector"]:
+                # Low confidence - show selector and wait
+                await show_entry_point_selector()
+                return  # Don't process message yet
+
+            # High confidence - set entry point and continue
+            cl.user_session.set("entry_point", detection["entry_point"])
+            cl.user_session.set("mode", detection["mode"])
+
+            # Show sidebar for brainstorming
+            if detection["entry_point"] == "brainstorming":
+                await show_exploration_progress_sidebar()
+
     bot = cl.user_session.get("bot", BOTS["lawrence"])
     history = cl.user_session.get("history", [])
     current_phase = cl.user_session.get("current_phase", 0)
@@ -7986,6 +8084,19 @@ The user expects you to understand the context and add your specialized value.
         history.append({"role": "user", "content": message.content})
         history.append({"role": "model", "content": full_response})
         cl.user_session.set("history", history)
+
+        # === Triple-Mode: Extract topics and check semantic grounding ===
+        if TRIPLE_MODE_ENABLED:
+            entry_point = cl.user_session.get("entry_point")
+
+            # Extract topics and update progress (uses LangExtract)
+            signals = await extract_and_update_progress(message.content)
+
+            # Check for semantic grounding (only in brainstorming)
+            if entry_point == "brainstorming" and signals:
+                grounding_reason = check_semantic_grounding(signals)
+                if grounding_reason:
+                    await show_grounding_prompt(grounding_reason)
 
         # Auto-detect phase progression from LLM response for workshop bots
         if phases and bot.get("has_phases") and current_phase < len(phases) - 1:

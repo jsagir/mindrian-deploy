@@ -3,7 +3,45 @@ Protocols Package - Agent Communication Standards
 
 A2A Protocol: Agent-to-agent handoff via structured Markdown files
 Context Journal: Living document that evolves with conversation
+Agent Registry: Centralized agent registration with capabilities and routing
+Triple Mode: Entry point detection, semantic grounding, and exploration tracking
 """
+
+from .agent_registry import (
+    AgentRole,
+    AgentCapability,
+    AgentConfig,
+    register_agent,
+    get_agent_config,
+    get_agents_for_entry_point,
+    get_agents_for_venture_stage,
+    get_agents_by_role,
+    get_agents_with_capability,
+    can_agent_call,
+    get_default_capabilities,
+    create_agent_with_defaults,
+    AGENT_REGISTRY,
+)
+
+from .triple_mode import (
+    init_triple_mode_session,
+    auto_detect_entry_point,
+    extract_and_update_progress,
+    check_semantic_grounding,
+    handle_entry_point_selection,
+    handle_mode_or_stage,
+    handle_grounding_response,
+    show_entry_point_selector,
+    show_exploration_progress_sidebar,
+    show_grounding_prompt,
+    get_entry_point_buttons,
+    get_coaching_hint_for_message,
+    get_triple_mode_state,
+    restore_triple_mode_state,
+    persist_triple_mode_state,
+    TRIPLE_MODE_ENABLED,
+    LANGEXTRACT_ENABLED,
+)
 
 from .a2a_protocol import (
     A2AHandoff,
@@ -34,6 +72,38 @@ from .context_journal import (
 )
 
 __all__ = [
+    # Agent Registry
+    'AgentRole',
+    'AgentCapability',
+    'AgentConfig',
+    'register_agent',
+    'get_agent_config',
+    'get_agents_for_entry_point',
+    'get_agents_for_venture_stage',
+    'get_agents_by_role',
+    'get_agents_with_capability',
+    'can_agent_call',
+    'get_default_capabilities',
+    'create_agent_with_defaults',
+    'AGENT_REGISTRY',
+    # Triple Mode
+    'init_triple_mode_session',
+    'auto_detect_entry_point',
+    'extract_and_update_progress',
+    'check_semantic_grounding',
+    'handle_entry_point_selection',
+    'handle_mode_or_stage',
+    'handle_grounding_response',
+    'show_entry_point_selector',
+    'show_exploration_progress_sidebar',
+    'show_grounding_prompt',
+    'get_entry_point_buttons',
+    'get_coaching_hint_for_message',
+    'get_triple_mode_state',
+    'restore_triple_mode_state',
+    'persist_triple_mode_state',
+    'TRIPLE_MODE_ENABLED',
+    'LANGEXTRACT_ENABLED',
     # A2A Protocol
     'A2AHandoff',
     'HandoffType',
