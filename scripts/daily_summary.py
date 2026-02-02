@@ -65,6 +65,7 @@ def get_opportunities_summary(client, date_str: str = None, last_24h: bool = Fal
     Get opportunity bank summary from Supabase.
 
     Returns counts, types breakdown, and recent opportunities WITH CONTENT.
+    Tries Supabase table first (opportunity_bank), falls back to JSON storage.
 
     Args:
         client: Supabase client
@@ -79,63 +80,152 @@ def get_opportunities_summary(client, date_str: str = None, last_24h: bool = Fal
 
     yesterday_str = (datetime.utcnow() - timedelta(days=1)).strftime("%Y-%m-%d")
 
+    # Calculate date boundaries
+    today_start = datetime.strptime(date_str, "%Y-%m-%d")
+    today_end = today_start + timedelta(days=1)
+    yesterday_start = today_start - timedelta(days=1)
+
     try:
-        # Separate counts for today and yesterday
+        # Try Supabase table first (opportunity_bank)
+        table_available = False
         today_opps = []
         yesterday_opps = []
+        total_count = 0
 
-        # Get today's opportunities with content
         try:
-            today_files = client.storage.from_(SUPABASE_BUCKET).list(f"opportunities/{date_str}")
-            for f in today_files:
-                if f.get('name', '').endswith('.json'):
-                    opp_data = {"date": date_str, "file": f.get('name'), "created": f.get('created_at', '')}
-                    # Read full content
-                    try:
-                        content = client.storage.from_(SUPABASE_BUCKET).download(
-                            f"opportunities/{date_str}/{f['name']}"
-                        )
-                        opp_data["content"] = json.loads(content.decode('utf-8'))
-                    except Exception:
-                        opp_data["content"] = None
+            # Query today's opportunities from table
+            result = client.table("opportunity_bank").select("*").gte(
+                "created_at", today_start.isoformat()
+            ).lt("created_at", today_end.isoformat()).order(
+                "created_at", desc=True
+            ).execute()
+
+            if result.data:
+                table_available = True
+                for row in result.data:
+                    # Convert table row to expected format with PWS fields
+                    opp_data = {
+                        "date": date_str,
+                        "file": row.get("id"),
+                        "created": row.get("created_at", ""),
+                        "content": {
+                            "title": row.get("name"),
+                            "name": row.get("name"),
+                            "description": row.get("description"),
+                            "problem": row.get("problem"),
+                            "value_potential": row.get("value_potential"),
+                            "solution_direction": row.get("solution_direction"),
+                            "job_to_be_done": row.get("job_to_be_done"),
+                            "opportunity_type": row.get("opportunity_type"),
+                            "domain": row.get("domain"),
+                            "confidence_score": row.get("extraction_confidence", 0.5),
+                            "extraction_confidence": row.get("extraction_confidence", 0.5),
+                            "created_by": row.get("created_by"),
+                            "created_by_type": row.get("created_by_type"),
+                            "source_snippet": row.get("source_snippet"),
+                            "source_bot": row.get("source_bot"),
+                            "tags": row.get("tags", []),
+                        }
+                    }
                     today_opps.append(opp_data)
-        except Exception:
-            pass
 
-        # Get yesterday's opportunities with content
-        try:
-            yesterday_files = client.storage.from_(SUPABASE_BUCKET).list(f"opportunities/{yesterday_str}")
-            for f in yesterday_files:
-                if f.get('name', '').endswith('.json'):
-                    opp_data = {"date": yesterday_str, "file": f.get('name'), "created": f.get('created_at', '')}
-                    # Read full content
-                    try:
-                        content = client.storage.from_(SUPABASE_BUCKET).download(
-                            f"opportunities/{yesterday_str}/{f['name']}"
-                        )
-                        opp_data["content"] = json.loads(content.decode('utf-8'))
-                    except Exception:
-                        opp_data["content"] = None
+            # Query yesterday's opportunities from table
+            result = client.table("opportunity_bank").select("*").gte(
+                "created_at", yesterday_start.isoformat()
+            ).lt("created_at", today_start.isoformat()).order(
+                "created_at", desc=True
+            ).execute()
+
+            if result.data:
+                for row in result.data:
+                    opp_data = {
+                        "date": yesterday_str,
+                        "file": row.get("id"),
+                        "created": row.get("created_at", ""),
+                        "content": {
+                            "title": row.get("name"),
+                            "name": row.get("name"),
+                            "description": row.get("description"),
+                            "problem": row.get("problem"),
+                            "value_potential": row.get("value_potential"),
+                            "solution_direction": row.get("solution_direction"),
+                            "job_to_be_done": row.get("job_to_be_done"),
+                            "opportunity_type": row.get("opportunity_type"),
+                            "domain": row.get("domain"),
+                            "confidence_score": row.get("extraction_confidence", 0.5),
+                            "extraction_confidence": row.get("extraction_confidence", 0.5),
+                            "created_by": row.get("created_by"),
+                            "created_by_type": row.get("created_by_type"),
+                            "source_snippet": row.get("source_snippet"),
+                            "source_bot": row.get("source_bot"),
+                            "tags": row.get("tags", []),
+                        }
+                    }
                     yesterday_opps.append(opp_data)
-        except Exception:
-            pass
+
+            # Get total count from table
+            count_result = client.table("opportunity_bank").select("id", count="exact").execute()
+            if count_result.count is not None:
+                total_count = count_result.count
+
+        except Exception as table_error:
+            if "does not exist" in str(table_error):
+                table_available = False
+            else:
+                log_error(f"Table query error: {table_error}")
+
+        # Fallback to JSON storage if table not available or empty
+        if not table_available or (len(today_opps) == 0 and len(yesterday_opps) == 0):
+            # Get today's opportunities from JSON files
+            try:
+                today_files = client.storage.from_(SUPABASE_BUCKET).list(f"opportunities/{date_str}")
+                for f in today_files:
+                    if f.get('name', '').endswith('.json'):
+                        opp_data = {"date": date_str, "file": f.get('name'), "created": f.get('created_at', '')}
+                        try:
+                            content = client.storage.from_(SUPABASE_BUCKET).download(
+                                f"opportunities/{date_str}/{f['name']}"
+                            )
+                            opp_data["content"] = json.loads(content.decode('utf-8'))
+                        except Exception:
+                            opp_data["content"] = None
+                        today_opps.append(opp_data)
+            except Exception:
+                pass
+
+            # Get yesterday's opportunities from JSON files
+            try:
+                yesterday_files = client.storage.from_(SUPABASE_BUCKET).list(f"opportunities/{yesterday_str}")
+                for f in yesterday_files:
+                    if f.get('name', '').endswith('.json'):
+                        opp_data = {"date": yesterday_str, "file": f.get('name'), "created": f.get('created_at', '')}
+                        try:
+                            content = client.storage.from_(SUPABASE_BUCKET).download(
+                                f"opportunities/{yesterday_str}/{f['name']}"
+                            )
+                            opp_data["content"] = json.loads(content.decode('utf-8'))
+                        except Exception:
+                            opp_data["content"] = None
+                        yesterday_opps.append(opp_data)
+            except Exception:
+                pass
+
+            # Count total from JSON folders
+            if total_count == 0:
+                try:
+                    date_folders = client.storage.from_(SUPABASE_BUCKET).list("opportunities")
+                    for folder in date_folders:
+                        if folder.get('name') and not folder.get('name').endswith('.json'):
+                            folder_files = client.storage.from_(SUPABASE_BUCKET).list(f"opportunities/{folder['name']}")
+                            total_count += len([f for f in folder_files if f.get('name', '').endswith('.json')])
+                except Exception:
+                    total_count = len(today_opps) + len(yesterday_opps)
 
         # Combine for period if last_24h
         if last_24h:
             period_opps = today_opps + yesterday_opps
         else:
             period_opps = today_opps
-
-        # Try to get total count (list all date folders)
-        total_count = 0
-        try:
-            date_folders = client.storage.from_(SUPABASE_BUCKET).list("opportunities")
-            for folder in date_folders:
-                if folder.get('name') and not folder.get('name').endswith('.json'):
-                    folder_files = client.storage.from_(SUPABASE_BUCKET).list(f"opportunities/{folder['name']}")
-                    total_count += len([f for f in folder_files if f.get('name', '').endswith('.json')])
-        except Exception:
-            total_count = len(period_opps)
 
         period_label = "last 24h" if last_24h else "today"
         return {
@@ -149,7 +239,8 @@ def get_opportunities_summary(client, date_str: str = None, last_24h: bool = Fal
             "change": len(today_opps) - len(yesterday_opps),
             "today_opportunities": today_opps,
             "yesterday_opportunities": yesterday_opps,
-            "recent": period_opps[:10]
+            "recent": period_opps[:10],
+            "source": "table" if table_available else "json"
         }
 
     except Exception as e:
@@ -272,23 +363,39 @@ def get_session_summary(client, last_24h: bool = False) -> Dict[str, Any]:
 
 
 def build_opportunities_html(opportunities_list: List[Dict], label: str = "Today") -> str:
-    """Build HTML for a list of opportunities with their content."""
+    """Build HTML for a list of opportunities with their content (PWS-compliant)."""
     if not opportunities_list:
         return f'<p style="color: #6b7280; font-style: italic;">No opportunities discovered {label.lower()}</p>'
 
     html_parts = []
     for i, opp in enumerate(opportunities_list, 1):
         content = opp.get('content') or {}
-        title = content.get('title', 'Untitled Opportunity')
+
+        # PWS fields (with backwards compat for title/name)
+        title = content.get('name', content.get('title', 'Untitled Opportunity'))
         description = content.get('description', 'No description available')
+        problem = content.get('problem', '')
+        value_potential = content.get('value_potential', 'medium')
+        solution_direction = content.get('solution_direction', '')
+        job_to_be_done = content.get('job_to_be_done', '')
         opp_type = content.get('opportunity_type', 'unknown').replace('_', ' ').title()
         domain = content.get('domain', '')
-        confidence = content.get('confidence_score', 0)
+        confidence = content.get('extraction_confidence', content.get('confidence_score', 0))
         confidence_pct = f"{confidence * 100:.0f}%" if confidence else "N/A"
 
-        # Truncate description if too long
+        # Provenance
+        created_by = content.get('created_by', '')
+        created_by_type = content.get('created_by_type', '')
+        source_snippet = content.get('source_snippet', '')
+        source_bot = content.get('source_bot', '')
+
+        # Truncate long fields
         if len(description) > 200:
             description = description[:197] + "..."
+        if problem and len(problem) > 150:
+            problem = problem[:147] + "..."
+        if source_snippet and len(source_snippet) > 100:
+            source_snippet = source_snippet[:97] + "..."
 
         # Type badge color
         type_colors = {
@@ -298,19 +405,59 @@ def build_opportunities_html(opportunities_list: List[Dict], label: str = "Today
             'technology_opportunity': '#10b981',
             'process_improvement': '#3b82f6',
             'emerging_trend': '#8b5cf6',
-            'validated_insight': '#22c55e'
+            'validated_insight': '#22c55e',
+            'innovation': '#6366f1',
+            'reverse_salient': '#dc2626',
+            'strategic': '#0891b2'
         }
         type_color = type_colors.get(content.get('opportunity_type', ''), '#6b7280')
+
+        # Value potential badge color
+        value_colors = {
+            'low': '#6b7280',
+            'medium': '#eab308',
+            'high': '#22c55e',
+            'transformative': '#6366f1'
+        }
+        value_color = value_colors.get(value_potential, '#6b7280')
+
+        # Build problem section if available
+        problem_html = f'''
+            <div style="font-size: 12px; color: #dc2626; margin-bottom: 6px; padding: 6px; background: #fef2f2; border-radius: 4px;">
+                <strong>🔍 Problem:</strong> {problem}
+            </div>
+        ''' if problem else ''
+
+        # Build source snippet if available
+        snippet_html = f'''
+            <div style="font-size: 11px; color: #6b7280; margin-top: 8px; padding: 6px; background: #f3f4f6; border-radius: 4px; font-style: italic;">
+                "{source_snippet}"
+            </div>
+        ''' if source_snippet else ''
+
+        # Build provenance line
+        provenance_parts = []
+        if created_by and created_by != 'system':
+            provenance_parts.append(f'👤 {created_by}')
+        if source_bot:
+            provenance_parts.append(f'🤖 {source_bot}')
+        provenance_html = f'<span style="color: #6b7280;">{" · ".join(provenance_parts)}</span>' if provenance_parts else ''
 
         html_parts.append(f'''
         <div style="background: #f9fafb; border-left: 4px solid {type_color}; padding: 12px; margin-bottom: 12px; border-radius: 0 8px 8px 0;">
             <div style="font-weight: 600; color: #111827; margin-bottom: 4px;">{i}. {title}</div>
             <div style="font-size: 13px; color: #4b5563; margin-bottom: 8px;">{description}</div>
-            <div style="display: flex; gap: 12px; flex-wrap: wrap; font-size: 11px;">
+            {problem_html}
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; font-size: 11px; margin-bottom: 6px;">
                 <span style="background: {type_color}; color: white; padding: 2px 8px; border-radius: 4px;">{opp_type}</span>
+                <span style="background: {value_color}; color: white; padding: 2px 8px; border-radius: 4px;">💎 {value_potential.title()}</span>
                 {f'<span style="color: #6b7280;">📍 {domain}</span>' if domain else ''}
-                <span style="color: #6b7280;">🎯 {confidence_pct} confidence</span>
+                <span style="color: #6b7280;">🎯 {confidence_pct}</span>
             </div>
+            <div style="font-size: 11px;">
+                {provenance_html}
+            </div>
+            {snippet_html}
         </div>
         ''')
 
@@ -506,7 +653,7 @@ def generate_text_report(
         "",
     ]
 
-    # Add today's opportunities details
+    # Add today's opportunities details (PWS-compliant)
     today_opps = opportunities.get('today_opportunities', [])
     if today_opps:
         lines.extend([
@@ -515,15 +662,26 @@ def generate_text_report(
         ])
         for i, opp in enumerate(today_opps, 1):
             content = opp.get('content') or {}
-            title = content.get('title', 'Untitled')
+            title = content.get('name', content.get('title', 'Untitled'))
             description = content.get('description', '')[:150]
+            problem = content.get('problem', '')[:100] if content.get('problem') else ''
+            value_potential = content.get('value_potential', 'medium')
             opp_type = content.get('opportunity_type', 'unknown').replace('_', ' ').title()
             domain = content.get('domain', '')
-            confidence = content.get('confidence_score', 0)
+            confidence = content.get('extraction_confidence', content.get('confidence_score', 0))
+            created_by = content.get('created_by', '')
+            source_snippet = content.get('source_snippet', '')[:80] if content.get('source_snippet') else ''
+
             lines.append(f"  {i}. {title}")
-            lines.append(f"     Type: {opp_type} | Domain: {domain or 'N/A'} | Confidence: {confidence*100:.0f}%")
+            lines.append(f"     Type: {opp_type} | Value: {value_potential.upper()} | Domain: {domain or 'N/A'} | Confidence: {confidence*100:.0f}%")
+            if problem:
+                lines.append(f"     Problem: {problem}...")
             if description:
                 lines.append(f"     {description}...")
+            if created_by and created_by != 'system':
+                lines.append(f"     Created by: {created_by}")
+            if source_snippet:
+                lines.append(f"     Excerpt: \"{source_snippet}...\"")
             lines.append("")
     else:
         lines.extend([
