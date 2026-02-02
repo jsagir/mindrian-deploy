@@ -1,6 +1,7 @@
 [project]
 # Whether to enable telemetry (default: true)
-enable_telemetry = true
+# Disabled to avoid network unreachable warnings
+enable_telemetry = false
 
 # List of environment variables to be provided by each user to use the app.
 user_env = []

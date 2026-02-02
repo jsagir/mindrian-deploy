@@ -9,16 +9,119 @@ import os
 import json
 import csv
 from datetime import datetime
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, BinaryIO, Union
 from pathlib import Path
 
 import chainlit as cl
 from chainlit.data.sql_alchemy import SQLAlchemyDataLayer
+from chainlit.data.base import BaseStorageClient
 
 # Supabase configuration
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
 SUPABASE_BUCKET = os.getenv("SUPABASE_BUCKET", "mindrian-files")
+
+
+class SupabaseBlobStorage(BaseStorageClient):
+    """
+    Blob storage client using Supabase Storage.
+    Implements Chainlit's BaseStorageClient interface for file attachments.
+    """
+
+    def __init__(self, url: str, key: str, bucket: str):
+        self.url = url
+        self.key = key
+        self.bucket = bucket
+        self._client = None
+
+    def _get_client(self):
+        """Lazy initialization of Supabase client."""
+        if self._client is None:
+            try:
+                from supabase import create_client
+                self._client = create_client(self.url, self.key)
+            except Exception as e:
+                print(f"⚠️ Supabase blob storage client error: {e}")
+        return self._client
+
+    async def upload_file(
+        self,
+        object_key: str,
+        data: Union[bytes, BinaryIO],
+        mime: str = "application/octet-stream",
+        overwrite: bool = False
+    ) -> str:
+        """Upload file to Supabase Storage."""
+        client = self._get_client()
+        if not client:
+            raise RuntimeError("Supabase client not available")
+
+        try:
+            # Ensure data is bytes
+            if hasattr(data, 'read'):
+                data = data.read()
+
+            # Upload file
+            file_options = {"content-type": mime}
+            if overwrite:
+                file_options["upsert"] = "true"
+
+            result = client.storage.from_(self.bucket).upload(
+                path=object_key,
+                file=data,
+                file_options=file_options
+            )
+
+            # Return public URL
+            return self.get_read_url(object_key) or object_key
+
+        except Exception as e:
+            if "Duplicate" in str(e) or "already exists" in str(e).lower():
+                # File exists, return its URL
+                return self.get_read_url(object_key) or object_key
+            raise
+
+    async def delete_file(self, object_key: str) -> bool:
+        """Delete file from Supabase Storage."""
+        client = self._get_client()
+        if not client:
+            return False
+
+        try:
+            client.storage.from_(self.bucket).remove([object_key])
+            return True
+        except Exception as e:
+            print(f"⚠️ Error deleting file {object_key}: {e}")
+            return False
+
+    def get_read_url(self, object_key: str) -> Optional[str]:
+        """Get public URL for file."""
+        client = self._get_client()
+        if not client:
+            return None
+
+        try:
+            result = client.storage.from_(self.bucket).get_public_url(object_key)
+            return result
+        except Exception as e:
+            print(f"⚠️ Error getting URL for {object_key}: {e}")
+            return None
+
+
+def create_blob_storage_client() -> Optional[SupabaseBlobStorage]:
+    """Create Supabase blob storage client if configured."""
+    if SUPABASE_URL and SUPABASE_SERVICE_KEY:
+        try:
+            client = SupabaseBlobStorage(
+                url=SUPABASE_URL,
+                key=SUPABASE_SERVICE_KEY,
+                bucket=SUPABASE_BUCKET
+            )
+            print("✅ Supabase blob storage client configured")
+            return client
+        except Exception as e:
+            print(f"⚠️ Could not create blob storage client: {e}")
+    return None
 
 # Analytics export directory
 ANALYTICS_DIR = Path("analytics")
@@ -31,11 +134,21 @@ class MindrianDataLayer(SQLAlchemyDataLayer):
     - Automatic CSV export of feedback
     - Supabase storage integration
     - Enhanced analytics tracking
+    - Blob storage for file attachments
     """
 
-    def __init__(self, conninfo: str, ssl_require: bool = True):
-        """Initialize the data layer with PostgreSQL connection."""
-        super().__init__(conninfo=conninfo, ssl_require=ssl_require)
+    def __init__(
+        self,
+        conninfo: str,
+        ssl_require: bool = True,
+        storage_provider: Optional[BaseStorageClient] = None
+    ):
+        """Initialize the data layer with PostgreSQL connection and optional blob storage."""
+        super().__init__(
+            conninfo=conninfo,
+            ssl_require=ssl_require,
+            storage_provider=storage_provider
+        )
 
         # In-memory feedback cache for fast analytics
         self.feedback_cache: List[Dict] = []
@@ -46,7 +159,8 @@ class MindrianDataLayer(SQLAlchemyDataLayer):
         # Supabase client (lazy initialization)
         self._supabase_client = None
 
-        print("✅ MindrianDataLayer initialized with feedback analytics")
+        storage_status = "with blob storage" if storage_provider else "without blob storage"
+        print(f"✅ MindrianDataLayer initialized {storage_status}")
 
     def _load_existing_feedback(self):
         """Load existing feedback from CSV file."""
@@ -332,7 +446,14 @@ def create_mindrian_data_layer(database_url: str) -> Optional[MindrianDataLayer]
         elif db_url.startswith("postgres://"):
             db_url = db_url.replace("postgres://", "postgresql+asyncpg://", 1)
 
-        return MindrianDataLayer(conninfo=db_url, ssl_require=True)
+        # Create blob storage client if Supabase is configured
+        blob_storage = create_blob_storage_client()
+
+        return MindrianDataLayer(
+            conninfo=db_url,
+            ssl_require=True,
+            storage_provider=blob_storage
+        )
     except Exception as e:
         print(f"⚠️ Failed to create data layer: {e}")
         return None
