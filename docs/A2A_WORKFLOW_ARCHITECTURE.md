@@ -331,21 +331,47 @@ steps:
 
 ---
 
-## 4. Red Teaming
+## 4. Red Teaming (Cross-Cutting Middleware)
 
 ### Agent: `redteam`
-### Role: Workshop / Sub-Agent / Validator
+### Role: **CROSS-CUTTING MIDDLEWARE** / Workshop / Sub-Agent / Validator
+
+> **CRITICAL**: Red Team is NOT just a destination stage - it's a **checkpoint** that applies to ANY stage. See `docs/A2A_PRACTICAL_ARCHITECTURE.md` for middleware implementation.
 
 ### Why Use It
 - A tool AND a way to check if opportunities are "real"
 - To get past the problem of **presentism**
 - To challenge current thinking about what could destroy or replace current offerings
 - To explore how to take advantage of trends
+- **As automatic validation at phase transitions** (middleware pattern)
 
 ### When to Use
+- **AUTOMATICALLY**: At every phase transition (exploring→framing, framing→defining, etc.)
+- **AUTOMATICALLY**: After any agent generates opportunities or claims
+- **AUTOMATICALLY**: When confidence scores are below threshold
 - As a standalone tool for assumption challenging
 - As validation step after ANY other tool generates opportunities
 - When you need to stress-test ideas
+
+### Middleware Pattern
+
+```python
+# Red Team runs as middleware, not just as a destination
+async def execute_with_validation(agent, input):
+    result = await agent.execute(input)
+
+    # Red Team validates at transitions and on key outputs
+    if should_validate(agent, input.phase):
+        validation = await red_team_middleware.validate({
+            "claim": result.primary_output,
+            "evidence": result.artifacts,
+            "stage": input.phase
+        })
+        if not validation.passed:
+            return {**result, challenges: validation.challenges, needs_revision: True}
+
+    return result
+```
 
 ### How to Use (A2A Workflow)
 
@@ -404,6 +430,43 @@ steps:
 - New capabilities needed
 - New products/services/policies needed
 - Systems that will be disrupted
+
+---
+
+## Cross-Cutting: Journey Mapping View
+
+> **IMPORTANT**: Journey Mapping is NOT just a tool - it's a **cross-cutting view** that ANY agent can request.
+
+### Why It's Cross-Cutting
+Every agent benefits from understanding where the user has been in their exploration. Journey Mapping provides context about:
+- Touchpoints in the conversation
+- Emotional arc (frustration, clarity, excitement)
+- Friction points encountered
+- Decisions made
+
+### Implementation Pattern
+
+```python
+class JourneyMapView:
+    """Cross-cutting view that any agent can request."""
+
+    def get_current_journey(self, context: ContextManager) -> JourneyMap:
+        """Returns user's journey through the system so far."""
+        return JourneyMap(
+            touchpoints=self._extract_touchpoints(context),
+            emotional_arc=self._analyze_emotional_state(context),
+            friction_points=self._identify_friction(context),
+            decision_points=self._mark_decisions(context),
+            current_phase=context.current_phase,
+            time_in_phase=context.time_in_current_phase
+        )
+```
+
+### When Agents Request Journey Context
+- **TTA**: Before generating opportunities, check what domains user has already explored
+- **JTBD**: Before asking about jobs, see what the user has already validated
+- **Red Team**: When challenging, reference previous decisions to avoid redundant questions
+- **Any Agent**: When user seems frustrated (detected via emotional arc)
 
 ---
 

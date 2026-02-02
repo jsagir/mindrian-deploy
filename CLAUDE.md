@@ -1165,6 +1165,22 @@ result = await run_enhanced_workflow(
 
 Structured handoff system using Markdown files for agent-to-agent communication.
 
+> **IMPORTANT**: See `docs/A2A_PRACTICAL_ARCHITECTURE.md` for the latest architectural decisions including:
+> - Two-stage classification (Cynefin + PWS) inline in Python
+> - Artifacts vs Frames context separation
+> - Red Team as cross-cutting middleware (not a stage)
+> - Journey Mapping as cross-cutting view
+> - MVP: 4 agents (TTA, JTBD, Red Team, Validation)
+
+### Core Architectural Decisions
+
+| Decision | Choice | Why |
+|----------|--------|-----|
+| **Classification** | Two-stage inline | Cynefin (uncertainty) + PWS (lifecycle). No separate service until multiple clients need it. |
+| **Context** | Artifacts vs Frames | Agent speculation stays scoped; validated insights persist. |
+| **Red Team** | Middleware/checkpoint | Applies to ANY stage, not just a destination. |
+| **Journey Mapping** | Cross-cutting view | Any agent can request user's journey context. |
+
 ### Core Concept
 
 ```

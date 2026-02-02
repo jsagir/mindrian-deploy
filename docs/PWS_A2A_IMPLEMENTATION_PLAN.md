@@ -4,6 +4,45 @@
 
 Based on the complete PWS curriculum, this document maps all tools, processes, and frameworks to Mindrian's A2A multi-agent architecture.
 
+> **IMPORTANT**: See `docs/A2A_PRACTICAL_ARCHITECTURE.md` for consolidated architectural decisions on implementation approach.
+
+---
+
+## Part 0: Key Architectural Decisions (Summary)
+
+These decisions guide implementation:
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| **Classification** | Two-stage (Cynefin + PWS) inline in Python | Cynefin tells you *how uncertain*, PWS tells you *where in lifecycle*. No separate service until multiple clients need it. |
+| **Context Separation** | Artifacts vs Frames | TTA speculation shouldn't become JTBD's "facts". Frames scoped to agent; artifacts persist. |
+| **Red Team** | Cross-cutting middleware | Validates at ANY stage as checkpoint, not a final destination. |
+| **Journey Mapping** | Cross-cutting view | Any agent can request journey context. |
+| **MVP Scope** | 4 agents: TTA → JTBD → Red Team → Validation | Complete loop with minimal complexity. |
+| **Existing Code** | Layer on top, don't rewrite | Bots work; add orchestration interface. |
+
+### Phase Transition Graph
+
+```
+exploring → framing → defining → solving → validating → complete
+              ↓         ↓                      ↓
+           exploring  framing               stuck → framing
+```
+
+Explicit "stuck" state forces acknowledgment rather than infinite loops.
+
+### Red Team as Middleware Pattern
+
+```python
+async def execute_with_validation(agent, input):
+    result = await agent.execute(input)
+    if should_validate(agent, input.phase):
+        validation = await red_team_middleware.validate(result)
+        if not validation.passed:
+            return {...result, challenges: validation.challenges, needs_revision: True}
+    return result
+```
+
 ---
 
 ## Part 1: Architecture Overview

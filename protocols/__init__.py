@@ -5,7 +5,38 @@ A2A Protocol: Agent-to-agent handoff via structured Markdown files
 Context Journal: Living document that evolves with conversation
 Agent Registry: Centralized agent registration with capabilities and routing
 Triple Mode: Entry point detection, semantic grounding, and exploration tracking
+Context Manager: Artifacts vs Frames separation for multi-agent context
+Phase Manager: Directed graph phase transitions with explicit states
 """
+
+from .context_manager import (
+    Artifact,
+    Frame,
+    ContextManager,
+    ArtifactType,
+    FrameType,
+    ValidationSource,
+)
+
+from .phase_manager import (
+    Phase,
+    PhaseTransition,
+    PhaseManager,
+    ALLOWED_TRANSITIONS,
+    suggest_phase_from_classification,
+)
+
+from .classifier import (
+    Classification,
+    CynefinDomain,
+    PWSType,
+    classify,
+    classify_with_logging,
+    get_routing_recommendation,
+    CLASSIFIER_PROMPT,
+    TEST_CASES,
+    run_test_cases,
+)
 
 from .agent_registry import (
     AgentRole,
@@ -72,6 +103,29 @@ from .context_journal import (
 )
 
 __all__ = [
+    # Context Manager (Artifacts vs Frames)
+    'Artifact',
+    'Frame',
+    'ContextManager',
+    'ArtifactType',
+    'FrameType',
+    'ValidationSource',
+    # Phase Manager (Directed Graph Transitions)
+    'Phase',
+    'PhaseTransition',
+    'PhaseManager',
+    'ALLOWED_TRANSITIONS',
+    'suggest_phase_from_classification',
+    # Classifier (Two-Stage: Cynefin + PWS)
+    'Classification',
+    'CynefinDomain',
+    'PWSType',
+    'classify',
+    'classify_with_logging',
+    'get_routing_recommendation',
+    'CLASSIFIER_PROMPT',
+    'TEST_CASES',
+    'run_test_cases',
     # Agent Registry
     'AgentRole',
     'AgentCapability',
