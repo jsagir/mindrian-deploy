@@ -26,6 +26,7 @@ from .beautiful_question import (
     WHAT_IF_PHASE_PROMPT as BQ_WHAT_IF_PROMPT,
     HOW_PHASE_PROMPT as BQ_HOW_PROMPT,
 )
+from .nested_hierarchies import NESTED_HIERARCHIES_PROMPT
 
 from .cv_domain_prompts import (
     CV_EXTRACTION_PROMPT,
@@ -92,6 +93,7 @@ __all__ = [
     "RESEARCH_TRANSLATION_PROMPT",
     "MULTI_PERSPECTIVE_VALIDATION_PROMPT",
     "BEAUTIFUL_QUESTION_PROMPT",
+    "NESTED_HIERARCHIES_PROMPT",
     "SCENARIO_PHASES",
     "get_phase_by_index",
     "get_phase_key_by_index",

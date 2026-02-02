@@ -612,6 +612,30 @@ register_agent(AgentConfig(
     default_mode="workshop",
 ))
 
+register_agent(AgentConfig(
+    id="nested_hierarchies",
+    name="Nested Hierarchies",
+    description="Multi-level systems analysis for finding leverage points",
+    icon="🏛️",
+    roles=[AgentRole.WORKSHOP, AgentRole.SUB_AGENT],
+    entry_points=["brainstorming", "build_venture"],
+    venture_stages=["opportunity_identified", "well_defined_problem"],
+    can_orchestrate=False,
+    can_be_sub_agent=True,
+    called_by=["lawrence", "larry_playground"],
+    capabilities=[
+        AgentCapability.GRAPHRAG,
+        AgentCapability.LANGEXTRACT,
+        AgentCapability.CONTEXT_STORE,
+        AgentCapability.FILE_SEARCH,
+    ],
+    frameworks=["Nested Hierarchies", "Systems Thinking", "Leverage Points"],
+    keywords=["hierarchy", "system", "leverage", "reverse salient", "cascade", "constraint"],
+    has_phases=True,
+    phase_count=5,
+    default_mode="workshop",
+))
+
 # ============================================================================
 # SERVICE AGENTS (No conversation, return data only)
 # ============================================================================

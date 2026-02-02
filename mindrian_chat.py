@@ -484,6 +484,10 @@ AGENT_TRIGGERS = {
         "keywords": ["rumsfeld", "unknown unknowns", "blind spots", "knowledge gaps", "what don't we know", "uncertainty", "risk mapping"],
         "description": "Map unknowns & blind spots"
     },
+    "nested_hierarchies": {
+        "keywords": ["hierarchy", "system", "leverage point", "reverse salient", "constraint", "cascade", "herbert simon", "donella meadows", "thomas hughes", "component", "architecture", "levels"],
+        "description": "Multi-level systems analysis"
+    },
     "domain": {
         "keywords": ["domain selection", "choose domain", "pick domain", "domain candidate", "interest knowledge access", "where to innovate", "innovation territory", "domain statement"],
         "description": "Domain Selection Workshop"
@@ -539,6 +543,7 @@ from prompts import (
     ACKOFF_WORKSHOP_PROMPT,
     BONO_MASTER_PROMPT,
     KNOWN_UNKNOWNS_PROMPT,
+    NESTED_HIERARCHIES_PROMPT,
     DOMAIN_EXPLORER_PROMPT,
     PWS_INVESTMENT_PROMPT,
     SCENARIO_ANALYSIS_PROMPT,
@@ -644,6 +649,13 @@ WORKSHOP_PHASES = {
         {"name": "Unknown Unknowns Discovery", "status": "pending"},
         {"name": "Risk Assessment", "status": "pending"},
         {"name": "Action Planning", "status": "pending"},
+    ],
+    "nested_hierarchies": [
+        {"name": "Introduction", "status": "ready"},
+        {"name": "Map the Hierarchy", "status": "pending"},
+        {"name": "Find Reverse Salients", "status": "pending"},
+        {"name": "Locate Leverage Points", "status": "pending"},
+        {"name": "Design the Intervention", "status": "pending"},
     ],
     "domain": [
         {"name": "Introduction", "status": "ready"},
@@ -898,6 +910,32 @@ I help you systematically categorize what you know and don't know:
 **What situation, decision, or plan do you want to map?**
 
 We'll surface hidden assumptions and discover what you don't know you don't know."""
+    },
+    "nested_hierarchies": {
+        "name": "Nested Hierarchies",
+        "icon": "/public/icons/hierarchy.svg",
+        "emoji": "🏛️",
+        "description": "Workshop: Multi-level systems analysis for finding leverage points",
+        "system_prompt": NESTED_HIERARCHIES_PROMPT,
+        "has_phases": True,
+        "welcome": """🏛️ **Nested Hierarchies Workshop**
+### Seeing the System Behind the Problem
+
+Hello, I'm Larry Aronhime.
+
+**Here's what most people miss:** They focus on parts when they should focus on patterns. They fix batteries when the constraint is in transmission. They redesign interfaces when the friction is in the business model.
+
+Every problem exists within a **nested hierarchy of systems**. The most consequential innovations address **reverse salients**—the constraints that hold back entire system hierarchies.
+
+We'll work through 4 phases:
+1. **Map the Hierarchy** — See the full system stack (5+ levels)
+2. **Find Reverse Salients** — Identify what's really constraining growth
+3. **Locate Leverage Points** — Find where intervention cascades
+4. **Design the Intervention** — Act at the right level
+
+**What problem or opportunity are you exploring?**
+
+Tell me about the component you're focused on—I'll help you see the system around it."""
     },
     "domain": {
         "name": "Domain Selection",
@@ -1798,6 +1836,11 @@ async def chat_profiles():
             icon=BOTS["knowns"]["icon"],
         ),
         cl.ChatProfile(
+            name="nested_hierarchies",
+            markdown_description=BOTS["nested_hierarchies"]["description"],
+            icon=BOTS["nested_hierarchies"]["icon"],
+        ),
+        cl.ChatProfile(
             name="domain",
             markdown_description=BOTS["domain"]["description"],
             icon=BOTS["domain"]["icon"],
@@ -2011,6 +2054,28 @@ STARTERS = {
             label="Explain Rumsfeld Matrix",
             message="Explain the Known-Unknowns framework and how to use it.",
             icon="/public/icons/info.svg",
+        ),
+    ],
+    "nested_hierarchies": [
+        cl.Starter(
+            label="Map my system",
+            message="Help me map the nested hierarchy around a problem I'm trying to solve.",
+            icon="/public/icons/hierarchy.svg",
+        ),
+        cl.Starter(
+            label="Find the real constraint",
+            message="I keep solving problems but nothing changes. Help me find the real constraint.",
+            icon="/public/icons/search.svg",
+        ),
+        cl.Starter(
+            label="Find leverage points",
+            message="Where should I intervene to create cascading change across the system?",
+            icon="/public/icons/leverage.svg",
+        ),
+        cl.Starter(
+            label="Edison's Battery Example",
+            message="Explain the Edison battery example and why solving at the wrong level fails.",
+            icon="/public/icons/example.svg",
         ),
     ],
     "domain": [
@@ -3951,6 +4016,10 @@ async def on_switch_to_bono(action: cl.Action):
 @cl.action_callback("switch_to_knowns")
 async def on_switch_to_knowns(action: cl.Action):
     await handle_agent_switch("knowns")
+
+@cl.action_callback("switch_to_nested_hierarchies")
+async def on_switch_to_nested_hierarchies(action: cl.Action):
+    await handle_agent_switch("nested_hierarchies")
 
 @cl.action_callback("switch_to_domain")
 async def on_switch_to_domain(action: cl.Action):

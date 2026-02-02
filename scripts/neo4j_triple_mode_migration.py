@@ -167,6 +167,14 @@ class TripleModeMigration:
                 "capabilities": ["graphrag", "langextract", "context_store", "file_search"]
             },
             {
+                "id": "nested_hierarchies",
+                "name": "Nested Hierarchies",
+                "description": "Multi-level systems analysis for finding leverage points",
+                "role": "workshop",
+                "icon": "🏛️",
+                "capabilities": ["graphrag", "langextract", "context_store", "file_search"]
+            },
+            {
                 "id": "graphrag",
                 "name": "GraphRAG Service",
                 "description": "Neo4j + vector hybrid retrieval service",
@@ -335,12 +343,14 @@ class TripleModeMigration:
             # Opportunity Identified
             ("opportunity_identified", "jtbd", 1),
             ("opportunity_identified", "scenario", 2),
-            ("opportunity_identified", "research", 3),
+            ("opportunity_identified", "nested_hierarchies", 3),
+            ("opportunity_identified", "research", 4),
 
             # Well-Defined Problem
             ("well_defined_problem", "ackoff", 1),
             ("well_defined_problem", "scurve", 2),
-            ("well_defined_problem", "redteam", 3),
+            ("well_defined_problem", "nested_hierarchies", 3),
+            ("well_defined_problem", "redteam", 4),
 
             # Ready to Build
             ("ready_to_build", "redteam", 1),
@@ -370,6 +380,7 @@ class TripleModeMigration:
             ("brainstorming", "tta", True),
             ("brainstorming", "beautiful_question", True),
             ("brainstorming", "scenario", True),
+            ("brainstorming", "nested_hierarchies", True),
             ("brainstorming", "research", False),
 
             # Document Review entry point
@@ -384,6 +395,7 @@ class TripleModeMigration:
             ("build_venture", "scurve", True),
             ("build_venture", "redteam", True),
             ("build_venture", "knowns", True),
+            ("build_venture", "nested_hierarchies", True),
         ]
 
         for ep_id, bot_id, is_primary in links:
@@ -412,6 +424,7 @@ class TripleModeMigration:
             ("lawrence", "scenario"),
             ("lawrence", "beautiful_question"),
             ("lawrence", "knowns"),
+            ("lawrence", "nested_hierarchies"),
             ("lawrence", "graphrag"),
             ("lawrence", "research"),
             ("lawrence", "pws_grading"),
@@ -424,6 +437,7 @@ class TripleModeMigration:
             ("larry_playground", "scenario"),
             ("larry_playground", "beautiful_question"),
             ("larry_playground", "knowns"),
+            ("larry_playground", "nested_hierarchies"),
             ("larry_playground", "graphrag"),
             ("larry_playground", "research"),
             ("larry_playground", "pws_grading"),
@@ -439,6 +453,7 @@ class TripleModeMigration:
             ("redteam", "graphrag"),
             ("scenario", "graphrag"),
             ("scenario", "research"),
+            ("nested_hierarchies", "graphrag"),
         ]
 
         for caller_id, callee_id in call_links:
