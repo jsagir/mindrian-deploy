@@ -28,6 +28,11 @@ from typing import Dict, List, Any, Optional
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
+
+def log_error(msg: str):
+    """Print error message to stderr for proper subprocess error capture."""
+    print(msg, file=sys.stderr)
+
 # Load environment
 from dotenv import load_dotenv
 load_dotenv(project_root / ".env")
@@ -44,14 +49,14 @@ DEFAULT_RECIPIENT = "jsagir@gmail.com"
 def get_supabase_client():
     """Get Supabase client."""
     if not SUPABASE_URL or not SUPABASE_SERVICE_KEY:
-        print("Supabase not configured")
+        log_error("Supabase not configured")
         return None
 
     try:
         from supabase import create_client
         return create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
     except Exception as e:
-        print(f"Supabase client error: {e}")
+        log_error(f"Supabase client error: {e}")
         return None
 
 
@@ -148,7 +153,7 @@ def get_opportunities_summary(client, date_str: str = None, last_24h: bool = Fal
         }
 
     except Exception as e:
-        print(f"Opportunities fetch error: {e}")
+        log_error(f"Opportunities fetch error: {e}")
         return {"error": str(e), "total": 0}
 
 
@@ -242,7 +247,7 @@ def get_feedback_summary(client, date_str: str = None, last_24h: bool = False) -
         }
 
     except Exception as e:
-        print(f"Feedback fetch error: {e}")
+        log_error(f"Feedback fetch error: {e}")
         return {"error": str(e), "total": 0}
 
 
@@ -603,7 +608,7 @@ def send_daily_summary(
     from email_sender import send_email, is_email_configured
 
     if not is_email_configured():
-        print("Email not configured. Set SMTP_USER/SMTP_PASSWORD or SENDGRID_API_KEY")
+        log_error("Email not configured. Set SMTP_USER/SMTP_PASSWORD or SENDGRID_API_KEY")
         return False
 
     if not date_str:
@@ -641,7 +646,7 @@ def send_daily_summary(
     if success:
         print(f"Summary sent to {recipient}")
     else:
-        print(f"Failed to send summary to {recipient}")
+        log_error(f"Failed to send summary to {recipient}")
 
     return success
 

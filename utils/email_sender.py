@@ -7,6 +7,7 @@ Configure via environment variables.
 """
 
 import os
+import sys
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -14,6 +15,11 @@ from email.mime.base import MIMEBase
 from email import encoders
 from typing import Optional, List
 from datetime import datetime
+
+
+def _log_error(msg: str):
+    """Print error message to stderr."""
+    print(msg, file=sys.stderr)
 
 # Email configuration
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
@@ -47,7 +53,7 @@ def send_email_smtp(
         True if sent successfully, False otherwise
     """
     if not SMTP_USER or not SMTP_PASSWORD:
-        print("SMTP not configured (missing SMTP_USER or SMTP_PASSWORD)")
+        _log_error("SMTP not configured (missing SMTP_USER or SMTP_PASSWORD)")
         return False
 
     try:
@@ -91,7 +97,7 @@ def send_email_smtp(
         return True
 
     except Exception as e:
-        print(f"SMTP email error: {e}")
+        _log_error(f"SMTP email error: {e}")
         return False
 
 
@@ -108,7 +114,7 @@ def send_email_sendgrid(
     Requires sendgrid package: pip install sendgrid
     """
     if not SENDGRID_API_KEY:
-        print("SendGrid not configured (missing SENDGRID_API_KEY)")
+        _log_error("SendGrid not configured (missing SENDGRID_API_KEY)")
         return False
 
     try:
@@ -132,11 +138,11 @@ def send_email_sendgrid(
             print(f"Email sent to {to_email} via SendGrid")
             return True
         else:
-            print(f"SendGrid returned status {response.status_code}")
+            _log_error(f"SendGrid returned status {response.status_code}")
             return False
 
     except Exception as e:
-        print(f"SendGrid email error: {e}")
+        _log_error(f"SendGrid email error: {e}")
         return False
 
 
@@ -170,7 +176,7 @@ def send_email(
     if SMTP_USER and SMTP_PASSWORD:
         return send_email_smtp(to_email, subject, body_html, body_text, from_email, attachments)
 
-    print("No email configuration found. Set SENDGRID_API_KEY or SMTP_USER/SMTP_PASSWORD")
+    _log_error("No email configuration found. Set SENDGRID_API_KEY or SMTP_USER/SMTP_PASSWORD")
     return False
 
 

@@ -50,9 +50,16 @@ class CronEndpointMiddleware(BaseHTTPMiddleware):
                         "output": result.stdout[-500:] if result.stdout else ""
                     })
                 else:
+                    # Combine stderr and stdout for better error reporting
+                    error_msg = result.stderr[-500:] if result.stderr else ""
+                    if not error_msg and result.stdout:
+                        # Fallback to stdout if stderr is empty (legacy error messages)
+                        error_msg = result.stdout[-500:]
                     return JSONResponse(status_code=500, content={
                         "success": False,
-                        "error": result.stderr[-500:] if result.stderr else "Unknown error"
+                        "error": error_msg or "Unknown error",
+                        "stdout": result.stdout[-200:] if result.stdout else "",
+                        "stderr": result.stderr[-200:] if result.stderr else ""
                     })
             except subprocess.TimeoutExpired:
                 return JSONResponse(status_code=500, content={"success": False, "error": "Timeout after 5 minutes"})
