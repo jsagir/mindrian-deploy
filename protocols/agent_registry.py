@@ -145,7 +145,10 @@ def get_agents_for_entry_point(entry_point: str) -> List[AgentConfig]:
 
 def get_agents_for_venture_stage(stage: str) -> List[AgentConfig]:
     """Get agents appropriate for a venture stage."""
-    return [a for a in _AGENT_REGISTRY.values() if stage in a.venture_stages]
+    return [
+        a for a in _AGENT_REGISTRY.values()
+        if stage in a.venture_stages or "*" in a.venture_stages
+    ]
 
 
 # ============================================================================
@@ -304,6 +307,7 @@ register_agent(AgentConfig(
     icon="🧠",
     roles=[AgentRole.ORCHESTRATOR, AgentRole.WORKSHOP],
     entry_points=["brainstorming", "build_venture"],
+    venture_stages=["*"],  # Available at all stages as orchestrator
     can_orchestrate=True,
     can_be_sub_agent=False,
     can_call=["tta", "scenario", "research", "graphrag", "redteam", "jtbd"],
@@ -360,7 +364,7 @@ register_agent(AgentConfig(
     icon="📈",
     roles=[AgentRole.WORKSHOP, AgentRole.SUB_AGENT],
     entry_points=["brainstorming"],
-    venture_stages=[],
+    venture_stages=["pre_opportunity"],
     can_orchestrate=False,
     can_be_sub_agent=True,
     called_by=["lawrence", "larry_playground"],
@@ -541,7 +545,7 @@ register_agent(AgentConfig(
     icon="🔮",
     roles=[AgentRole.WORKSHOP, AgentRole.SUB_AGENT],
     entry_points=["brainstorming", "build_venture"],
-    venture_stages=["ready_to_build"],
+    venture_stages=["pre_opportunity", "opportunity_identified", "ready_to_build"],
     can_orchestrate=False,
     can_be_sub_agent=True,
     called_by=["lawrence", "larry_playground"],
@@ -567,6 +571,7 @@ register_agent(AgentConfig(
     icon="❓",
     roles=[AgentRole.WORKSHOP, AgentRole.SUB_AGENT],
     entry_points=["brainstorming"],
+    venture_stages=["pre_opportunity"],
     can_orchestrate=False,
     can_be_sub_agent=True,
     called_by=["lawrence", "larry_playground"],
