@@ -1188,6 +1188,12 @@ def get_core_action_buttons(include_example: bool = True) -> list:
             label="🧠 Think",
             tooltip="Run a structured analysis: define the problem → list assumptions → find gaps → suggest next steps",
         ),
+        cl.Action(
+            name="map_ideas",
+            payload={"action": "map"},
+            label="🗺️ Map Ideas",
+            tooltip="Visualize key ideas as a mindmap diagram",
+        ),
     ]
 
     if include_example:
@@ -5996,6 +6002,105 @@ async def on_speak_response(action: cl.Action):
             await cl.Message(
                 content="Voice not available. Set ELEVENLABS_API_KEY in environment."
             ).send()
+
+
+@cl.action_callback("map_ideas")
+async def on_map_ideas(action: cl.Action):
+    """Generate a mindmap or flowchart from the conversation."""
+    from utils.diagrams import create_mindmap, create_mermaid_element
+    import json
+
+    history = cl.user_session.get("history", [])
+    bot = cl.user_session.get("bot", BOTS["lawrence"])
+
+    if len(history) < 2:
+        await cl.Message(content="Not enough conversation to map. Have a discussion first!").send()
+        return
+
+    # Build conversation summary for AI to analyze
+    conversation_text = ""
+    for msg in history[-10:]:  # Last 10 messages for context
+        role = "User" if msg.get("role") == "user" else "Assistant"
+        content = msg.get("content", "")[:500]  # Truncate
+        conversation_text += f"{role}: {content}\n\n"
+
+    try:
+        async with cl.Step(name="Generating Idea Map", type="llm") as map_step:
+            map_step.input = f"Analyzing {len(history)} messages for key ideas..."
+
+            # Use Gemini to extract mindmap structure
+            prompt = f"""Analyze this conversation and create a mindmap structure.
+
+Conversation:
+{conversation_text}
+
+Return a JSON object with this EXACT structure (no markdown, just JSON):
+{{
+  "central_topic": "Main topic being discussed (2-4 words)",
+  "branches": {{
+    "Key Ideas": ["idea 1", "idea 2", "idea 3"],
+    "Questions": ["question 1", "question 2"],
+    "Insights": ["insight 1", "insight 2"],
+    "Next Steps": ["action 1", "action 2"]
+  }}
+}}
+
+Rules:
+- Central topic should capture the core discussion theme
+- Create 3-5 branches with 2-4 items each
+- Keep items concise (2-5 words max)
+- Return ONLY valid JSON, nothing else"""
+
+            response = model.generate_content(prompt)
+            response_text = response.text.strip()
+
+            # Clean up response - remove markdown code blocks if present
+            if response_text.startswith("```"):
+                response_text = response_text.split("```")[1]
+                if response_text.startswith("json"):
+                    response_text = response_text[4:]
+                response_text = response_text.strip()
+
+            try:
+                mindmap_data = json.loads(response_text)
+                map_step.output = f"Extracted: {mindmap_data.get('central_topic', 'Unknown')}"
+
+                # Create the mindmap
+                diagram = await create_mindmap(
+                    central_topic=mindmap_data.get("central_topic", "Discussion"),
+                    branches=mindmap_data.get("branches", {}),
+                    title="Idea Map"
+                )
+
+                await cl.Message(
+                    content="**🗺️ Your Idea Map**\n\nHere's a visual map of the key ideas from our conversation:",
+                    elements=[diagram]
+                ).send()
+
+            except json.JSONDecodeError as je:
+                map_step.output = f"JSON parse error: {je}"
+                # Fallback: create simple mindmap from last user message
+                last_user_msg = ""
+                for msg in reversed(history):
+                    if msg.get("role") == "user":
+                        last_user_msg = msg.get("content", "")[:50]
+                        break
+
+                fallback_diagram = await create_mindmap(
+                    central_topic=last_user_msg or "Discussion",
+                    branches={
+                        "Explore": ["Key themes", "Questions raised"],
+                        "Actions": ["Next steps", "Follow up"]
+                    },
+                    title="Idea Map"
+                )
+                await cl.Message(
+                    content="**🗺️ Quick Idea Map**\n\n(Detailed mapping unavailable - here's a simplified view)",
+                    elements=[fallback_diagram]
+                ).send()
+
+    except Exception as e:
+        await cl.Message(content=f"Mapping error: {str(e)}").send()
 
 
 async def _research_sources_first(recent_context: str, bot_name: str, search_depth: str, history: list):

@@ -484,6 +484,7 @@ python scripts/create_component.py ComponentName --template card
 
 | Component | Purpose | Location |
 |-----------|---------|----------|
+| `MermaidDiagram` | Mermaid diagrams (mindmaps, flowcharts) | `public/elements/MermaidDiagram.jsx` |
 | `GradeReveal` | Soft-landing grade reveal | `public/elements/GradeReveal.jsx` |
 | `ScoreBreakdown` | Interactive score drill-down | `public/elements/ScoreBreakdown.jsx` |
 | `OpportunityCard` | Bank of opportunities | `public/elements/OpportunityCard.jsx` |
@@ -674,6 +675,76 @@ python upload_new_workshop.py
 13. **User Feedback** - Thumbs up/down with Supabase storage for QA analytics
 14. **PWS Audiobook Chapters** - "📖 Listen to Chapter" button for contextual audio content
 15. **GraphRAG Lite** - Neo4j + vector hybrid for relationship-aware context enrichment
+16. **Mermaid Diagrams** - Mindmaps and flowcharts via custom element + utils/diagrams.py
+
+---
+
+## Mermaid Diagrams - Idea Visualization
+
+Render mindmaps, flowcharts, sequence diagrams, and more using Mermaid.js.
+
+### Quick Usage
+
+```python
+from utils.diagrams import create_mindmap, create_flowchart, create_mermaid_element
+
+# Create a mindmap
+diagram = await create_mindmap(
+    central_topic="AI in Education",
+    branches={
+        "Benefits": ["Personalized Learning", "Scalability"],
+        "Challenges": ["Privacy", "Equity"],
+        "Applications": ["Tutoring", "Assessment"]
+    },
+    title="Idea Map"
+)
+await cl.Message(content="Your ideas:", elements=[diagram]).send()
+
+# Create a flowchart
+steps = [
+    {"id": "A", "label": "Start", "type": "start", "next": ["B"]},
+    {"id": "B", "label": "Decision?", "type": "decision", "next": ["C", "D"]},
+    {"id": "C", "label": "Yes Path", "type": "process", "next": ["E"]},
+    {"id": "D", "label": "No Path", "type": "process", "next": ["E"]},
+    {"id": "E", "label": "End", "type": "end", "next": []}
+]
+chart = await create_flowchart(steps, title="Process Flow")
+
+# Raw Mermaid syntax
+raw = await create_mermaid_element("""
+mindmap
+  root((Topic))
+    Branch 1
+      Item A
+      Item B
+    Branch 2
+      Item C
+""", title="Custom Diagram")
+```
+
+### Available Functions
+
+| Function | Purpose |
+|----------|---------|
+| `create_mindmap()` | Structured mindmap from dict |
+| `create_mindmap_from_ideas()` | Mindmap from idea list |
+| `create_flowchart()` | Flowchart from step definitions |
+| `create_process_flowchart()` | Simple linear process |
+| `create_user_journey()` | User experience journey map |
+| `create_sequence_diagram()` | Interaction sequences |
+| `create_opportunity_map()` | PWS opportunity analysis |
+| `create_assumption_map()` | Assumption categorization |
+| `create_framework_flow()` | Pre-built PWS framework flows (tta, jtbd, dikw) |
+| `create_mermaid_element()` | Raw Mermaid syntax |
+
+### Action Button
+
+Users can click "🗺️ Map Ideas" to auto-generate a mindmap from the conversation.
+
+### Key Files
+
+- `public/elements/MermaidDiagram.jsx` - React component
+- `utils/diagrams.py` - Python generation utilities
 
 ---
 
