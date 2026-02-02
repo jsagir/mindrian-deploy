@@ -38,6 +38,31 @@ from .classifier import (
     run_test_cases,
 )
 
+from .orchestrator import (
+    A2AOrchestrator,
+    AgentInput,
+    AgentOutput,
+    RedTeamMiddleware,
+    JourneyMapView,
+    JourneyMap,
+    ValidationResult,
+    create_agent_wrapper,
+)
+
+from .chat_integration import (
+    A2A_ORCHESTRATION_ENABLED,
+    init_a2a_session,
+    restore_a2a_session,
+    pre_process_message,
+    post_process_response,
+    get_phase_indicator,
+    get_classification_badge,
+    get_journey_summary,
+    handle_phase_transition_request,
+    handle_promote_insight,
+    save_a2a_state,
+)
+
 from .agent_registry import (
     AgentRole,
     AgentCapability,
@@ -126,6 +151,27 @@ __all__ = [
     'CLASSIFIER_PROMPT',
     'TEST_CASES',
     'run_test_cases',
+    # Orchestrator
+    'A2AOrchestrator',
+    'AgentInput',
+    'AgentOutput',
+    'RedTeamMiddleware',
+    'JourneyMapView',
+    'JourneyMap',
+    'ValidationResult',
+    'create_agent_wrapper',
+    # Chat Integration
+    'A2A_ORCHESTRATION_ENABLED',
+    'init_a2a_session',
+    'restore_a2a_session',
+    'pre_process_message',
+    'post_process_response',
+    'get_phase_indicator',
+    'get_classification_badge',
+    'get_journey_summary',
+    'handle_phase_transition_request',
+    'handle_promote_insight',
+    'save_a2a_state',
     # Agent Registry
     'AgentRole',
     'AgentCapability',
