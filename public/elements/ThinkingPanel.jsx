@@ -37,6 +37,13 @@ const botColors = {
   ackoff: '#14b8a6',        // teal
   scenario: '#6366f1',      // indigo
   beautiful_question: '#ec4899', // pink
+  nested_hierarchies: '#0891b2', // cyan
+  validation: '#059669',    // emerald-600
+  bono: '#7c3aed',          // violet
+  knowns: '#dc2626',        // red-600
+  domain: '#0d9488',        // teal-600
+  investment: '#ca8a04',    // yellow-600
+  grading: '#4f46e5',       // indigo-600
 };
 
 function ThinkingStep({ step, index, isLast }) {

@@ -422,6 +422,13 @@ async def show_thinking_panel(bot_id: str, steps: list, methodology: str = None)
         "ackoff": "DIKW Analysis",
         "scenario": "Scenario Analysis",
         "beautiful_question": "Question Analysis",
+        "nested_hierarchies": "Systems Analysis",
+        "validation": "Validation Analysis",
+        "bono": "Hat Analysis",
+        "knowns": "Uncertainty Analysis",
+        "domain": "Domain Analysis",
+        "investment": "Investment Analysis",
+        "grading": "Assessment Analysis",
     }
     title = bot_titles.get(bot_id, "Thinking")
 
@@ -8140,7 +8147,9 @@ Your insights help us improve Mindrian!"""
         # Capture reasoning steps before generating response
         thinking_steps = await capture_reasoning_steps(message.content, bot_id, history)
 
-        # Show thinking as collapsible section
+        # ENHANCEMENT: Use ThinkingPanel custom element for rich visual display
+        # This provides a collapsible panel with progress bar, bot-specific colors,
+        # and expandable step details - much better UX than raw text
         methodology_map = {
             "tta": "Trending to the Absurd",
             "jtbd": "Jobs to Be Done",
@@ -8149,25 +8158,27 @@ Your insights help us improve Mindrian!"""
             "ackoff": "DIKW Pyramid",
             "scenario": "Scenario Planning",
             "beautiful_question": "Beautiful Questions",
+            "nested_hierarchies": "Nested Hierarchies",
+            "validation": "Multi-Perspective Validation",
+            "bono": "Six Thinking Hats",
+            "knowns": "Known Unknowns",
+            "domain": "Domain Selection",
+            "investment": "Investment Analysis",
         }
         methodology = methodology_map.get(bot_id)
 
-        # Build thinking display using cl.Step for proper Chainlit rendering
-        # BUG FIX: Replaced raw HTML <details> with cl.Step (Bug 10)
-        # <details> tags were showing as raw text instead of collapsible sections
-        async with cl.Step(name=f"🧠 {BOTS.get(bot_id, {}).get('name', 'Larry')}'s Thinking", type="run") as thinking_step:
-            thinking_output = ""
-            for step in thinking_steps:
-                status_icon = "✅" if step["status"] == "complete" else "🔄" if step["status"] == "active" else "⏳"
-                thinking_output += f"{status_icon} {step['name']}"
-                if step.get("output"):
-                    thinking_output += f": {step['output']}"
-                thinking_output += "\n"
+        # Use the helper function to create the thinking panel element
+        thinking_element = await show_thinking_panel(
+            bot_id=bot_id,
+            steps=thinking_steps,
+            methodology=methodology
+        )
 
-            if methodology:
-                thinking_output += f"\n*Applying: {methodology}*"
-
-            thinking_step.output = thinking_output
+        # Send thinking panel before the response
+        await cl.Message(
+            content="",
+            elements=[thinking_element]
+        ).send()
 
     # Create streaming message
     msg = cl.Message(content="")
