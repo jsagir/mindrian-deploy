@@ -1,6 +1,6 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-03 23:10*
+*Auto-generated: 2026-02-04 00:40*
 
 ---
 
@@ -144,13 +144,3 @@
 - **Files changed:** 1
   - protocols/triple_mode.py
 - **Details:** - Move "idea" from brainstorm to venture keywords (startup ideas → build_venture)
-
-### 🐛 fix: Write errors to stderr for proper cron endpoint error reporting
-
-- **Commit:** `fddda5a8`
-- **Author:** Claude
-- **Files changed:** 3
-  - mindrian_chat.py
-  - scripts/daily_summary.py
-  - utils/email_sender.py
-- **Details:** The daily summary cron endpoint was returning "Unknown error" because

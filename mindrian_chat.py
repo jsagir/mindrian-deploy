@@ -516,6 +516,23 @@ async def capture_reasoning_steps(user_message: str, bot_id: str, history: list 
 # Store conversation history by user/thread to persist across bot switches
 context_store: Dict[str, Dict[str, Any]] = {}
 
+# === Topic-Aware Thread System ===
+# Fixes context-mixing bug by tracking conversations by topic, not just by user
+try:
+    from utils.conversation_threads import (
+        get_or_create_thread,
+        get_thread_for_topic,
+        save_thread_context,
+        get_active_threads,
+        get_context_for_continue,
+        get_most_recent_thread,
+        extract_topic_keywords,
+        migrate_from_context_store,
+    )
+    THREAD_SYSTEM_ENABLED = True
+except ImportError:
+    THREAD_SYSTEM_ENABLED = False
+
 # === Agent Suggestion Keywords ===
 # Maps keywords/phrases to suggested agents
 AGENT_TRIGGERS = {
@@ -4225,6 +4242,30 @@ async def handle_agent_switch(new_agent_id: str):
         "current_phase": cl.user_session.get("current_phase", 0),
     }
 
+    # === Thread System: Save to topic-aware thread ===
+    # This fixes the context-mixing bug by tracking conversations by topic
+    if THREAD_SYSTEM_ENABLED:
+        try:
+            # Get or create thread for this conversation topic
+            thread_id, thread = get_or_create_thread(
+                user_key=context_key,
+                bot_id=new_agent_id,
+                history=history
+            )
+            # Save current context to thread
+            save_thread_context(
+                thread_id=thread_id,
+                user_key=context_key,
+                history=history,
+                phases=stored_phases,
+                current_phase=cl.user_session.get("current_phase", 0),
+                bot_id=new_agent_id
+            )
+            # Store thread_id in session for later use
+            cl.user_session.set("current_thread_id", thread_id)
+        except Exception as e:
+            logger.warning(f"Thread system error in agent switch: {e}")
+
     # Build actions for the new bot
     actions = []
     if new_bot.get("has_phases"):
@@ -7716,6 +7757,34 @@ Your insights help us improve Mindrian!"""
     bot_id = cl.user_session.get("bot_id", "lawrence")
     turn_count = len(history)
 
+    # === Smart Thread Matching for "continue from above" ===
+    # Detect if user wants to continue a previous conversation topic
+    if THREAD_SYSTEM_ENABLED and turn_count < 3:
+        msg_lower = message.content.lower()
+        continue_signals = ["continue", "from above", "where we left", "same as above", "keep going", "go on"]
+        is_continue_request = any(signal in msg_lower for signal in continue_signals)
+
+        if is_continue_request:
+            try:
+                context_key = get_context_key()
+                # Find the right thread based on topic keywords in the message
+                matching_thread = get_context_for_continue(context_key, message.content, bot_id)
+
+                if matching_thread and len(matching_thread.history) > len(history):
+                    # Found a better matching thread - restore its context
+                    history = matching_thread.history.copy()
+                    phases = [p.copy() for p in matching_thread.phases] if matching_thread.phases else phases
+                    current_phase = matching_thread.current_phase
+
+                    cl.user_session.set("history", history)
+                    cl.user_session.set("phases", phases)
+                    cl.user_session.set("current_phase", current_phase)
+                    cl.user_session.set("current_thread_id", matching_thread.thread_id)
+
+                    logger.info(f"[THREAD] Restored context from thread {matching_thread.thread_id} ({len(history)} messages)")
+            except Exception as e:
+                logger.debug(f"Thread matching error: {e}")
+
     # === Recursive Intelligence: Classify and log user reaction ===
     if SESSION_LOGGER_ENABLED and REACTION_CLASSIFIER_ENABLED and session_id:
         try:
@@ -7755,8 +7824,37 @@ Your insights help us improve Mindrian!"""
 
         for element in message.elements:
             if hasattr(element, 'path') and element.path:
-                # Check if it's an image file
-                if is_image_file(element.name):
+                # DEBUG: Log element details for file type diagnosis
+                elem_mime = getattr(element, 'mime', None) or getattr(element, 'type', None)
+                elem_name = element.name or ""
+                elem_path = element.path or ""
+                logger.info(f"[FILE UPLOAD] name={elem_name}, path={elem_path}, mime={elem_mime}")
+
+                # Determine if this is a document (PDF, DOCX, etc.) vs image
+                # Priority: 1) Extension from name, 2) Extension from path, 3) MIME type
+                from pathlib import Path
+                name_ext = Path(elem_name).suffix.lower() if elem_name else ""
+                path_ext = Path(elem_path).suffix.lower() if elem_path else ""
+                file_ext = name_ext or path_ext
+
+                # Document extensions that should NEVER be treated as images
+                DOCUMENT_EXTENSIONS = {'.pdf', '.docx', '.doc', '.txt', '.md', '.csv', '.json', '.py', '.js', '.html', '.css', '.xlsx', '.xls', '.pptx', '.ppt'}
+
+                # Check MIME type for PDFs that might have wrong extension
+                is_pdf_mime = elem_mime and 'pdf' in str(elem_mime).lower()
+                is_document = file_ext in DOCUMENT_EXTENSIONS or is_pdf_mime
+
+                # BUG FIX: Explicitly check for documents first, then images
+                # This prevents PDFs from being misidentified as images
+                if is_document:
+                    logger.info(f"[FILE UPLOAD] Detected as DOCUMENT: ext={file_ext}, mime={elem_mime}")
+                    is_image = False
+                else:
+                    is_image = is_image_file(elem_name) or is_image_file(elem_path)
+                    logger.info(f"[FILE UPLOAD] Detected as {'IMAGE' if is_image else 'UNKNOWN'}: ext={file_ext}, mime={elem_mime}")
+
+                # Check if it's an image file (by extension, not mime type)
+                if is_image:
                     # Handle image upload for multimodal
                     async with cl.Step(name=f"Processing image: {element.name}", type="tool") as img_step:
                         img_step.input = f"Preparing image for analysis: {element.name}"
@@ -7806,13 +7904,13 @@ Your insights help us improve Mindrian!"""
                             file_context += fallback_desc
 
                             await cl.Message(
-                                content=f"**Image processing failed for {element.name}**\n\n"
+                                content=f"**Image processing failed for {elem_name}**\n\n"
                                         f"Error: {failed_images[-1]['error']}\n\n"
                                         f"*The AI will acknowledge your upload but cannot see the image. "
                                         f"Please describe what's in the image or try re-uploading.*"
                             ).send()
                 else:
-                    # Extract text from uploaded document file
+                    # Extract text from uploaded document file (PDF, DOCX, TXT, etc.)
                     async with cl.Step(name=f"Processing: {element.name}", type="tool") as file_step:
                         file_step.input = f"Extracting content from {element.name}"
 
@@ -7826,6 +7924,9 @@ Your insights help us improve Mindrian!"""
                             char_count = metadata.get("char_count", 0)
 
                             # BUG FIX: Check for empty extraction (Bug 11 - causes Chinese "can't see images" response)
+                            # DEBUG: Log extraction results for diagnosis
+                            logger.info(f"[PDF EXTRACT] file={element.name}, type={file_type}, chars={char_count}, content_preview={content[:100] if content else 'EMPTY'}...")
+
                             if char_count < 50 and file_type == "pdf":
                                 file_step.output = f"Warning: Only extracted {char_count} characters (may be scanned/image PDF)"
                                 await cl.Message(
@@ -8687,6 +8788,26 @@ The user expects you to understand the context and add your specialized value.
             "phases": [p.copy() for p in phases] if phases else [],
             "current_phase": current_phase,
         }
+
+        # === Thread System: Save to topic-aware thread ===
+        if THREAD_SYSTEM_ENABLED:
+            try:
+                thread_id = cl.user_session.get("current_thread_id")
+                if not thread_id:
+                    # Get or create thread for this conversation
+                    thread_id, _ = get_or_create_thread(context_key, bot_id, history)
+                    cl.user_session.set("current_thread_id", thread_id)
+                # Update thread with latest context
+                save_thread_context(
+                    thread_id=thread_id,
+                    user_key=context_key,
+                    history=history,
+                    phases=phases,
+                    current_phase=current_phase,
+                    bot_id=bot_id
+                )
+            except Exception as e:
+                logger.debug(f"Thread save error: {e}")
 
         # Persist to Supabase for cross-session survival (fire-and-forget)
         from utils.context_persistence import save_cross_bot_context

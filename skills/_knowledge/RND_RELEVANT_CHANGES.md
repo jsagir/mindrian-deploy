@@ -1,8 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-03 23:10*
+*Auto-generated: 2026-02-04 00:40*
 
 ---
+
+## 2026-02-04
+
+### ✨ feat: Add Oracle Foresight Engine + Intelligence Layer
+
+- **Commit:** `fcc9613d`
+- **Author:** jsagir
+- **Files changed:** 22
+  - intelligence/__init__.py
+  - intelligence/agents/__init__.py
+  - intelligence/agents/multi_agent.py
+  - intelligence/agents/research_agent.py
+  - intelligence/pipelines/__init__.py
+- **Details:** Complete Oracle prediction market system with:
 
 ## 2026-02-03
 

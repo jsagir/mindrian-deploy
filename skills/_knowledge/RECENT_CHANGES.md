@@ -1,8 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-03 23:10*
+*Auto-generated: 2026-02-04 00:40*
 
 ---
+
+## 2026-02-04
+
+### ✨ feat: Add Oracle Foresight Engine + Intelligence Layer
+
+- **Commit:** `fcc9613d`
+- **Author:** jsagir
+- **Files changed:** 22
+  - intelligence/__init__.py
+  - intelligence/agents/__init__.py
+  - intelligence/agents/multi_agent.py
+  - intelligence/agents/research_agent.py
+  - intelligence/pipelines/__init__.py
+- **Details:** Complete Oracle prediction market system with:
 
 ## 2026-02-03
 
@@ -490,13 +504,3 @@
   - sql/opportunity_bank.sql
   - tools/opportunity_bank.py
 - **Details:** This commit implements the full Bank of Opportunities registry as specified
-
-### 🐛 fix: Write errors to stderr for proper cron endpoint error reporting
-
-- **Commit:** `fddda5a8`
-- **Author:** Claude
-- **Files changed:** 3
-  - mindrian_chat.py
-  - scripts/daily_summary.py
-  - utils/email_sender.py
-- **Details:** The daily summary cron endpoint was returning "Unknown error" because
