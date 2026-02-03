@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-03 22:42*
+*Auto-generated: 2026-02-03 22:56*
 
 ---
 
 ## 2026-02-03
+
+### 📝 docs: Update README with v3.1 features + improve agent welcome messages
+
+- **Commit:** `c1ed47c9`
+- **Author:** jsagir
+- **Files changed:** 5
+  - README.md
+  - mindrian_chat.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** README updates:
 
 ### 🐛 fix: Add missing pws_brain search functions for assessment engine
 
@@ -349,13 +361,3 @@
 - **Files changed:** 1
   - scripts/daily_summary.py
 - **Details:** - Fix date counting: today and yesterday counts are now separate (not combined in 'last 24h')
-
-## 2026-02-01
-
-### ✨ feat: Add /api/daily-summary endpoint for external cron
-
-- **Commit:** `98ed87d7`
-- **Author:** Claude
-- **Files changed:** 1
-  - mindrian_chat.py
-- **Details:** - Adds GET /api/daily-summary endpoint callable by cron-job.org

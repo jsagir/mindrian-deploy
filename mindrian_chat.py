@@ -1228,6 +1228,12 @@ def get_core_action_buttons(include_example: bool = True) -> list:
             label="🗺️ Map Ideas",
             tooltip="Visualize key ideas as a mindmap diagram",
         ),
+        cl.Action(
+            name="view_opportunities",
+            payload={"action": "bank"},
+            label="🏦 Opportunities",
+            tooltip="View your saved opportunities bank",
+        ),
     ]
 
     if include_example:
@@ -9675,6 +9681,148 @@ async def on_remove_opportunity(action: cl.Action):
             await cl.Message(content=f"Could not remove opportunity. It may have already been removed.").send()
     except Exception as e:
         await cl.Message(content=f"Error removing opportunity: {str(e)[:100]}").send()
+
+
+@cl.action_callback("view_opportunities")
+async def on_view_opportunities(action: cl.Action):
+    """Display all saved opportunities in the Opportunity Bank."""
+    try:
+        from tools.opportunity_bank import get_opportunities_from_table, get_opportunity_stats
+
+        session_id = str(cl.user_session.get("id", "anonymous"))
+        user_id = session_id
+
+        # Get opportunities for this user
+        opportunities = await get_opportunities_from_table(user_id=user_id, limit=20)
+
+        if not opportunities:
+            await cl.Message(
+                content="🏦 **Your Opportunity Bank is empty.**\n\nOpportunities are automatically extracted when you:\n- Work through workshops\n- Upload documents for grading\n- Discuss problems worth solving\n\nKeep exploring and your bank will grow!",
+                actions=[
+                    cl.Action(name="switch_to_tta", payload={}, label="🔮 Try TTA Workshop"),
+                ]
+            ).send()
+            return
+
+        # Get stats
+        stats = await get_opportunity_stats()
+
+        # Build summary message
+        summary = f"""🏦 **Your Opportunity Bank**
+
+**{len(opportunities)} opportunities saved** | Total in system: {stats.get('total_opportunities', 'N/A')}
+
+Click on any opportunity card to explore it further:
+"""
+        await cl.Message(content=summary).send()
+
+        # Display each opportunity as OpportunityCard
+        for opp in opportunities[:10]:  # Limit to 10 to avoid overload
+            try:
+                card = cl.CustomElement(
+                    name="OpportunityCard",
+                    props={
+                        "id": opp.get("id", ""),
+                        "title": opp.get("name", "Untitled Opportunity"),
+                        "description": opp.get("description", "")[:200],
+                        "domain": opp.get("domain", "General"),
+                        "score": opp.get("relevance_score", 0.5),
+                        "tags": opp.get("tags", [])[:5],
+                        "createdAt": opp.get("created_at", ""),
+                    },
+                    display="inline"
+                )
+                await cl.Message(
+                    content="",
+                    elements=[card],
+                    actions=[
+                        cl.Action(
+                            name="explore_opportunity",
+                            payload={"id": opp.get("id"), "title": opp.get("name")},
+                            label="🔍 Explore"
+                        ),
+                        cl.Action(
+                            name="remove_opportunity",
+                            payload={"id": opp.get("id"), "title": opp.get("name")},
+                            label="🗑️ Remove"
+                        ),
+                    ]
+                ).send()
+            except Exception as card_err:
+                # Fallback to simple text if card fails
+                await cl.Message(
+                    content=f"**{opp.get('name', 'Opportunity')}**\n{opp.get('description', '')[:150]}...\n*Domain: {opp.get('domain', 'General')}*",
+                    actions=[
+                        cl.Action(
+                            name="explore_opportunity",
+                            payload={"id": opp.get("id"), "title": opp.get("name")},
+                            label="🔍 Explore"
+                        ),
+                    ]
+                ).send()
+
+    except Exception as e:
+        await cl.Message(content=f"Error loading opportunities: {str(e)[:100]}").send()
+
+
+@cl.action_callback("explore_opportunity")
+async def on_explore_opportunity(action: cl.Action):
+    """Explore a specific opportunity - continue the conversation about it."""
+    opp_id = action.payload.get("id", "")
+    title = action.payload.get("title", "this opportunity")
+
+    try:
+        from tools.opportunity_bank import get_opportunities_from_table
+
+        # Fetch the full opportunity details
+        session_id = str(cl.user_session.get("id", "anonymous"))
+        opportunities = await get_opportunities_from_table(user_id=session_id, limit=50)
+
+        # Find the specific opportunity
+        opportunity = None
+        for opp in opportunities:
+            if opp.get("id") == opp_id:
+                opportunity = opp
+                break
+
+        if not opportunity:
+            await cl.Message(content=f"Could not find opportunity '{title}'. It may have been removed.").send()
+            return
+
+        # Build exploration context
+        exploration_prompt = f"""🔍 **Let's explore: {opportunity.get('name', title)}**
+
+**Description:** {opportunity.get('description', 'No description')}
+
+**Domain:** {opportunity.get('domain', 'General')}
+**Problem Statement:** {opportunity.get('problem_statement', 'Not specified')}
+
+**Tags:** {', '.join(opportunity.get('tags', [])[:5]) or 'None'}
+
+---
+
+I'll help you dig deeper into this opportunity. We can:
+- Validate the problem exists (Camera Test)
+- Explore who has this problem
+- Research the market size
+- Apply PWS frameworks (TTA, JTBD, etc.)
+
+**What aspect would you like to explore first?**"""
+
+        await cl.Message(
+            content=exploration_prompt,
+            actions=[
+                cl.Action(name="deep_research", payload={"query": f"market research {opportunity.get('domain', '')} {opportunity.get('name', '')}"}, label="🔍 Research This"),
+                cl.Action(name="switch_to_redteam", payload={}, label="😈 Red Team It"),
+                cl.Action(name="switch_to_jtbd", payload={}, label="🎯 JTBD Analysis"),
+            ]
+        ).send()
+
+        # Store in session for follow-up context
+        cl.user_session.set("exploring_opportunity", opportunity)
+
+    except Exception as e:
+        await cl.Message(content=f"Error exploring opportunity: {str(e)[:100]}").send()
 
 
 async def _run_grading_pipeline(file_path: str, file_name: str):
