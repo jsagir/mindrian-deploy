@@ -1,6 +1,6 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-03 23:00*
+*Auto-generated: 2026-02-03 23:05*
 
 ---
 
@@ -162,13 +162,3 @@
 - **Files changed:** 1
   - scripts/daily_summary.py
 - **Details:** - Fix date counting: today and yesterday counts are now separate (not combined in 'last 24h')
-
-## 2026-02-01
-
-### 🐛 fix: Use middleware for cron endpoint to bypass Chainlit routing
-
-- **Commit:** `de9c90fd`
-- **Author:** Claude
-- **Files changed:** 1
-  - mindrian_chat.py
-- **Details:** - APIRouter approach didn't work (Chainlit catch-all still intercepted)
