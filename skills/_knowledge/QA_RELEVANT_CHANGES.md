@@ -1,6 +1,6 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-03 17:22*
+*Auto-generated: 2026-02-03 17:29*
 
 ---
 
@@ -152,12 +152,3 @@
 - **Files changed:** 1
   - mindrian_chat.py
 - **Details:** The function was calling itself recursively instead of calling
-
-### 🐛 fix: Prevent maximum recursion depth in validation bot and JSON encoder
-
-- **Commit:** `0f6f558a`
-- **Author:** Claude
-- **Files changed:** 2
-  - mindrian_chat.py
-  - utils/context_persistence.py
-- **Details:** - Replace storing complex ValidationState dataclass with simple dict summary

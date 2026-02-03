@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-03 17:22*
+*Auto-generated: 2026-02-03 17:29*
 
 ---
 
 ## 2026-02-03
+
+### ✨ feat: Upgrade to Gemini 2.5-flash + UI improvements + new utilities
+
+- **Commit:** `5974ff8e`
+- **Author:** jsagir
+- **Files changed:** 41
+  - agents/multi_agent_graph.py
+  - docs/LANGEXTRACT_RECURSIVE_INTELLIGENCE_PLAN.md
+  - governance/audit_trail.py
+  - governance/eval_suite.py
+  - prompts/__init__.py
+- **Details:** Model Upgrades (gemini-2.0-flash → gemini-2.5-flash):
 
 ### ✨ feat: Add Recursive Intelligence - session learning system
 
