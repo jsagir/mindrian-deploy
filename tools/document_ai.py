@@ -22,14 +22,32 @@ except ImportError:
 
 # Configuration
 GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
-GCP_LOCATION = os.getenv("GCP_LOCATION", "us")
+GCP_LOCATION = os.getenv("GCP_LOCATION", "eu")
 DOCAI_PROCESSOR_ID = os.getenv("DOCAI_PROCESSOR_ID")
+
+# Handle service account credentials from JSON env var
+_credentials_configured = False
+if os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON"):
+    import json
+    import tempfile
+    try:
+        creds_json = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+        # Write to temp file for Google client libraries
+        creds_file = tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False)
+        creds_file.write(creds_json)
+        creds_file.close()
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = creds_file.name
+        _credentials_configured = True
+        print(f"✅ Document AI credentials configured from GOOGLE_APPLICATION_CREDENTIALS_JSON")
+    except Exception as e:
+        print(f"⚠️ Failed to configure Document AI credentials: {e}")
 
 # Check if fully configured
 DOCUMENT_AI_CONFIGURED = all([
     DOCUMENT_AI_AVAILABLE,
     GCP_PROJECT_ID,
-    DOCAI_PROCESSOR_ID
+    DOCAI_PROCESSOR_ID,
+    _credentials_configured or os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 ])
 
 
