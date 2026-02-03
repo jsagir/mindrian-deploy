@@ -460,57 +460,180 @@ See `R&D/09_graphrag_lite/README.md` for full documentation.
 
 ---
 
+## Intelligence Layer (LangGraph Pipelines)
+
+Mindrian uses **LangGraph** for complex multi-step workflows in `intelligence/pipelines/`. This provides:
+
+- **Explicit state management** - TypedDict states track each step
+- **Conditional routing** - Route to different handlers based on intent
+- **Automatic parallelization** - Independent operations run concurrently
+- **Retry logic** - Failed steps can retry with fallbacks
+- **Debuggability** - Graph visualization shows execution flow
+
+### Available Pipelines
+
+| Pipeline | Purpose | File |
+|----------|---------|------|
+| **Message Router** | Route messages by intent (feedback, image, files, grading, research, conversation) | `message_router.py` |
+| **File Processing** | Upload → Detect → Extract → Chunk → Embed to Neo4j | `file_processing.py` |
+| **Oracle** | Prediction markets: Formulate → Research → Predict → Resolve → Learn | `oracle_pipeline.py` |
+| **Minto Pyramid** | SCQA analysis with deep research | `minto_pyramid.py` |
+| **Grading** | Multi-phase assessment with Neo4j evidence | `grading.py` |
+| **Domain Discovery** | CV/research analysis for domain selection | `domain_discovery.py` |
+| **Reverse Salient** | Cross-domain discovery (10 stages) | `reverse_salient.py` |
+
+### File Processing Pipeline
+
+```
+┌──────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐
+│  DETECT  │ ──▶ │ EXTRACT  │ ──▶ │  CHUNK   │ ──▶ │  EMBED   │
+│ File Type│     │ Content  │     │ Semantic │     │ LazyGraph│
+└──────────┘     └──────────┘     └──────────┘     └──────────┘
+     │                │                │                │
+ PDF/DOCX/        PyPDF2/DocAI/    Recursive       Neo4j nodes +
+ Image detect     OCR routing      splitter        LangExtract
+                  + auto-retry                     relationships
+```
+
+Features:
+- **Multi-extractor routing**: PDF → PyPDF2 (fallback to DocAI), DOCX → python-docx, Images → OCR
+- **LazyGraph integration**: Creates Document/Chunk nodes + relationships via LangExtract
+- **Entity extraction**: Concepts, Problems, Frameworks, Assumptions → Neo4j relationships
+
+### Message Router Pipeline
+
+```
+┌──────────┐     ┌──────────┐     ┌──────────────────────────────┐
+│ CLASSIFY │ ──▶ │ VALIDATE │ ──▶ │ Route to appropriate handler │
+│  Intent  │     │  Route   │     └──────────────────────────────┘
+└──────────┘     └──────────┘              │
+                                           ▼
+                      ┌────────────────────┼────────────────────┐
+                      │                    │                    │
+                      ▼                    ▼                    ▼
+               ┌──────────┐         ┌──────────┐         ┌──────────┐
+               │ Feedback │         │  Image   │         │  Grading │
+               │  Flow    │         │   Gen    │         │   Flow   │
+               └──────────┘         └──────────┘         └──────────┘
+```
+
+### Oracle Prediction Pipeline
+
+```
+Market Idea ──▶ FORMULATE ──▶ RESEARCH (parallel) ──▶ PREDICT ──▶ RESOLVE ──▶ RETROSPECTIVE
+                    │              │
+                    │    ┌─────────┼─────────┐
+                    │    ▼         ▼         ▼
+                    │  Tavily   Neo4j    FileSearch
+                    │  Search   Context     RAG
+                    │    │         │         │
+                    │    └─────────┴─────────┘
+                    │              │
+                    ▼              ▼
+              Research Brief + HSI Surprise ──▶ Neo4j Learning Loop
+```
+
+### Usage
+
+```python
+from intelligence.pipelines import (
+    route_message,           # Message routing
+    process_files,           # File processing
+    run_oracle_formulation,  # Prediction markets
+    run_minto_pipeline,      # SCQA analysis
+    run_grading_pipeline,    # Assessment
+)
+
+# Route a message
+result = await route_message(
+    user_message="Analyze this PDF",
+    session_id="session_123",
+    bot_id="lawrence",
+    attachments=message.elements,
+)
+# result.route = "file_process"
+
+# Process files with Neo4j embedding
+result = await process_files(
+    files=[{"path": "/path/to/doc.pdf", "name": "doc.pdf"}],
+    embed_to_neo4j=True,
+)
+```
+
+---
+
 ## Project Structure
 
 ```
 mindrian-deploy/
-├── mindrian_chat.py              # Main Chainlit application (800+ lines)
-│   ├── BOTS dict                 # Bot configurations
+├── mindrian_chat.py              # Main Chainlit application (10K+ lines)
+│   ├── BOTS dict                 # Bot configurations (17 agents)
 │   ├── STARTERS dict             # Conversation starters per bot
 │   ├── WORKSHOP_PHASES dict      # Phase definitions per bot
-│   ├── @cl.set_starters          # Starter buttons
-│   ├── @cl.on_settings_update    # Settings panel handler
 │   ├── @cl.on_chat_start         # Session initialization
-│   ├── @cl.on_chat_resume        # Session restoration
-│   ├── @cl.on_message            # Message handling with Gemini
-│   ├── @cl.on_stop               # Stop button handler
-│   ├── @cl.on_audio_start/chunk/end  # Audio streaming
-│   └── Action handlers           # Button callbacks
+│   ├── @cl.on_message            # Message handling (routes to pipelines)
+│   └── Action handlers           # 70+ button callbacks
 │
-├── prompts/                      # System prompts for each bot
-│   ├── __init__.py               # Exports all prompts
+├── intelligence/                 # LangGraph pipelines & tools
+│   ├── __init__.py               # Exports all pipelines and tools
+│   ├── schemas.py                # Pydantic models for structured outputs
+│   ├── tools.py                  # LangChain @tool decorated functions
+│   │
+│   ├── pipelines/                # LangGraph StateGraph workflows
+│   │   ├── message_router.py     # Route by intent (feedback/image/file/grading)
+│   │   ├── file_processing.py    # Upload → Extract → Chunk → Embed
+│   │   ├── oracle_pipeline.py    # Prediction market workflow
+│   │   ├── minto_pyramid.py      # SCQA deep research
+│   │   ├── grading.py            # Assessment with evidence
+│   │   ├── domain_discovery.py   # CV → research domain
+│   │   └── reverse_salient.py    # Cross-domain discovery
+│   │
+│   ├── tools/                    # Specialized LangChain tools
+│   │   ├── oracle_tools.py       # Prediction market operations
+│   │   └── text2cypher.py        # Natural language → Cypher
+│   │
+│   └── agents/                   # Multi-agent orchestration
+│       ├── research_agent.py     # Research coordination
+│       └── multi_agent.py        # Multi-perspective analysis
+│
+├── prompts/                      # System prompts (17 bots)
 │   ├── larry_core.py             # Larry's conversational prompt
-│   ├── tta_workshop.py           # Trending to the Absurd (7 phases)
-│   ├── jtbd_workshop.py          # Jobs to Be Done (6 phases)
-│   ├── scurve_workshop.py        # S-Curve Analysis (5 phases)
-│   ├── redteam.py                # Red Teaming (6 phases)
-│   └── ackoff_workshop.py        # Ackoff's Pyramid DIKW (650+ lines)
+│   ├── oracle_agent.py           # Prediction market prompt
+│   ├── tta_workshop.py           # Trending to the Absurd
+│   ├── jtbd_workshop.py          # Jobs to Be Done
+│   ├── ackoff_workshop.py        # Ackoff's Pyramid DIKW
+│   └── [12 more workshop prompts...]
 │
-├── tools/                        # External tool integrations
-│   ├── __init__.py
-│   ├── tavily_search.py          # Tavily web search wrapper
-│   ├── pws_brain.py              # Gemini File Search integration
+├── tools/                        # External integrations
+│   ├── tavily_search.py          # Web research
+│   ├── pws_brain.py              # Gemini File Search
 │   ├── graphrag_lite.py          # Neo4j + vector hybrid RAG
-│   └── neo4j_framework_discovery.py  # Neo4j graph utilities
+│   ├── langextract.py            # Semantic extraction
+│   └── document_ai.py            # Google Document AI OCR
 │
 ├── utils/                        # Utility functions
-│   ├── __init__.py
-│   ├── charts.py                 # Plotly charts + DIKW pyramid + DataFrames
-│   ├── gemini_rag.py             # Gemini File Search utilities
-│   ├── file_processor.py         # PDF/DOCX/TXT extraction
-│   ├── media.py                  # ElevenLabs TTS, exports
-│   └── storage.py                # Supabase Storage integration
+│   ├── charts.py                 # Plotly visualizations
+│   ├── diagrams.py               # Mermaid diagram generation
+│   ├── file_processor.py         # PDF/DOCX extraction
+│   ├── media.py                  # TTS, video, audio
+│   └── ui_elements.py            # Custom Chainlit elements
 │
-├── public/                       # Static assets
-│   └── icons/                    # 21 SVG icons for starters
+├── sql/                          # Database schemas
+│   └── oracle_schema.sql         # Supabase: markets, predictions, scores
 │
-├── .chainlit/
-│   └── config.toml               # Chainlit configuration (v2.9.5 format)
+├── skills/                       # Claude Code skills
+│   ├── langgraph/SKILL.md        # LangGraph patterns
+│   ├── mindrian-stack/           # Architecture reference
+│   └── _knowledge/               # Auto-updated change logs
 │
-├── requirements.txt              # Python dependencies
-├── .env.example                  # Environment template
-├── chainlit.md                   # Welcome page content
-└── README.md                     # This file
+├── public/elements/              # Custom JSX components
+│   ├── MermaidDiagram.jsx        # Mermaid rendering
+│   ├── GradeReveal.jsx           # Assessment UI
+│   └── ThinkingPanel.jsx         # Reasoning display
+│
+└── docs/                         # Documentation
+    ├── REFACTORING_ANALYSIS.md   # Architecture migration plan
+    └── A2A_PRACTICAL_ARCHITECTURE.md
 ```
 
 ---

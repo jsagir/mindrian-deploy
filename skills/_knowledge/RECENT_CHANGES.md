@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-04 00:48*
+*Auto-generated: 2026-02-04 00:56*
 
 ---
 
 ## 2026-02-04
+
+### 📝 docs: Add refactoring analysis + update skills with LangGraph pipelines
+
+- **Commit:** `261cb0a3`
+- **Author:** jsagir
+- **Files changed:** 10
+  - docs/REFACTORING_ANALYSIS.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+  - skills/langchain/SKILL.md
+- **Details:** - REFACTORING_ANALYSIS.md: 10K line monolith → modular LangGraph architecture
 
 ### ✨ feat: Add LangGraph file processing pipeline with LazyGraph integration
 
@@ -495,15 +507,3 @@
 - **Files changed:** 1
   - protocols/triple_mode.py
 - **Details:** - Move "idea" from brainstorm to venture keywords (startup ideas → build_venture)
-
-### ✨ feat: Implement Triple-Mode Architecture with Agent Registry and Neo4j schema
-
-- **Commit:** `d3e38935`
-- **Author:** jsagir
-- **Files changed:** 17
-  - QA_REPORT_PHASE_TRANSITIONS.txt
-  - R&D/25_triple_mode_architecture/README.md
-  - R&D/25_triple_mode_architecture/neo4j_analysis.py
-  - docs/DUAL_MODE_ARCHITECTURE_PLAN.md
-  - docs/TRIPLE_MODE_ARCHITECTURE_SPEC.md
-- **Details:** - Add protocols layer: agent_registry (14 agents), triple_mode (entry points,

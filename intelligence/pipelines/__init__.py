@@ -55,6 +55,15 @@ from .file_processing import (
     process_uploaded_files_langgraph,
 )
 
+from .message_router import (
+    MessageRouterState,
+    create_message_router,
+    get_message_router,
+    route_message,
+    GRADING_BOTS,
+    DOCUMENT_EXTENSIONS,
+)
+
 __all__ = [
     # Minto Pyramid (deep_research_full)
     "MintoPyramidState",
@@ -89,4 +98,11 @@ __all__ = [
     "process_files",
     "process_single_file",
     "process_uploaded_files_langgraph",
+    # Message Router Pipeline
+    "MessageRouterState",
+    "create_message_router",
+    "get_message_router",
+    "route_message",
+    "GRADING_BOTS",
+    "DOCUMENT_EXTENSIONS",
 ]
