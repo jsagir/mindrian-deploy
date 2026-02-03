@@ -74,6 +74,13 @@ from .minto_grading import (
     get_minto_letter_grade,
 )
 
+from .agent_generator_meta import (
+    AGENT_GENERATOR_META_PROMPT,
+    MINDRIAN_TOOL_STACK,
+    THINKINGPANEL_COLORS,
+    validate_agent_config,
+)
+
 __all__ = [
     "LARRY_RAG_SYSTEM_PROMPT",
     "TTA_WORKSHOP_PROMPT",
@@ -125,4 +132,9 @@ __all__ = [
     "POST_GRADING_LAWRENCE_CONTEXT",
     "calculate_minto_score",
     "get_minto_letter_grade",
+    # Agent Generator Meta-Prompt
+    "AGENT_GENERATOR_META_PROMPT",
+    "MINDRIAN_TOOL_STACK",
+    "THINKINGPANEL_COLORS",
+    "validate_agent_config",
 ]
