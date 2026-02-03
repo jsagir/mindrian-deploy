@@ -800,11 +800,13 @@ I'm Lawrence, your thinking partner. I help you identify problems worth solving 
         "system_prompt": LARRY_RAG_SYSTEM_PROMPT,
         "has_phases": False,
         "simple_mode": False,
-        "welcome": """🔬 **Welcome to Larry Playground!**
+        "welcome": """🔬 **Welcome to the Playground!**
 
-Full access to every Mindrian tool — deep research, multi-agent analysis, extraction, synthesis, and all specialized agents.
+Think of this as your innovation laboratory. You have access to every thinking tool, research capability, and specialist AI available in Mindrian.
 
-**What are you working on?**"""
+It's like having a team of consultants, researchers, and devil's advocates on call — ready to dig deep, challenge assumptions, and help you see what you're missing.
+
+**What challenge are you wrestling with?**"""
     },
     "tta": {
         "name": "Trending to the Absurd",
@@ -903,31 +905,21 @@ This isn't about being negative — it's about making your idea bulletproof.
         "system_prompt": ACKOFF_WORKSHOP_PROMPT,
         "has_phases": True,
         "welcome": """🔺 **Ackoff's Pyramid Workshop**
-### The DIKW Validation Method
+### From Data to Wisdom — Or Catch Yourself Climbing the Wrong Ladder
 
-Hello. I'm Larry Aronhime.
+Hello, I'm Larry Aronhime.
 
-Before we do anything else, I need to understand who I'm working with.
+Here's a common trap: People think they have knowledge when they only have information. They think they have wisdom when they only have opinions.
 
-The DIKW Pyramid helps you climb from raw **Data** → **Information** → **Knowledge** → **Understanding** → **Wisdom**.
+Ackoff's Pyramid is like a ladder from raw data at the bottom to genuine wisdom at the top. Most people are stuck somewhere in the middle, thinking they're higher than they are.
 
-Or, if you already have a solution, we'll **climb down** to validate it's actually grounded in reality.
+**We can work two directions:**
+- **Climb up** — Build from data to actionable understanding
+- **Climb down** — Test whether your "brilliant insight" is actually grounded in reality
 
-**Tell me about yourself/your team:**
+**Who am I working with today, and what's the challenge?**
 
-1️⃣ **Who am I talking to?**
-   → Individual or team? What roles?
-
-2️⃣ **What's your domain?**
-   → Industry, organization, product area?
-
-3️⃣ **What's at stake?**
-   → What happens if you get this wrong?
-
-4️⃣ **What's your timeline?**
-   → When do you need to act?
-
-I'm listening."""
+Tell me a bit about yourself and what you're trying to figure out."""
     },
     "bono": {
         "name": "BONO Master",
@@ -937,19 +929,17 @@ I'm listening."""
         "system_prompt": BONO_MASTER_PROMPT,
         "has_phases": True,
         "welcome": """🎭 **BONO Master Workshop**
-### Six Thinking Hats + Minto Pyramid + Expert Panels
+### See Your Challenge Through Six Different Lenses
 
-Hello, I'm your BONO Master facilitator.
+Hello, I'm your strategic thinking facilitator.
 
-I orchestrate comprehensive strategic analysis by combining:
-- **Domain-specific expert personas** tailored to your challenge
-- **Six Thinking Hats** for parallel perspective exploration
-- **Minto Pyramid** for structured synthesis
-- **Expert Panel Discussions** for breakthrough insights
+Imagine assembling a panel of experts — each wearing a different "thinking hat" — to examine your challenge from every angle. One focuses purely on facts, another on gut feelings, one plays devil's advocate, another looks for possibilities... and so on.
 
-**Tell me about the challenge or decision you're facing.**
+This is how companies like IBM cut meeting time by 75% while making better decisions. Instead of everyone arguing from their default position, we think in parallel — one lens at a time.
 
-I'll generate a custom expert panel and guide you through a systematic exploration from multiple angles."""
+**What challenge or decision do you want this expert panel to examine?**
+
+Tell me what's on your mind, and I'll assemble the right specialists for your situation."""
     },
     "knowns": {
         "name": "Known-Unknowns",
@@ -1031,19 +1021,18 @@ You can also upload a **CV** or **research paper** to discover domains automatic
         "description": "Workshop: Ten Questions + Investment Thesis evaluation",
         "system_prompt": PWS_INVESTMENT_PROMPT,
         "has_phases": True,
-        "welcome": """💰 **PWS Investment Analysis**
-### Ten Questions + Investment Thesis
+        "welcome": """💰 **Investment Analysis Workshop**
+### Is This Worth Your Time and Money?
 
-Hello, I'm your rigorous investment analyst.
+Hello, I'm your investment analyst.
 
-I evaluate opportunities using the PWS framework:
-1. **Ten Questions Rapid Assessment** - Must pass 8/10 to proceed
-2. **Investment Thesis Deep Analysis** - 6 comprehensive categories
-3. **Devil's Advocate Integration** - Every positive challenged
+Every investor has the same nightmare: falling in love with an idea and realizing too late it was fatally flawed. I help you avoid that by asking the questions that separate the winners from the wishful thinking.
 
-**What startup, opportunity, or investment are you evaluating?**
+Think of me as your skeptical but fair-minded partner who wants you to succeed — but won't let you fool yourself.
 
-I'll systematically assess whether this is worth pursuing and why."""
+**What startup, opportunity, or investment are you considering?**
+
+We'll pressure-test it together and see if it holds up."""
     },
     "scenario": {
         "name": "Scenario Analysis",
@@ -1072,28 +1061,18 @@ This is how Shell survived the 1973 oil crisis when every other oil company was 
         "description": "Workshop: Validate ideas with domain-specific Six Thinking Hats + research",
         "system_prompt": MULTI_PERSPECTIVE_VALIDATION_PROMPT,
         "has_phases": True,
-        "welcome": """🎯 **Multi-Perspective Validation Workshop**
-### Evidence-Grounded Validation with Six Thinking Hats
+        "welcome": """🎯 **Validation Workshop**
+### Put Your Idea Through the Wringer
 
-Hello, I'm your Multi-Perspective Validation specialist.
+Hello, I'm your validation specialist.
 
-I don't just explore ideas—I **validate** them with evidence-grounded rigor using domain-specific Six Thinking Hats personas.
+You know that feeling when you think your idea is brilliant, but something nags at you? *"What am I missing?"* That's what this workshop answers.
 
-My methodology is based on:
-- **de Bono's Six Thinking Hats** for parallel thinking
-- **IBM case study**: 75% meeting time reduction
-- **ABB case study**: 30 days → 2 days through structured hat sequences
+Think of it like a mock trial for your idea. I'll assemble a panel of perspectives — optimists, skeptics, data analysts, creative thinkers — and each will independently research and challenge your concept. No groupthink. No echo chambers. Just rigorous, multi-angle validation.
 
-**The 5-Phase Process:**
-1. **Domain Extraction** — Analyze your context and stakeholders
-2. **Persona Construction** — Build domain-specific expert personas
-3. **Parallel Research** — Each hat conducts independent investigation
-4. **Structured Debate** — Cross-examine evidence and assumptions
-5. **Validation Report** — Evidence-grounded verdict and action plan
+**What idea, strategy, or decision needs validation?**
 
-**What idea, strategy, or decision do you want to validate?**
-
-Be specific—the more context you give me, the better I can tailor the expert personas to your domain."""
+The more context you give me about your situation, the sharper the analysis will be."""
     },
     "beautiful_question": {
         "name": "Beautiful Question",
@@ -1138,33 +1117,22 @@ Tell me what problem you're trying to solve, and we'll start by questioning whet
         "system_prompt": GRADING_AGENT_PROMPT,
         "has_phases": False,  # One-shot grading, not a phased workshop
         "simple_mode": False,
-        "welcome": """🎓 **Problem Discovery Grading Agent**
-### Evaluating Real Problem Discovery
+        "welcome": """🎓 **Problem Discovery Grading**
+### Did You Find a Real Problem Worth Solving?
 
-Hello, I'm your Problem Discovery Grading Agent.
+Hello, I'm your grading assistant.
 
-I evaluate students' ability to **systematically discover and validate REAL problems worth solving**. I prioritize problem reality over business viability—this is discovery phase, not investment.
+My job is simple: determine whether you've found a **real problem** that real people actually have. Not just an interesting idea. Not just something that sounds good on paper. A real problem, validated with real evidence.
 
-**My Grading Approach:**
+I'll look at:
+- Did you prove the problem exists? (This is most of the grade)
+- Did you discover multiple problems before picking one?
+- Did you use the right thinking tools?
+- Did you find connections others might miss?
 
-| Component | Weight | Focus |
-|-----------|--------|-------|
-| **Problem Reality** | 35% | "Is it Real?" validation |
-| **Problem Discovery** | 25% | Quantity & quality of problems |
-| **Framework Integration** | 20% | Proper use of PWS tools |
-| **Mindrian Thinking** | 10% | Hidden connections found |
-| **Can We Win?** | 5% | Basic capability check |
-| **Is it Worth It?** | 5% | Basic market sizing |
+**Upload your work (PDF, DOCX, or TXT) or paste it directly.**
 
-**I Use These Tools:**
-- 🧠 **Neo4j (Mindrian_Brain)** — Validate frameworks and find missed connections
-- 📚 **FileSearch RAG** — Course materials and case studies
-- 🔍 **LangExtract** — Structured PWS pattern detection
-- 🤖 **Gemini 3 Preview Pro** — Advanced reasoning for bias detection
-
-**Upload student work (PDF, DOCX, TXT) or paste the content directly.**
-
-I'll run the complete grading pipeline including mandatory bias detection."""
+I'll give you honest feedback on where you nailed it and where you have gaps."""
     },
     "minto": {
         "name": "Minto Problem Discovery Grading",

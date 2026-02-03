@@ -42,17 +42,36 @@ The platform uses **Gemini 3 Flash** with **Gemini File Search** (RAG) to retrie
 
 ---
 
-## Available Bots
+## Available Bots (17 Agents)
 
+### Core Thinking Partners
+| Bot ID | Name | Icon | Purpose |
+|--------|------|------|---------|
+| `lawrence` | Lawrence | 🧠 | Focused PWS thinking partner (default) |
+| `larry_playground` | Larry Playground | 🔬 | Full-featured PWS lab — all tools, research, multi-agent |
+
+### PWS Workshop Bots
 | Bot ID | Name | Icon | Phases | Purpose |
 |--------|------|------|--------|---------|
-| `lawrence` | Lawrence | 🧠 | N/A | Focused PWS thinking partner (default) |
-| `larry_playground` | Larry Playground | 🔬 | N/A | Full-featured PWS lab — all tools, research, multi-agent |
-| `tta` | Trending to the Absurd | crystal_ball | 8 | Escape presentism, find future problems |
-| `jtbd` | Jobs to Be Done | dart | 7 | Discover customer jobs |
-| `scurve` | S-Curve Analysis | chart_increasing | 6 | Technology timing analysis |
-| `redteam` | Red Teaming | smiling_imp | 7 | Stress-test assumptions |
-| `ackoff` | Ackoff's Pyramid | pyramid | 8 | DIKW validation methodology |
+| `tta` | Trending to the Absurd | 🔮 | 8 | Escape presentism, find future problems |
+| `jtbd` | Jobs to Be Done | 🎯 | 7 | Discover what customers hire products for |
+| `scurve` | S-Curve Analysis | 📈 | 6 | Technology timing and disruption |
+| `redteam` | Red Teaming | 😈 | 7 | Stress-test assumptions as devil's advocate |
+| `ackoff` | Ackoff's Pyramid | 🔺 | 8 | DIKW validation methodology |
+| `bono` | BONO Master | 🎭 | 6 | Six Thinking Hats + expert panels |
+| `knowns` | Known-Unknowns | ❓ | 4 | Rumsfeld Matrix blind spot discovery |
+| `nested_hierarchies` | Nested Hierarchies | 🏛️ | 4 | Systems analysis for leverage points |
+| `domain` | Domain Selection | 🧭 | 4 | Choose your innovation territory |
+| `investment` | PWS Investment | 💰 | 5 | Ten Questions + Investment Thesis |
+| `scenario` | Scenario Analysis | 🌐 | 5 | Multiple plausible futures |
+| `validation` | Validation Workshop | 🎯 | 5 | Multi-perspective stress testing |
+| `beautiful_question` | Beautiful Question | ❓ | 3 | WHY → WHAT IF → HOW methodology |
+
+### Assessment Bots
+| Bot ID | Name | Icon | Purpose |
+|--------|------|------|---------|
+| `grading` | Problem Discovery Grading | 🎓 | Evaluate problem discovery work |
+| `minto` | Minto Grading | 📊 | Autonomous assessment pipeline |
 
 ---
 
@@ -84,6 +103,70 @@ The platform uses **Gemini 3 Flash** with **Gemini File Search** (RAG) to retrie
 - **PostgreSQL Database** - Supabase-powered conversation history
 - **Session Resume** - Continue conversations across devices and sessions
 - **Supabase Storage** - Persistent file uploads
+
+---
+
+## New in v3.1 (February 2026)
+
+Major enhancements to intelligence, visualization, and user experience:
+
+### Recursive Intelligence (Session Learning)
+
+Mindrian now learns from every session to improve coaching quality:
+
+- **Session Logger** - Tracks patterns across conversations
+- **Reaction Classifier** - Detects user sentiment signals
+- **Session Distiller** - Extracts insights at session end
+
+This enables smarter coaching hints and continuous improvement.
+
+### Gemini 2.5-flash Upgrade
+
+Upgraded from Gemini 3 to **Gemini 2.5-flash** for:
+- Faster response times
+- Better reasoning quality
+- More natural conversation flow
+
+### 17 Specialized Agents (up from 7)
+
+New workshop bots added:
+- **BONO Master** - Six Thinking Hats + expert panels
+- **Known-Unknowns** - Rumsfeld Matrix blind spot discovery
+- **Nested Hierarchies** - Systems analysis for leverage points
+- **Domain Selection** - Choose your innovation territory
+- **Investment Analysis** - Ten Questions evaluation
+- **Scenario Analysis** - Multiple plausible futures
+- **Validation Workshop** - Multi-perspective stress testing
+- **Beautiful Question** - WHY → WHAT IF → HOW methodology
+- **Grading Agent** - Problem discovery assessment
+- **Minto Grading** - Autonomous grading pipeline
+
+### Rich Thinking Visualization
+
+- **ThinkingPanel** - Custom React element showing AI reasoning in real-time
+- **cl.Step** - Collapsible chain-of-thought steps
+- Transparent "thinking out loud" for educational value
+
+### Mermaid Diagrams & Visualizations
+
+- **Mindmaps** - Auto-generate idea maps from conversation
+- **QuadrantChart** - 2x2 matrix (risk, priority, etc.)
+- **BusinessModelCanvas** - Interactive 9-box canvas
+- **Flowcharts** - Process visualization
+
+### Document AI Smart Fallback
+
+Enhanced document processing:
+- Google Document AI for difficult PDFs
+- Automatic fallback from PyPDF2 to Document AI
+- Better handling of scanned documents
+
+### Graph-Driven Bot Routing
+
+Smart agent suggestions based on conversation context:
+- Neo4j-powered relevance scoring
+- Automatic "Switch to [Bot]" suggestions
+- Context-aware agent recommendations
 
 ---
 

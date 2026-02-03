@@ -1,10 +1,49 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-03 17:34*
+*Auto-generated: 2026-02-03 22:42*
 
 ---
 
 ## 2026-02-03
+
+### 🐛 fix: Add missing pws_brain search functions for assessment engine
+
+- **Commit:** `76efb851`
+- **Author:** jsagir
+- **Files changed:** 5
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+  - tools/graphrag_lite.py
+  - tools/pws_brain.py
+- **Details:** The assessment_engine.py was importing semantic_search and
+
+### ✨ feat: Add comprehensive AGENT_GENERATOR_META_PROMPT v2.0
+
+- **Commit:** `80824830`
+- **Author:** Claude
+- **Files changed:** 2
+  - prompts/__init__.py
+  - prompts/agent_generator_meta.py
+- **Details:** - Complete meta-prompt for generating Mindrian agent configurations
+
+### ✨ feat: Integrate ThinkingPanel custom element for rich thinking display
+
+- **Commit:** `98678f56`
+- **Author:** Claude
+- **Files changed:** 2
+  - mindrian_chat.py
+  - public/elements/ThinkingPanel.jsx
+- **Details:** Enhancement: Replace cl.Step with ThinkingPanel custom element for
+
+### 🐛 fix: Enforce English responses and improve PDF error handling (Bug 11)
+
+- **Commit:** `0b36fb38`
+- **Author:** Claude
+- **Files changed:** 2
+  - mindrian_chat.py
+  - prompts/multi_perspective_validation.py
+- **Details:** Root cause: When PDF extraction returned empty/minimal content, Gemini
 
 ### 📝 docs: Add QA release notes for Feb 3 - Recursive Intelligence + Gemini 2.5
 
@@ -320,64 +359,3 @@
 - **Files changed:** 1
   - mindrian_chat.py
 - **Details:** - Adds GET /api/daily-summary endpoint callable by cron-job.org
-
-### 🔧 chore: Add logs/*.log to gitignore
-
-- **Commit:** `ca69a60d`
-- **Author:** Claude
-- **Files changed:** 1
-- **Details:** https://claude.ai/code/session_01LSScnDkHM5RfFnzKKFCey2
-
-### ✨ feat: Add scheduler service for daily email summaries
-
-- **Commit:** `1eb14e49`
-- **Author:** Claude
-- **Files changed:** 2
-  - logs/.gitkeep
-  - scheduler_service.py
-- **Details:** - Add scheduler_service.py for Render.com Background Worker
-
-### 📝 docs: Add JSON schema validation, onboarding guide, and ADR
-
-- **Commit:** `1c105601`
-- **Author:** Claude
-- **Files changed:** 6
-  - ONBOARDING.md
-  - docs/adr/001-a2a-protocol-markdown.md
-  - protocols/__init__.py
-  - protocols/a2a_protocol.py
-  - protocols/schemas/__init__.py
-- **Details:** Implementing code review recommendations:
-
-### ✨ feat: Enhanced Context Journal with Supabase persistence and rich UI
-
-- **Commit:** `1b92be85`
-- **Author:** Claude
-- **Files changed:** 4
-  - mindrian_chat.py
-  - protocols/context_journal.py
-  - public/elements/EnhancedJournalViewer.jsx
-  - sql/journal_entries.sql
-- **Details:** Multi-skill implementation integrating mindrian-stack, chainlit-consultant,
-
-### ✨ feat: Add A2A Protocol for agent-to-agent communication via MD files
-
-- **Commit:** `049a6a25`
-- **Author:** Claude
-- **Files changed:** 6
-  - CLAUDE.md
-  - journals/example_session.md
-  - protocols/__init__.py
-  - protocols/a2a_protocol.py
-  - protocols/context_journal.py
-- **Details:** Implements structured handoff system between agents:
-
-### ✨ feat: Integrate Phase Insights for intelligent progress surfacing
-
-- **Commit:** `36a0ed5f`
-- **Author:** Claude
-- **Files changed:** 3
-  - CLAUDE.md
-  - mindrian_chat.py
-  - tools/phase_insights.py
-- **Details:** - Add tools/phase_insights.py module that transforms smart_phase_tracker

@@ -1,10 +1,55 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-03 17:34*
+*Auto-generated: 2026-02-03 22:42*
 
 ---
 
 ## 2026-02-03
+
+### 🐛 fix: Add missing pws_brain search functions for assessment engine
+
+- **Commit:** `76efb851`
+- **Author:** jsagir
+- **Files changed:** 5
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+  - tools/graphrag_lite.py
+  - tools/pws_brain.py
+- **Details:** The assessment_engine.py was importing semantic_search and
+
+### 🐛 fix: Enforce English responses and improve PDF error handling (Bug 11)
+
+- **Commit:** `0b36fb38`
+- **Author:** Claude
+- **Files changed:** 2
+  - mindrian_chat.py
+  - prompts/multi_perspective_validation.py
+- **Details:** Root cause: When PDF extraction returned empty/minimal content, Gemini
+
+### 🐛 fix: Replace HTML <details> with cl.Step for thinking display
+
+- **Commit:** `3d867db6`
+- **Author:** Claude
+- **Files changed:** 1
+  - mindrian_chat.py
+- **Details:** Bug 10: The thinking stream was showing as raw markdown instead of
+
+### 🐛 fix: Resolve session bugs from Nested Hierarchies analysis
+
+- **Commit:** `323c8bc4`
+- **Author:** Claude
+- **Files changed:** 1
+  - mindrian_chat.py
+- **Details:** Bug fixes from second session analysis (Nested Hierarchies → MOTJ):
+
+### 🐛 fix: Resolve critical session and truncation bugs from BONO Master analysis
+
+- **Commit:** `fa1038a8`
+- **Author:** Claude
+- **Files changed:** 1
+  - mindrian_chat.py
+- **Details:** Bug fixes from session analysis (Larry Playground → BONO Master):
 
 ### 📝 docs: Add QA release notes for Feb 3 - Recursive Intelligence + Gemini 2.5
 
@@ -143,13 +188,3 @@
 - **Files changed:** 1
   - mindrian_chat.py
 - **Details:** - Send TaskList separately instead of as Message element
-
-### 🐛 fix(security): Remove shell injection vulnerability and weak hash
-
-- **Commit:** `d99e0cc6`
-- **Author:** Claude
-- **Files changed:** 3
-  - protocols/context_journal.py
-  - scripts/lazy_graphrag_index.py
-  - scripts/lightrag_graph_push.py
-- **Details:** CRITICAL SECURITY FIXES from code review:
