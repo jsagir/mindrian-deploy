@@ -1,10 +1,21 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-04 00:40*
+*Auto-generated: 2026-02-04 00:44*
 
 ---
 
 ## 2026-02-04
+
+### 🐛 fix: Robust PDF detection to prevent image misidentification
+
+- **Commit:** `578b1adf`
+- **Author:** jsagir
+- **Files changed:** 4
+  - mindrian_chat.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** PDFs were sometimes being misidentified as images due to Chainlit
 
 ### ✨ feat: Add Oracle Foresight Engine + Intelligence Layer
 
@@ -494,13 +505,3 @@
   - tools/google_langextract.py
   - tools/opportunity_bank.py
 - **Details:** - opportunity_bank.py: Implement lazy cache pattern for embeddings
-
-### ✨ feat: PWS-compliant Bank of Opportunities with Supabase table storage
-
-- **Commit:** `19ad86c2`
-- **Author:** jsagir
-- **Files changed:** 3
-  - scripts/daily_summary.py
-  - sql/opportunity_bank.sql
-  - tools/opportunity_bank.py
-- **Details:** This commit implements the full Bank of Opportunities registry as specified

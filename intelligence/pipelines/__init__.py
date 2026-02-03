@@ -46,6 +46,15 @@ from .oracle_pipeline import (
     format_retrospective,
 )
 
+from .file_processing import (
+    FileState,
+    FilePipelineState,
+    create_file_processing_pipeline,
+    process_files,
+    process_single_file,
+    process_uploaded_files_langgraph,
+)
+
 __all__ = [
     # Minto Pyramid (deep_research_full)
     "MintoPyramidState",
@@ -73,4 +82,11 @@ __all__ = [
     "run_oracle_resolution",
     "format_research_brief",
     "format_retrospective",
+    # File Processing Pipeline
+    "FileState",
+    "FilePipelineState",
+    "create_file_processing_pipeline",
+    "process_files",
+    "process_single_file",
+    "process_uploaded_files_langgraph",
 ]

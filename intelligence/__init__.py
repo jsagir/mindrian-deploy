@@ -122,6 +122,13 @@ from .pipelines import (
     run_oracle_resolution,
     format_research_brief,
     format_retrospective,
+    # File Processing Pipeline
+    FileState,
+    FilePipelineState,
+    create_file_processing_pipeline,
+    process_files,
+    process_single_file,
+    process_uploaded_files_langgraph,
 )
 
 # =============================================================================
@@ -264,6 +271,13 @@ __all__ = [
     "run_oracle_resolution",
     "format_research_brief",
     "format_retrospective",
+    # File Processing Pipeline
+    "FileState",
+    "FilePipelineState",
+    "create_file_processing_pipeline",
+    "process_files",
+    "process_single_file",
+    "process_uploaded_files_langgraph",
     # Oracle Tools
     "create_prediction_market",
     "get_open_markets",
