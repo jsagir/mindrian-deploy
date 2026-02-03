@@ -1,6 +1,6 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-03 17:21*
+*Auto-generated: 2026-02-03 17:22*
 
 ---
 
@@ -385,11 +385,3 @@
 - **Files changed:** 1
   - qa/QA_ANALYZER_INSTRUCTIONS.md
 - **Details:** Comprehensive guide for AI assistants to:
-
-### 🐛 fix: Add core action buttons to all callback responses
-
-- **Commit:** `3e84be25`
-- **Author:** Claude
-- **Files changed:** 1
-  - mindrian_chat.py
-- **Details:** - Created get_core_action_buttons() helper for consistent button sets
