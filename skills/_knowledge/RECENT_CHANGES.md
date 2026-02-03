@@ -6,6 +6,15 @@
 
 ## 2026-02-03
 
+### 📝 docs: Sync skills knowledge base
+
+- **Commit:** `85f304ad`
+- **Author:** jsagir
+- **Files changed:** 3
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+
 ### ✨ feat: Upgrade to Gemini 2.5-flash + UI improvements + new utilities
 
 - **Commit:** `5974ff8e`
@@ -485,11 +494,3 @@
 - **Files changed:** 1
   - mindrian_chat.py
 - **Details:** UX improvements per PM analysis (80% improvement, 2% effort):
-
-### 🐛 fix: Critical - Fix infinite recursion in safe_task_list_send()
-
-- **Commit:** `47429322`
-- **Author:** Claude
-- **Files changed:** 1
-  - mindrian_chat.py
-- **Details:** The function was calling itself recursively instead of calling
