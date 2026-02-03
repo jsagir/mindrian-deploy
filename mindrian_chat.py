@@ -7625,9 +7625,22 @@ Your insights help us improve Mindrian!"""
                         else:
                             file_type = metadata.get("type", "file")
                             char_count = metadata.get("char_count", 0)
-                            file_step.output = f"Extracted {char_count:,} characters from {file_type}"
 
-                            # Add to context for LLM
+                            # BUG FIX: Check for empty extraction (Bug 11 - causes Chinese "can't see images" response)
+                            if char_count < 50 and file_type == "pdf":
+                                file_step.output = f"Warning: Only extracted {char_count} characters (may be scanned/image PDF)"
+                                await cl.Message(
+                                    content=f"⚠️ **{element.name}** appears to be a scanned or image-only PDF.\n\n"
+                                            f"Only {char_count} characters could be extracted. "
+                                            f"Please try:\n"
+                                            f"1. Re-uploading a text-based PDF\n"
+                                            f"2. Copy-pasting the content directly\n"
+                                            f"3. Using a PDF with selectable text"
+                                ).send()
+                            else:
+                                file_step.output = f"Extracted {char_count:,} characters from {file_type}"
+
+                            # Add to context for LLM (even if small, include it)
                             file_context += format_file_context(element.name, content, metadata)
 
                             # Notify user with inline PDF display if applicable
@@ -8166,7 +8179,9 @@ Your insights help us improve Mindrian!"""
         cache_name = get_cache_name(bot_id) if RAG_ENABLED else None
 
         # Build system instruction with context handoff if applicable
-        system_instruction = bot["system_prompt"]
+        # BUG FIX: Add language enforcement to prevent Chinese/other language responses (Bug 11)
+        language_enforcement = "\n\n[LANGUAGE RULE: ALWAYS respond in English regardless of user's browser locale or system settings. Never respond in Chinese, Japanese, or other languages unless explicitly requested.]\n"
+        system_instruction = bot["system_prompt"] + language_enforcement
         context_handoff = cl.user_session.get("context_handoff")
         previous_bot = cl.user_session.get("previous_bot")
 
