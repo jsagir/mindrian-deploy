@@ -1,0 +1,70 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #3/Critical Processed Thinking Perspective 15d218d9469481b3a5e1d662ade1ca33.md",
+  "display_name": "Course/Cohort-2024/Session #3/Critical Processed Thinking Perspective 15d218d9469481b3a5e1d662ade1ca33.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Critical Processed Thinking Perspective",
+    "topic": "Critical Thinking",
+    "frameworks": [
+      "Jobs-to-be-Done"
+    ],
+    "concepts": [
+      "Systematic Problem Analysis",
+      "Framework-Based Evaluation",
+      "Structured Decision-Making",
+      "User Needs",
+      "Process Mapping",
+      "User Journey Analysis",
+      "Outside-In Approach",
+      "Testing",
+      "Learning",
+      "Controlled Experiments"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Inefficiencies in processes",
+      "Random ideation",
+      "Innovation based on assumptions"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [],
+    "key_claims": [
+      "Understanding user needs is crucial before generating solutions.",
+      "A structured approach to problem-solving is more effective than random ideation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Systematic Problem Analysis",
+      "THIS_DOC -[TEACHES]-> Framework-Based Evaluation",
+      "THIS_DOC -[TEACHES]-> Structured Decision-Making",
+      "THIS_DOC -[USES_FRAMEWORK]-> Jobs-to-be-Done",
+      "THIS_DOC -[ADDRESSES]-> Inefficiencies in processes",
+      "THIS_DOC -[OPPOSES]-> Random ideation"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "problem",
+      "problem",
+      "Problem",
+      "problem"
+    ],
+    "solutions": [
+      "approach",
+      "approach",
+      "approach",
+      "solution",
+      "approach"
+    ],
+    "questions": [
+      "# Critical Processed Thinking Perspective\n\nPrompt: in up to 500 charterers How does the chapter encourage a structured, critical thinking approach to problem-solving?"
+    ]
+  },
+  "char_count": 1388,
+  "extracted_at": "2026-01-28T12:52:51.390344"
+}

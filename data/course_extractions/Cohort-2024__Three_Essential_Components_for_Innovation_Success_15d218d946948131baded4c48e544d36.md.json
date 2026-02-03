@@ -1,0 +1,71 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Three Essential Components for Innovation Success 15d218d946948131baded4c48e544d36.md",
+  "display_name": "Course/Cohort-2024/Session #3/Three Essential Components for Innovation Success 15d218d946948131baded4c48e544d36.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Three Essential Components for Innovation Success",
+    "topic": "Innovation Success Factors",
+    "frameworks": [
+      "Structured Ideation"
+    ],
+    "concepts": [
+      "Problem Worth Solving",
+      "Solution",
+      "Business Case",
+      "Innovation",
+      "Impact",
+      "Sustainability",
+      "Market Needs",
+      "Problem Definition",
+      "Feasibility"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Lack of scalability in business case",
+      "Ineffective solutions",
+      "Unmet market needs"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [],
+    "key_claims": [
+      "True innovation requires a Problem Worth Solving, a viable Solution, and a strong Business Case.",
+      "These three components are interconnected and essential for impactful and sustainable innovation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Problem Worth Solving",
+      "THIS_DOC -[TEACHES]-> Solution",
+      "THIS_DOC -[TEACHES]-> Business Case",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[USES_FRAMEWORK]-> Structured Ideation",
+      "THIS_DOC -[RELATES_TO]-> Problem Definition",
+      "THIS_DOC -[RELATES_TO]-> Solution Framing",
+      "THIS_DOC -[RELATES_TO]-> Validation"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "Problem",
+      "problem",
+      "Problem",
+      "Problem",
+      "problem"
+    ],
+    "solutions": [
+      "Solution",
+      "solution",
+      "Solution",
+      "solution"
+    ],
+    "questions": [
+      "# Three Essential Components for Innovation Success\n\nPrompt: up to 500 charters How does the chapter emphasize the need for all three components (Problem Worth Solving, Solution, Business Case)?"
+    ]
+  },
+  "char_count": 1020,
+  "extracted_at": "2026-01-28T14:12:18.043872"
+}

@@ -1,0 +1,67 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Collaborative Innovation and Cross-Disciplinary Th 15d218d946948188a95ae56fc266a016.md",
+  "display_name": "Course/Cohort-2024/Session #3/Collaborative Innovation and Cross-Disciplinary Th 15d218d946948188a95ae56fc266a016.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Collaborative Innovation and Cross-Disciplinary Thinking",
+    "topic": "Cross-Disciplinary Innovation",
+    "frameworks": [],
+    "concepts": [
+      "Collaboration",
+      "Cross-disciplinary thinking",
+      "Diverse expertise",
+      "Systems Thinking",
+      "Portfolio Approach",
+      "Innovation",
+      "Process mapping",
+      "User journey analysis",
+      "Echo chambers",
+      "Myopia"
+    ],
+    "entities": [
+      "Israel Innovation Authority (IIA)"
+    ],
+    "problems_discussed": [
+      "Lack of diverse perspectives",
+      "Echo chambers",
+      "Myopia"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Portfolio"
+    ],
+    "teaching_elements": [
+      "Real-world example (Israel Innovation Authority)"
+    ],
+    "key_claims": [
+      "Diversity of thought is the antidote to myopia.",
+      "Successful innovation requires breaking out of echo chambers and actively seeking diverse perspectives."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Collaboration",
+      "THIS_DOC -[TEACHES]-> Cross-disciplinary thinking",
+      "THIS_DOC -[TEACHES]-> Diverse expertise",
+      "THIS_DOC -[TEACHES]-> Systems Thinking",
+      "THIS_DOC -[TEACHES]-> Portfolio Approach",
+      "THIS_DOC -[MENTIONS]-> Israel Innovation Authority (IIA)"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "challenge"
+    ],
+    "solutions": [
+      "Approach",
+      "approach"
+    ],
+    "questions": [
+      "# Collaborative Innovation and Cross-Disciplinary Thinking\n\nPrompt: up to 500 charterers How does the chapter promote collaboration across disciplines and leverage diverse expertise?",
+      " How does the chapter emphasize the importance of bringing together \"thinking heads\" with varied, in-depth expertise?"
+    ]
+  },
+  "char_count": 1628,
+  "extracted_at": "2026-01-28T14:11:04.782385"
+}

@@ -1,0 +1,108 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Sub Chapter - The Innovator_s Toolkit 166218d946948050a704decb9b34cab9.md",
+  "display_name": "Course/Cohort-2024/Session #3/Sub Chapter - The Innovator_s Toolkit 166218d946948050a704decb9b34cab9.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Sub Chapter - The Innovator's Toolkit",
+    "topic": "Innovation Toolkit",
+    "frameworks": [
+      "Jobs to Be Done",
+      "Trending to the Absurd",
+      "Futures Wheels"
+    ],
+    "concepts": [
+      "Innovation",
+      "Unmet Needs",
+      "Dominant Paradigms",
+      "Intersectional Ideas",
+      "Disruptive Innovation",
+      "Reverse Salient",
+      "Problem Solving",
+      "Opportunity Identification",
+      "Alternative Futures",
+      "Risk Management"
+    ],
+    "entities": [
+      "Luna",
+      "Royal Institute of Dominant Designs",
+      "Warby Parker",
+      "Linus Pauling",
+      "Clayton Christensen",
+      "Royal Academy of Innovation"
+    ],
+    "problems_discussed": [
+      "Uncomfortable glasses",
+      "Cumbersome commerce (coin counting)",
+      "Slow message delivery",
+      "Resistance to innovation",
+      "Identifying the right problems"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Case study (Luna's journey)",
+      "Examples of combining existing things",
+      "Moral of the tale (5 principles)"
+    ],
+    "key_claims": [
+      "Innovation begins with finding the right problems to solve.",
+      "The best opportunities often lie in challenging accepted wisdom."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Unmet Needs",
+      "THIS_DOC -[TEACHES]-> Problem Solving",
+      "THIS_DOC -[USES_FRAMEWORK]-> Jobs to Be Done",
+      "THIS_DOC -[USES_FRAMEWORK]-> Trending to the Absurd",
+      "THIS_DOC -[USES_FRAMEWORK]-> Futures Wheels",
+      "Luna -[IS_CHARACTER_IN]-> THIS_DOC",
+      "THIS_DOC -[MENTIONS]-> Royal Institute of Dominant Designs",
+      "THIS_DOC -[MENTIONS]-> Warby Parker",
+      "THIS_DOC -[MENTIONS]-> Clayton Christensen",
+      "THIS_DOC -[MENTIONS]-> Linus Pauling",
+      "THIS_DOC -[ADDRESSES]-> Uncomfortable glasses",
+      "THIS_DOC -[ADDRESSES]-> Cumbersome commerce",
+      "THIS_DOC -[ADDRESSES]-> Slow message delivery"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "Problem",
+      "Problem",
+      "Problem",
+      "problem",
+      "Challenge"
+    ],
+    "solutions": [
+      "solve",
+      "solution",
+      "solve",
+      "solve"
+    ],
+    "questions": [
+      "\nReviewed by Ohad?",
+      "so/sagirdomain/Chapter-3-The-Economic-Forces-Driving-Innovation-12b218d946948091bcbfcc3a08fc6e3d?",
+      "so/12b218d946948091bcbfcc3a08fc6e3d?",
+      "so/12b218d9469481869755f868a02b954b?",
+      "so/166218d9469481c59187f89d77dfba5c?"
+    ],
+    "trends": [
+      "Trending"
+    ],
+    "future": [
+      "will",
+      "will",
+      "will",
+      "future",
+      "future"
+    ]
+  },
+  "char_count": 10127,
+  "extracted_at": "2026-01-28T14:10:53.460073"
+}

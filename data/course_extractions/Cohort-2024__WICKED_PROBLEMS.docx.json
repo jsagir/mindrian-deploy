@@ -1,0 +1,133 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/WICKED PROBLEMS.docx",
+  "display_name": "Course/Cohort-2024/WICKED PROBLEMS.docx",
+  "category": "Cohort-2024",
+  "subfolder": null,
+  "extraction": {
+    "title": "WICKED PROBLEMS",
+    "topic": "Wicked Problems",
+    "frameworks": [],
+    "concepts": [
+      "Wicked problems",
+      "Systems thinking",
+      "Systems mapping",
+      "Causal loop diagrams",
+      "Stock and flow diagrams",
+      "Feedback loops",
+      "Reinforcing loops",
+      "Balancing loops",
+      "Leverage points",
+      "Systems"
+    ],
+    "entities": [
+      "Burkina Faso",
+      "Horst Rittel",
+      "Donella Meadows"
+    ],
+    "problems_discussed": [
+      "Food insecurity",
+      "Violence",
+      "COVID Restrictions",
+      "Climate Change",
+      "Poverty",
+      "Sustainability",
+      "Equality",
+      "Health and wellness",
+      "Fishery collapse"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Examples of wicked problems (poverty, sustainability, etc.)",
+      "Cause and effect diagrams",
+      "Stock and flow diagrams",
+      "Causal loop diagrams",
+      "Fishery Causal Loop Diagram example",
+      "Bird Feeder example"
+    ],
+    "key_claims": [
+      "Wicked problems are difficult to solve due to incomplete knowledge, multiple perspectives, economic burden, and interconnectedness.",
+      "Systems thinking emphasizes understanding the interactions between parts of a system rather than focusing on individual components.",
+      "Leverage points are places in a system where small changes can produce significant overall effects."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Wicked problems",
+      "THIS_DOC -[TEACHES]-> Systems thinking",
+      "THIS_DOC -[TEACHES]-> Systems mapping",
+      "THIS_DOC -[TEACHES]-> Causal loop diagrams",
+      "THIS_DOC -[TEACHES]-> Stock and flow diagrams",
+      "THIS_DOC -[TEACHES]-> Feedback loops",
+      "THIS_DOC -[TEACHES]-> Reinforcing loops",
+      "THIS_DOC -[TEACHES]-> Balancing loops",
+      "THIS_DOC -[TEACHES]-> Leverage points",
+      "THIS_DOC -[MENTIONS]-> Horst Rittel",
+      "THIS_DOC -[MENTIONS]-> Donella Meadows",
+      "THIS_DOC -[DISCUSSES]-> Food insecurity",
+      "THIS_DOC -[DISCUSSES]-> Poverty",
+      "THIS_DOC -[DISCUSSES]-> Sustainability",
+      "THIS_DOC -[DISCUSSES]-> Equality",
+      "THIS_DOC -[DISCUSSES]-> Health and wellness",
+      "THIS_DOC -[EXAMPLE_OF]-> Fishery collapse"
+    ]
+  },
+  "signals": {
+    "percentages": [
+      "10%"
+    ],
+    "years": [
+      "2020",
+      "2012",
+      "2011",
+      "2008",
+      "2019"
+    ],
+    "problems": [
+      "problem",
+      "problem",
+      "problem",
+      "problem",
+      "problem"
+    ],
+    "solutions": [
+      "solve",
+      "solve",
+      "approach",
+      "strategy",
+      "solution"
+    ],
+    "questions": [
+      "\nWICKED PROBLEMS ARE SYSTEMS PROBLEMS\nReminder: What are Systems?",
+      " \nIs there anything that is not a system?",
+      " What accounts for this constancy?",
+      "\nExample\nExample\nYou Try It \u2013 Where are the S\u2019s and O\u2019s?",
+      " \nA BETTER EXAMPLE:\nTELLING A STORY\nHow to Reduce Frustration in Your Life?\nThen Add a Bird Feeder\nPositive Feedback Loop\nAll Good\nUnintended Consequences\nIt Gets Worse\nAnd Worse\nAnd Worse\nHave I Really Reduced Frustration In My Life?"
+    ],
+    "causation": [
+      "because",
+      "because",
+      "because",
+      "therefore",
+      "due to"
+    ],
+    "trends": [
+      "Changing",
+      "changing",
+      "Changing",
+      "changing",
+      "changing"
+    ],
+    "future": [
+      "will",
+      "will",
+      "will",
+      "future",
+      "will"
+    ]
+  },
+  "char_count": 34692,
+  "extracted_at": "2026-01-28T12:40:36.633202"
+}

@@ -1,0 +1,56 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #3/Process Over Outcome Focus 161218d94694814db37dd3cf9bb11476.md",
+  "display_name": "Course/Cohort-2024/Session #3/Process Over Outcome Focus 161218d94694814db37dd3cf9bb11476.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Process Over Outcome Focus",
+    "topic": "Process vs. Outcome",
+    "frameworks": [
+      "Now, New, Next"
+    ],
+    "concepts": [
+      "Structured processes",
+      "Iterative exploration",
+      "Process-driven innovation",
+      "Systematic exploration",
+      "Cross-industry collaboration",
+      "Adaptability",
+      "Culture of discovery",
+      "Transformative innovation",
+      "Incremental innovation",
+      "Structured Ideation"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Focusing on predefined goals hinders innovation",
+      "Existing frameworks may not generate new ideas"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [],
+    "key_claims": [
+      "True innovation stems from a commitment to systematic exploration rather than chasing predefined goals.",
+      "Prioritizing a continuous, open-ended process cultivates a culture of discovery, essential for transformative innovation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Structured processes",
+      "THIS_DOC -[TEACHES]-> Iterative exploration",
+      "THIS_DOC -[TEACHES]-> Process-driven innovation",
+      "THIS_DOC -[CRITIQUES_FRAMEWORK]-> Now, New, Next"
+    ]
+  },
+  "signals": {
+    "solutions": [
+      "address"
+    ],
+    "questions": [
+      "# Process Over Outcome Focus\n\nPrompt: in up to 500 charterers How does the chapter emphasize the importance of focusing on structured processes rather than specific outcomes?"
+    ]
+  },
+  "char_count": 1187,
+  "extracted_at": "2026-01-28T12:57:07.215961"
+}

@@ -1,0 +1,84 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/JANUARY TERM.docx",
+  "display_name": "Course/Cohort-2024/JANUARY TERM.docx",
+  "category": "Cohort-2024",
+  "subfolder": null,
+  "extraction": {
+    "title": "JANUARY TERM",
+    "topic": "Problem Validation & Solution",
+    "frameworks": [
+      "Business Model Canvas"
+    ],
+    "concepts": [
+      "Problem definition",
+      "Solution validation",
+      "Target customer",
+      "Market analysis",
+      "Value proposition",
+      "Competitive advantage",
+      "Feasibility",
+      "Impact",
+      "Macro trends",
+      "Market trends"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Identifying and validating problems worth solving",
+      "Inadequate existing solutions"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [
+      "Questions for problem/solution definition",
+      "Business Plan outline"
+    ],
+    "key_claims": [
+      "Understanding the problem's background and impact is crucial.",
+      "Validating the problem with target customers is essential."
+    ],
+    "cohort_context": "Cohort-2024, January Term",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Problem definition",
+      "THIS_DOC -[TEACHES]-> Solution validation",
+      "THIS_DOC -[TEACHES]-> Target customer",
+      "THIS_DOC -[TEACHES]-> Market analysis",
+      "THIS_DOC -[TEACHES]-> Value proposition",
+      "THIS_DOC -[TEACHES]-> Competitive advantage",
+      "THIS_DOC -[USES_FRAMEWORK]-> Business Model Canvas"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "PROBLEM",
+      "Problem",
+      "problem",
+      "problem",
+      "problem"
+    ],
+    "solutions": [
+      "SOLUTION",
+      "solution",
+      "solution",
+      "Solution",
+      "Solution"
+    ],
+    "questions": [
+      "JANUARY TERM\n\nVALIDATING PROBLEM\nDEFINING THE SOLUTION\nFrom Opportunity to Well-Defined Problem\nWhat is the problem?\nWho has the problem?\nWhy do they have the problem?\nWhat does the solution need to deliver?\nHow feasible is the solution?\nWhat will be the impact of solving the problem?\nRound 1: Summary of Idea\nProblem/Solution\nWhat is the Problem Worth Solving?\nWho is the Target Customer?\nWhat is the Proposed Solution?",
+      " Introduction\nWhat is the background of the problem?",
+      "\u00a0\nWhat are the relevant macro and market trends that impact the problem?",
+      "  In other words, what is changing in the world that has given rise to this opportunity?",
+      " Customer and Market Analysis\nWhat is the specific problem your company solves?"
+    ],
+    "trends": [
+      "changing"
+    ],
+    "future": [
+      "will"
+    ]
+  },
+  "char_count": 2100,
+  "extracted_at": "2026-01-28T12:38:27.035501"
+}

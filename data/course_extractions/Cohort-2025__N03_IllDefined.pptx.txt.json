@@ -1,0 +1,146 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2025/SlideDecks 2025/N03_IllDefined.pptx.txt",
+  "display_name": "Course/Cohort-2025/SlideDecks 2025/N03_IllDefined.pptx.txt",
+  "category": "Cohort-2025",
+  "subfolder": "SlideDecks 2025",
+  "extraction": {
+    "title": "N03_IllDefined.pptx",
+    "topic": "Ill-defined problems",
+    "frameworks": [
+      "Design Thinking",
+      "Jobs-to-be-Done",
+      "The Medici Effect"
+    ],
+    "concepts": [
+      "Ill-defined problems",
+      "Well-defined problems",
+      "Un-defined problems",
+      "Opportunities",
+      "Intersectional innovation",
+      "Directional innovation",
+      "Associative barriers",
+      "Extensive searching",
+      "Intensive searching",
+      "Value proposition"
+    ],
+    "entities": [
+      "Robert W. Weisberg",
+      "Frans Johansson",
+      "Harvard Business Press",
+      "Baltimore Harbor",
+      "Celcy",
+      "Johns Hopkins",
+      "Google",
+      "PixieDrone"
+    ],
+    "problems_discussed": [
+      "Pollution in waterways",
+      "Finding problems worth solving",
+      "Identifying market opportunities",
+      "Improving user experience",
+      "Next big thing in various industries"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Examples of ill-defined problems",
+      "Examples of well-defined problems",
+      "Case study: Baltimore Harbor",
+      "Case study: Celcy",
+      "Process for creating ill-defined problems",
+      "Process for creating well-defined problems"
+    ],
+    "key_claims": [
+      "Ill-defined problems require specifying missing elements before a solution can be worked out.",
+      "Opportunities are ideas, insights, problems worth solving, but they cannot be solved until they are well-defined.",
+      "Intersectional innovation combines concepts between multiple fields, generating ideas that leap in new directions."
+    ],
+    "cohort_context": "Cohort-2025",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Ill-defined problems",
+      "THIS_DOC -[TEACHES]-> Well-defined problems",
+      "THIS_DOC -[TEACHES]-> Opportunities",
+      "THIS_DOC -[USES_FRAMEWORK]-> Design Thinking",
+      "THIS_DOC -[USES_FRAMEWORK]-> Jobs-to-be-Done",
+      "THIS_DOC -[USES_FRAMEWORK]-> The Medici Effect",
+      "THIS_DOC -[DISCUSSES]-> Baltimore Harbor",
+      "THIS_DOC -[DISCUSSES]-> Celcy",
+      "Ill-defined problems -[RELATED_TO]-> Opportunities",
+      "Intersectional innovation -[RELATED_TO]-> The Medici Effect"
+    ]
+  },
+  "signals": {
+    "percentages": [
+      "300%"
+    ],
+    "money": [
+      "$250,000",
+      "$200 billion",
+      "$100",
+      "$6",
+      "$6.99"
+    ],
+    "years": [
+      "2006",
+      "2006",
+      "2015",
+      "1994",
+      "2004"
+    ],
+    "assumptions": [
+      "If we",
+      "if we",
+      "if we",
+      "If we",
+      "if we"
+    ],
+    "problems": [
+      "Problem",
+      "problem",
+      "problem",
+      "Problem",
+      "Problem"
+    ],
+    "solutions": [
+      "solution",
+      "solve",
+      "solve",
+      "solution",
+      "address"
+    ],
+    "questions": [
+      "ILL-DEFINED PROBLEMS\u000b\nTools for Exploring Ill-defined Problems\nConfidential: For Classroom Use Only\n1\n1\n\nProblem Types\nConfidential for classroom use only\n2\nIll-Defined\nWell-Defined\nUn-Defined\n?\n?\nMacro Trending\nScenario Planning\nAnalogies\nWhat\u2019s over the horizon? What\u2019s possible?\nNear-term Trending \nEmerging technologies\nValue migration\nWhat\u2019s next for us? What\u2019s the next opportunity?\nTraditional product development\nHow do we make this?\nAnalytic Tools:\nQuestion: \nExamples:\nWhat could our markets look like in 10 years?\nWhat market(s) should we enter?\nHow do we make this offering? \nWhat are the possible offering concepts?\nDesign Thinking\nJobs-to-be-Done\nPrototyping\nWhat specific offerings could we develop?\nOpportunities\nOpportunities are ideas, insights, problems worth solving, but they cannot be solved until they are well-defined \nOpportunities are conceptual\n2\n\nIll-Defined Problems\nGoal is to find problems worth solving by asking what\u2019s the next big thing inherent in a situation, whether technological, market, or policy\nWhat is plausible for us to begin working on now that will create new opportunities (products, markets, and policies) for us in the near and medium terms?\nExamples:\nWhat is the next big thing for AI in our industry?\nWhat is the next big thing for online learning?\nWhat is the next big thing for smart watches?\nWhat is the next big thing for the travel industry?\nWhat is the next big thing for Google?\nWhat is the next big thing in city services?\nWe explore ill-defined problems either\nBy themselves, or\nAs a result of exploring un-defined problems\nConfidential for classroom use only\n3\nThe \u201csolution\u2019 is not a problem that can be solved but a list of opportunities that embody strong value propositions\n3\n\nExample: What\u2019s Next Big Thing for Electric Vehicles?\nThe question is not \u201cWhat is the future of electric vehicles?",
+      "\n4\n\nExample: Baltimore Harbor\nA visit to Baltimore Harbor revealed lots of pollution\nIf the problem were un-defined:  What is the future of Baltimore Harbor?\nAn ill-Defined Problem:  How can we clean up pollution in waterways?\nConfidential for classroom use only\n5\n5\n\nFraming an Ill-Defined Problem\nHow can we clean up pollution in waterways?",
+      ", How can we clean up pollution in waterways?\nConstrain the problem by identifying the missing elements:\nWhat kind of pollution?\nSewage\nDomestic effluents\nIndustrial effluents\nOil\nAgricultural runoff\nTrash\nWhat kind of waterway?",
+      ", How can we clean up trash from inland waterways?\nCreate a list of opportunities\n\nConfidential for classroom use only\n7\n7\n\nCreating a Well-Defined Problem\nTake one opportunity and turn it into a well-defined problem: \nHow can we continuously clean up trash from inland waterways with minimal human intervention and oversight?",
+      "com/search?client=safari&rls=en&q=pixiedrone&ie=UTF-8&oe=UTF-8\n\nSummary: Using Ill-Defined Problems\nHow can you find a problem worth solving?\nBy exploring a domain of interest and finding the opportunities that are inherent in the situation\nSome of which can then be turned into well-defined problems that can actually be solved\n\nAddresses questions such as\nWhat\u2019s next?\nWhat\u2019s missing in the marketplace?\nHow do we pivot?\nHow do we disrupt our business before competitors do?\nExamples:\nTechnology:  What big problems can blockchain address?\nUser Experience:  How can the doctor/patient experience be improved?\nIndustry space:  What\u2019s next for smartwatches?"
+    ],
+    "causation": [
+      "As a result",
+      "because",
+      "therefore",
+      "therefore",
+      "because"
+    ],
+    "trends": [
+      "Trending",
+      "Trending",
+      "Emerging",
+      "emerging",
+      "trend"
+    ],
+    "future": [
+      "will",
+      "future",
+      "future",
+      "will",
+      "will"
+    ]
+  },
+  "char_count": 109640,
+  "extracted_at": "2026-01-28T12:44:39.984543"
+}

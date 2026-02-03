@@ -1,0 +1,89 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Older INFOFMARIN 161218d94694813b81d1d1a24944bbbb.md",
+  "display_name": "Course/Cohort-2024/Session #3/Older INFOFMARIN 161218d94694813b81d1d1a24944bbbb.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Older INFOFMARIN",
+    "topic": "Innovation Frameworks",
+    "frameworks": [
+      "Rowan Gibson's Four Lenses of Innovation",
+      "Clayton Christensen's Jobs to be Done Theory",
+      "The Innovator's Dilemma",
+      "Process Mapping"
+    ],
+    "concepts": [
+      "Ill-defined problems",
+      "Novel solutions",
+      "Process Innovation",
+      "Sustaining Innovation",
+      "Disruptive Innovation",
+      "User Needs",
+      "User Experience",
+      "Flexible Platforms"
+    ],
+    "entities": [
+      "Rowan Gibson",
+      "Clayton Christensen",
+      "Warby Parker",
+      "Casper",
+      "Steve Jobs",
+      "Lawrence Aronhime",
+      "iPad"
+    ],
+    "problems_discussed": [
+      "Ill-defined problems",
+      "Food waste reduction",
+      "Inefficient healthcare experiences"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [
+      "Case studies (Warby Parker, Casper, Smartwatch, iPad)",
+      "Examples (Evolution of the telephone, uses of television, reasons people drink coffee)"
+    ],
+    "key_claims": [
+      "Innovation often begins with ill-defined problems.",
+      "Understanding the underlying jobs users need to accomplish is key to designing better products and services.",
+      "Sustaining innovations improve existing solutions, while disruptive innovations create new markets."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Ill-defined problems",
+      "THIS_DOC -[TEACHES]-> Novel solutions",
+      "THIS_DOC -[USES_FRAMEWORK]-> Rowan Gibson's Four Lenses of Innovation",
+      "THIS_DOC -[USES_FRAMEWORK]-> Clayton Christensen's Jobs to be Done Theory",
+      "THIS_DOC -[DISCUSSES]-> Process Innovation",
+      "THIS_DOC -[DISCUSSES]-> Sustaining Innovation",
+      "THIS_DOC -[DISCUSSES]-> Disruptive Innovation",
+      "THIS_DOC -[MENTIONS]-> Warby Parker",
+      "THIS_DOC -[MENTIONS]-> Casper",
+      "THIS_DOC -[MENTIONS]-> iPad"
+    ]
+  },
+  "signals": {
+    "solutions": [
+      "solution",
+      "approach"
+    ],
+    "questions": [
+      "com/design/DAGHRW5RBS8/mT2ZDYXgDaLBaM7spdFBBg/view?",
+      "com/design/DAGHRW5RBS8/mT2ZDYXgDaLBaM7spdFBBg/view?",
+      "com/watch?",
+      "com/watch?",
+      "com/watch?"
+    ],
+    "causation": [
+      "leads to",
+      "leads to"
+    ],
+    "trends": [
+      "Trend"
+    ]
+  },
+  "char_count": 9054,
+  "extracted_at": "2026-01-28T14:21:12.726912"
+}

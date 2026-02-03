@@ -1,0 +1,133 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/WELL-DEFINED PROBLEMS.docx",
+  "display_name": "Course/Cohort-2024/WELL-DEFINED PROBLEMS.docx",
+  "category": "Cohort-2024",
+  "subfolder": null,
+  "extraction": {
+    "title": "WELL-DEFINED PROBLEMS.docx",
+    "topic": "Well-Defined Problems",
+    "frameworks": [
+      "MECE"
+    ],
+    "concepts": [
+      "Well-defined problem",
+      "Needs statement",
+      "Falsifiability",
+      "Problem statement",
+      "Issue trees",
+      "Logic trees",
+      "Mind mapping",
+      "Primary research",
+      "Secondary research",
+      "Use case"
+    ],
+    "entities": [
+      "Neil Armstrong",
+      "Buzz Aldrin",
+      "Michael Collins",
+      "Apollo 11",
+      "Soviet Union",
+      "Fox News",
+      "Herb Simon",
+      "Leonardo da Vinci",
+      "Charles Conn",
+      "Robert McLean",
+      "McKinsey"
+    ],
+    "problems_discussed": [
+      "How to get to the Moon and Back",
+      "How to Prevent Skidding",
+      "How Can Patient Compliance be Improved",
+      "How Can MLB Regain its Popularity"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition"
+    ],
+    "teaching_elements": [
+      "Examples",
+      "Exercise: Construct a mind map for the future of Higher education, Medical care, Personal mobility, Reducing trash, Food, A Mars colony, Your idea"
+    ],
+    "key_claims": [
+      "A needs statement can be used to formulate a well-defined problem, thus making the criteria for a successful solution clear as well",
+      "Solving a problem simply means representing it so as to make the solution transparent."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Well-defined problem",
+      "THIS_DOC -[TEACHES]-> Needs statement",
+      "THIS_DOC -[TEACHES]-> Falsifiability",
+      "THIS_DOC -[TEACHES]-> Problem statement",
+      "THIS_DOC -[TEACHES]-> Issue trees",
+      "THIS_DOC -[TEACHES]-> Logic trees",
+      "THIS_DOC -[TEACHES]-> Mind mapping",
+      "THIS_DOC -[TEACHES]-> Primary research",
+      "THIS_DOC -[TEACHES]-> Secondary research",
+      "THIS_DOC -[USES_FRAMEWORK]-> MECE",
+      "THIS_DOC -[DISCUSSES_PROBLEM]-> How to get to the Moon and Back",
+      "THIS_DOC -[DISCUSSES_PROBLEM]-> How to Prevent Skidding",
+      "THIS_DOC -[DISCUSSES_PROBLEM]-> How Can Patient Compliance be Improved",
+      "THIS_DOC -[DISCUSSES_PROBLEM]-> How Can MLB Regain its Popularity"
+    ]
+  },
+  "signals": {
+    "percentages": [
+      "80%",
+      "20%",
+      "20%",
+      "80%",
+      "20%"
+    ],
+    "years": [
+      "1969",
+      "1930",
+      "2012",
+      "2004",
+      "2018"
+    ],
+    "assumptions": [
+      "assume"
+    ],
+    "problems": [
+      "Problem",
+      "Problem",
+      "problem",
+      "challenge",
+      "Problem"
+    ],
+    "solutions": [
+      "solution",
+      "solution",
+      "solution",
+      "solution",
+      "solution"
+    ],
+    "questions": [
+      "WELL-DEFINED PROBLEMS\n\nTurning opportunities into\nwell-defined problems\nProblem Types\nAn Important Well-Defined Problem\nWhat are the Follow-On Consequences?\nWhat are the Follow-On Consequences?\nWell-Defined Problems\nWell-defined problems can be created from opportunities\nA needs statement can be used to formulate a well-defined problem, thus making the criteria for a successful solution clear as well\nEven if the circumstances are complex or complicated\nEven if the solution is hard to devise and requires magical thinking\nThe solution can be incremental or radical\nAnd can sometimes lead to a dramatically new product class or market\nCritical: any solution must be falsifiable\nExample: How to get to the Moon and Back?",
+      "\nExample: How Can Patient Compliance be Improved?\nExample: How Can MLB Regain its Popularity?",
+      " \nHow Do You Know When You Are Finished?",
+      " \nMind Mapping in XMind\nExercise\nConstruct a mind map for the future of\nHigher education\nMedical care\nPersonal mobility\nReducing trash\nFood\nA Mars colony\nYour idea\nHow can a mind map help you?",
+      "\nWhy Use Issue Trees?"
+    ],
+    "causation": [
+      "thus",
+      "because",
+      "causes",
+      "causes",
+      "causes"
+    ],
+    "trends": [
+      "changing",
+      "changing",
+      "declining"
+    ],
+    "future": [
+      "will",
+      "future",
+      "future",
+      "will",
+      "will"
+    ]
+  },
+  "char_count": 36242,
+  "extracted_at": "2026-01-28T12:39:08.385493"
+}

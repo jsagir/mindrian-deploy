@@ -1,0 +1,116 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #3/Template for Chapters \u2014 166218d94694813a91bcf97545ec596b.md",
+  "display_name": "Course/Cohort-2024/Session #3/Template for Chapters \u2014 166218d94694813a91bcf97545ec596b.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Template for Chapters \u2014 166218d94694813a91bcf97545ec596b.md",
+    "topic": "Innovation Methodology",
+    "frameworks": [
+      "Problems Worth Solving",
+      "Jobs to be Done",
+      "Trending to the Absurd",
+      "Futures Wheels"
+    ],
+    "concepts": [
+      "Innovation",
+      "Problem Identification",
+      "Uncertainty",
+      "Risk Management",
+      "Disruptive Innovation",
+      "Intersectional Ideas",
+      "Process Maps",
+      "Reverse Salients",
+      "Alternative Futures"
+    ],
+    "entities": [
+      "Luna",
+      "Royal Institute of Dominant Designs",
+      "Warby Parker",
+      "Linus Pauling",
+      "Clayton Christensen",
+      "GEODE Initiative"
+    ],
+    "problems_discussed": [
+      "Identifying the right problems to solve",
+      "Overcoming rigid societal frameworks",
+      "Navigating uncertainty in innovation",
+      "Limitations of traditional innovation methods"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Tale of Innovation (Luna's journey)",
+      "Examples of combining existing things in new ways",
+      "Instructions for using Trending to the Absurd and Futures Wheels"
+    ],
+    "key_claims": [
+      "Innovation begins not with solutions, but with finding the right problems to solve.",
+      "The best opportunities often lie in challenging accepted wisdom.",
+      "Innovation comes from seeing what others don't see."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Problem Identification",
+      "THIS_DOC -[USES_FRAMEWORK]-> Problems Worth Solving",
+      "THIS_DOC -[USES_FRAMEWORK]-> Jobs to be Done",
+      "THIS_DOC -[DISCUSSES]-> Uncertainty",
+      "THIS_DOC -[DISCUSSES]-> Risk Management",
+      "THIS_DOC -[MENTIONS]-> Luna",
+      "THIS_DOC -[MENTIONS]-> Clayton Christensen"
+    ]
+  },
+  "signals": {
+    "percentages": [
+      "20%",
+      "80%",
+      "94%",
+      "20%",
+      "80%"
+    ],
+    "assumptions": [
+      "premise"
+    ],
+    "problems": [
+      "Problem",
+      "Problem",
+      "Problem",
+      "Problem"
+    ],
+    "solutions": [
+      "solve",
+      "approach",
+      "solution",
+      "solve",
+      "solve"
+    ],
+    "questions": [
+      "\nReviewed by Ohad?",
+      "so/sagirdomain/Chapter-3-The-Economic-Forces-Driving-Innovation-12b218d946948091bcbfcc3a08fc6e3d?",
+      "so/12b218d946948091bcbfcc3a08fc6e3d?",
+      "so/12b218d9469481869755f868a02b954b?",
+      "so/12b218d9469481869755f868a02b954b?"
+    ],
+    "causation": [
+      "Therefore",
+      "leads to"
+    ],
+    "trends": [
+      "Trending"
+    ],
+    "future": [
+      "will",
+      "will",
+      "will",
+      "future",
+      "future"
+    ]
+  },
+  "char_count": 11616,
+  "extracted_at": "2026-01-28T12:57:19.435494"
+}

@@ -1,0 +1,79 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #3/Critical Processed Thinking Perspective 166218d94694817eafd2e0eb25c48739.md",
+  "display_name": "Course/Cohort-2024/Session #3/Critical Processed Thinking Perspective 166218d94694817eafd2e0eb25c48739.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Critical Processed Thinking Perspective",
+    "topic": "Critical Thinking",
+    "frameworks": [
+      "Gibson's Four Lenses"
+    ],
+    "concepts": [
+      "Critical Thinking",
+      "Problem-Solving",
+      "Systematic Approach",
+      "Structured Questioning",
+      "Trend Analysis",
+      "Needs Mapping",
+      "Innovation",
+      "Systematic Process",
+      "Assumptions",
+      "Evaluation"
+    ],
+    "entities": [
+      "Gibson"
+    ],
+    "problems_discussed": [
+      "Lack of structured problem-solving",
+      "Random ideation",
+      "Unsystematic thinking"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [
+      "Structured exercise applying the Four Lenses"
+    ],
+    "key_claims": [
+      "Gibson's Four Lenses framework provides a structured approach to problem-solving.",
+      "Systematic application of the framework transforms random observations into organized insights."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Critical Thinking",
+      "THIS_DOC -[TEACHES]-> Problem-Solving",
+      "THIS_DOC -[TEACHES]-> Systematic Approach",
+      "THIS_DOC -[USES_FRAMEWORK]-> Gibson's Four Lenses",
+      "THIS_DOC -[TEACHES]-> Structured Questioning",
+      "THIS_DOC -[TEACHES]-> Trend Analysis",
+      "THIS_DOC -[TEACHES]-> Needs Mapping",
+      "THIS_DOC -[ADDRESSES]-> Lack of structured problem-solving",
+      "THIS_DOC -[ADDRESSES]-> Random ideation"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "problem",
+      "problem",
+      "challenge"
+    ],
+    "solutions": [
+      "approach",
+      "approach",
+      "approach",
+      "approach"
+    ],
+    "questions": [
+      "# Critical Processed Thinking Perspective\n\nPrompt: in up to 500 charterers How does the chapter encourage a structured, critical thinking approach to problem-solving?",
+      "\nRelated Core Ideas: Systems Thinking, Focus on Process\nStatus: Done\n\nThe chapter promotes a structured, critical thinking approach to problem-solving through Gibson's Four Lenses framework in several ways:\n\n**Systematic Framework:**\n\n- Provides a clear, methodical structure for viewing problems through multiple perspectives\n- Transforms random observations into organized insights by systematically applying each lens\n\n**Structured Questioning:**\n\n- Uses specific \"Why?\" and \"What if?"
+    ],
+    "trends": [
+      "Trending",
+      "trend"
+    ]
+  },
+  "char_count": 1418,
+  "extracted_at": "2026-01-28T12:49:44.521125"
+}

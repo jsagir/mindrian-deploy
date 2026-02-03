@@ -1,0 +1,127 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #3/Chapter 1 Introduction to Innovation and User Need 161218d9469481bbb2b3df5e3cad3597.md",
+  "display_name": "Course/Cohort-2024/Session #3/Chapter 1 Introduction to Innovation and User Need 161218d9469481bbb2b3df5e3cad3597.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Chapter 1 Introduction to Innovation and User Need 161218d9469481bbb2b3df5e3cad3597.md",
+    "topic": "Innovation and User Needs",
+    "frameworks": [
+      "Jobs-to-be-done"
+    ],
+    "concepts": [
+      "Innovation",
+      "Invention",
+      "User Needs",
+      "Presentism",
+      "User-Centered Innovation",
+      "Processes",
+      "Sustaining Innovation",
+      "Disruptive Innovation",
+      "Problem Space",
+      "Outside-in Perspective"
+    ],
+    "entities": [
+      "Warby Parker",
+      "Casper",
+      "Airbnb",
+      "Slack",
+      "Netflix",
+      "Reed Hastings",
+      "Kodak",
+      "Instagram"
+    ],
+    "problems_discussed": [
+      "Presentism",
+      "Ill-defined problems",
+      "Focusing on features instead of user needs",
+      "Inside-out perspective",
+      "Failing to adapt to disruptive innovation"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Case studies (Warby Parker, Casper, Airbnb, Slack, Kodak, Instagram)",
+      "Examples of sustaining vs. disruptive innovation"
+    ],
+    "key_claims": [
+      "Successful innovation hinges on a deep understanding of user needs and how they can be addressed in novel and effective ways.",
+      "Innovation often arises from improving processes rather than inventing new technologies."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> User Needs",
+      "THIS_DOC -[TEACHES]-> Presentism",
+      "THIS_DOC -[TEACHES]-> User-Centered Innovation",
+      "THIS_DOC -[TEACHES]-> Sustaining Innovation",
+      "THIS_DOC -[TEACHES]-> Disruptive Innovation",
+      "THIS_DOC -[USES_FRAMEWORK]-> Jobs-to-be-done",
+      "THIS_DOC -[MENTIONS]-> Warby Parker",
+      "THIS_DOC -[MENTIONS]-> Casper",
+      "THIS_DOC -[MENTIONS]-> Airbnb",
+      "THIS_DOC -[MENTIONS]-> Slack",
+      "THIS_DOC -[MENTIONS]-> Netflix",
+      "THIS_DOC -[MENTIONS]-> Kodak",
+      "THIS_DOC -[MENTIONS]-> Instagram"
+    ]
+  },
+  "signals": {
+    "years": [
+      "2008",
+      "2007"
+    ],
+    "assumptions": [
+      "assuming",
+      "assumption"
+    ],
+    "problems": [
+      "Problem",
+      "problem",
+      "problem",
+      "challenge",
+      "problem"
+    ],
+    "solutions": [
+      "solve",
+      "solve",
+      "approach",
+      "approach",
+      "approach"
+    ],
+    "questions": [
+      "\n\n---\n\n### **What Is Innovation?",
+      " By looking closely at how things are done\u2014whether it\u2019s customer service, product delivery, or manufacturing\u2014innovators ask the crucial question: \u201cHow can we do this better?",
+      " This pivotal moment demonstrates the challenge of tackling an **ill-defined problem**: should a company stick with what\u2019s working or risk everything on a potentially disruptive innovation?",
+      " Examples of such problems might include:\n\n- **\"How do we make cities more livable?\"**\n- **\"How do we improve access to healthcare?\"**\n- **\"How do we make education more effective?",
+      " **Challenge Orthodoxies**\n\n- Ask: \"What if everything we believe is wrong?"
+    ],
+    "causation": [
+      "because",
+      "because",
+      "because",
+      "because",
+      "leads to"
+    ],
+    "trends": [
+      "evolving",
+      "shifting",
+      "changing",
+      "emerging",
+      "changing"
+    ],
+    "future": [
+      "will",
+      "future",
+      "future",
+      "future",
+      "future"
+    ]
+  },
+  "char_count": 27676,
+  "extracted_at": "2026-01-28T12:51:15.115215"
+}

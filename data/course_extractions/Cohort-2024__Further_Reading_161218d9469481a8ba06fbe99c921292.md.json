@@ -1,0 +1,80 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Further Reading 161218d9469481a8ba06fbe99c921292.md",
+  "display_name": "Course/Cohort-2024/Session #3/Further Reading 161218d9469481a8ba06fbe99c921292.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Further Reading",
+    "topic": "Innovation, Strategy",
+    "frameworks": [
+      "Blue Ocean Strategy",
+      "Lean Startup"
+    ],
+    "concepts": [
+      "Disruptive Innovation",
+      "Market Leadership",
+      "Market Space",
+      "Validated Learning",
+      "Rapid Experimentation",
+      "Competitive Advantage",
+      "Product Lifecycles",
+      "Entrepreneurship",
+      "Economic Forces"
+    ],
+    "entities": [
+      "Clayton M. Christensen",
+      "W. Chan Kim",
+      "Ren\u00e9e Mauborgne",
+      "Eric Ries",
+      "Rita Gunther McGrath",
+      "Geoffrey A. Moore",
+      "Israel M. Kirzner"
+    ],
+    "problems_discussed": [
+      "Loss of market leadership due to disruptive innovation",
+      "Challenges of creating new market spaces",
+      "Difficulties in bringing innovative products to market",
+      "Maintaining competitive advantage in fast-moving environments"
+    ],
+    "pws_phase_relevance": [
+      "Solution Framing",
+      "Validation",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Table of recommended readings with title, author, and relevance"
+    ],
+    "key_claims": [
+      "Successful companies can fail when faced with disruptive innovation.",
+      "Creating new market spaces is a key strategy for innovation."
+    ],
+    "cohort_context": "Cohort-2024, Chapter 2",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Disruptive Innovation",
+      "THIS_DOC -[TEACHES]-> Market Leadership",
+      "THIS_DOC -[TEACHES]-> Market Space",
+      "THIS_DOC -[TEACHES]-> Validated Learning",
+      "THIS_DOC -[TEACHES]-> Rapid Experimentation",
+      "THIS_DOC -[TEACHES]-> Competitive Advantage",
+      "THIS_DOC -[TEACHES]-> Product Lifecycles",
+      "THIS_DOC -[TEACHES]-> Entrepreneurship",
+      "THIS_DOC -[TEACHES]-> Economic Forces",
+      "THIS_DOC -[USES_FRAMEWORK]-> Blue Ocean Strategy",
+      "THIS_DOC -[USES_FRAMEWORK]-> Lean Startup",
+      "THIS_DOC -[RECOMMENDS]-> 'The Innovator's Dilemma: When New Technologies Cause Great Firms to Fail'",
+      "THIS_DOC -[RECOMMENDS]-> 'Blue Ocean Strategy: How to Create Uncontested Market Space and Make the Competition Irrelevant'",
+      "THIS_DOC -[RECOMMENDS]-> 'The Lean Startup: How Today's Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses'",
+      "THIS_DOC -[RECOMMENDS]-> 'The End of Competitive Advantage: How to Keep Your Strategy Moving as Fast as Your Business'",
+      "THIS_DOC -[RECOMMENDS]-> 'Crossing the Chasm: Marketing and Selling Disruptive Products to Mainstream Customers'",
+      "THIS_DOC -[RECOMMENDS]-> 'Competition and Entrepreneurship'"
+    ]
+  },
+  "signals": {
+    "solutions": [
+      "Strategy",
+      "Strategy"
+    ]
+  },
+  "char_count": 1901,
+  "extracted_at": "2026-01-28T14:11:31.977243"
+}

@@ -1,0 +1,75 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2025/SlideDecks 2025/N08b_Technical Plan.pptx (1).txt",
+  "display_name": "Course/Cohort-2025/SlideDecks 2025/N08b_Technical Plan.pptx (1).txt",
+  "category": "Cohort-2025",
+  "subfolder": "SlideDecks 2025",
+  "extraction": {
+    "title": "N08b_Technical Plan",
+    "topic": "Technical Planning",
+    "frameworks": [],
+    "concepts": [
+      "Problem Definition",
+      "Solution Design",
+      "Functionality Testing",
+      "Risk Assessment",
+      "Weekly Schedule",
+      "Materials",
+      "Equipment",
+      "Budget",
+      "Expert Consultation",
+      "Validation"
+    ],
+    "entities": [
+      "JHU"
+    ],
+    "problems_discussed": [
+      "Technical challenges in achieving a solution",
+      "Critical risks in solution development"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [
+      "Weekly schedule templates for planning and tracking progress"
+    ],
+    "key_claims": [
+      "A technical plan should stem from a well-defined problem and include a preliminary design for the solution.",
+      "Solution functionality must be understandable to both technical and non-technical audiences and be tested, measured, and validated."
+    ],
+    "cohort_context": "Cohort-2025",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Problem Definition",
+      "THIS_DOC -[TEACHES]-> Solution Design",
+      "THIS_DOC -[TEACHES]-> Functionality Testing",
+      "THIS_DOC -[TEACHES]-> Risk Assessment",
+      "THIS_DOC -[TEACHES]-> Weekly Schedule",
+      "THIS_DOC -[MENTIONS]-> JHU"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "problem",
+      "problem",
+      "challenge"
+    ],
+    "solutions": [
+      "solve",
+      "solution",
+      "solution",
+      "Solution",
+      "solution"
+    ],
+    "questions": [
+      "Technical Plan\n\nDeliverable: Technical Plan\nStems from your well-defined problem (what the purpose of the eventual product or system is, why it is important, and who the target users are), and should include:\nCover slide\nWhat is the well-defined problem you want to solve?\nWhat is the preliminary design for your solution?  What is the technical challenge of achieving the solution?",
+      "\n\n2\n\nPlanned Weekly Schedule (due at beginning of spring term)\nBy End of Week\nWhat are you testing?\nWhat do you hope to prove?\nWhat materials and equipment will you need?\nHow will you measure success?\nWith whom do you want to consult?\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n3\n\nWeekly Schedule (updated during spring term)\nWeek\nWhat did you test?\nWhat did you prove?\nWhat materials and equipment did you use?\nHow did you measure success?\nWhat went wrong?\nWhat did you learn?\nWith whom did you consult?"
+    ],
+    "future": [
+      "will",
+      "will"
+    ]
+  },
+  "char_count": 1505,
+  "extracted_at": "2026-01-28T12:46:21.654160"
+}

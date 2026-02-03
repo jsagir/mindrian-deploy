@@ -1,0 +1,60 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #3/Structured Innovation Methodology 161218d946948167a7c1ebe5633b8fd0.md",
+  "display_name": "Course/Cohort-2024/Session #3/Structured Innovation Methodology 161218d946948167a7c1ebe5633b8fd0.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Structured Innovation Methodology",
+    "topic": "Structured Innovation",
+    "frameworks": [
+      "Three-Horizon Framework",
+      "Platform Development Playbook",
+      "Systematic Signals Framework"
+    ],
+    "concepts": [
+      "Platform Opportunities",
+      "Innovation",
+      "Ecosystem",
+      "User Workarounds",
+      "User Frustrations",
+      "Value Creation",
+      "Friction Reduction",
+      "Systematic Approach"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Random Innovation",
+      "Identifying Platform Opportunities"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [],
+    "key_claims": [
+      "A structured approach to innovation replaces random brainstorming with systematic methods.",
+      "Platform development involves starting with a solid core, creating value for multiple user groups, reducing friction, and enabling innovation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Platform Opportunities",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[USES_FRAMEWORK]-> Three-Horizon Framework",
+      "THIS_DOC -[USES_FRAMEWORK]-> Platform Development Playbook",
+      "THIS_DOC -[USES_FRAMEWORK]-> Systematic Signals Framework",
+      "THIS_DOC -[ADDRESSES]-> Random Innovation"
+    ]
+  },
+  "signals": {
+    "solutions": [
+      "approach",
+      "approach",
+      "approach"
+    ],
+    "questions": [
+      "# Structured Innovation Methodology\n\nPrompt: Up to 500 Charters How is a structured approach to innovation presented?"
+    ]
+  },
+  "char_count": 1313,
+  "extracted_at": "2026-01-28T12:54:02.949492"
+}

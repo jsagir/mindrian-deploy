@@ -1,0 +1,81 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #3/Further Reading 166218d9469481d2af7cf248efb66126.md",
+  "display_name": "Course/Cohort-2024/Session #3/Further Reading 166218d9469481d2af7cf248efb66126.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Further Reading 166218d9469481d2af7cf248efb66126.md",
+    "topic": "Innovation & Problem-Solving",
+    "frameworks": [
+      "Jobs to Be Done"
+    ],
+    "concepts": [
+      "Innovation",
+      "Disruptive Innovation",
+      "User Needs",
+      "Problem Definition",
+      "Future Trends",
+      "Innovation Opportunities",
+      "Systematic Innovation",
+      "Intersectional Ideas",
+      "Problem Finding",
+      "Alternative Scenarios"
+    ],
+    "entities": [
+      "Anthony W. Ulwick",
+      "Larry Keeley",
+      "Clayton M. Christensen",
+      "Steven Johnson",
+      "Ian Mitroff",
+      "Luna",
+      "Royal Institute"
+    ],
+    "problems_discussed": [
+      "Incremental Innovation",
+      "Identifying the Right Problems",
+      "Predicting Industry Change",
+      "Understanding User Needs"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [],
+    "key_claims": [
+      "Understanding user needs is crucial for innovation.",
+      "Systematic approaches can be used to identify and solve problems."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> User Needs",
+      "THIS_DOC -[TEACHES]-> Problem Definition",
+      "THIS_DOC -[USES_FRAMEWORK]-> Jobs to Be Done",
+      "THIS_DOC -[MENTIONS]-> Anthony W. Ulwick",
+      "THIS_DOC -[MENTIONS]-> Larry Keeley",
+      "THIS_DOC -[MENTIONS]-> Clayton M. Christensen",
+      "THIS_DOC -[MENTIONS]-> Steven Johnson",
+      "THIS_DOC -[MENTIONS]-> Ian Mitroff",
+      "THIS_DOC -[RELATED_TO]-> Luna"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "challenge",
+      "Problem"
+    ],
+    "solutions": [
+      "Solution",
+      "approach",
+      "approach"
+    ],
+    "future": [
+      "Predict",
+      "future"
+    ]
+  },
+  "char_count": 1383,
+  "extracted_at": "2026-01-28T12:51:02.540590"
+}

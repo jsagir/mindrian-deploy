@@ -1,0 +1,80 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Three Essential Components for Innovation Success 166218d9469481fca6d5cdb1e2b86bd0.md",
+  "display_name": "Course/Cohort-2024/Session #3/Three Essential Components for Innovation Success 166218d9469481fca6d5cdb1e2b86bd0.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Three Essential Components for Innovation Success",
+    "topic": "Innovation Components",
+    "frameworks": [
+      "Four Lenses"
+    ],
+    "concepts": [
+      "Problem Worth Solving",
+      "Solution",
+      "Business Case",
+      "User Needs",
+      "Innovation",
+      "Value Creation",
+      "Assumptions",
+      "Opportunities",
+      "Resources",
+      "Trends"
+    ],
+    "entities": [
+      "Tesla",
+      "Airbnb",
+      "Luna",
+      "Uber",
+      "Amazon Web Services"
+    ],
+    "problems_discussed": [
+      "Unmet customer needs",
+      "Pain points",
+      "Message delivery problems"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [
+      "Case studies",
+      "Examples"
+    ],
+    "key_claims": [
+      "Successful innovations require identifying problems and transforming them into practical, implementable solutions.",
+      "Questioning assumptions, spotting opportunities, leveraging resources, and understanding user needs are interconnected components of innovation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Problem Worth Solving",
+      "THIS_DOC -[TEACHES]-> Solution",
+      "THIS_DOC -[TEACHES]-> Business Case",
+      "THIS_DOC -[USES_FRAMEWORK]-> Four Lenses",
+      "THIS_DOC -[DISCUSSES]-> User Needs",
+      "THIS_DOC -[MENTIONS]-> Tesla",
+      "THIS_DOC -[MENTIONS]-> Airbnb",
+      "THIS_DOC -[MENTIONS]-> Uber",
+      "THIS_DOC -[MENTIONS]-> Amazon Web Services"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "Problem",
+      "problem",
+      "Problem",
+      "Problem",
+      "challenge"
+    ],
+    "solutions": [
+      "Solution",
+      "solution",
+      "Solution"
+    ],
+    "questions": [
+      "# Three Essential Components for Innovation Success\n\nPrompt: up to 500 charters How does the chapter emphasize the need for all three components (Problem Worth Solving, Solution, Business Case)?"
+    ]
+  },
+  "char_count": 2019,
+  "extracted_at": "2026-01-28T14:25:45.342614"
+}

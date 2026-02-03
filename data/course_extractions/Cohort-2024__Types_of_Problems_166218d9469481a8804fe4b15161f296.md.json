@@ -1,0 +1,65 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Types of Problems 166218d9469481a8804fe4b15161f296.md",
+  "display_name": "Course/Cohort-2024/Session #3/Types of Problems 166218d9469481a8804fe4b15161f296.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Types of Problems",
+    "topic": "Problem Types",
+    "frameworks": [
+      "Gibson's Four Lenses"
+    ],
+    "concepts": [
+      "Un-defined problems",
+      "Ill-defined problems",
+      "Well-defined problems",
+      "Innovation",
+      "Multiple Perspectives",
+      "Problem Solving"
+    ],
+    "entities": [
+      "Gibson"
+    ],
+    "problems_discussed": [
+      "Un-defined problems",
+      "Ill-defined problems",
+      "Well-defined problems"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition"
+    ],
+    "teaching_elements": [
+      "Table mapping problem types to Four Lenses application"
+    ],
+    "key_claims": [
+      "Innovation requires looking at challenges through multiple perspectives.",
+      "Gibson's Four Lenses can be applied to different problem types."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Un-defined problems",
+      "THIS_DOC -[TEACHES]-> Ill-defined problems",
+      "THIS_DOC -[TEACHES]-> Well-defined problems",
+      "THIS_DOC -[USES_FRAMEWORK]-> Gibson's Four Lenses",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Multiple Perspectives"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "problem",
+      "problem",
+      "problem",
+      "problem",
+      "Problem"
+    ],
+    "solutions": [
+      "Approach"
+    ],
+    "questions": [
+      "# Types of Problems\n\nPrompt: Up to 500 characters How does the chapter explain or use the taxonomy of problem types (Un-defined, Ill-defined, Well-defined)?"
+    ]
+  },
+  "char_count": 1139,
+  "extracted_at": "2026-01-28T14:22:51.403528"
+}

@@ -1,0 +1,68 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Types of Problems 15d218d9469481f3ba92cd515fae2de0.md",
+  "display_name": "Course/Cohort-2024/Session #3/Types of Problems 15d218d9469481f3ba92cd515fae2de0.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Types of Problems",
+    "topic": "Problem Types",
+    "frameworks": [
+      "Three-Part Framework",
+      "Portfolio Approach"
+    ],
+    "concepts": [
+      "Un-defined problems",
+      "Ill-defined problems",
+      "Well-defined problems",
+      "Problem Definition Process",
+      "Diverge-Converge technique",
+      "Ideation",
+      "Evaluation",
+      "Innovation"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Un-defined problems",
+      "Ill-defined problems",
+      "Well-defined problems"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Portfolio"
+    ],
+    "teaching_elements": [],
+    "key_claims": [
+      "Different problem types require tailored approaches.",
+      "A taxonomy of problem types enhances clarity and effectiveness in innovation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Un-defined problems",
+      "THIS_DOC -[TEACHES]-> Ill-defined problems",
+      "THIS_DOC -[TEACHES]-> Well-defined problems",
+      "THIS_DOC -[USES_FRAMEWORK]-> Three-Part Framework",
+      "THIS_DOC -[USES_FRAMEWORK]-> Portfolio Approach",
+      "THIS_DOC -[DISCUSSES]-> Problem Definition Process",
+      "THIS_DOC -[DISCUSSES]-> Diverge-Converge technique"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "problem",
+      "problem",
+      "problem",
+      "Problem",
+      "problem"
+    ],
+    "solutions": [
+      "Approach",
+      "approach"
+    ],
+    "questions": [
+      "# Types of Problems\n\nPrompt: Up to 500 characters How does the chapter explain or use the taxonomy of problem types (Un-defined, Ill-defined, Well-defined)?"
+    ]
+  },
+  "char_count": 1152,
+  "extracted_at": "2026-01-28T14:11:56.159127"
+}

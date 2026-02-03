@@ -1,0 +1,73 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Portfolio Approach to Innovation 166218d94694810f9e15f870c67a6cd5.md",
+  "display_name": "Course/Cohort-2024/Session #3/Portfolio Approach to Innovation 166218d94694810f9e15f870c67a6cd5.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Portfolio Approach to Innovation",
+    "topic": "Innovation Portfolio Management",
+    "frameworks": [
+      "Futures Wheels"
+    ],
+    "concepts": [
+      "Innovation",
+      "Portfolio",
+      "Idea Generation",
+      "Opportunity Bank",
+      "Selective Advancement",
+      "Risk Management",
+      "Uncertainty",
+      "Innovation Pipeline",
+      "Reverse Salient"
+    ],
+    "entities": [
+      "Luna",
+      "Linus Pauling"
+    ],
+    "problems_discussed": [
+      "Uncomfortable glasses",
+      "Cumbersome commerce",
+      "Slow messages",
+      "Poorly satisfied needs",
+      "Reverse salients"
+    ],
+    "pws_phase_relevance": [
+      "Portfolio",
+      "Solution Framing"
+    ],
+    "teaching_elements": [
+      "Case study (Luna's approach)",
+      "Examples of idea generation tools"
+    ],
+    "key_claims": [
+      "A diverse portfolio of ideas is crucial for sustainable innovation.",
+      "Balancing uncertainty and risk is key to successful opportunity selection."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Innovation Portfolio Management",
+      "THIS_DOC -[TEACHES]-> Idea Generation",
+      "THIS_DOC -[TEACHES]-> Opportunity Bank",
+      "THIS_DOC -[TEACHES]-> Selective Advancement",
+      "THIS_DOC -[TEACHES]-> Risk Management",
+      "THIS_DOC -[USES_FRAMEWORK]-> Futures Wheels",
+      "THIS_DOC -[MENTIONS]-> Luna",
+      "THIS_DOC -[MENTIONS]-> Linus Pauling"
+    ]
+  },
+  "signals": {
+    "solutions": [
+      "Approach",
+      "approach",
+      "approach"
+    ],
+    "questions": [
+      "# Portfolio Approach to Innovation\n\nPrompt: Up to 500 charters How does the chapter discuss building a diverse portfolio of ideas?"
+    ],
+    "trends": [
+      "Trending"
+    ]
+  },
+  "char_count": 1594,
+  "extracted_at": "2026-01-28T14:25:33.157320"
+}

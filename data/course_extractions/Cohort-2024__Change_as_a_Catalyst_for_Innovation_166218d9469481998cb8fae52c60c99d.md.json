@@ -1,0 +1,61 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #3/Change as a Catalyst for Innovation 166218d9469481998cb8fae52c60c99d.md",
+  "display_name": "Course/Cohort-2024/Session #3/Change as a Catalyst for Innovation 166218d9469481998cb8fae52c60c99d.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Change as a Catalyst for Innovation",
+    "topic": "Change and Innovation",
+    "frameworks": [],
+    "concepts": [
+      "Change",
+      "Innovation",
+      "Technological Change",
+      "Market Change",
+      "Social Change",
+      "Opportunities",
+      "Adaptation",
+      "Structured Ideation",
+      "Dominant Designs",
+      "Risk vs. Uncertainty"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Adapting to change",
+      "Identifying new opportunities in a changing environment"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [],
+    "key_claims": [
+      "Change creates new needs and opportunities for innovation.",
+      "Structured ideation helps harness change for innovation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Change",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Technological Change",
+      "THIS_DOC -[TEACHES]-> Market Change",
+      "THIS_DOC -[TEACHES]-> Social Change",
+      "THIS_DOC -[TEACHES]-> Opportunities",
+      "THIS_DOC -[TEACHES]-> Adaptation",
+      "THIS_DOC -[TEACHES]-> Structured Ideation",
+      "THIS_DOC -[TEACHES]-> Dominant Designs",
+      "THIS_DOC -[TEACHES]-> Risk vs. Uncertainty"
+    ]
+  },
+  "signals": {
+    "questions": [
+      "# Change as a Catalyst for Innovation\n\nPrompt: up to 500 charters  How does the chapter explain the role of change in driving innovation?"
+    ],
+    "trends": [
+      "emerging"
+    ]
+  },
+  "char_count": 879,
+  "extracted_at": "2026-01-28T12:53:39.122986"
+}

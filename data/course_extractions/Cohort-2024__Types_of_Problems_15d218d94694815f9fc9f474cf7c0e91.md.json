@@ -1,0 +1,78 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #3/Types of Problems 15d218d94694815f9fc9f474cf7c0e91.md",
+  "display_name": "Course/Cohort-2024/Session #3/Types of Problems 15d218d94694815f9fc9f474cf7c0e91.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Types of Problems",
+    "topic": "Problem Types",
+    "frameworks": [
+      "Scenario Planning",
+      "Jobs-to-be-Done",
+      "User Journey Mapping"
+    ],
+    "concepts": [
+      "Un-Defined Problems",
+      "Ill-Defined Problems",
+      "Well-Defined Problems",
+      "Presentism",
+      "User-Centered Innovation",
+      "Process Improvement",
+      "Problem-Solution Alignment",
+      "Alternative Futures"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Un-Defined Problems",
+      "Ill-Defined Problems",
+      "Well-Defined Problems",
+      "Future Needs",
+      "Vague Issues",
+      "Actionable Problems"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Table comparing problem types, explanations, approaches, and relevance"
+    ],
+    "key_claims": [
+      "Different problem types require different approaches and tools.",
+      "Understanding future needs and challenges is crucial for innovation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Un-Defined Problems",
+      "THIS_DOC -[TEACHES]-> Ill-Defined Problems",
+      "THIS_DOC -[TEACHES]-> Well-Defined Problems",
+      "THIS_DOC -[USES_FRAMEWORK]-> Scenario Planning",
+      "THIS_DOC -[USES_FRAMEWORK]-> Jobs-to-be-Done",
+      "THIS_DOC -[USES_FRAMEWORK]-> User Journey Mapping"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "problem",
+      "problem",
+      "Problem",
+      "problem"
+    ],
+    "solutions": [
+      "Approach",
+      "solution"
+    ],
+    "questions": [
+      "# Types of Problems\n\nPrompt: Up to 500 characters How does the chapter explain or use the taxonomy of problem types (Un-defined, Ill-defined, Well-defined)?"
+    ],
+    "trends": [
+      "trending"
+    ],
+    "future": [
+      "future",
+      "future"
+    ]
+  },
+  "char_count": 1178,
+  "extracted_at": "2026-01-28T12:57:30.797666"
+}

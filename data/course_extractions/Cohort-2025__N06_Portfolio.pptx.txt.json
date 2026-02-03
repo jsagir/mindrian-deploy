@@ -1,0 +1,99 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2025/SlideDecks 2025/N06_Portfolio.pptx.txt",
+  "display_name": "Course/Cohort-2025/SlideDecks 2025/N06_Portfolio.pptx.txt",
+  "category": "Cohort-2025",
+  "subfolder": "SlideDecks 2025",
+  "extraction": {
+    "title": "N06_Portfolio.pptx.txt",
+    "topic": "Opportunity Portfolio Creation",
+    "frameworks": [
+      "Ansoff Matrix",
+      "Design Thinking",
+      "Jobs-to-be-Done"
+    ],
+    "concepts": [
+      "Opportunities",
+      "Innovation",
+      "Problem Definition",
+      "Macro Trends",
+      "Use Cases",
+      "Well-Defined Problems",
+      "Ill-Defined Problems",
+      "Un-Defined Problems",
+      "Risk",
+      "Uncertainty"
+    ],
+    "entities": [
+      "Heinz Ketchup",
+      "McKinsey"
+    ],
+    "problems_discussed": [
+      "Ill-Defined Problems",
+      "Well-Defined Problems",
+      "Un-Defined Problems",
+      "Finding problems worth solving",
+      "Technological feasibility",
+      "Financial Risk",
+      "Political Risk",
+      "Reputational Risk",
+      "Managerial Risk"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Solution Framing",
+      "Portfolio"
+    ],
+    "teaching_elements": [
+      "Exercise: Creating a Portfolio of Opportunities",
+      "Examples of problem types",
+      "Use case analysis (5 W's)",
+      "Criteria for evaluating opportunities (Is it real? Can we win? Is it worth it?)"
+    ],
+    "key_claims": [
+      "Opportunities are problems to be solved to create a different future.",
+      "Opportunities must be researched and explored to become well-defined problems and innovations.",
+      "A portfolio of opportunities requires a framework and a toolkit."
+    ],
+    "cohort_context": "Cohort-2025",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Opportunities",
+      "THIS_DOC -[TEACHES]-> Problem Definition",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[USES_FRAMEWORK]-> Ansoff Matrix",
+      "THIS_DOC -[USES_FRAMEWORK]-> Design Thinking",
+      "THIS_DOC -[USES_FRAMEWORK]-> Jobs-to-be-Done",
+      "THIS_DOC -[DISCUSSES]-> Ill-Defined Problems",
+      "THIS_DOC -[DISCUSSES]-> Well-Defined Problems",
+      "THIS_DOC -[DISCUSSES]-> Un-Defined Problems",
+      "THIS_DOC -[MENTIONS]-> Heinz Ketchup",
+      "THIS_DOC -[MENTIONS]-> McKinsey"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "Problem",
+      "problem",
+      "problem"
+    ],
+    "questions": [
+      "CREATING A PORTFOLIO OF OPPORTUNITIES\nA FRAMEWORK FOR INNOVATION:\u000bFINDING PROBLEMS WORTH WORKING ON\nConfidential for classroom use only\n1\n1\n\nReminder: Problem Types\nConfidential for classroom use only\n2\nIll-Defined\nWell-Defined\nUn-Defined\n?\n?\nMacro Trending\nScenario Planning\nAnalogies\nWhat\u2019s over the horizon? What\u2019s possible?\nNear-term Trending \nEmerging technologies\nValue migration\nWhat\u2019s next for us? What\u2019s the next opportunity?\nTraditional product development\nHow do we make this?\nAnalytic Tools:\nQuestion: \nExamples:\nWhat could our markets look like in 10 years?\nWhat market(s) should we enter?\nHow do we make this offering? \nWhat are the possible offering concepts?\nDesign Thinking\nJobs-to-be-Done\nPrototyping\nWhat specific offerings could we develop?",
+      "\n\n6\n\nThe Goal: Next Opportunities\nConfidential for classroom use only\n7\nBut this is our real goal \u2013 finding problems \u201cworth solving\u201d in order to create the next big thing\n7\n\nReminder: Where are the Best Opportunities?\nUncertainty: \nDemand\nTechnological feasibility\nRisk: \nFinancial\nPolitical\nReputational\nManagerial\nConfidential for classroom use only\n8\nWho plays in each quadrant?\nWhat kind of problem are you solving?\nWhat tools should be used?\n8\n\nExercise: Creating a Portfolio of Opportunities\nChoose a domain(s) of interest\nWhat un-defined or ill-defined problem(s) did you explore within that domain?\nWhat are the macro trends in that domain?",
+      ", the 5 W\u2019s), and then ask\nIs it real?\nCan we win?\nIs it worth it?"
+    ],
+    "causation": [
+      "therefore",
+      "thus"
+    ],
+    "trends": [
+      "Trending",
+      "Trending",
+      "Emerging"
+    ],
+    "future": [
+      "future"
+    ]
+  },
+  "char_count": 3388,
+  "extracted_at": "2026-01-28T12:44:26.561920"
+}

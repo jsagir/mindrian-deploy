@@ -1,0 +1,143 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Sub Chapter 5 Beyond Incremental Improvements \u2013 Fr 161218d94694802a840dd8a213fdba3c.md",
+  "display_name": "Course/Cohort-2024/Session #3/Sub Chapter 5 Beyond Incremental Improvements \u2013 Fr 161218d94694802a840dd8a213fdba3c.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Sub Chapter 5 Beyond Incremental Improvements \u2013 Fr 161218d94694802a840dd8a213fdba3c.md",
+    "topic": "Platform Innovation",
+    "frameworks": [],
+    "concepts": [
+      "Tools",
+      "Platforms",
+      "Ecosystems",
+      "Platform Thinking",
+      "Value Creation",
+      "Innovation",
+      "Digital Transformation",
+      "User Needs",
+      "Ecosystem Opportunities",
+      "Tool Thinking"
+    ],
+    "entities": [
+      "Johns Hopkins",
+      "MIT's Platform Strategy Institute",
+      "Apple",
+      "LEGO",
+      "LEGO MINDSTORMS",
+      "LEGO Super Mario",
+      "LEGO Hidden Side",
+      "LEGO Education",
+      "FIRST LEGO League",
+      "Kodak",
+      "Instagram",
+      "Facebook",
+      "Tesla",
+      "BMW",
+      "Peloton",
+      "Amazon",
+      "AWS",
+      "Shopify",
+      "Ohad"
+    ],
+    "problems_discussed": [
+      "Limited growth from incremental product improvements",
+      "Missing platform opportunities",
+      "Being trapped in tool thinking",
+      "Lack of adaptability",
+      "Failure to understand user needs"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [
+      "Case studies (LEGO, Kodak, Tesla, Peloton, BMW, Amazon, Shopify)",
+      "Examples (temperature-controlled kettle, iPad)",
+      "Framework for identifying platform opportunities (Horizon 1, 2, 3)"
+    ],
+    "key_claims": [
+      "Platform-based businesses grow faster and have higher valuations than traditional companies.",
+      "Shifting from tool thinking to platform thinking unlocks greater innovation and value creation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Tools",
+      "THIS_DOC -[TEACHES]-> Platforms",
+      "THIS_DOC -[TEACHES]-> Ecosystems",
+      "THIS_DOC -[TEACHES]-> Platform Thinking",
+      "THIS_DOC -[TEACHES]-> Value Creation",
+      "THIS_DOC -[MENTIONS]-> LEGO",
+      "THIS_DOC -[MENTIONS]-> Apple",
+      "THIS_DOC -[MENTIONS]-> Kodak",
+      "THIS_DOC -[MENTIONS]-> Tesla",
+      "THIS_DOC -[MENTIONS]-> Peloton",
+      "THIS_DOC -[MENTIONS]-> BMW",
+      "THIS_DOC -[MENTIONS]-> Amazon",
+      "THIS_DOC -[MENTIONS]-> Shopify",
+      "THIS_DOC -[DISCUSSES]-> Problems_discussed"
+    ]
+  },
+  "signals": {
+    "percentages": [
+      "202%",
+      "5%",
+      "21%",
+      "25%",
+      "43%"
+    ],
+    "money": [
+      "$170,",
+      "$15 billion",
+      "$9.2 billion",
+      "$200 million",
+      "$1 billion"
+    ],
+    "years": [
+      "2023",
+      "2012",
+      "2023"
+    ],
+    "problems": [
+      "problem",
+      "problem"
+    ],
+    "solutions": [
+      "solve",
+      "address",
+      "Strategy",
+      "solve",
+      "solve"
+    ],
+    "questions": [
+      "\nReviewed by Ohad?",
+      " Why?",
+      " Instead, they asked a deeper question: \"What progress are people trying to make through play?",
+      " What adjacent needs appear?",
+      "\n\nKey questions for Horizon 1:\n\n- What complementary tools do users need alongside yours?\n- Where do users struggle to integrate your tool with others?\n- What data or insights could your tool provide beyond its primary function?"
+    ],
+    "causation": [
+      "Because",
+      "because",
+      "Because"
+    ],
+    "trends": [
+      "shifting",
+      "emerging",
+      "Emerging",
+      "emerging",
+      "shifting"
+    ],
+    "future": [
+      "will",
+      "will",
+      "By 2023",
+      "by 2012",
+      "By 2023"
+    ]
+  },
+  "char_count": 17234,
+  "extracted_at": "2026-01-28T14:18:12.284269"
+}

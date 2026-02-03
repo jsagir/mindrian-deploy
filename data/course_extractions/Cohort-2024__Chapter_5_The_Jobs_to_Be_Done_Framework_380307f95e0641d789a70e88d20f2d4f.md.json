@@ -1,0 +1,115 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Chapter 5 The Jobs to Be Done Framework 380307f95e0641d789a70e88d20f2d4f.md",
+  "display_name": "Course/Cohort-2024/Session #3/Chapter 5 The Jobs to Be Done Framework 380307f95e0641d789a70e88d20f2d4f.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Chapter 5 The Jobs to Be Done Framework 380307f95e0641d789a70e88d20f2d4f.md",
+    "topic": "Jobs to Be Done",
+    "frameworks": [
+      "Jobs to Be Done (JTBD)"
+    ],
+    "concepts": [
+      "Innovation",
+      "Customer needs",
+      "Problem solving",
+      "Progress",
+      "Outcomes",
+      "Job",
+      "Situation",
+      "Need",
+      "Expected outcome",
+      "Market fluctuations"
+    ],
+    "entities": [
+      "Clayton Christensen",
+      "Tony Ulwick",
+      "Richard Pedi",
+      "Strategyn",
+      "Re-Vector Corporation",
+      "Harvard Business Review",
+      "Netflix",
+      "Spotify",
+      "Uber",
+      "Blockbuster",
+      "CareMate",
+      "PlayJoy",
+      "BookShare",
+      "MealEase"
+    ],
+    "problems_discussed": [
+      "Failing to solve the right problem",
+      "Products failing to meet customer expectations",
+      "Misunderstanding customer needs",
+      "Innovation risk",
+      "Lack of predictable innovation"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [
+      "Real-world examples (Netflix, Spotify, Uber)",
+      "Thought exercise (CareMate, PlayJoy, BookShare, MealEase)",
+      "JTBD framework application",
+      "Questions for self-reflection"
+    ],
+    "key_claims": [
+      "Customers hire products to perform specific jobs in their lives.",
+      "Focus on progress, not products.",
+      "Understanding the job makes innovation more predictable."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Jobs to Be Done",
+      "THIS_DOC -[TEACHES]-> Customer needs",
+      "THIS_DOC -[TEACHES]-> Problem solving",
+      "THIS_DOC -[USES_FRAMEWORK]-> Jobs to Be Done (JTBD)",
+      "THIS_DOC -[MENTIONS]-> Clayton Christensen",
+      "THIS_DOC -[MENTIONS]-> Netflix",
+      "THIS_DOC -[MENTIONS]-> Spotify",
+      "THIS_DOC -[MENTIONS]-> Uber",
+      "THIS_DOC -[ILLUSTRATES]-> Real-world examples"
+    ]
+  },
+  "signals": {
+    "years": [
+      "2003"
+    ],
+    "problems": [
+      "Problem",
+      "problem",
+      "problem",
+      "problem",
+      "challenge"
+    ],
+    "solutions": [
+      "Solution",
+      "solve",
+      "solution",
+      "solve",
+      "solve"
+    ],
+    "questions": [
+      " But how do you uncover the problems that truly matter?",
+      "\n\n---\n\n### **Are You Solving the Right Problem?",
+      " But here\u2019s the million-dollar question: **Are you solving the right problem?",
+      "\n\n---\n\n### **The JTBD Thought Exercise: Are You Asking the Right Questions?",
+      "\"\n\n---\n\n### **Game: Are You Solving the Right Problem?"
+    ],
+    "causation": [
+      "because"
+    ],
+    "trends": [
+      "changing"
+    ],
+    "future": [
+      "will",
+      "will",
+      "will"
+    ]
+  },
+  "char_count": 9524,
+  "extracted_at": "2026-01-28T14:18:25.720382"
+}

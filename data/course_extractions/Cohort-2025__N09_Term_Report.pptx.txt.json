@@ -1,0 +1,139 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2025/SlideDecks 2025/N09_Term Report.pptx.txt",
+  "display_name": "Course/Cohort-2025/SlideDecks 2025/N09_Term Report.pptx.txt",
+  "category": "Cohort-2025",
+  "subfolder": "SlideDecks 2025",
+  "extraction": {
+    "title": "N09_Term Report.pptx",
+    "topic": "Problem Solving",
+    "frameworks": [
+      "HERAT",
+      "McKinsey Method",
+      "Usher's Model",
+      "MECE"
+    ],
+    "concepts": [
+      "Problem statement",
+      "Solution",
+      "Business case",
+      "Hypothesis",
+      "Market",
+      "Monopoly",
+      "Competition",
+      "Issue Trees",
+      "Logic Trees",
+      "Brute Force",
+      "Targeted Development",
+      "Eureka Moment"
+    ],
+    "entities": [
+      "Peter Thiel",
+      "Google",
+      "Microsoft",
+      "Yahoo!",
+      "Herbert Simon",
+      "Charles Conn",
+      "Robert McLean",
+      "ARINC",
+      "Abbott Payson Usher",
+      "Harvard University Press",
+      "Wiley",
+      "Abbie Gibson",
+      "Thomas Edison"
+    ],
+    "problems_discussed": [
+      "Defining a problem",
+      "Solving a problem",
+      "Identifying market needs",
+      "Competition",
+      "Lack of innovation"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Examples of problem-solving approaches",
+      "Example of logic tree creation",
+      "Questions to define a problem",
+      "Case studies (Google as a monopoly)"
+    ],
+    "key_claims": [
+      "A clear problem definition is critical for effective problem solving.",
+      "Monopolies can be created through proprietary technology, network effects, economies of scale, and branding.",
+      "MECE (Mutually Exclusive, Collectively Exhaustive) is essential for effective analysis."
+    ],
+    "cohort_context": "Cohort-2025",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Problem statement",
+      "THIS_DOC -[TEACHES]-> Solution",
+      "THIS_DOC -[USES_FRAMEWORK]-> HERAT",
+      "THIS_DOC -[USES_FRAMEWORK]-> McKinsey Method",
+      "THIS_DOC -[USES_FRAMEWORK]-> Usher's Model",
+      "THIS_DOC -[USES_FRAMEWORK]-> MECE",
+      "THIS_DOC -[MENTIONS]-> Peter Thiel",
+      "THIS_DOC -[DISCUSSES]-> Monopoly",
+      "THIS_DOC -[DISCUSSES]-> Competition"
+    ]
+  },
+  "signals": {
+    "percentages": [
+      "80%",
+      "20%",
+      "20%",
+      "80%",
+      "20%"
+    ],
+    "years": [
+      "2014",
+      "2018",
+      "1929",
+      "1965",
+      "2023"
+    ],
+    "assumptions": [
+      "assume"
+    ],
+    "problems": [
+      "Problem",
+      "problem",
+      "problem",
+      "problem",
+      "PROBLEM"
+    ],
+    "solutions": [
+      "solution",
+      "solution",
+      "solution",
+      "solution",
+      "address"
+    ],
+    "questions": [
+      "CONCLUSION OF THE TERM\nProblem, solution, business case\nConfidential for classroom use only\n1\n1\n\nBack to the Beginning: The Story You Want to Tell\nH: Hypothesis / Start with Why\nWhy are you starting this startup? What do you believe about your target market?",
+      "\n\n\nConfidential for classroom use only\n3\nPeter Thiel, From Zero to One (Crown Business : 2014)\nWhat will be a future monopoly is uncertain\n3\n\nThree Critical Questions\nIs it real?\nCan we win?\nWhat are the Resources required to win?  Are they available or can they be obtained?\nWhat are the Risks associated with the project or business?  Can they be managed?\nIs it worth it?\nWhat is the Return expected and why?  Does it warrant our attention?",
+      "\n\n\nWhat is Your Well-Defined Problem?\nHow can we help\u2026 do\u2026 under these circumstances\u2026 in order to\u2026? \nDoes anyone care?\nWhat is the use case?",
+      "\n10\n\nWhich Approach to Use?\nConfidential: For Classroom Use Only\n11\nBrute Force\nGrid search of every potential solution until one works\nTargeted Development\nTheory informs potential solutions\nEureka Moment\nSolution results from a chance event (randomness)\nAn example of how these three approaches can be used together\n11\n\nAnd Now Which Approach?\nConfidential: For Classroom Use Only\n12\nBrute Force\nGrid search of every potential solution until one works\nTargeted Development\nTheory informs potential solutions\nEureka Moment\nSolution results from a chance event (randomness)\n\nAnd Now Which Approach?\nConfidential: For Classroom Use Only\n13\nBrute Force\nGrid search of every potential solution until one works\nTargeted Development\nTheory informs potential solutions\nEureka Moment\nSolution results from a chance event (randomness)\n\nSolution\nConfidential: For Classroom Use Only\n14\nMay 18, 2023\n\nNerdle: Which Approach to Use?",
+      "\n\nConfidential for classroom use only\n21\n\nWhy Use Issue Trees?"
+    ],
+    "causation": [
+      "Therefore",
+      "causes",
+      "Causes",
+      "leads to",
+      "Therefore"
+    ],
+    "trends": [
+      "changing"
+    ],
+    "future": [
+      "will",
+      "will",
+      "will",
+      "future",
+      "predict"
+    ]
+  },
+  "char_count": 37864,
+  "extracted_at": "2026-01-28T12:43:45.820087"
+}

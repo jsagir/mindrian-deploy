@@ -1,0 +1,75 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Chapter 4 The Power of Process Mapping 128218d94694809c8d37f4047e1037bb.md",
+  "display_name": "Course/Cohort-2024/Session #3/Chapter 4 The Power of Process Mapping 128218d94694809c8d37f4047e1037bb.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Chapter 4 The Power of Process Mapping",
+    "topic": "Process Mapping",
+    "frameworks": [],
+    "concepts": [
+      "Process mapping",
+      "User journey",
+      "Pain points",
+      "Innovation",
+      "User experience",
+      "Customer satisfaction",
+      "Process optimization",
+      "Efficiency",
+      "Customer journey",
+      "Service Design"
+    ],
+    "entities": [
+      "Happy Socks",
+      "Mikael S\u00f6derlindh",
+      "Viktor Tell",
+      "The Beatles",
+      "Snoop Dogg"
+    ],
+    "problems_discussed": [
+      "Inconvenient shopping experiences",
+      "Uncertainty in product choice",
+      "Limited product variety",
+      "Low customer loyalty",
+      "Inefficient processes"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [
+      "Case study (Happy Socks)",
+      "Example (Sock purchase process)"
+    ],
+    "key_claims": [
+      "Process mapping helps identify inefficiencies in existing processes, leading to innovation.",
+      "Focusing on the user experience and customer journey can be more impactful than product innovation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Process mapping",
+      "THIS_DOC -[TEACHES]-> User journey",
+      "THIS_DOC -[TEACHES]-> Pain points",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> User experience",
+      "THIS_DOC -[TEACHES]-> Customer satisfaction",
+      "THIS_DOC -[TEACHES]-> Process optimization",
+      "THIS_DOC -[EXAMPLE_OF]-> Happy Socks",
+      "Happy Socks -[CO_FOUNDED_BY]-> Mikael S\u00f6derlindh",
+      "Happy Socks -[CO_FOUNDED_BY]-> Viktor Tell"
+    ]
+  },
+  "signals": {
+    "solutions": [
+      "method",
+      "approach",
+      "approach"
+    ],
+    "trends": [
+      "changing"
+    ]
+  },
+  "char_count": 6863,
+  "extracted_at": "2026-01-28T14:06:30.890875"
+}

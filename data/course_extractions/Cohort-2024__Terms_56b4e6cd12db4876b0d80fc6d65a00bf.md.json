@@ -1,0 +1,99 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #3/Terms 56b4e6cd12db4876b0d80fc6d65a00bf.md",
+  "display_name": "Course/Cohort-2024/Session #3/Terms 56b4e6cd12db4876b0d80fc6d65a00bf.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Terms 56b4e6cd12db4876b0d80fc6d65a00bf.md",
+    "topic": "Innovation Concepts",
+    "frameworks": [
+      "Rowan Gibson's '4 Lenses'",
+      "Jobs to Be Done Theory",
+      "Clayton Christensen's 'The Innovator's Dilemma'"
+    ],
+    "concepts": [
+      "Speed Date",
+      "Shavuot Break",
+      "Presentism",
+      "Process Mapping",
+      "User Journey Mapping",
+      "Sustaining Innovation",
+      "Disruptive Innovation",
+      "Non-consumers",
+      "Undershot Consumers",
+      "Overshot Consumers"
+    ],
+    "entities": [
+      "Innovation Authority",
+      "Warby Parker",
+      "Alexander Graham Bell",
+      "Philo T. Farnsworth",
+      "Clayton Christensen",
+      "Garmin Smartwatches",
+      "iPad",
+      "Casper"
+    ],
+    "problems_discussed": [
+      "Inefficiencies in healthcare processes (IVF)",
+      "Food waste management",
+      "Focus on immediate problems limiting long-term innovation",
+      "Incumbent companies failing at big innovations"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [
+      "Case studies (Warby Parker, Garmin, iPad, Casper)",
+      "Classroom exercise (Coffee Making Process)",
+      "Examples (Telephone evolution, Coffee drinking contexts, Edible Tape for Burritos)"
+    ],
+    "key_claims": [
+      "Understanding customer 'jobs to be done' is crucial for innovation.",
+      "Process mapping can reveal opportunities for innovation and user experience improvement."
+    ],
+    "cohort_context": "Course introducing innovation concepts and methodologies to participants, focusing on team formation, idea refinement, and presentation to an 'Innovation Authority'.",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Speed Date",
+      "THIS_DOC -[TEACHES]-> Shavuot Break",
+      "THIS_DOC -[TEACHES]-> Presentism",
+      "THIS_DOC -[TEACHES]-> Process Mapping",
+      "THIS_DOC -[TEACHES]-> User Journey Mapping",
+      "THIS_DOC -[TEACHES]-> Sustaining Innovation",
+      "THIS_DOC -[TEACHES]-> Disruptive Innovation",
+      "THIS_DOC -[TEACHES]-> Non-consumers",
+      "THIS_DOC -[TEACHES]-> Undershot Consumers",
+      "THIS_DOC -[TEACHES]-> Overshot Consumers",
+      "THIS_DOC -[USES_FRAMEWORK]-> Rowan Gibson's '4 Lenses'",
+      "THIS_DOC -[USES_FRAMEWORK]-> Jobs to Be Done Theory",
+      "THIS_DOC -[USES_FRAMEWORK]-> Clayton Christensen's 'The Innovator's Dilemma'",
+      "THIS_DOC -[MENTIONS]-> Innovation Authority",
+      "THIS_DOC -[MENTIONS]-> Warby Parker",
+      "THIS_DOC -[MENTIONS]-> Alexander Graham Bell",
+      "THIS_DOC -[MENTIONS]-> Philo T. Farnsworth",
+      "THIS_DOC -[MENTIONS]-> Clayton Christensen",
+      "THIS_DOC -[MENTIONS]-> Garmin Smartwatches",
+      "THIS_DOC -[MENTIONS]-> iPad",
+      "THIS_DOC -[MENTIONS]-> Casper"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "Problem",
+      "problem"
+    ],
+    "solutions": [
+      "address",
+      "address",
+      "Strategy",
+      "Strategy",
+      "solve"
+    ],
+    "future": [
+      "will"
+    ]
+  },
+  "char_count": 8121,
+  "extracted_at": "2026-01-28T12:53:05.596163"
+}

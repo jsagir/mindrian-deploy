@@ -1,0 +1,68 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #3/Critical Processed Thinking Perspective 161218d94694815ba169f6f271f6bdee.md",
+  "display_name": "Course/Cohort-2024/Session #3/Critical Processed Thinking Perspective 161218d94694815ba169f6f271f6bdee.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Critical Processed Thinking Perspective",
+    "topic": "Critical Thinking",
+    "frameworks": [],
+    "concepts": [
+      "Critical Thinking",
+      "Problem-solving",
+      "Ideation",
+      "Problem Definition",
+      "Idea Generation",
+      "Evaluation",
+      "Planning",
+      "Systematic Approach",
+      "Structured Approach",
+      "Innovation"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Unfocused brainstorming",
+      "Sporadic innovation"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [],
+    "key_claims": [
+      "A structured approach to problem-solving is more effective than random brainstorming.",
+      "Systematic ideation processes lead to more deliberate and impactful innovation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Critical Thinking",
+      "THIS_DOC -[TEACHES]-> Problem-solving",
+      "THIS_DOC -[TEACHES]-> Ideation",
+      "THIS_DOC -[TEACHES]-> Problem Definition",
+      "THIS_DOC -[TEACHES]-> Idea Generation",
+      "THIS_DOC -[TEACHES]-> Evaluation",
+      "THIS_DOC -[TEACHES]-> Planning",
+      "THIS_DOC -[TEACHES]-> Systematic Approach",
+      "THIS_DOC -[TEACHES]-> Structured Approach",
+      "THIS_DOC -[TEACHES]-> Innovation"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "problem",
+      "problem",
+      "problem"
+    ],
+    "solutions": [
+      "approach",
+      "approach",
+      "approach",
+      "approach"
+    ],
+    "questions": [
+      "# Critical Processed Thinking Perspective\n\nPrompt: in up to 500 charterers How does the chapter encourage a structured, critical thinking approach to problem-solving?"
+    ]
+  },
+  "char_count": 881,
+  "extracted_at": "2026-01-28T12:54:37.361550"
+}

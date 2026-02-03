@@ -1,0 +1,81 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Further Reading 15d218d946948108921fd95d330c151d.md",
+  "display_name": "Course/Cohort-2024/Session #3/Further Reading 15d218d946948108921fd95d330c151d.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Further Reading 15d218d946948108921fd95d330c151d.md",
+    "topic": "Innovation & Strategy",
+    "frameworks": [
+      "Blue Ocean Strategy",
+      "Lean Startup"
+    ],
+    "concepts": [
+      "Disruptive Innovation",
+      "Market Leadership",
+      "Market Space",
+      "Validated Learning",
+      "Rapid Experimentation",
+      "Competitive Advantage",
+      "Product Lifecycles",
+      "Market Maturity",
+      "Entrepreneurship",
+      "Economic Forces"
+    ],
+    "entities": [
+      "Clayton M. Christensen",
+      "W. Chan Kim",
+      "Ren\u00e9e Mauborgne",
+      "Eric Ries",
+      "Rita Gunther McGrath",
+      "Geoffrey A. Moore",
+      "Israel M. Kirzner"
+    ],
+    "problems_discussed": [
+      "How successful companies fail due to disruptive innovation",
+      "Challenges of bringing innovative products to market",
+      "Maintaining competitive advantage in fast-moving environments"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Table of further reading resources with relevance explanations"
+    ],
+    "key_claims": [
+      "Successful companies can fail when faced with disruptive innovation.",
+      "Continuous innovation is essential for maintaining competitive advantage."
+    ],
+    "cohort_context": "Cohort-2024, Chapter 2",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Disruptive Innovation",
+      "THIS_DOC -[TEACHES]-> Market Leadership",
+      "THIS_DOC -[TEACHES]-> Market Space",
+      "THIS_DOC -[TEACHES]-> Validated Learning",
+      "THIS_DOC -[TEACHES]-> Rapid Experimentation",
+      "THIS_DOC -[TEACHES]-> Competitive Advantage",
+      "THIS_DOC -[TEACHES]-> Product Lifecycles",
+      "THIS_DOC -[TEACHES]-> Market Maturity",
+      "THIS_DOC -[TEACHES]-> Entrepreneurship",
+      "THIS_DOC -[TEACHES]-> Economic Forces",
+      "THIS_DOC -[USES_FRAMEWORK]-> Blue Ocean Strategy",
+      "THIS_DOC -[USES_FRAMEWORK]-> Lean Startup",
+      "THIS_DOC -[RECOMMENDS]-> The Innovator's Dilemma",
+      "THIS_DOC -[RECOMMENDS]-> Blue Ocean Strategy",
+      "THIS_DOC -[RECOMMENDS]-> The Lean Startup",
+      "THIS_DOC -[RECOMMENDS]-> The End of Competitive Advantage",
+      "THIS_DOC -[RECOMMENDS]-> Crossing the Chasm",
+      "THIS_DOC -[RECOMMENDS]-> Competition and Entrepreneurship"
+    ]
+  },
+  "signals": {
+    "solutions": [
+      "Strategy",
+      "Strategy"
+    ]
+  },
+  "char_count": 1901,
+  "extracted_at": "2026-01-28T14:19:04.136737"
+}

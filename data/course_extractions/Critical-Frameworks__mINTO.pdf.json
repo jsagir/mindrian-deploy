@@ -1,0 +1,126 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Critical Frameworks of thinking/mINTO.pdf",
+  "display_name": "Course/Critical-Frameworks/mINTO.pdf",
+  "category": "Critical-Frameworks",
+  "subfolder": null,
+  "extraction": {
+    "title": "mINTO.pdf",
+    "topic": "Problem Solving, Opportunity Recognition",
+    "frameworks": [
+      "MECE",
+      "Pyramid Principle"
+    ],
+    "concepts": [
+      "Opportunity Recognition",
+      "Pattern Recognition",
+      "Cognitive Frameworks",
+      "Logic Trees",
+      "Issue Trees",
+      "Hypothesis Driven Problem Solving",
+      "Collectively Exhaustive",
+      "Mutually Exclusive"
+    ],
+    "entities": [
+      "Robert A. Baron",
+      "McKinsey & Company",
+      "Ethan Rasiel",
+      "Barbara Minto"
+    ],
+    "problems_discussed": [
+      "Identifying new business ventures",
+      "Breaking down complex problems",
+      "Reducing monthly shopping expenses"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Examples of logic trees and issue trees",
+      "Example of MECE application (reducing shopping expenses)",
+      "Discussion questions"
+    ],
+    "key_claims": [
+      "Entrepreneurs identify opportunities by using cognitive frameworks to perceive connections between seemingly unrelated events.",
+      "MECE (Mutually Exclusive, Collectively Exhaustive) is a critical principle for structured problem-solving."
+    ],
+    "cohort_context": "Classroom use",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Opportunity Recognition",
+      "THIS_DOC -[TEACHES]-> Pattern Recognition",
+      "THIS_DOC -[TEACHES]-> MECE",
+      "THIS_DOC -[TEACHES]-> Logic Trees",
+      "THIS_DOC -[TEACHES]-> Issue Trees",
+      "THIS_DOC -[USES_FRAMEWORK]-> MECE",
+      "THIS_DOC -[USES_FRAMEWORK]-> Pyramid Principle",
+      "Opportunity Recognition -[REQUIRES]-> Cognitive Frameworks",
+      "Logic Trees -[PART_OF]-> Problem Solving",
+      "Issue Trees -[PART_OF]-> Problem Solving",
+      "MECE -[APPLIED_TO]-> Logic Trees",
+      "MECE -[APPLIED_TO]-> Issue Trees"
+    ]
+  },
+  "signals": {
+    "percentages": [
+      "100%",
+      "80%",
+      "100%",
+      "20%"
+    ],
+    "years": [
+      "2006",
+      "2010",
+      "2011",
+      "1987"
+    ],
+    "assumptions": [
+      "assume",
+      "premise",
+      "premise",
+      "assuming",
+      "Suppose"
+    ],
+    "problems": [
+      "problem",
+      "issue",
+      "problem",
+      "problem",
+      "Issue"
+    ],
+    "solutions": [
+      "method",
+      "address",
+      "solution",
+      "Approach",
+      "Approach"
+    ],
+    "questions": [
+      " Baron \n\u201cOpportunity Recognition as Pattern \nRecognition\u201d \nAcademy of Management Perspectives \n(Feb 2006) \n\n2Confidential - for classroom use only Opportunity Recognition as Pattern Recognition \nHow do entrepreneurs identify opportunities for new business ventures?",
+      " Are any false?",
+      "com/2011/05/01/book-review-the-mckinsey-mind-fo\ncusing-on-mutually-exclusive-collectively-exhaustive-thinking/ \n\nMcKinsey & Company |What is a logic tree and why is it important? \nA problem solving tool that breaks a problem into discrete chunks \nWhy use logic trees?",
+      "2 How / What? \nLevel of detail \nComplete but \nnon-overlapping list of \nconceivable solutions \nFurther levels of detail for ideas, \nalso complete and \nnon-overlapping How / What? \n\nMcKinsey & Company |The issue tree is a valuable tool to disaggregate a problem into core \nsub-questions that need to be addressed to answer the main question Description Why use it? When to use it?",
+      ", \nmeasures, criteria) \n\u25aaSub-issues answer \nthe question \n\u201cWhat?\u201d or \u201cHow?"
+    ],
+    "causation": [
+      "because",
+      "therefore",
+      "because",
+      "because",
+      "Thus"
+    ],
+    "trends": [
+      "changing",
+      "declining"
+    ],
+    "future": [
+      "will",
+      "will",
+      "will",
+      "Predict",
+      "will"
+    ]
+  },
+  "char_count": 46014,
+  "extracted_at": "2026-01-28T11:53:26.549384"
+}

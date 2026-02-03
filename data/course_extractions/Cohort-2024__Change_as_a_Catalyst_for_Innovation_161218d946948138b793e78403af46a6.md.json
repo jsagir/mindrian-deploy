@@ -1,0 +1,65 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Change as a Catalyst for Innovation 161218d946948138b793e78403af46a6.md",
+  "display_name": "Course/Cohort-2024/Session #3/Change as a Catalyst for Innovation 161218d946948138b793e78403af46a6.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Change as a Catalyst for Innovation",
+    "topic": "Change and Innovation",
+    "frameworks": [],
+    "concepts": [
+      "Change",
+      "Innovation",
+      "Technological Change",
+      "Market Change",
+      "Social Change",
+      "Opportunities",
+      "Adaptation",
+      "Structured Ideation",
+      "Emerging Demands",
+      "Risk",
+      "Uncertainty",
+      "Dominant Designs"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Adapting to change",
+      "Identifying innovation opportunities from change"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [],
+    "key_claims": [
+      "Change creates new needs and opportunities for innovation.",
+      "Structured ideation can help harness change for innovation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Change",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Technological Change",
+      "THIS_DOC -[TEACHES]-> Market Change",
+      "THIS_DOC -[TEACHES]-> Social Change",
+      "THIS_DOC -[TEACHES]-> Opportunities",
+      "THIS_DOC -[TEACHES]-> Adaptation",
+      "THIS_DOC -[TEACHES]-> Structured Ideation",
+      "THIS_DOC -[TEACHES]-> Emerging Demands",
+      "THIS_DOC -[TEACHES]-> Risk",
+      "THIS_DOC -[TEACHES]-> Uncertainty",
+      "THIS_DOC -[TEACHES]-> Dominant Designs"
+    ]
+  },
+  "signals": {
+    "questions": [
+      "# Change as a Catalyst for Innovation\n\nPrompt: up to 500 charters  How does the chapter explain the role of change in driving innovation?"
+    ],
+    "trends": [
+      "emerging"
+    ]
+  },
+  "char_count": 879,
+  "extracted_at": "2026-01-28T14:17:36.679858"
+}

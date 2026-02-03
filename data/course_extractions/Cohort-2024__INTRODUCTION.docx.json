@@ -1,0 +1,133 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/INTRODUCTION.docx",
+  "display_name": "Course/Cohort-2024/INTRODUCTION.docx",
+  "category": "Cohort-2024",
+  "subfolder": null,
+  "extraction": {
+    "title": "INTRODUCTION.docx",
+    "topic": "Innovation Framework",
+    "frameworks": [],
+    "concepts": [
+      "Innovation",
+      "Entrepreneurship",
+      "Competitive Advantage",
+      "Market Maturity",
+      "Problem Solving",
+      "Opportunity Identification",
+      "Uncertainty",
+      "Risk",
+      "Value Creation",
+      "Systematic Innovation"
+    ],
+    "entities": [
+      "J. B. Say",
+      "Wright Brothers",
+      "Johns Hopkins",
+      "Johns Hopkins Hospital",
+      "Johns Hopkins University School of Medicine",
+      "Guglielmo Marconi",
+      "OpenAI",
+      "Linus Pauling"
+    ],
+    "problems_discussed": [
+      "Market growth slowing",
+      "Difficulty in acquisitions",
+      "Identifying valuable problems",
+      "IV infiltration detection",
+      "Lymphedema",
+      "Presentism",
+      "Ill-defined problems",
+      "Un-defined problems",
+      "Well-defined problems"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [
+      "Examples of innovations (Marconi, GPT-3, Eiffel Tower)",
+      "Questions for problem definition (What might the future look like?)",
+      "Dos and Don'ts of Innovation"
+    ],
+    "key_claims": [
+      "Systematic innovation involves searching for changes and analyzing opportunities.",
+      "Effective innovation should be simple, focused, and start small."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Entrepreneurship",
+      "THIS_DOC -[DISCUSSES]-> Market Maturity",
+      "THIS_DOC -[DISCUSSES]-> Problem Solving",
+      "THIS_DOC -[MENTIONS]-> J. B. Say",
+      "THIS_DOC -[MENTIONS]-> Johns Hopkins Hospital",
+      "THIS_DOC -[MENTIONS]-> OpenAI",
+      "THIS_DOC -[DISCUSSES]-> Lymphedema"
+    ]
+  },
+  "signals": {
+    "money": [
+      "$1000"
+    ],
+    "years": [
+      "1909",
+      "1901",
+      "1994",
+      "1990",
+      "2013"
+    ],
+    "assumptions": [
+      "if we",
+      "If we",
+      "assumption",
+      "assumption",
+      "assumption"
+    ],
+    "problems": [
+      "barrier",
+      "problem",
+      "problem",
+      "problem",
+      "problem"
+    ],
+    "solutions": [
+      "approach",
+      "solution",
+      "solution",
+      "solution",
+      "address"
+    ],
+    "questions": [
+      "INTRODUCTION\n\nA FRAMEWORK FOR INNOVATION:\nFINDING PROBLEMS WORTH WORKING ON\nGetting Started\nWhat is your big idea for a startup\u2026?\nWHY INNOVATE?",
+      " But then they ask, \u2018Which of these opportunities fits me, fits this company, puts to work what we (or I) are good at and have shown capacity for in performance?",
+      "\nFINDING PROBLEMS WORTH SOLVING\nComponents of Innovation\nThe components of innovation include:\nA problem worth solving\nA solution that solves the problem\nA business case that allows the solution to enter the market and to scale\nAll must be validated\nIs the problem worth working on?\nDoes the solution address the problem effectively and efficiently?\nDoes the business case allow the solution to move forward and does it work for all stakeholders?\nFinding Good Problems\nInnovation and entrepreneurship begin with finding problems worth solving\nBecause not all problems are of equal value or importance\nWhat are good problems?\nPer Frans Johansson, the best innovative ideas are those which are new and valuable\nThose that create a new future\nHow do you find them?",
+      "\nAnd we get out of our heads by searching at different boundaries of uncertainty for opportunities: \nfrom the present forward (\u201cWhat\u2019s probable? What\u2019s plausible?\u201d) and \nfrom the future back (\u201cWhat\u2019s possible?",
+      "\nWhat is the Problem Here?"
+    ],
+    "causation": [
+      "Thus",
+      "causes",
+      "therefore",
+      "thus",
+      "thus"
+    ],
+    "trends": [
+      "growing",
+      "shifting",
+      "Shifting",
+      "changing",
+      "changing"
+    ],
+    "future": [
+      "future",
+      "future",
+      "future",
+      "future",
+      "future"
+    ]
+  },
+  "char_count": 40794,
+  "extracted_at": "2026-01-28T12:41:19.633650"
+}

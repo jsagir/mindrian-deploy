@@ -1,0 +1,125 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #7/Transcription fa691f92410647f58d187eb81a4df719.md",
+  "display_name": "Course/Cohort-2024/Session #7/Transcription fa691f92410647f58d187eb81a4df719.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #7",
+  "extraction": {
+    "title": "Transcription fa691f92410647f58d187eb81a4df719.md",
+    "topic": "Value Proposition",
+    "frameworks": [
+      "Jobs to be Done (JTBD)"
+    ],
+    "concepts": [
+      "Value proposition",
+      "Target market",
+      "Market attractiveness",
+      "Industry attractiveness",
+      "Business case",
+      "Pains and gains",
+      "B2B",
+      "B2C",
+      "Validation",
+      "Monopoly"
+    ],
+    "entities": [
+      "Arinc",
+      "Apple",
+      "Dell",
+      "Peter Thiel",
+      "London School of Business",
+      "John Mullins",
+      "Innovation Authority"
+    ],
+    "problems_discussed": [
+      "Identifying a real problem worth solving",
+      "Defining a specific target market",
+      "Creating a compelling value proposition",
+      "Competition in the market",
+      "Inadequate existing solutions"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [
+      "Arinc's 'Is it real, can we win, is it worth it' framework",
+      "Example of Apple vs. Dell computers",
+      "John Mullins' business case model",
+      "Deliverable requirements for the final term report"
+    ],
+    "key_claims": [
+      "The single most important decision an entrepreneur makes is the choice of initial target market.",
+      "A value proposition must be powerful enough to get customers to part with their time and money.",
+      "Entrepreneurs should aim for a monopoly in a small market initially."
+    ],
+    "cohort_context": "Cohort-2024, focusing on innovation and entrepreneurship, preparing for the Innovation Authority process.",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Value proposition",
+      "THIS_DOC -[TEACHES]-> Target market",
+      "THIS_DOC -[TEACHES]-> Market attractiveness",
+      "THIS_DOC -[TEACHES]-> Industry attractiveness",
+      "THIS_DOC -[TEACHES]-> Business case",
+      "THIS_DOC -[USES_FRAMEWORK]-> Jobs to be Done",
+      "THIS_DOC -[MENTIONS]-> Arinc",
+      "THIS_DOC -[MENTIONS]-> Peter Thiel",
+      "THIS_DOC -[MENTIONS]-> John Mullins",
+      "THIS_DOC -[DISCUSSES]-> Validation",
+      "Value proposition -[RELATED_TO]-> Target market",
+      "Business case -[USES]-> Market attractiveness",
+      "Business case -[USES]-> Industry attractiveness"
+    ]
+  },
+  "signals": {
+    "percentages": [
+      "90%"
+    ],
+    "years": [
+      "2025"
+    ],
+    "problems": [
+      "problem",
+      "problem",
+      "problem",
+      "problem",
+      "issue"
+    ],
+    "solutions": [
+      "solve",
+      "solution",
+      "solution",
+      "solution",
+      "fix"
+    ],
+    "questions": [
+      " Is it real? | Is this problem significant enough that someone will pay (or fight) to fix it?",
+      " Can we win? | Can your team solve this better than anyone else?",
+      " Is it worth it? | If you succeed, is there enough reward to justify the effort?",
+      " Are you a tech lab? A human-centered design group? A disruptor?",
+      "\n\n\u2705 Framing Sentence (Critical)\n\n> How can we help [WHO] do [WHAT] under [WHAT CONDITIONS] in order to achieve [WHAT OUTCOME]?"
+    ],
+    "causation": [
+      "therefore",
+      "because",
+      "because",
+      "because",
+      "because"
+    ],
+    "trends": [
+      "changing",
+      "changing",
+      "changing",
+      "shifting",
+      "evolving"
+    ],
+    "future": [
+      "will",
+      "will",
+      "will",
+      "will",
+      "will"
+    ]
+  },
+  "char_count": 31509,
+  "extracted_at": "2026-01-28T12:49:19.388617"
+}

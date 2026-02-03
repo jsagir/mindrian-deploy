@@ -1,0 +1,60 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #3/Potential for Disruption 161218d9469481d2b743d2c7c4201193.md",
+  "display_name": "Course/Cohort-2024/Session #3/Potential for Disruption 161218d9469481d2b743d2c7c4201193.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Potential for Disruption",
+    "topic": "Disruptive Innovation Platforms",
+    "frameworks": [],
+    "concepts": [
+      "Disruptive Innovation",
+      "Platform Thinking",
+      "Market Disruption",
+      "Technology-Driven Transformation",
+      "Ecosystems",
+      "AI Integration",
+      "Automation Platforms"
+    ],
+    "entities": [
+      "Tesla",
+      "LEGO",
+      "Kodak",
+      "Instagram"
+    ],
+    "problems_discussed": [
+      "Failure to adapt to platform thinking",
+      "Incremental improvements vs. transformative change"
+    ],
+    "pws_phase_relevance": [
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Case studies (Tesla, LEGO, Kodak, Instagram)",
+      "Examples of platform-based businesses"
+    ],
+    "key_claims": [
+      "Platform-based businesses grow faster and achieve higher market valuations.",
+      "Platform thinking enables transformative changes that can reshape industries."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Disruptive Innovation",
+      "THIS_DOC -[TEACHES]-> Platform Thinking",
+      "THIS_DOC -[TEACHES]-> Market Disruption",
+      "THIS_DOC -[TEACHES]-> Technology-Driven Transformation",
+      "THIS_DOC -[MENTIONS]-> Tesla",
+      "THIS_DOC -[MENTIONS]-> LEGO",
+      "THIS_DOC -[MENTIONS]-> Kodak",
+      "THIS_DOC -[MENTIONS]-> Instagram"
+    ]
+  },
+  "signals": {
+    "future": [
+      "Future"
+    ]
+  },
+  "char_count": 1072,
+  "extracted_at": "2026-01-28T12:56:32.597507"
+}

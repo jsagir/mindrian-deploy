@@ -1,0 +1,68 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Portfolio Approach to Innovation 161218d9469481e88cbfd680533d2799.md",
+  "display_name": "Course/Cohort-2024/Session #3/Portfolio Approach to Innovation 161218d9469481e88cbfd680533d2799.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Portfolio Approach to Innovation",
+    "topic": "Innovation Portfolio Management",
+    "frameworks": [
+      "Three-Horizon Framework"
+    ],
+    "concepts": [
+      "Innovation portfolio",
+      "Idea generation",
+      "Opportunity assessment",
+      "Opportunity bank",
+      "Horizon scanning",
+      "Ecosystem opportunities",
+      "Transformative opportunities",
+      "Enhanced tool opportunities",
+      "Opportunity selection",
+      "Diversification"
+    ],
+    "entities": [
+      "LEGO"
+    ],
+    "problems_discussed": [
+      "Lack of diverse innovation portfolio",
+      "Ineffective opportunity selection"
+    ],
+    "pws_phase_relevance": [
+      "Portfolio",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [
+      "Case study (LEGO)",
+      "Evaluation criteria (warning signs, assessment questions)"
+    ],
+    "key_claims": [
+      "Building a diverse innovation portfolio is crucial for sustained success.",
+      "Organizations should explore opportunities across multiple horizons (Enhanced Tool, Ecosystem, Transformative)."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Innovation portfolio",
+      "THIS_DOC -[TEACHES]-> Idea generation",
+      "THIS_DOC -[TEACHES]-> Opportunity assessment",
+      "THIS_DOC -[USES_FRAMEWORK]-> Three-Horizon Framework",
+      "THIS_DOC -[DISCUSSES]-> LEGO",
+      "THIS_DOC -[TEACHES]-> Opportunity bank",
+      "THIS_DOC -[TEACHES]-> Ecosystem opportunities",
+      "THIS_DOC -[TEACHES]-> Transformative opportunities",
+      "THIS_DOC -[TEACHES]-> Enhanced tool opportunities",
+      "THIS_DOC -[TEACHES]-> Opportunity selection"
+    ]
+  },
+  "signals": {
+    "solutions": [
+      "Approach"
+    ],
+    "questions": [
+      "# Portfolio Approach to Innovation\n\nPrompt: Up to 500 charters How does the chapter discuss building a diverse portfolio of ideas?"
+    ]
+  },
+  "char_count": 1144,
+  "extracted_at": "2026-01-28T14:16:57.628076"
+}

@@ -1,0 +1,80 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2025/SlideDecks 2025/N10_January Term.pptx.txt",
+  "display_name": "Course/Cohort-2025/SlideDecks 2025/N10_January Term.pptx.txt",
+  "category": "Cohort-2025",
+  "subfolder": "SlideDecks 2025",
+  "extraction": {
+    "title": "N10_January Term",
+    "topic": "Problem Validation, Business Model",
+    "frameworks": [
+      "Business Model Canvas"
+    ],
+    "concepts": [
+      "Problem validation",
+      "Solution definition",
+      "Target user",
+      "Customer",
+      "Business case",
+      "Feasibility",
+      "Impact",
+      "Value Proposition"
+    ],
+    "entities": [
+      "Steve Blank",
+      "Babson College",
+      "State Department"
+    ],
+    "problems_discussed": [
+      "Identifying and validating problems worth solving",
+      "Determining the impact of solving a problem",
+      "Assessing the feasibility of a solution"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [
+      "Key questions for problem validation",
+      "Business Model Canvas worksheet"
+    ],
+    "key_claims": [
+      "Validating the problem is crucial before defining the solution.",
+      "Understanding the target user and their needs is essential for a successful solution."
+    ],
+    "cohort_context": "Cohort-2025, January Term",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Problem validation",
+      "THIS_DOC -[TEACHES]-> Solution definition",
+      "THIS_DOC -[USES_FRAMEWORK]-> Business Model Canvas",
+      "THIS_DOC -[DISCUSSES]-> Target user",
+      "THIS_DOC -[DISCUSSES]-> Customer",
+      "THIS_DOC -[DISCUSSES]-> Feasibility",
+      "THIS_DOC -[DISCUSSES]-> Impact"
+    ]
+  },
+  "signals": {
+    "years": [
+      "2016"
+    ],
+    "problems": [
+      "PROBLEM",
+      "problem",
+      "problem",
+      "problem",
+      "problem"
+    ],
+    "solutions": [
+      "SOLUTION",
+      "solution",
+      "solution",
+      "Solution",
+      "Solution"
+    ],
+    "questions": [
+      "JANUARY TERM\u000b\nVALIDATING PROBLEM\nDEFINING THE SOLUTION\nConfidential for classroom use only\n1\n1\n\nContinue Validation and Learning\nWith whom have you spoken?\nWhat have you read?\nWhat have you validated?  \nWhat have you learned about\nthe problem?\nwho has the problem?\nwhy they have the problem?\nwhat the solution needs to deliver?\nthe feasibility of the solution?\nthe impact of solving the problem?\nConfidential for classroom use only\n2\n2\n\nRound 1: Summary of Idea\nProblem/Solution\nWhat is the Problem Worth Solving?\nWho is the Target User or Customer?\nWhat is the Proposed Solution?"
+    ]
+  },
+  "char_count": 1113,
+  "extracted_at": "2026-01-28T12:45:18.102481"
+}

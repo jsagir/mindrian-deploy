@@ -1,0 +1,212 @@
+{
+  "file": "/home/jsagi/Mindrian/PWS - Lectures and worksheets created by Mindrian-20251219T001450Z-1-001/PWS - Lectures and worksheets created by Mindrian/Bono/BONO_Innovation_Framework_Case_Studies_Reference_Library.md",
+  "display_name": "T2_Tools/SixThinkingHats/BONO_Innovation_Framework_Case_Studies_Reference_Library.md",
+  "category": "BONO",
+  "subcategory": "Six Thinking Hats",
+  "extraction": {
+    "title": "BONO_Innovation_Framework_Case_Studies_Reference_Library.md",
+    "topic": "Six Thinking Hats / Parallel Thinking",
+    "hat_definitions": [
+      "White",
+      "Red",
+      "Black",
+      "Yellow",
+      "Green",
+      "Blue"
+    ],
+    "case_studies": [
+      "IBM",
+      "ABB"
+    ],
+    "frameworks": [
+      "Six Thinking Hats",
+      "BONO-Innovation Framework",
+      "Parallel Thinking"
+    ],
+    "concepts": [
+      "Parallel thinking",
+      "Adversarial debate",
+      "Meeting efficiency",
+      "Cultural diversity",
+      "Multinational collaboration",
+      "Thinking modes",
+      "Shared language",
+      "Decision quality",
+      "Virtual meeting optimization"
+    ],
+    "personas_discussed": [
+      "Students",
+      "Instructors",
+      "Practitioners",
+      "Leaders",
+      "Scientists",
+      "Engineers",
+      "Managers"
+    ],
+    "session_designs": [],
+    "standard_sequences": [
+      "Technical design reviews: Blue \u2192 White \u2192 Green \u2192 Yellow \u2192 Black \u2192 Blue",
+      "Go/no-go decisions: Blue \u2192 White \u2192 Yellow \u2192 Black \u2192 Red \u2192 Blue",
+      "Problem solving: Blue \u2192 White \u2192 Black \u2192 Green \u2192 Yellow \u2192 Blue"
+    ],
+    "pws_integration": [
+      "Problems Worth Solving Methodology"
+    ],
+    "teaching_elements": [
+      "Case studies",
+      "Worked examples",
+      "Annotated bibliography",
+      "Teaching notes",
+      "Discussion questions",
+      "Worksheets",
+      "Team Dynamics Assessment"
+    ],
+    "key_claims": [
+      "IBM reduced meeting times to one quarter of what they had been.",
+      "ABB's project team discussion time reduced from 30 days to 2 days.",
+      "The same smart people, with the same information, make dramatically better decisions when they think in parallel rather than in opposition.",
+      "The Six Thinking Hats provide a culturally neutral language that makes thinking modes explicit.",
+      "Parallel thinking can work across hundreds of thousands of people if embedded in leadership development and cultural norms."
+    ],
+    "graph_connections": [
+      "BONO-Innovation Framework -[USES]-> Six Thinking Hats",
+      "IBM -[IMPLEMENTED]-> Six Thinking Hats",
+      "ABB -[IMPLEMENTED]-> Six Thinking Hats",
+      "Six Thinking Hats -[IMPROVES]-> Meeting Efficiency",
+      "Six Thinking Hats -[FACILITATES]-> Parallel Thinking",
+      "Six Thinking Hats -[REDUCES]-> Adversarial Debate",
+      "Six Thinking Hats -[IMPROVES]-> Decision Quality",
+      "Six Thinking Hats -[IMPROVES]-> Virtual Meeting Optimization",
+      "Six Thinking Hats -[TEACHES]-> White Hat",
+      "Six Thinking Hats -[TEACHES]-> Red Hat",
+      "Six Thinking Hats -[TEACHES]-> Black Hat",
+      "Six Thinking Hats -[TEACHES]-> Yellow Hat",
+      "Six Thinking Hats -[TEACHES]-> Green Hat",
+      "Six Thinking Hats -[TEACHES]-> Blue Hat"
+    ]
+  },
+  "signals": {
+    "percentages": [
+      "40%",
+      "75%",
+      "75%",
+      "40%",
+      "25%",
+      "37.5%",
+      "75%",
+      "75%",
+      "93%",
+      "93%"
+    ],
+    "money": [
+      "$8 billion",
+      "$100,000",
+      "$100,000",
+      "$100,000",
+      "$100,000",
+      "$100,000",
+      "$700,000",
+      "$50 million",
+      "$50 million"
+    ],
+    "years": [
+      "1993",
+      "1985",
+      "1999",
+      "1999",
+      "1970",
+      "1969",
+      "1991",
+      "1994",
+      "1933",
+      "2021"
+    ],
+    "assumptions": [
+      "if we",
+      "assuming",
+      "assume",
+      "assume",
+      "assume",
+      "Assumption"
+    ],
+    "problems": [
+      "Problem",
+      "problem",
+      "challenge",
+      "problem",
+      "challenge",
+      "Problem",
+      "challenge",
+      "problem",
+      "Problem",
+      "problem"
+    ],
+    "solutions": [
+      "solution",
+      "approach",
+      "method",
+      "method",
+      "approach",
+      "approach",
+      "approach",
+      "solution",
+      "solution",
+      "solution"
+    ],
+    "questions": [
+      " Why might a 75% reduction in meeting time NOT mean faster decisions? What does it actually mean?",
+      " How does Six Thinking Hats preserve that rigor while eliminating dysfunction?",
+      " What resistance might you expect when introducing parallel thinking to a culture that values debate?",
+      " How does embedding the framework in leadership development differ from mandating it through policy?",
+      " Why might cultural differences make adversarial debate particularly dysfunctional?",
+      " How does explicit labeling of thinking modes help in virtual meetings?",
+      " What would you expect to happen if only some team members were trained in the methodology?",
+      " How might you adapt the approach for teams with significant language barriers?",
+      " **Blue Hat (2 minutes):** Frame the problem precisely\u2014what exactly is costing $100,000/day?",
+      " **White Hat (3 minutes):** What do we actually know? What data do we have? What have we tried?"
+    ],
+    "causation": [
+      "because",
+      "due to",
+      "because",
+      "because",
+      "causes",
+      "because"
+    ],
+    "trends": [
+      "emerging",
+      "Emerging",
+      "growing",
+      "trend",
+      "Changing",
+      "Trending",
+      "trend"
+    ],
+    "hats": [
+      "Parallel Thinking",
+      "parallel thinking",
+      "parallel thinking",
+      "parallel thinking",
+      "Green Hat",
+      "Black Hat",
+      "parallel thinking",
+      "parallel thinking",
+      "Parallel thinking",
+      "parallel thinking"
+    ],
+    "frameworks": [
+      "BONO",
+      "Parallel Thinking",
+      "Six Thinking Hats",
+      "parallel thinking",
+      "BONO",
+      "Six Thinking Hats",
+      "parallel thinking",
+      "parallel thinking",
+      "Six Thinking Hats",
+      "Six Thinking Hats"
+    ]
+  },
+  "char_count": 60840,
+  "extracted_at": "2026-01-28T14:26:55.516011"
+}

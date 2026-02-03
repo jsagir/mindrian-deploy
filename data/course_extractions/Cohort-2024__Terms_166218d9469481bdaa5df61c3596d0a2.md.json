@@ -1,0 +1,82 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #3/Terms 166218d9469481bdaa5df61c3596d0a2.md",
+  "display_name": "Course/Cohort-2024/Session #3/Terms 166218d9469481bdaa5df61c3596d0a2.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Terms 166218d9469481bdaa5df61c3596d0a2.md",
+    "topic": "Innovation Terms",
+    "frameworks": [
+      "Now, New, Next",
+      "Diverge-Converge Model"
+    ],
+    "concepts": [
+      "Structured Ideation",
+      "Cross-Industry Innovation",
+      "Customer Feedback",
+      "Competitive Analysis",
+      "Incremental Innovation",
+      "Disruptive Innovation",
+      "Problem Definition",
+      "AI-Enhanced Ideation",
+      "Market Maturity",
+      "Presentism"
+    ],
+    "entities": [
+      "McKinsey",
+      "U.S. Department of Energy"
+    ],
+    "problems_discussed": [
+      "Limiting innovation to current problems (Presentism)",
+      "Imitative innovation from competitive analysis",
+      "Lack of disruptive innovation from customer feedback"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [
+      "Table of terms and definitions"
+    ],
+    "key_claims": [
+      "Innovation can be categorized into incremental, significant, and disruptive efforts.",
+      "Structured ideation involves systematic idea generation and evaluation."
+    ],
+    "cohort_context": "Cohort-2024, likely a glossary or reference material for innovation concepts.",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Structured Ideation",
+      "THIS_DOC -[TEACHES]-> Cross-Industry Innovation",
+      "THIS_DOC -[TEACHES]-> Customer Feedback",
+      "THIS_DOC -[TEACHES]-> Competitive Analysis",
+      "THIS_DOC -[TEACHES]-> Incremental Innovation",
+      "THIS_DOC -[TEACHES]-> Disruptive Innovation",
+      "THIS_DOC -[TEACHES]-> Problem Definition",
+      "THIS_DOC -[TEACHES]-> AI-Enhanced Ideation",
+      "THIS_DOC -[TEACHES]-> Market Maturity",
+      "THIS_DOC -[TEACHES]-> Presentism",
+      "THIS_DOC -[USES_FRAMEWORK]-> Now, New, Next",
+      "THIS_DOC -[USES_FRAMEWORK]-> Diverge-Converge Model"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "problem",
+      "Problem",
+      "challenge"
+    ],
+    "solutions": [
+      "approach",
+      "method",
+      "method",
+      "address"
+    ],
+    "causation": [
+      "leads to"
+    ],
+    "future": [
+      "future"
+    ]
+  },
+  "char_count": 2657,
+  "extracted_at": "2026-01-28T12:58:29.890260"
+}

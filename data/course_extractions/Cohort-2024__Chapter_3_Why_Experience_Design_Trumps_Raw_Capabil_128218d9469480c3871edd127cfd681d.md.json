@@ -1,0 +1,101 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #3/Chapter 3 Why Experience Design Trumps Raw Capabil 128218d9469480c3871edd127cfd681d.md",
+  "display_name": "Course/Cohort-2024/Session #3/Chapter 3 Why Experience Design Trumps Raw Capabil 128218d9469480c3871edd127cfd681d.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Chapter 3 Why Experience Design Trumps Raw Capabil 128218d9469480c3871edd127cfd681d.md",
+    "topic": "Experience Design",
+    "frameworks": [],
+    "concepts": [
+      "Experience Design",
+      "User Experience (UX)",
+      "User Needs",
+      "Democratization of Technology",
+      "Intuitive Design",
+      "Feature Bloat",
+      "Market Adoption",
+      "Customer Loyalty",
+      "Perceived Value",
+      "Technical Capabilities"
+    ],
+    "entities": [
+      "Boston Dynamics",
+      "Spot",
+      "Dyson"
+    ],
+    "problems_discussed": [
+      "Overlooking user needs in technology development",
+      "Feature bloat",
+      "Difficulty in market adoption due to poor user experience",
+      "Lack of customer loyalty due to unintuitive design"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [
+      "Case Study: Boston Dynamics (Spot)",
+      "Case Study: Dyson (Vacuum Cleaners, Air Purifiers)",
+      "Key Questions for Experience-Focused Innovators"
+    ],
+    "key_claims": [
+      "Raw technical capability is no longer the differentiator it used to be; experience design is the new battleground for innovation.",
+      "Prioritizing experience design leads to faster market adoption, competitive edge, increased customer loyalty, higher perceived value, and reduced development costs."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Experience Design",
+      "THIS_DOC -[TEACHES]-> User Experience (UX)",
+      "THIS_DOC -[TEACHES]-> User Needs",
+      "THIS_DOC -[TEACHES]-> Democratization of Technology",
+      "THIS_DOC -[TEACHES]-> Intuitive Design",
+      "THIS_DOC -[TEACHES]-> Feature Bloat",
+      "THIS_DOC -[TEACHES]-> Market Adoption",
+      "THIS_DOC -[TEACHES]-> Customer Loyalty",
+      "THIS_DOC -[TEACHES]-> Perceived Value",
+      "THIS_DOC -[TEACHES]-> Technical Capabilities",
+      "THIS_DOC -[MENTIONS]-> Boston Dynamics",
+      "THIS_DOC -[MENTIONS]-> Dyson",
+      "THIS_DOC -[DISCUSSES]-> Overlooking user needs in technology development",
+      "THIS_DOC -[DISCUSSES]-> Feature bloat",
+      "THIS_DOC -[DISCUSSES]-> Difficulty in market adoption due to poor user experience",
+      "THIS_DOC -[DISCUSSES]-> Lack of customer loyalty due to unintuitive design",
+      "Boston Dynamics -[EXAMPLE_OF]-> Experience Design",
+      "Dyson -[EXAMPLE_OF]-> Experience Design"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "issue",
+      "challenge",
+      "challenge"
+    ],
+    "questions": [
+      "# Chapter 3: Why Experience Design Trumps Raw Capabilities\n\n### \n\n---\n\n### **Introduction: Shifting from \"Can We Build It?\" to \"Should We Build It?",
+      "**\n\nIt\u2019s not enough to ask, **\u201cCan we build it?\u201d** The more critical question has become, **\u201cShould we build it, and how should it work for our users?",
+      "\n\nSo, what\u2019s left?",
+      " Shifting the Focus to User Needs**\n\nThis leads to a fundamental question that too many companies overlook:\n\n**\u201cWhat do our users really need?",
+      "\n\n### **Key Questions for Experience-Focused Innovators**\n\nTo apply these lessons, ask yourself the following:\n\n- **How can we simplify complex processes for our users?**\n- **What are the pain points in our users' current experience?**\n- **How can we make our technology more intuitive and accessible?**\n- **What emotional response do we want our product to evoke?**\n- **How can we build trust and reliability into our user experience?"
+    ],
+    "causation": [
+      "leads to",
+      "Because"
+    ],
+    "trends": [
+      "Shifting",
+      "evolving",
+      "Shifting"
+    ],
+    "future": [
+      "will",
+      "will",
+      "will",
+      "future",
+      "will"
+    ]
+  },
+  "char_count": 9307,
+  "extracted_at": "2026-01-28T12:54:51.923434"
+}

@@ -1,0 +1,70 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Change as a Catalyst for Innovation 161218d946948176994bfec269bdc79e.md",
+  "display_name": "Course/Cohort-2024/Session #3/Change as a Catalyst for Innovation 161218d946948176994bfec269bdc79e.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Change as a Catalyst for Innovation",
+    "topic": "Innovation and Change",
+    "frameworks": [],
+    "concepts": [
+      "Innovation",
+      "Change",
+      "Technological Change",
+      "Market Change",
+      "Social Change",
+      "Platform Opportunities",
+      "Digital-Physical Convergence",
+      "AI",
+      "Automation",
+      "Circular Economy"
+    ],
+    "entities": [
+      "LEGO",
+      "Tesla"
+    ],
+    "problems_discussed": [
+      "Failure to adapt to change",
+      "Sticking to existing tools and solutions instead of identifying new opportunities"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Case studies (LEGO, Tesla)",
+      "Examples of technological, market, and social changes driving innovation"
+    ],
+    "key_claims": [
+      "Change drives innovation through platform opportunities.",
+      "Success comes from systematically identifying and responding to changes."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Change",
+      "THIS_DOC -[TEACHES]-> Technological Change",
+      "THIS_DOC -[TEACHES]-> Market Change",
+      "THIS_DOC -[TEACHES]-> Social Change",
+      "THIS_DOC -[TEACHES]-> Platform Opportunities",
+      "THIS_DOC -[MENTIONS]-> LEGO",
+      "THIS_DOC -[MENTIONS]-> Tesla"
+    ]
+  },
+  "signals": {
+    "questions": [
+      "# Change as a Catalyst for Innovation\n\nPrompt: up to 500 charters  How does the chapter explain the role of change in driving innovation?"
+    ],
+    "trends": [
+      "emerging",
+      "Growing"
+    ],
+    "future": [
+      "future"
+    ]
+  },
+  "char_count": 1238,
+  "extracted_at": "2026-01-28T14:24:27.184157"
+}

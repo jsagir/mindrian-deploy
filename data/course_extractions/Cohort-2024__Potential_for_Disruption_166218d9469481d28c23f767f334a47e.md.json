@@ -1,0 +1,61 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #3/Potential for Disruption 166218d9469481d28c23f767f334a47e.md",
+  "display_name": "Course/Cohort-2024/Session #3/Potential for Disruption 166218d9469481d28c23f767f334a47e.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Potential for Disruption",
+    "topic": "Disruptive Innovation",
+    "frameworks": [
+      "Four Lenses framework"
+    ],
+    "concepts": [
+      "Disruptive innovation",
+      "Challenging orthodoxies",
+      "Harnessing trends",
+      "Leveraging resources",
+      "Industry disruption",
+      "Innovation"
+    ],
+    "entities": [
+      "Netflix",
+      "Tesla",
+      "Amazon Web Services",
+      "Uber"
+    ],
+    "problems_discussed": [
+      "Stagnant industries",
+      "Limitations in seeing opportunities"
+    ],
+    "pws_phase_relevance": [
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Case studies (Netflix, Tesla, AWS, Uber)"
+    ],
+    "key_claims": [
+      "The Four Lenses framework can drive disruptive innovation.",
+      "Transformation comes from systematically applying the Four Lenses to see opportunities where others see limitations."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Disruptive Innovation",
+      "THIS_DOC -[TEACHES]-> Challenging orthodoxies",
+      "THIS_DOC -[TEACHES]-> Harnessing trends",
+      "THIS_DOC -[TEACHES]-> Leveraging resources",
+      "THIS_DOC -[USES_FRAMEWORK]-> Four Lenses framework",
+      "THIS_DOC -[MENTIONS]-> Netflix",
+      "THIS_DOC -[MENTIONS]-> Tesla",
+      "THIS_DOC -[MENTIONS]-> Amazon Web Services",
+      "THIS_DOC -[MENTIONS]-> Uber"
+    ]
+  },
+  "signals": {
+    "trends": [
+      "emerging"
+    ]
+  },
+  "char_count": 1271,
+  "extracted_at": "2026-01-28T12:50:06.616144"
+}

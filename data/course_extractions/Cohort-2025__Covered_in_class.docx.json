@@ -1,0 +1,144 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2025/Per-Session/Session 1  - Introduction/Covered in class.docx",
+  "display_name": "Course/Cohort-2025/Per-Session/Session 1  - Introduction/Covered in class.docx",
+  "category": "Cohort-2025",
+  "subfolder": "Per-Session/Session 1  - Introduction",
+  "extraction": {
+    "title": "Covered in class.docx",
+    "topic": "Innovation & Entrepreneurship",
+    "frameworks": [
+      "HEART Framework",
+      "John Mullins Framework"
+    ],
+    "concepts": [
+      "Creative Destruction",
+      "Innovation",
+      "Entrepreneurship",
+      "Business Case",
+      "Problem",
+      "Solution",
+      "Presentism",
+      "Opportunity Discovery",
+      "Value Proposition",
+      "Scalability"
+    ],
+    "entities": [
+      "Joseph Schumpeter",
+      "Peter Drucker",
+      "Aronhime",
+      "Amazon",
+      "Google",
+      "Johns Hopkins",
+      "Ben Weiner",
+      "John Mullins",
+      "Marconi",
+      "Henry Ford",
+      "NATO Defense College"
+    ],
+    "problems_discussed": [
+      "Presentism (focusing only on current problems)",
+      "Lack of systematic opportunity discovery",
+      "Inadequate definition of problem scale",
+      "Failure to develop a complete business case",
+      "Limitations of customer-driven innovation"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Solution Framing",
+      "Validation",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Case studies (Amazon, Google, Marconi, Ford)",
+      "Mermaid diagrams illustrating concepts",
+      "Key quote call-outs",
+      "Practical examples from Johns Hopkins"
+    ],
+    "key_claims": [
+      "Innovation requires a problem, a solution, and a business case.",
+      "Customer-driven innovation is limited by presentism.",
+      "Systematic opportunity discovery is crucial for breakthrough innovation."
+    ],
+    "cohort_context": "Cohort-2025",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Entrepreneurship",
+      "THIS_DOC -[TEACHES]-> Creative Destruction",
+      "THIS_DOC -[TEACHES]-> Business Case",
+      "THIS_DOC -[TEACHES]-> Problem",
+      "THIS_DOC -[TEACHES]-> Solution",
+      "THIS_DOC -[TEACHES]-> Presentism",
+      "THIS_DOC -[USES_FRAMEWORK]-> HEART Framework",
+      "THIS_DOC -[USES_FRAMEWORK]-> John Mullins Framework",
+      "THIS_DOC -[MENTIONS]-> Joseph Schumpeter",
+      "THIS_DOC -[MENTIONS]-> Peter Drucker",
+      "THIS_DOC -[MENTIONS]-> Aronhime",
+      "THIS_DOC -[MENTIONS]-> Amazon",
+      "THIS_DOC -[MENTIONS]-> Google",
+      "THIS_DOC -[MENTIONS]-> Ben Weiner",
+      "THIS_DOC -[MENTIONS]-> John Mullins",
+      "THIS_DOC -[DISCUSSES]-> Presentism"
+    ]
+  },
+  "signals": {
+    "money": [
+      "$1,000",
+      "$300"
+    ],
+    "years": [
+      "1942",
+      "1985",
+      "2004",
+      "1910",
+      "2013"
+    ],
+    "assumptions": [
+      "Assumption"
+    ],
+    "problems": [
+      "Problem",
+      "problem",
+      "problem",
+      "Problem",
+      "problem"
+    ],
+    "solutions": [
+      "approach",
+      "Solution",
+      "Solution",
+      "solution",
+      "solution"
+    ],
+    "questions": [
+      "\n\ud83d\udcac Key Quote Call-Out:\n\"there is nothing good about getting old okay absolutely nothing except one thing - you don't give a shit anymore\"\nContext: Aronhime's opening statement establishing his no-nonsense teaching approach and authority Significance: This quote captures his authentic, irreverent teaching style and sets the tone for unconventional thinking\nKey Points (in Aronhime's characteristic style): \u2022 \ud83d\udd0d Creative Destruction Reality: Joseph Schumpeter's key insight - it's not the competitor across the street that keeps capitalists awake, it's the unknown entrepreneur inventing something unimaginable that puts you out of business overnight \u2022 \ud83c\udf31 Innovation as Survival: Nobody is going to pay you the money you want to earn to simply do again what was already done well enough yesterday - every company wants to know \"what are you doing new for me now?",
+      "\nMermaid Diagram:\nflowchart LR\n    H[Hypothesis - Why?",
+      "\nMermaid Diagram:\nsequenceDiagram\n    participant Current as Current Problems\n    participant Customer as Customer Feedback\n    participant Present as Present Solutions\n    participant Future as Future Possibilities\n    Current->>Customer: What do you need?",
+      "\n\ud83d\udcac Key Quote Call-Out:\n\"what is the only kind of problem that can be solved truly solved?",
+      " if the problem is not well defined it cannot be solved period\"\nContext: Distinguishing between solvable problems and opportunity exploration spaces Significance: This framework helps students understand when they're problem-solving versus opportunity-hunting\nKey Points (using his NATO example methodology): \u2022 \ud83d\udd0d Undefined Problems: Ask \"what is the future of something\" (like \"what is the future of war\") - these aren't really problems in the normal sense, they're asking about future states \u2022 \ud83c\udf31 Ill-Defined Problems: Ask \"what's the next big thing in this technological or market space\" - the solution is a list of opportunities, not a single answer \u2022 \u2705 Well-Defined Problems: Specify exactly what the solution must deliver (like \"brain-controlled prosthetic hand with sense of touch for under $1,000\") - these are falsifiable: they work or they don't \u2022 \u2699\ufe0f The NATO Lesson: \"What will the small combat team of the future look like?\" couldn't be answered without first addressing \"what is the future of war?"
+    ],
+    "causation": [
+      "because",
+      "therefore",
+      "because",
+      "because",
+      "because"
+    ],
+    "trends": [
+      "Trending",
+      "trend",
+      "Trend",
+      "changing",
+      "Trending"
+    ],
+    "future": [
+      "Future",
+      "future",
+      "future",
+      "Future",
+      "Future"
+    ]
+  },
+  "char_count": 38733,
+  "extracted_at": "2026-01-28T12:46:48.973724"
+}

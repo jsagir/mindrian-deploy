@@ -1,0 +1,134 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #3/Per topic Transcript 1aa2bcba50514de3873695c1e1ffdd04.md",
+  "display_name": "Course/Cohort-2024/Session #3/Per topic Transcript 1aa2bcba50514de3873695c1e1ffdd04.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Per topic Transcript 1aa2bcba50514de3873695c1e1ffdd04.md",
+    "topic": "Technological Change",
+    "frameworks": [
+      "Technology Complex",
+      "S-Curve",
+      "Technology Cycle"
+    ],
+    "concepts": [
+      "Technological Transition",
+      "Diminishing Returns",
+      "Market Saturation",
+      "Physical Limits",
+      "Dominant Design",
+      "Technological Discontinuity",
+      "Era of Ferment",
+      "Incremental Change",
+      "Technological Evolution"
+    ],
+    "entities": [
+      "John Howells",
+      "Lawrence Aronhime",
+      "Yishai",
+      "Apple",
+      "CBS",
+      "NBC",
+      "ABC",
+      "Woodrow Wilson",
+      "Robert Browning",
+      "Google",
+      "ChatGPT",
+      "Intel",
+      "Andy Grove"
+    ],
+    "problems_discussed": [
+      "Market limits on technology",
+      "Physical limits on technology",
+      "The fall of dominant designs",
+      "Uncertainty in technological development",
+      "Problems with policing",
+      "Issues with Google search results"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Examples of technological evolution (wagons vs. cars, sailing ships vs. steamships)",
+      "Case study of computer purchases",
+      "Case study of news consumption",
+      "Case study of healthcare",
+      "Case study of policing",
+      "Google search example"
+    ],
+    "key_claims": [
+      "Technologies evolve over time, leading to dominant designs.",
+      "Dominant designs eventually fall apart, creating opportunities for new technologies and startups.",
+      "Uncertainty during the era of ferment provides opportunities for entrepreneurs."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Technological Change",
+      "THIS_DOC -[USES_FRAMEWORK]-> Technology Complex",
+      "THIS_DOC -[USES_FRAMEWORK]-> S-Curve",
+      "THIS_DOC -[USES_FRAMEWORK]-> Technology Cycle",
+      "THIS_DOC -[DISCUSSES]-> Diminishing Returns",
+      "THIS_DOC -[DISCUSSES]-> Dominant Design",
+      "THIS_DOC -[MENTIONS]-> John Howells",
+      "THIS_DOC -[MENTIONS]-> Lawrence Aronhime",
+      "THIS_DOC -[MENTIONS]-> Google"
+    ]
+  },
+  "signals": {
+    "years": [
+      "1956",
+      "1980",
+      "1980",
+      "1995",
+      "2024"
+    ],
+    "assumptions": [
+      "given that"
+    ],
+    "problems": [
+      "problem",
+      "problem",
+      "issue",
+      "issue",
+      "Barrier"
+    ],
+    "solutions": [
+      "address",
+      "approach",
+      "approach"
+    ],
+    "questions": [
+      " For example, are there parts of the world where a private pregnancy test is a problem?",
+      " What does that mean in economics?",
+      " Lots of effort, lots of improvement, for what possible purpose?",
+      " The rate of technological progress is mapped against effort, so for a little bit of effort, you get big changes until what happens?",
+      " How many more pixels can they cram into your phone before you stop caring and stop being willing to pay for it?"
+    ],
+    "causation": [
+      "because",
+      "Because",
+      "Because",
+      "leads to",
+      "because"
+    ],
+    "trends": [
+      "changing",
+      "changing",
+      "changing",
+      "changing",
+      "changing"
+    ],
+    "future": [
+      "will",
+      "will",
+      "will",
+      "Will",
+      "will"
+    ]
+  },
+  "char_count": 43760,
+  "extracted_at": "2026-01-28T12:55:14.611666"
+}

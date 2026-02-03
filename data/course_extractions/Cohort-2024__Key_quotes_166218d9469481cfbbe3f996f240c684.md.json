@@ -1,0 +1,59 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Key quotes 166218d9469481cfbbe3f996f240c684.md",
+  "display_name": "Course/Cohort-2024/Session #3/Key quotes 166218d9469481cfbbe3f996f240c684.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Key quotes 166218d9469481cfbbe3f996f240c684.md",
+    "topic": "Innovation Quotes",
+    "frameworks": [],
+    "concepts": [
+      "Innovation",
+      "Problem Identification",
+      "Solution Creation",
+      "Idea Generation",
+      "Risk Management",
+      "Uncertainty",
+      "Intersectional Ideas",
+      "Incremental Innovation"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Balancing uncertainty and risk in innovation",
+      "Overcoming limiting views of innovation (incremental only)"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [],
+    "key_claims": [
+      "Innovation is about creating the future by solving problems, not predicting it.",
+      "Generating many ideas and critically evaluating them is crucial for innovation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Problem Identification",
+      "THIS_DOC -[TEACHES]-> Solution Creation",
+      "THIS_DOC -[TEACHES]-> Risk Management",
+      "THIS_DOC -[TEACHES]-> Uncertainty",
+      "THIS_DOC -[DISCUSSES]-> Balancing uncertainty and risk in innovation"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "problem"
+    ],
+    "solutions": [
+      "solution",
+      "approach"
+    ],
+    "future": [
+      "future"
+    ]
+  },
+  "char_count": 1122,
+  "extracted_at": "2026-01-28T14:09:54.162438"
+}

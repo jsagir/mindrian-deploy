@@ -1,0 +1,188 @@
+{
+  "file": "/home/jsagi/Mindrian/PWS - Lectures and worksheets created by Mindrian-20251219T001450Z-1-001/PWS - Lectures and worksheets created by Mindrian/Bono/BONO_Innovation_Framework_Complete_Workbook.md",
+  "display_name": "T2_Tools/SixThinkingHats/BONO_Innovation_Framework_Complete_Workbook.md",
+  "category": "BONO",
+  "subcategory": "Six Thinking Hats",
+  "extraction": {
+    "title": "BONO_Innovation_Framework_Complete_Workbook.md",
+    "topic": "Six Thinking Hats / Parallel Thinking",
+    "hat_definitions": [
+      "White",
+      "Red",
+      "Black",
+      "Yellow",
+      "Green",
+      "Blue"
+    ],
+    "case_studies": [
+      "IBM",
+      "NASA",
+      "Challenger"
+    ],
+    "frameworks": [
+      "Six Thinking Hats",
+      "BONO-Innovation Framework",
+      "Parallel Thinking",
+      "PWS Framework"
+    ],
+    "concepts": [
+      "Parallel thinking",
+      "Adversarial thinking",
+      "Mode mixing",
+      "Hat discipline",
+      "Structured thinking",
+      "Problem definition spectrum",
+      "Innovation journey",
+      "Voice distribution"
+    ],
+    "personas_discussed": [
+      "Data-oriented",
+      "Intuition-oriented",
+      "Critical-oriented",
+      "Optimistic-oriented",
+      "Creative-oriented",
+      "Structured-oriented"
+    ],
+    "session_designs": [],
+    "standard_sequences": [],
+    "pws_integration": [
+      "Week 2-3 in the PWS curriculum"
+    ],
+    "teaching_elements": [
+      "Worksheets",
+      "Assessments",
+      "Reflection questions",
+      "Self-checks",
+      "Team dynamics assessment"
+    ],
+    "key_claims": [
+      "Meeting times dropped by 50-75% at IBM after implementing Six Thinking Hats",
+      "Decision quality improved measurably at IBM after implementing Six Thinking Hats",
+      "Brilliant individuals thinking adversarially produce worse outcomes than ordinary individuals thinking in parallel",
+      "The BONO-Innovation Framework excels at exploration and comprehensive analysis\u2014critical for undefined and ill-defined problems where the challenge itself is unclear.",
+      "The information needed to prevent the Challenger disaster existed within the organization\u2014but the thinking process couldn't access it."
+    ],
+    "graph_connections": [
+      "BONO-Innovation Framework -[TEACHES]-> White Hat",
+      "BONO-Innovation Framework -[TEACHES]-> Red Hat",
+      "BONO-Innovation Framework -[TEACHES]-> Black Hat",
+      "BONO-Innovation Framework -[TEACHES]-> Yellow Hat",
+      "BONO-Innovation Framework -[TEACHES]-> Green Hat",
+      "BONO-Innovation Framework -[TEACHES]-> Blue Hat",
+      "IBM -[IMPLEMENTED]-> Six Thinking Hats",
+      "Six Thinking Hats -[PART_OF]-> Parallel Thinking",
+      "BONO-Innovation Framework -[USES]-> Parallel Thinking",
+      "Challenger -[EXPERIENCED]-> Adversarial Thinking",
+      "BONO-Innovation Framework -[ADDRESSES]-> Adversarial Thinking",
+      "PWS Framework -[INCLUDES]-> BONO-Innovation Framework"
+    ]
+  },
+  "signals": {
+    "percentages": [
+      "75%",
+      "50%",
+      "70%",
+      "85%",
+      "85%",
+      "15%",
+      "40%"
+    ],
+    "money": [
+      "$200B"
+    ],
+    "years": [
+      "1986",
+      "2027"
+    ],
+    "assumptions": [
+      "assume",
+      "assumption",
+      "assumption",
+      "Assumption",
+      "Assumption",
+      "assumption",
+      "assumption",
+      "Assumption",
+      "assumption",
+      "if we"
+    ],
+    "problems": [
+      "challenge",
+      "challenge",
+      "challenge",
+      "Problem",
+      "PROBLEM",
+      "challenge",
+      "bottleneck",
+      "challenge",
+      "Problem",
+      "challenge"
+    ],
+    "solutions": [
+      "method",
+      "method",
+      "solution",
+      "approach",
+      "approach",
+      "solve",
+      "strategy",
+      "solve",
+      "approach",
+      "approach"
+    ],
+    "questions": [
+      " Be honest: Did the best thinking win, or did the best arguer win?",
+      " Which thinking modes come most naturally to you? How does this show up in meetings?",
+      " Which thinking modes do you tend to skip or undervalue? What might you be missing?",
+      " When has your natural style helped you? When has it limited you?",
+      " In a typical meeting, what percentage of speaking time comes from the top 3 talkers?",
+      " When a quiet person has an idea, what typically happens?",
+      " How often do junior team members challenge senior members' ideas?\n\n\u2610 Regularly, and it's welcomed\n\u2610 Occasionally, with some hesitation\n\u2610 Rarely, and it feels risky\n\u2610 Almost never\u2014hierarchy dominates\n\n**Part A Assessment:** \nVoice distribution issues?",
+      " In a typical discussion of a new idea, how quickly does criticism appear?",
+      " How often do people mix different types of thinking in the same statement?",
+      ", \"The data shows X, but I feel like Y, and what about the risk of Z?"
+    ],
+    "causation": [
+      "because",
+      "because",
+      "because",
+      "because",
+      "because",
+      "because",
+      "leads to"
+    ],
+    "trends": [
+      "Changing",
+      "Trending",
+      "changing",
+      "growing",
+      "Trending"
+    ],
+    "hats": [
+      "Parallel Thinking",
+      "parallel thinking",
+      "parallel thinking",
+      "Black Hat",
+      "Green Hat",
+      "PARALLEL THINKING",
+      "White Hat",
+      "Red Hat",
+      "Black Hat",
+      "Yellow Hat"
+    ],
+    "frameworks": [
+      "BONO",
+      "Parallel Thinking",
+      "parallel thinking",
+      "parallel thinking",
+      "BONO",
+      "BONO",
+      "BONO",
+      "PARALLEL THINKING",
+      "Six Thinking Hats",
+      "BONO"
+    ]
+  },
+  "char_count": 97241,
+  "extracted_at": "2026-01-28T14:26:41.979292"
+}

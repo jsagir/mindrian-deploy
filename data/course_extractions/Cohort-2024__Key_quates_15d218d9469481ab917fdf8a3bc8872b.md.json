@@ -1,0 +1,60 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Key quates 15d218d9469481ab917fdf8a3bc8872b.md",
+  "display_name": "Course/Cohort-2024/Session #3/Key quates 15d218d9469481ab917fdf8a3bc8872b.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Key quates 15d218d9469481ab917fdf8a3bc8872b.md",
+    "topic": "Innovation, Idea Generation",
+    "frameworks": [],
+    "concepts": [
+      "Innovation",
+      "Idea Generation",
+      "Systematic Exploration",
+      "Unexpected Connections",
+      "Cross-industry Collaboration",
+      "Discovery",
+      "Categorization",
+      "Proactive Approach"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Limitations of traditional innovation frameworks",
+      "Lack of systematic idea generation",
+      "Failure to explore the unknown"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [
+      "Table of key quotes with importance"
+    ],
+    "key_claims": [
+      "Real innovation comes from systematically exploring the unknown.",
+      "The best ideas come from unexpected connections."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Idea Generation",
+      "THIS_DOC -[TEACHES]-> Systematic Exploration",
+      "THIS_DOC -[TEACHES]-> Unexpected Connections",
+      "THIS_DOC -[DISCUSSES]-> Limitations of traditional innovation frameworks",
+      "THIS_DOC -[DISCUSSES]-> Lack of systematic idea generation"
+    ]
+  },
+  "signals": {
+    "assumptions": [
+      "If we"
+    ],
+    "solutions": [
+      "approach"
+    ],
+    "questions": [
+      "# Key quates\n\nCreate a list of relevant key quates from this chapter with definition that are relevant to this content as a table \n\n- [x]  Done\n- [ ]  Delete prompt box\n\nHere\u2019s a table of key quotes from **Chapter 2: The Real Question: Where Do Good Ideas Come From?"
+    ]
+  },
+  "char_count": 1326,
+  "extracted_at": "2026-01-28T14:12:40.298338"
+}

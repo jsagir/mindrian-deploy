@@ -1,0 +1,84 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Chapter 6 The Role of User Journey Mapping in Inno 161218d9469481f7b0e4e5cefeb3a4ee.md",
+  "display_name": "Course/Cohort-2024/Session #3/Chapter 6 The Role of User Journey Mapping in Inno 161218d9469481f7b0e4e5cefeb3a4ee.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Chapter 6 The Role of User Journey Mapping in Inno 161218d9469481f7b0e4e5cefeb3a4ee.md",
+    "topic": "User Journey Mapping",
+    "frameworks": [
+      "Jobs to Be Done Framework"
+    ],
+    "concepts": [
+      "User journey",
+      "User journey map",
+      "User personas",
+      "Touchpoints",
+      "Pain points",
+      "Innovation opportunities",
+      "Customer experience",
+      "User actions",
+      "Emotions",
+      "Satisfaction"
+    ],
+    "entities": [
+      "Hebrew University"
+    ],
+    "problems_discussed": [
+      "Inefficiencies in user experience",
+      "Food waste in India",
+      "Stressful IVF process"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [
+      "Examples of user journey mapping in IVF and food waste",
+      "Steps to create a user journey map"
+    ],
+    "key_claims": [
+      "Mapping the user journey helps identify innovation opportunities by pinpointing frustrations and unmet needs.",
+      "Understanding user emotions and pain points is crucial for enhancing the user experience."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> User Journey Mapping",
+      "THIS_DOC -[TEACHES]-> User Personas",
+      "THIS_DOC -[TEACHES]-> Touchpoints",
+      "THIS_DOC -[TEACHES]-> Pain Points",
+      "THIS_DOC -[TEACHES]-> Customer Experience",
+      "THIS_DOC -[USES_FRAMEWORK]-> Jobs to Be Done Framework",
+      "THIS_DOC -[DISCUSSES]-> Food Waste in India",
+      "THIS_DOC -[DISCUSSES]-> IVF Process",
+      "User Journey Mapping -[HELPS_WITH]-> Innovation Opportunities"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "problem",
+      "issue"
+    ],
+    "solutions": [
+      "method",
+      "address",
+      "address"
+    ],
+    "questions": [
+      " **Identify the User\u2019s Goal**\n    \n    What is the user trying to achieve?",
+      " **List All Touchpoints**\n    \n    What interactions does the user have along their journey?",
+      " **Identify Pain Points**\n    \n    Where does friction occur? Is there confusion at certain points?"
+    ],
+    "causation": [
+      "due to",
+      "due to"
+    ],
+    "future": [
+      "Future",
+      "future"
+    ]
+  },
+  "char_count": 9919,
+  "extracted_at": "2026-01-28T14:08:49.868670"
+}

@@ -1,0 +1,60 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Change as a Catalyst for Innovation 15d218d9469481d9a8a0f7d28c3249af.md",
+  "display_name": "Course/Cohort-2024/Session #3/Change as a Catalyst for Innovation 15d218d9469481d9a8a0f7d28c3249af.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Change as a Catalyst for Innovation",
+    "topic": "Change and Innovation",
+    "frameworks": [],
+    "concepts": [
+      "Change",
+      "Innovation",
+      "Technological Change",
+      "Market Change",
+      "Social Change",
+      "Opportunities",
+      "Adaptation",
+      "Structured Ideation",
+      "External Environment",
+      "Emerging Demands"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Disruption of the status quo",
+      "Missing opportunities"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [],
+    "key_claims": [
+      "Change creates new needs and opportunities for innovation.",
+      "Structured ideation helps harness change for innovation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Change",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Technological Change",
+      "THIS_DOC -[TEACHES]-> Market Change",
+      "THIS_DOC -[TEACHES]-> Social Change",
+      "THIS_DOC -[TEACHES]-> Opportunities",
+      "THIS_DOC -[TEACHES]-> Adaptation",
+      "THIS_DOC -[TEACHES]-> Structured Ideation",
+      "THIS_DOC -[RELATES_TO]-> Dominant Designs",
+      "THIS_DOC -[RELATES_TO]-> Risk vs. Uncertainty"
+    ]
+  },
+  "signals": {
+    "questions": [
+      "# Change as a Catalyst for Innovation\n\nPrompt: up to 500 charters  How does the chapter explain the role of change in driving innovation?"
+    ],
+    "trends": [
+      "emerging"
+    ]
+  },
+  "char_count": 879,
+  "extracted_at": "2026-01-28T14:25:22.258934"
+}

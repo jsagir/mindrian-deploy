@@ -1,0 +1,107 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/CONCLUSION OF THE TERM.txt",
+  "display_name": "Course/Cohort-2024/CONCLUSION OF THE TERM.txt",
+  "category": "Cohort-2024",
+  "subfolder": null,
+  "extraction": {
+    "title": "CONCLUSION OF THE TERM.txt",
+    "topic": "Business Case Development",
+    "frameworks": [
+      "ARINC Model",
+      "Mullins Model",
+      "Job-to-be-Done (JTBD)"
+    ],
+    "concepts": [
+      "Value Proposition",
+      "Competitive Advantage",
+      "Market Attractiveness",
+      "Industry Attractiveness",
+      "Target Segment",
+      "Monopoly",
+      "Economic Profit",
+      "Proprietary Technology",
+      "Network Effects",
+      "Economies of Scale",
+      "Branding",
+      "Pains and Gains"
+    ],
+    "entities": [
+      "ARINC",
+      "Peter Thiel",
+      "Google",
+      "Microsoft",
+      "Yahoo"
+    ],
+    "problems_discussed": [
+      "Lack of economic profit in perfect competition",
+      "Difficulty in selling marginal improvements in crowded markets",
+      "Defining a compelling value proposition",
+      "Identifying and validating real customer problems"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation",
+      "Domain Selection"
+    ],
+    "teaching_elements": [
+      "Questions to define a B2B value proposition (ARINC)",
+      "Template for the Mullins Model",
+      "Job-to-be-done statement"
+    ],
+    "key_claims": [
+      "Startups should start with a very small market to dominate it.",
+      "A proprietary technology must be at least 10 times better than its closest substitute to create a real monopolistic advantage."
+    ],
+    "cohort_context": "Cohort-2024, end-of-term report focusing on problem, solution, and business case development.",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Value Proposition",
+      "THIS_DOC -[TEACHES]-> Competitive Advantage",
+      "THIS_DOC -[TEACHES]-> Market Attractiveness",
+      "THIS_DOC -[TEACHES]-> Industry Attractiveness",
+      "THIS_DOC -[TEACHES]-> Target Segment",
+      "THIS_DOC -[USES_FRAMEWORK]-> ARINC Model",
+      "THIS_DOC -[USES_FRAMEWORK]-> Mullins Model",
+      "THIS_DOC -[USES_FRAMEWORK]-> Job-to-be-Done (JTBD)",
+      "THIS_DOC -[DISCUSSES]-> Monopoly",
+      "THIS_DOC -[MENTIONS]-> Peter Thiel",
+      "THIS_DOC -[MENTIONS]-> Google"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "Problem",
+      "problem",
+      "problem",
+      "Problem",
+      "issue"
+    ],
+    "solutions": [
+      "solution",
+      "solve",
+      "Solution",
+      "address",
+      "solve"
+    ],
+    "questions": [
+      "? CONCLUSION OF THE TERM\n\n? Problem, solution, business case\n? ARINC\ufffds Model\n? For the opportunity you have selected:\n\ufffd Is it real?\n\ufffd Can we win?\n\ufffd What are the Resources required to win?  Are they available or can they be obtained?\n\ufffd What are the Risks associated with the project or business?  Can they be managed?\n\ufffd Is it worth it?\n\ufffd What is the Return expected and why?  Does it warrant our attention?\n? Peter Thiel\ufffds View\n?",
+      " \n?",
+      " \n\n?",
+      " \n\n?",
+      "\n\n\n? DEVELOPING A VALUE PROPOSITION\n? Giving the customer a reason to buy\n? The Value Proposition\n?"
+    ],
+    "causation": [
+      "Therefore",
+      "causes"
+    ],
+    "future": [
+      "will",
+      "will",
+      "will",
+      "will",
+      "will"
+    ]
+  },
+  "char_count": 6582,
+  "extracted_at": "2026-01-28T12:38:41.471026"
+}

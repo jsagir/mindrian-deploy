@@ -1,0 +1,157 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/PWS NOTES.txt",
+  "display_name": "Course/Cohort-2024/PWS NOTES.txt",
+  "category": "Cohort-2024",
+  "subfolder": null,
+  "extraction": {
+    "title": "PWS NOTES.txt",
+    "topic": "Innovation & E-commerce",
+    "frameworks": [
+      "PEST",
+      "Trend Analysis",
+      "Scenario Analysis"
+    ],
+    "concepts": [
+      "E-commerce",
+      "Innovation",
+      "Entrepreneurship",
+      "Market Maturity",
+      "Competitive Advantage",
+      "Systematic Innovation",
+      "Problem Solving",
+      "Business Case",
+      "Opportunity Identification",
+      "Presentism"
+    ],
+    "entities": [
+      "Amazon",
+      "Alibaba",
+      "Wikipedia",
+      "OpenAI",
+      "Johns Hopkins Hospital",
+      "Johns Hopkins University School of Medicine",
+      "Guglielmo Marconi",
+      "GPT-3",
+      "The New Yorker"
+    ],
+    "problems_discussed": [
+      "Finding problems worth solving",
+      "Market maturity and growth limitations",
+      "Identifying the next great problem",
+      "Exploiting change for innovation",
+      "Avoiding presentism in problem identification"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "E-commerce market breakdown example",
+      "Trend analysis exercise",
+      "Scenario analysis task",
+      "Marconi case study",
+      "GPT-3 case study",
+      "Johns Hopkins Hospital case study"
+    ],
+    "key_claims": [
+      "Systematic innovation involves searching for changes and analyzing opportunities.",
+      "Effective innovations are simple, focused, and start small.",
+      "Innovation requires a problem worth solving, a solution, and a viable business case."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> E-commerce",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Entrepreneurship",
+      "THIS_DOC -[USES_FRAMEWORK]-> PEST",
+      "THIS_DOC -[USES_FRAMEWORK]-> Trend Analysis",
+      "THIS_DOC -[USES_FRAMEWORK]-> Scenario Analysis",
+      "THIS_DOC -[DISCUSSES]-> Market Maturity",
+      "THIS_DOC -[DISCUSSES]-> Competitive Advantage",
+      "THIS_DOC -[DISCUSSES]-> Problem Solving",
+      "THIS_DOC -[DISCUSSES]-> Business Case",
+      "THIS_DOC -[DISCUSSES]-> Opportunity Identification",
+      "THIS_DOC -[DISCUSSES]-> Presentism",
+      "THIS_DOC -[MENTIONS]-> Amazon",
+      "THIS_DOC -[MENTIONS]-> Alibaba",
+      "THIS_DOC -[MENTIONS]-> Johns Hopkins Hospital",
+      "THIS_DOC -[MENTIONS]-> Guglielmo Marconi",
+      "THIS_DOC -[MENTIONS]-> GPT-3"
+    ]
+  },
+  "signals": {
+    "percentages": [
+      "100%",
+      "100%",
+      "10%",
+      "80%",
+      "20%"
+    ],
+    "money": [
+      "$1000",
+      "$200 billion",
+      "$6.99",
+      "$165"
+    ],
+    "years": [
+      "1972",
+      "1995",
+      "1999",
+      "2018",
+      "1909"
+    ],
+    "assumptions": [
+      "if we",
+      "If we",
+      "assumption",
+      "assumption",
+      "assumption"
+    ],
+    "problems": [
+      "CHALLENGE",
+      "barrier",
+      "problem",
+      "problem",
+      "problem"
+    ],
+    "solutions": [
+      "Method",
+      "Method",
+      "Method",
+      "solution",
+      "approach"
+    ],
+    "questions": [
+      " (Wikipedia)\u200b\nFirst transactions took place as early as 1972\u200b\nE-commerce giants Amazon and Alibaba were founded in 1995 and 1999 respectively\u200b\nE-commerce has seen nonstop yearly growth throughout the 2010s\u200b\n\nMarket Breakdown\nChina and the US contain the largest e-commerce markets\u200b\nBoth countries have a market leader and several smaller players\u200b\nAlibaba in China contains a majority share of China\u2019s e-commerce market (2018)\u200b\nExercise\nWhat is the next big opportunity in e-commerce?",
+      "\nFor example:\nWhat does a world with 100% e-commerce transactions look like?\nWhat would be  different about this world?\nWhat products, service, and policies will be needed?\nMethod 2: Scenario Analysis\nTask:\u200b\nWhat is the future of e-commerce?",
+      " Physical presence\nOther\u200b\u200b\n\nScenario Analysis: E-Commerce\nMethod 3: The Next Big Thing\nWhat is the next big thing inherent in the situation:\nPEST (political, economic, social, and technological changes)\nPayment methods\nLogistics\nThe user experience\nHow we buy\nHow we find things to buy\nAn industry space\nWho are (might be?) the main players in the space?\nWhat products or services are missing?\nHow can current offerings be re-directed?",
+      "\n\n2 \nINTRODUCTION\n\n\nA FRAMEWORK FOR INNOVATION:\nFINDING PROBLEMS WORTH WORKING ON\nGetting Started\nWhat is your big idea for a startup\u2026?\nWHY INNOVATE?",
+      " But then they ask, \u2018Which of these opportunities fits me, fits this company, puts to work what we (or I) are good at and have shown capacity for in performance?"
+    ],
+    "causation": [
+      "Thus",
+      "causes",
+      "therefore",
+      "thus",
+      "thus"
+    ],
+    "trends": [
+      "Trend",
+      "trend",
+      "growing",
+      "shifting",
+      "Shifting"
+    ],
+    "future": [
+      "FUTURE",
+      "future",
+      "will",
+      "future",
+      "future"
+    ]
+  },
+  "char_count": 346868,
+  "extracted_at": "2026-01-28T12:22:40.978271"
+}

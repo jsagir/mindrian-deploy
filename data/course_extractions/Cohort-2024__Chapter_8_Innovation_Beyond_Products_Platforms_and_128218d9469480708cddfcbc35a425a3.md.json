@@ -1,0 +1,94 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Chapter 8 Innovation Beyond Products Platforms and 128218d9469480708cddfcbc35a425a3.md",
+  "display_name": "Course/Cohort-2024/Session #3/Chapter 8 Innovation Beyond Products Platforms and 128218d9469480708cddfcbc35a425a3.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Chapter 8 Innovation Beyond Products Platforms and 128218d9469480708cddfcbc35a425a3.md",
+    "topic": "Platform Innovation",
+    "frameworks": [],
+    "concepts": [
+      "Platform",
+      "Ecosystem",
+      "Innovation",
+      "Scalability",
+      "User Engagement",
+      "Continuous Improvement",
+      "Product-Centric",
+      "Platform-Centric",
+      "Third-party developers",
+      "Value Proposition"
+    ],
+    "entities": [
+      "Apple",
+      "App Store",
+      "Amazon",
+      "Amazon Web Services (AWS)",
+      "Tesla"
+    ],
+    "problems_discussed": [
+      "Limitations of product-centric models",
+      "Lack of continuous customer engagement",
+      "Difficulty in scaling offerings",
+      "Siloed innovation"
+    ],
+    "pws_phase_relevance": [
+      "Solution Framing",
+      "Validation",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Case studies (Apple App Store, AWS, Tesla)",
+      "Examples of platform features (Autopilot, FSD)",
+      "Discussion of key takeaways for innovators"
+    ],
+    "key_claims": [
+      "Shifting from a product-centric to a platform-centric approach unlocks significant innovation potential.",
+      "Building ecosystems fosters collaboration and continuous improvement, leading to long-term success."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Platform",
+      "THIS_DOC -[TEACHES]-> Ecosystem",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[EXAMPLE_OF]-> Apple",
+      "THIS_DOC -[EXAMPLE_OF]-> Amazon Web Services (AWS)",
+      "THIS_DOC -[EXAMPLE_OF]-> Tesla",
+      "THIS_DOC -[DISCUSSES]-> Problems of Product-Centric Models"
+    ]
+  },
+  "signals": {
+    "money": [
+      "$320 billion"
+    ],
+    "years": [
+      "2008",
+      "2024",
+      "2022",
+      "2022",
+      "2022"
+    ],
+    "problems": [
+      "obstacle",
+      "problem"
+    ],
+    "solutions": [
+      "approach",
+      "approach",
+      "approach",
+      "approach",
+      "approach"
+    ],
+    "trends": [
+      "changing",
+      "changing",
+      "emerging",
+      "emerging"
+    ],
+    "future": [
+      "will"
+    ]
+  },
+  "char_count": 7409,
+  "extracted_at": "2026-01-28T14:07:40.840689"
+}

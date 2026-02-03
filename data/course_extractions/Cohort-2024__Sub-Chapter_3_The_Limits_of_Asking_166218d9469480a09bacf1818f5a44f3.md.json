@@ -1,0 +1,89 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #3/Sub-Chapter 3 The Limits of Asking 166218d9469480a09bacf1818f5a44f3.md",
+  "display_name": "Course/Cohort-2024/Session #3/Sub-Chapter 3 The Limits of Asking 166218d9469480a09bacf1818f5a44f3.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Sub-Chapter 3: The Limits of Asking",
+    "topic": "Observation vs. Asking",
+    "frameworks": [],
+    "concepts": [
+      "Observation",
+      "User Needs",
+      "Workarounds",
+      "Innovation",
+      "User Research",
+      "Empathy",
+      "Unmet Needs",
+      "User Behavior",
+      "PWS (Problems Worth Solving)"
+    ],
+    "entities": [
+      "Henry Ford",
+      "Apple",
+      "Steve Jobs",
+      "Airbnb",
+      "Procter & Gamble",
+      "Swiffer",
+      "Ohad Schindler"
+    ],
+    "problems_discussed": [
+      "Limitations of asking users directly about their needs",
+      "Users' inability to articulate their needs",
+      "Discrepancy between what users say and do",
+      "Overlooking workarounds and hacks in user research"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition"
+    ],
+    "teaching_elements": [
+      "Case studies (Apple, Airbnb, Swiffer)",
+      "Examples of observation in coffee shop design",
+      "Tips for practicing observation"
+    ],
+    "key_claims": [
+      "Observation is crucial for uncovering unmet needs and workarounds that users may not be able to articulate.",
+      "Directly asking users what they want has limitations because they may not know what they need or may not accurately report their behavior."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Observation",
+      "THIS_DOC -[TEACHES]-> User Needs",
+      "THIS_DOC -[TEACHES]-> Workarounds",
+      "THIS_DOC -[ILLUSTRATES]-> Apple",
+      "THIS_DOC -[ILLUSTRATES]-> Airbnb",
+      "THIS_DOC -[ILLUSTRATES]-> Procter & Gamble",
+      "THIS_DOC -[ADDRESSES]-> Limitations of Asking",
+      "THIS_DOC -[RELATES_TO]-> PWS"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "problem",
+      "problem",
+      "issue",
+      "challenge",
+      "Problem"
+    ],
+    "solutions": [
+      "solution",
+      "solution",
+      "solve",
+      "Approach",
+      "approach"
+    ],
+    "questions": [
+      "\nReviewed by Ohad ?",
+      "\n\nSo if asking users what they want has its limitations, how do we truly understand their needs and behaviors?",
+      "\n\nPutting Observation into Practice\n\nSo how can you start leveraging the power of observation in your own work?"
+    ],
+    "future": [
+      "will",
+      "will",
+      "Future"
+    ]
+  },
+  "char_count": 12273,
+  "extracted_at": "2026-01-28T12:51:34.971933"
+}

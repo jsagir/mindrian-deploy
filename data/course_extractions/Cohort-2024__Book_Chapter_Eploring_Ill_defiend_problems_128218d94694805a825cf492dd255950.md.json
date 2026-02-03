@@ -1,0 +1,39 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Book Chapter Eploring Ill defiend problems 128218d94694805a825cf492dd255950.md",
+  "display_name": "Course/Cohort-2024/Session #3/Book Chapter Eploring Ill defiend problems 128218d94694805a825cf492dd255950.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Book Chapter Exploring Ill-Defined Problems",
+    "topic": "Ill-Defined Problems",
+    "frameworks": [],
+    "concepts": [
+      "Ill-defined problems",
+      "Problem solving",
+      "Problem definition"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Ill-defined problems"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition"
+    ],
+    "teaching_elements": [
+      "Chapters of Exploring Ill defined problems CSV file (likely contains examples or exercises)"
+    ],
+    "key_claims": [
+      "Ill-defined problems require specific approaches for understanding and resolution.",
+      "Effective problem definition is crucial for tackling ill-defined problems."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Ill-defined problems",
+      "THIS_DOC -[TEACHES]-> Problem solving",
+      "THIS_DOC -[TEACHES]-> Problem definition"
+    ]
+  },
+  "signals": {},
+  "char_count": 185,
+  "extracted_at": "2026-01-28T14:05:20.957460"
+}

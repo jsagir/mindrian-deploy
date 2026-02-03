@@ -1,0 +1,127 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2025/SlideDecks 2025/N07_Well-Defined.pptx.txt",
+  "display_name": "Course/Cohort-2025/SlideDecks 2025/N07_Well-Defined.pptx.txt",
+  "category": "Cohort-2025",
+  "subfolder": "SlideDecks 2025",
+  "extraction": {
+    "title": "N07_Well-Defined.pptx",
+    "topic": "Well-Defined Problems",
+    "frameworks": [
+      "Design Thinking",
+      "Jobs-to-be-Done",
+      "Mind Mapping",
+      "5 W's"
+    ],
+    "concepts": [
+      "Well-defined problem",
+      "Ill-defined problem",
+      "Un-defined problem",
+      "Opportunities",
+      "Needs statement",
+      "Falsifiability",
+      "Problem statement",
+      "Use case",
+      "Stakeholders",
+      "Pains and Gains"
+    ],
+    "entities": [
+      "Neil Armstrong",
+      "Buzz Aldrin",
+      "Michael Collins",
+      "Apollo 11",
+      "Soviet Union",
+      "MLB",
+      "Charles Conn",
+      "Robert McLean",
+      "Michael J. Gelb",
+      "Leonardo da Vinci"
+    ],
+    "problems_discussed": [
+      "Turning opportunities into well-defined problems",
+      "How to get to the moon and back",
+      "How to prevent skidding (Anti-Lock Brakes)",
+      "How can MLB regain its popularity"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [
+      "Examples of well-defined problems (Moon landing, ABS, MLB popularity)",
+      "Mind mapping exercise",
+      "Using the 5 W's to define a problem"
+    ],
+    "key_claims": [
+      "Well-defined problems can be created from opportunities.",
+      "Any solution to a well-defined problem must be falsifiable.",
+      "A good problem statement is outcomes-focused, specific, measurable, time-bound, and allows for creativity."
+    ],
+    "cohort_context": "Cohort-2025",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Well-defined problem",
+      "THIS_DOC -[TEACHES]-> Ill-defined problem",
+      "THIS_DOC -[TEACHES]-> Un-defined problem",
+      "THIS_DOC -[TEACHES]-> Opportunities",
+      "THIS_DOC -[USES_FRAMEWORK]-> Design Thinking",
+      "THIS_DOC -[USES_FRAMEWORK]-> Jobs-to-be-Done",
+      "THIS_DOC -[USES_FRAMEWORK]-> Mind Mapping",
+      "THIS_DOC -[USES_FRAMEWORK]-> 5 W's",
+      "THIS_DOC -[ILLUSTRATES]-> How to get to the moon and back",
+      "THIS_DOC -[ILLUSTRATES]-> How to prevent skidding (Anti-Lock Brakes)",
+      "THIS_DOC -[ILLUSTRATES]-> How can MLB regain its popularity"
+    ]
+  },
+  "signals": {
+    "years": [
+      "1969",
+      "1930",
+      "2012",
+      "2021",
+      "2018"
+    ],
+    "problems": [
+      "Problem",
+      "Problem",
+      "problem",
+      "problem",
+      "problem"
+    ],
+    "solutions": [
+      "solution",
+      "solution",
+      "solution",
+      "solution",
+      "address"
+    ],
+    "questions": [
+      "WELL-DEFINED PROBLEMS\nTurning opportunities into\nwell-defined problems\nConfidential for classroom use only\n1\n1\n\nReminder: Problem Types\nConfidential for classroom use only\n2\nIll-Defined\nWell-Defined\nUn-Defined\n?\n?\nMacro Trending\nScenario Planning\nAnalogies\nWhat\u2019s over the horizon? What\u2019s possible?\nNear-term Trending \nEmerging technologies\nValue migration\nWhat\u2019s next for us? What\u2019s the next opportunity?\nTraditional product development\nHow do we make this?\nAnalytic Tools:\nQuestion: \nExamples:\nWhat could our markets look like in 10 years?\nWhat market(s) should we enter?\nHow do we make this offering? \nWhat are the possible offering concepts?\nDesign Thinking\nJobs-to-be-Done\nPrototyping\nWhat specific offerings could we develop?\nOpportunities\nOpportunities are ideas, insights, problems worth solving, but they cannot be solved until they are well-defined \nOpportunities are conceptual\n2\n\nAn Important Well-Defined Problem\nConfidential for classroom use only\n3\nThink about nested hierarchies\n3\n\nAnother Example\nConfidential for classroom use only\n4\n\nExample: What are the Follow-On Consequences?\nConfidential for classroom use only\n5\n\nWell-Defined Problems\nWell-defined problems can be created from opportunities\n\nA needs statement can be used to formulate a well-defined problem, thus making the criteria for a successful solution clear as well\nEven if the circumstances are complex or complicated\nEven if the solution is hard to devise and requires magical thinking\nThe solution can be incremental or radical\nAnd can sometimes lead to a dramatically new product class or market\n\nCritical: any solution to a well-defined problem must be falsifiable\nConfidential for classroom use only\n6\nThis is the only kind of problem that can be solved in the traditional sense of the word\n6\n\nFormulating a Well-Defined Problem\nTry using the 5 W\u2019s  to create a story:\nWhat\u00a0happened?\nWho\u00a0was involved?\nWhy\u00a0did that happen?\nWhere\u00a0did it take place?\nWhen\u00a0did it take place?\n(How did that happen?",
+      "\n7\n\nExample: How to Get to the Moon and Back?",
+      "\n9\n\nExample: How Can MLB Regain its Popularity?",
+      "\n\n\nYou Have a Well-Defined Problem When\u2026\nYou have a clear statement (story) of the 5 W\u2019s, especially:\nWhat is the use case(s)\nWho is the user(s) (and any other key stakeholders)\nWhy does the user(s) has/have the problem\nYou know what the solution needs to deliver:\nPains relieved\nGains achieved\nThink in terms of specific and measurable outcomes\nAnd you also know (if possible):\nThe time to deliver the solution\nThe cost to deliver the solution\nLikely impediments to creating or delivering any solution\nExample: How can we help\u2026 do\u2026 under these circumstances\u2026 in order to accomplish\u2026?",
+      " \n\nConfidential for classroom use only\n19\n\nHow Do You Know When You Are Finished?"
+    ],
+    "causation": [
+      "thus",
+      "because",
+      "Causes",
+      "causes",
+      "Therefore"
+    ],
+    "trends": [
+      "Trending",
+      "Trending",
+      "Emerging",
+      "changing",
+      "changing"
+    ],
+    "future": [
+      "will",
+      "will",
+      "future",
+      "future",
+      "will"
+    ]
+  },
+  "char_count": 23828,
+  "extracted_at": "2026-01-28T12:44:12.440735"
+}

@@ -1,0 +1,63 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Key quotes 161218d946948118934ac7d0cde4f878.md",
+  "display_name": "Course/Cohort-2024/Session #3/Key quotes 161218d946948118934ac7d0cde4f878.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Key quotes",
+    "topic": "Platform Innovation",
+    "frameworks": [],
+    "concepts": [
+      "Platforms",
+      "Tools",
+      "Innovation",
+      "User Adaptation",
+      "Mindset",
+      "Value Creation",
+      "Progress",
+      "Solutions",
+      "Environments"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Limitations of tool-based thinking",
+      "Missing opportunities for platform innovation",
+      "Seeing user adaptations as misuse"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [
+      "Quotes with significance explanations"
+    ],
+    "key_claims": [
+      "Platforms enable multiple innovations, unlike tools.",
+      "User adaptations are signals for platform innovation opportunities."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Platforms",
+      "THIS_DOC -[TEACHES]-> Tools",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> User Adaptation",
+      "THIS_DOC -[TEACHES]-> Mindset",
+      "THIS_DOC -[TEACHES]-> Value Creation"
+    ]
+  },
+  "signals": {
+    "solutions": [
+      "solve",
+      "fix"
+    ],
+    "questions": [
+      " |\n| \"What progress are people trying to make through play?"
+    ],
+    "future": [
+      "will"
+    ]
+  },
+  "char_count": 1356,
+  "extracted_at": "2026-01-28T14:22:41.321740"
+}

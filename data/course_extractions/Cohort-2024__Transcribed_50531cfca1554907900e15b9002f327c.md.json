@@ -1,0 +1,119 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #7/Transcribed 50531cfca1554907900e15b9002f327c.md",
+  "display_name": "Course/Cohort-2024/Session #7/Transcribed 50531cfca1554907900e15b9002f327c.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #7",
+  "extraction": {
+    "title": "Transcribed 50531cfca1554907900e15b9002f327c.md",
+    "topic": "Problem Definition",
+    "frameworks": [
+      "Jobs to be Done (JTBD)"
+    ],
+    "concepts": [
+      "Value Proposition",
+      "Target Market",
+      "B2B",
+      "B2C",
+      "Market Attractiveness",
+      "Industry Attractiveness",
+      "Validation",
+      "Business Model",
+      "Pains and Gains",
+      "Macro Trends"
+    ],
+    "entities": [
+      "Lawrence Aronhime",
+      "Yonatan",
+      "Yakov Deminsky",
+      "ARINC",
+      "Peter Thiel",
+      "Apple",
+      "Dell",
+      "ABC",
+      "John Mullins",
+      "London School of Business"
+    ],
+    "problems_discussed": [
+      "Defining a well-defined problem",
+      "Identifying a real problem",
+      "Finding a small market",
+      "Developing a strong value proposition",
+      "Inadequate existing solutions"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [
+      "Examples of value propositions (Apple vs. Dell)",
+      "ARINC's 'Is it real? Can we win? Is it worth it?' framework",
+      "John Mullins' Business Model",
+      "Value Proposition Diagram (Pains, Gains, Jobs to be Done)",
+      "End-of-Term Report Deliverable"
+    ],
+    "key_claims": [
+      "The single most important decision an entrepreneur makes is the choice of the initial target market.",
+      "A value proposition must be powerful enough to get customers to part with their time and money.",
+      "Entrepreneurs should focus on creating a monopoly in a small market before expanding."
+    ],
+    "cohort_context": "Cohort-2024, Class part 2 focusing on well-defined problems and preparing for the final phase of the class.",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Value Proposition",
+      "THIS_DOC -[TEACHES]-> Target Market",
+      "THIS_DOC -[TEACHES]-> B2B",
+      "THIS_DOC -[TEACHES]-> B2C",
+      "THIS_DOC -[TEACHES]-> Market Attractiveness",
+      "THIS_DOC -[TEACHES]-> Industry Attractiveness",
+      "THIS_DOC -[TEACHES]-> Validation",
+      "THIS_DOC -[TEACHES]-> Business Model",
+      "THIS_DOC -[USES_FRAMEWORK]-> Jobs to be Done",
+      "THIS_DOC -[MENTIONS]-> Lawrence Aronhime",
+      "THIS_DOC -[MENTIONS]-> Peter Thiel",
+      "THIS_DOC -[MENTIONS]-> ARINC",
+      "THIS_DOC -[MENTIONS]-> John Mullins"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "problem",
+      "problem",
+      "problem",
+      "problem",
+      "issue"
+    ],
+    "solutions": [
+      "solve",
+      "solution",
+      "solution"
+    ],
+    "questions": [
+      " That's the idea, okay?",
+      " But this, I think, kind of brings the pieces together, okay?",
+      " An old friend who was head of business development for them gave me this, and it says for the opportunity you have selected, the way to think about it is: is it real? Can we win? Is it worth it? That's literally what a VC is asking, okay? Is your problem real, meaning does anybody care? Can we win, meaning can you actually do this? And is it worth it, meaning is there enough here that I should invest my money?",
+      "\n\n### Slide 3: Key Questions for Entrepreneurs\n\n**Speaker 1: Lawrence Aronhime**\n\nThe first question anybody ever asks me when they come to see me about a technology, biometric, this, that, the other is: what\u2019s the problem you\u2019re solving?",
+      " What's the problem you're solving and is it real?"
+    ],
+    "causation": [
+      "Therefore",
+      "because",
+      "because",
+      "Because",
+      "Because"
+    ],
+    "trends": [
+      "changing",
+      "changing",
+      "changing"
+    ],
+    "future": [
+      "will",
+      "will",
+      "will",
+      "will",
+      "will"
+    ]
+  },
+  "char_count": 15868,
+  "extracted_at": "2026-01-28T12:48:35.514944"
+}

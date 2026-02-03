@@ -1,0 +1,113 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #3/Template for Chapters \u2014 15d218d94694813db2d2c1e673b728f2.md",
+  "display_name": "Course/Cohort-2024/Session #3/Template for Chapters \u2014 15d218d94694813db2d2c1e673b728f2.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Template for Chapters \u2014 15d218d94694813db2d2c1e673b728f2.md",
+    "topic": "Innovation, Problem Solving",
+    "frameworks": [
+      "Jobs to be Done",
+      "Trending to the Absurd",
+      "Futures Wheels"
+    ],
+    "concepts": [
+      "Innovation",
+      "Problems worth solving",
+      "Uncertainty",
+      "Risk",
+      "Intersectional ideas",
+      "Disruptive innovation",
+      "Reverse salients",
+      "Alternative futures",
+      "Dominant Designs",
+      "Process Maps"
+    ],
+    "entities": [
+      "Warby Parker",
+      "Linus Pauling",
+      "Clayton Christensen",
+      "Royal Institute of Dominant Designs",
+      "Royal Academy of Innovation",
+      "GEODE Initiative"
+    ],
+    "problems_discussed": [
+      "Uncomfortable reading glasses",
+      "Inefficient coin counting",
+      "Slow information transmission"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Fictional narrative (The Kingdom of Paradigms)",
+      "Moral of the tale (5 principles)",
+      "Instructions for chapter creation using ChatGPT bot"
+    ],
+    "key_claims": [
+      "Innovation begins with finding the right problems to solve.",
+      "The best opportunities often lie in challenging accepted wisdom."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Problems worth solving",
+      "THIS_DOC -[USES_FRAMEWORK]-> Jobs to be Done",
+      "THIS_DOC -[USES_FRAMEWORK]-> Trending to the Absurd",
+      "THIS_DOC -[USES_FRAMEWORK]-> Futures Wheels",
+      "THIS_DOC -[MENTIONS]-> Warby Parker",
+      "THIS_DOC -[MENTIONS]-> Linus Pauling",
+      "THIS_DOC -[MENTIONS]-> Clayton Christensen",
+      "THIS_DOC -[RELATES_TO]-> Uncertainty",
+      "THIS_DOC -[RELATES_TO]-> Risk"
+    ]
+  },
+  "signals": {
+    "percentages": [
+      "20%",
+      "80%",
+      "94%",
+      "20%",
+      "80%"
+    ],
+    "problems": [
+      "Problem",
+      "Problem",
+      "Problem",
+      "Problem",
+      "Challenge"
+    ],
+    "solutions": [
+      "address",
+      "solution",
+      "solve",
+      "solve",
+      "address"
+    ],
+    "questions": [
+      "\nReviewed by Ohad ?",
+      "so/sagirdomain/Chapter-3-The-Economic-Forces-Driving-Innovation-12b218d946948091bcbfcc3a08fc6e3d?",
+      "so/12b218d946948091bcbfcc3a08fc6e3d?",
+      "so/12b218d9469481869755f868a02b954b?",
+      "so/12b218d9469481dbaea0e3127e2339f4?"
+    ],
+    "causation": [
+      "leads to"
+    ],
+    "trends": [
+      "Trending"
+    ],
+    "future": [
+      "will",
+      "will",
+      "will",
+      "future",
+      "future"
+    ]
+  },
+  "char_count": 12313,
+  "extracted_at": "2026-01-28T12:56:44.397632"
+}

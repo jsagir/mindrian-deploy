@@ -1,0 +1,151 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2025/SlideDecks 2025/N01_Introduction.pptx.txt",
+  "display_name": "Course/Cohort-2025/SlideDecks 2025/N01_Introduction.pptx.txt",
+  "category": "Cohort-2025",
+  "subfolder": "SlideDecks 2025",
+  "extraction": {
+    "title": "N01_Introduction.pptx.txt",
+    "topic": "Innovation and Entrepreneurship",
+    "frameworks": [],
+    "concepts": [
+      "Innovation",
+      "Entrepreneurship",
+      "Creative Destruction",
+      "Competitive Advantage",
+      "Market Maturation",
+      "Opportunity",
+      "Problem Solving",
+      "Business Case",
+      "Exploitation",
+      "Exploration"
+    ],
+    "entities": [
+      "Joseph Alois Schumpeter",
+      "Harvard",
+      "J. B. Say",
+      "Peter Drucker",
+      "Routledge Classics",
+      "Taylor and Francis",
+      "Oxford English Dictionary (OED)",
+      "John Roberts",
+      "Oxford University Press",
+      "Michael Porter",
+      "The Free Press",
+      "Wright Brothers",
+      "Tokyo Rope Corporation (Tokyo Seiko)",
+      "Meiji era",
+      "James March",
+      "Ben Weiner",
+      "Robert Baron",
+      "Mark Casson",
+      "Jeffrey Timmons",
+      "John Mullins",
+      "Frans Johansson"
+    ],
+    "problems_discussed": [
+      "Finding problems worth solving",
+      "Problems in maturing markets",
+      "Problems related to shifting competitive advantage",
+      "Problems in acquisitions (value creation, profitability)"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [
+      "Definitions of innovation from different sources",
+      "Examples of companies that innovate",
+      "HEART framework for innovative startups"
+    ],
+    "key_claims": [
+      "Innovation is driven by maturing markets and shifting competitive advantage.",
+      "Systematic innovation involves searching for and analyzing changes to identify opportunities.",
+      "Effective innovations are simple, focused, and start small."
+    ],
+    "cohort_context": "Cohort-2025, introductory material on innovation and entrepreneurship, focusing on identifying valuable problems.",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Entrepreneurship",
+      "THIS_DOC -[TEACHES]-> Creative Destruction",
+      "THIS_DOC -[TEACHES]-> Competitive Advantage",
+      "THIS_DOC -[TEACHES]-> Market Maturation",
+      "THIS_DOC -[TEACHES]-> Opportunity",
+      "THIS_DOC -[TEACHES]-> Problem Solving",
+      "THIS_DOC -[TEACHES]-> Business Case",
+      "THIS_DOC -[TEACHES]-> Exploitation",
+      "THIS_DOC -[TEACHES]-> Exploration",
+      "THIS_DOC -[DISCUSSES]-> Problems in maturing markets",
+      "THIS_DOC -[DISCUSSES]-> Problems related to shifting competitive advantage",
+      "THIS_DOC -[DISCUSSES]-> Problems in acquisitions",
+      "THIS_DOC -[CITES]-> Joseph Alois Schumpeter",
+      "THIS_DOC -[CITES]-> Peter Drucker",
+      "THIS_DOC -[CITES]-> Michael Porter",
+      "THIS_DOC -[PRESENTS]-> HEART framework"
+    ]
+  },
+  "signals": {
+    "money": [
+      "$1000"
+    ],
+    "years": [
+      "1950",
+      "1942",
+      "1985",
+      "2004",
+      "1990"
+    ],
+    "assumptions": [
+      "if we",
+      "If we",
+      "assumption",
+      "assumption",
+      "assumption"
+    ],
+    "problems": [
+      "problem",
+      "problem",
+      "problem",
+      "problem",
+      "problem"
+    ],
+    "solutions": [
+      "method",
+      "method",
+      "approach",
+      "solution",
+      "solution"
+    ],
+    "questions": [
+      "com/dictionary/innovation_n?",
+      "  So what is \u201cinnovation?",
+      "\nBut what drives innovation?",
+      "\n8\n\nThe End Goal: An Innovative Startup (with a HEART)\nH: Hypothesis / Start with Why\nWhy are you starting this startup? What do you believe about your target market?",
+      " \nAccording to Mark Casson, the essence of entrepreneurship is being different, having a different perception of the situation, and placing a bet based on his superior judgment\nAccording to Jeffrey Timmons the entrepreneurial process includes\nOpportunity\nResources\nThe team\nAnd entrepreneurs are people who\nCreate and recognize opportunities\nTake the initiative to seize opportunities\nTake personal and financial risks\nDevise strategies to utilize limited resources\nBuild a team with complementary skills and talents\n\nGetting Started\nWhat is your big idea for a startup\u2026?"
+    ],
+    "causation": [
+      "Thus",
+      "therefore",
+      "thus",
+      "because",
+      "therefore"
+    ],
+    "trends": [
+      "growing",
+      "Shifting",
+      "changing",
+      "shifting",
+      "Shifting"
+    ],
+    "future": [
+      "will",
+      "future",
+      "future",
+      "future",
+      "future"
+    ]
+  },
+  "char_count": 70521,
+  "extracted_at": "2026-01-28T12:45:43.589310"
+}

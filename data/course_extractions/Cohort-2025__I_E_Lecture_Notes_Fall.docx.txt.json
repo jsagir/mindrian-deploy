@@ -1,0 +1,141 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2025/SlideDecks 2025/I&E Lecture Notes Fall.docx.txt",
+  "display_name": "Course/Cohort-2025/SlideDecks 2025/I&E Lecture Notes Fall.docx.txt",
+  "category": "Cohort-2025",
+  "subfolder": "SlideDecks 2025",
+  "extraction": {
+    "title": "I&E Lecture Notes Fall",
+    "topic": "Innovation and Entrepreneurship",
+    "frameworks": [
+      "Trend Analysis",
+      "Scenario Analysis"
+    ],
+    "concepts": [
+      "Innovation",
+      "Entrepreneurship",
+      "Problem Solving",
+      "Opportunity",
+      "Market",
+      "Trend",
+      "Future",
+      "Solution",
+      "Business Case",
+      "Change"
+    ],
+    "entities": [
+      "Johns Hopkins",
+      "Peter Drucker",
+      "Marconi",
+      "Ford",
+      "Jonathan Haidt",
+      "Sascha",
+      "Center for Bio-Innovation and Design (CBID)",
+      "Bio-Medical Engineering Department (BME)",
+      "Hopkins Hospital"
+    ],
+    "problems_discussed": [
+      "Finding problems worth solving",
+      "Identifying future problems",
+      "Exploiting change",
+      "Challenging assumptions",
+      "Market and technological uncertainty",
+      "Presentism (focusing only on current problems)",
+      "Mature markets",
+      "Lack of competitive advantage"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "E-commerce example",
+      "Trend analysis exercise",
+      "Scenario analysis exercise",
+      "Marconi case study",
+      "Discussion questions"
+    ],
+    "key_claims": [
+      "Innovation is about finding problems worth solving and turning them into opportunities.",
+      "Real innovation begins with real problems, problems worth solving.",
+      "Getting out of the building is important, but more important is to get out of your own head and your usual ways of thinking."
+    ],
+    "cohort_context": "Cohort-2025, Fall Lecture Notes",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Entrepreneurship",
+      "THIS_DOC -[TEACHES]-> Problem Solving",
+      "THIS_DOC -[USES_FRAMEWORK]-> Trend Analysis",
+      "THIS_DOC -[USES_FRAMEWORK]-> Scenario Analysis",
+      "THIS_DOC -[MENTIONS]-> Peter Drucker",
+      "THIS_DOC -[MENTIONS]-> Marconi",
+      "THIS_DOC -[MENTIONS]-> Johns Hopkins",
+      "THIS_DOC -[DISCUSSES]-> Presentism"
+    ]
+  },
+  "signals": {
+    "money": [
+      "$165",
+      "$100"
+    ],
+    "years": [
+      "1910",
+      "1910",
+      "1920",
+      "1950",
+      "1905"
+    ],
+    "assumptions": [
+      "Suppose",
+      "Suppose",
+      "assumption",
+      "if we",
+      "if we"
+    ],
+    "problems": [
+      "challenge",
+      "problem",
+      "problem",
+      "problem",
+      "Problem"
+    ],
+    "solutions": [
+      "Method",
+      "Method",
+      "Method",
+      "solution",
+      "solution"
+    ],
+    "questions": [
+      " Suppose you hated your boss and never wanted to work in corporate America again, what would you do?",
+      " Look for a new job?",
+      " Go back to school?",
+      " Or try something on your own?",
+      " So what is the next big thing in \u2026?"
+    ],
+    "causation": [
+      "because",
+      "because",
+      "thus",
+      "because",
+      "because"
+    ],
+    "trends": [
+      "Trend",
+      "trend",
+      "trend",
+      "changing",
+      "changing"
+    ],
+    "future": [
+      "future",
+      "will",
+      "will",
+      "will",
+      "will"
+    ]
+  },
+  "char_count": 134428,
+  "extracted_at": "2026-01-28T12:46:34.106547"
+}

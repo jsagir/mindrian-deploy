@@ -1,0 +1,69 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Three Essential Components for Innovation Success 166218d9469481879159ffd83a6b9c94.md",
+  "display_name": "Course/Cohort-2024/Session #3/Three Essential Components for Innovation Success 166218d9469481879159ffd83a6b9c94.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Three Essential Components for Innovation Success",
+    "topic": "Innovation Success Components",
+    "frameworks": [],
+    "concepts": [
+      "Problem Worth Solving",
+      "Solution",
+      "Business Case",
+      "Interconnectedness",
+      "Impact",
+      "Feasibility",
+      "Innovation",
+      "Market Entry",
+      "Growth"
+    ],
+    "entities": [
+      "Luna"
+    ],
+    "problems_discussed": [
+      "Improving communication speed",
+      "Simplifying commerce"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [
+      "Examples"
+    ],
+    "key_claims": [
+      "Innovation success requires addressing a genuine need, designing a practical solution, and crafting a business case that supports growth and market entry.",
+      "The Problem, Solution, and Business Case components are interconnected and build on each other."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Problem Worth Solving",
+      "THIS_DOC -[TEACHES]-> Solution",
+      "THIS_DOC -[TEACHES]-> Business Case",
+      "THIS_DOC -[TEACHES]-> Interconnectedness",
+      "THIS_DOC -[TEACHES]-> Impact",
+      "THIS_DOC -[TEACHES]-> Feasibility"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "Problem",
+      "problem",
+      "Problem",
+      "Problem"
+    ],
+    "solutions": [
+      "Solution",
+      "solution",
+      "Solution",
+      "solution"
+    ],
+    "questions": [
+      "# Three Essential Components for Innovation Success\n\nPrompt: up to 500 charters How does the chapter emphasize the need for all three components (Problem Worth Solving, Solution, Business Case)?"
+    ]
+  },
+  "char_count": 1162,
+  "extracted_at": "2026-01-28T14:24:05.014738"
+}

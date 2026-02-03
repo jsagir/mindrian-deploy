@@ -1,0 +1,73 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Further Reading 15d218d9469481f18942ef6e5a2c7d54.md",
+  "display_name": "Course/Cohort-2024/Session #3/Further Reading 15d218d9469481f18942ef6e5a2c7d54.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Further Reading 15d218d9469481f18942ef6e5a2c7d54.md",
+    "topic": "Innovation, Strategy",
+    "frameworks": [
+      "Blue Ocean Strategy",
+      "Lean Startup"
+    ],
+    "concepts": [
+      "Disruptive Innovation",
+      "Market Leadership",
+      "Competitive Advantage",
+      "Market Space",
+      "Validated Learning",
+      "Rapid Experimentation",
+      "Product Lifecycles",
+      "Market Maturity",
+      "Entrepreneurship"
+    ],
+    "entities": [
+      "Clayton M. Christensen",
+      "W. Chan Kim",
+      "Ren\u00e9e Mauborgne",
+      "Eric Ries",
+      "Rita Gunther McGrath",
+      "Geoffrey A. Moore",
+      "Israel M. Kirzner"
+    ],
+    "problems_discussed": [
+      "How successful companies fail due to disruptive innovation",
+      "Challenges of creating new market spaces",
+      "Difficulties in bringing innovative products to mainstream customers",
+      "Maintaining competitive advantage in fast-moving environments"
+    ],
+    "pws_phase_relevance": [
+      "Solution Framing",
+      "Validation",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Table of further reading resources with relevance explanations"
+    ],
+    "key_claims": [
+      "Successful companies can fail when faced with disruptive innovation.",
+      "Continuous innovation is essential for maintaining competitive advantage."
+    ],
+    "cohort_context": "Cohort-2024, Chapter 2",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Disruptive Innovation",
+      "THIS_DOC -[TEACHES]-> Competitive Advantage",
+      "THIS_DOC -[USES_FRAMEWORK]-> Blue Ocean Strategy",
+      "THIS_DOC -[USES_FRAMEWORK]-> Lean Startup",
+      "THIS_DOC -[RECOMMENDS]-> 'The Innovator's Dilemma'",
+      "THIS_DOC -[RECOMMENDS]-> 'Blue Ocean Strategy'",
+      "THIS_DOC -[RECOMMENDS]-> 'The Lean Startup'",
+      "THIS_DOC -[RECOMMENDS]-> 'The End of Competitive Advantage'",
+      "THIS_DOC -[RECOMMENDS]-> 'Crossing the Chasm'",
+      "THIS_DOC -[RECOMMENDS]-> 'Competition and Entrepreneurship'"
+    ]
+  },
+  "signals": {
+    "solutions": [
+      "Strategy",
+      "Strategy"
+    ]
+  },
+  "char_count": 1901,
+  "extracted_at": "2026-01-28T14:17:58.246025"
+}

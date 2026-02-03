@@ -1,0 +1,77 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2025/SlideDecks 2025/N08b_Technical Plan.pptx.txt",
+  "display_name": "Course/Cohort-2025/SlideDecks 2025/N08b_Technical Plan.pptx.txt",
+  "category": "Cohort-2025",
+  "subfolder": "SlideDecks 2025",
+  "extraction": {
+    "title": "N08b_Technical Plan",
+    "topic": "Technical Planning",
+    "frameworks": [],
+    "concepts": [
+      "Problem Definition",
+      "Solution Design",
+      "Functionality Testing",
+      "Risk Assessment",
+      "Weekly Schedule",
+      "Materials",
+      "Budget",
+      "Expert Consultation",
+      "Validation",
+      "Measurement"
+    ],
+    "entities": [
+      "JHU"
+    ],
+    "problems_discussed": [
+      "Technical challenges in achieving a solution",
+      "Risks in developing a solution"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [
+      "Weekly schedule template",
+      "Questions for weekly progress tracking"
+    ],
+    "key_claims": [
+      "A technical plan should stem from a well-defined problem.",
+      "A technical plan is a living document that should be updated regularly."
+    ],
+    "cohort_context": "Cohort-2025",
+    "graph_connections": [
+      "THIS_DOC -[ADDRESSES]-> Problem Definition",
+      "THIS_DOC -[ADDRESSES]-> Solution Design",
+      "THIS_DOC -[ADDRESSES]-> Functionality Testing",
+      "THIS_DOC -[ADDRESSES]-> Risk Assessment",
+      "THIS_DOC -[ADDRESSES]-> Validation",
+      "THIS_DOC -[REQUIRES]-> Expert Consultation",
+      "THIS_DOC -[CONTAINS]-> Weekly Schedule"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "problem",
+      "problem",
+      "challenge"
+    ],
+    "solutions": [
+      "solve",
+      "solution",
+      "solution",
+      "Solution",
+      "solution"
+    ],
+    "questions": [
+      "Technical Plan\n\nDeliverable: Technical Plan\nStems from your well-defined problem (what the purpose of the eventual product or system is, why it is important, and who the target users are), and should include:\nCover slide\nWhat is the well-defined problem you want to solve?\nWhat is the preliminary design for your solution?  What is the technical challenge of achieving the solution?",
+      "\n\n2\n\nPlanned Weekly Schedule (due at beginning of spring term)\nBy End of Week\nWhat are you testing?\nWhat do you hope to prove?\nWhat materials and equipment will you need?\nHow will you measure success?\nWith whom do you want to consult?\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n3\n\nWeekly Schedule (updated during spring term)\nWeek\nWhat did you test?\nWhat did you prove?\nWhat materials and equipment did you use?\nHow did you measure success?\nWhat went wrong?\nWhat did you learn?\nWith whom did you consult?"
+    ],
+    "future": [
+      "will",
+      "will"
+    ]
+  },
+  "char_count": 1505,
+  "extracted_at": "2026-01-28T12:45:30.583670"
+}

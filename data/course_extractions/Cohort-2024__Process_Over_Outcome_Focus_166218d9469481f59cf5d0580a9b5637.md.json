@@ -1,0 +1,58 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Process Over Outcome Focus 166218d9469481f59cf5d0580a9b5637.md",
+  "display_name": "Course/Cohort-2024/Session #3/Process Over Outcome Focus 166218d9469481f59cf5d0580a9b5637.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Process Over Outcome Focus",
+    "topic": "Process vs. Outcome",
+    "frameworks": [],
+    "concepts": [
+      "Structured processes",
+      "Iterative exploration",
+      "Process-driven innovation",
+      "Structured ideation",
+      "Cross-industry collaboration",
+      "Adaptability",
+      "Discovery culture",
+      "Transformative innovation",
+      "Incremental innovation"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Relying on frameworks that categorize existing ideas but don't generate new ones",
+      "Being constrained by fixed end goals"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [],
+    "key_claims": [
+      "True innovation stems from a commitment to systematic exploration rather than chasing predefined goals.",
+      "Prioritizing a continuous, open-ended process cultivates a culture of discovery, essential for transformative innovation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Structured processes",
+      "THIS_DOC -[TEACHES]-> Iterative exploration",
+      "THIS_DOC -[TEACHES]-> Process-driven innovation",
+      "THIS_DOC -[TEACHES]-> Structured ideation",
+      "THIS_DOC -[TEACHES]-> Cross-industry collaboration",
+      "THIS_DOC -[TEACHES]-> Adaptability",
+      "THIS_DOC -[TEACHES]-> Discovery culture",
+      "THIS_DOC -[TEACHES]-> Transformative innovation",
+      "THIS_DOC -[TEACHES]-> Incremental innovation"
+    ]
+  },
+  "signals": {
+    "solutions": [
+      "address"
+    ],
+    "questions": [
+      "# Process Over Outcome Focus\n\nPrompt: in up to 500 charterers How does the chapter emphasize the importance of focusing on structured processes rather than specific outcomes?"
+    ]
+  },
+  "char_count": 1187,
+  "extracted_at": "2026-01-28T14:11:45.172367"
+}

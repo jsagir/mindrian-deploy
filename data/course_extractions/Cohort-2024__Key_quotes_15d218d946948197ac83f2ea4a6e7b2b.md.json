@@ -1,0 +1,59 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Key quotes 15d218d946948197ac83f2ea4a6e7b2b.md",
+  "display_name": "Course/Cohort-2024/Session #3/Key quotes 15d218d946948197ac83f2ea4a6e7b2b.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Key quotes 15d218d946948197ac83f2ea4a6e7b2b.md",
+    "topic": "Innovation, Process Improvement",
+    "frameworks": [],
+    "concepts": [
+      "Innovation",
+      "Process Improvement",
+      "User Needs",
+      "Future-Thinking",
+      "Risk-Taking",
+      "Disruptive Innovation",
+      "Sustaining Innovation"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Presentism",
+      "Failure to adapt to change",
+      "Ignoring user needs"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Quotes with significance explanations"
+    ],
+    "key_claims": [
+      "Innovation often involves improving existing processes.",
+      "Understanding underlying user needs is crucial for innovation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Process Improvement",
+      "THIS_DOC -[TEACHES]-> User Needs",
+      "THIS_DOC -[TEACHES]-> Future-Thinking",
+      "THIS_DOC -[TEACHES]-> Risk-Taking",
+      "THIS_DOC -[TEACHES]-> Disruptive Innovation",
+      "THIS_DOC -[TEACHES]-> Sustaining Innovation"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "challenge"
+    ],
+    "future": [
+      "future",
+      "future"
+    ]
+  },
+  "char_count": 1131,
+  "extracted_at": "2026-01-28T14:22:09.253369"
+}

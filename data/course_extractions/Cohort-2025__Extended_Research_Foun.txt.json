@@ -1,0 +1,171 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2025/SlideDecks 2025/Extended Research Foun.txt",
+  "display_name": "Course/Cohort-2025/SlideDecks 2025/Extended Research Foun.txt",
+  "category": "Cohort-2025",
+  "subfolder": "SlideDecks 2025",
+  "extraction": {
+    "title": "Extended Research Foun.txt",
+    "topic": "Innovation Research Foundation",
+    "frameworks": [
+      "Design Thinking",
+      "Lean Startup",
+      "TRIZ",
+      "Jobs to be Done",
+      "Cynefin Framework",
+      "Effectuation",
+      "Open Innovation"
+    ],
+    "concepts": [
+      "Creative Destruction",
+      "Innovation",
+      "Uncertainty",
+      "Risk",
+      "Problem Discovery",
+      "Solution Development",
+      "Business Case",
+      "Opportunity Recognition",
+      "Market Dynamics",
+      "Strategic Foresight"
+    ],
+    "entities": [
+      "Joseph Schumpeter",
+      "Clayton Christensen",
+      "William Baumol",
+      "Carlota Perez",
+      "Peter Thiel",
+      "Nathan Rosenberg",
+      "Eric Ries",
+      "Mariana Mazzucato",
+      "Peter Drucker",
+      "Henderson & Clark",
+      "Geoffrey Moore",
+      "Dan Ariely",
+      "Tim Brown",
+      "Everett Rogers",
+      "Vijay Govindarajan",
+      "OECD",
+      "Alexander Osterwalder",
+      "Steve Blank",
+      "Rita McGrath",
+      "Ash Maurya",
+      "IDEO",
+      "Donella Meadows",
+      "Edward de Bono",
+      "Eric von Hippel",
+      "Jan Chipchase",
+      "Rob Fitzpatrick",
+      "Giff Constable",
+      "Tony Ulwick",
+      "Brigitte Jordan",
+      "Herbert Simon",
+      "Peter Schwartz",
+      "Dave Snowden",
+      "Amy Webb",
+      "Horst Rittel",
+      "Bill Gross",
+      "Saras Sarasvathy",
+      "Frank Knight",
+      "Ian MacMillan",
+      "William Janeway",
+      "Robert Grant",
+      "Randy Komisar",
+      "Nassim Taleb",
+      "John Mullins",
+      "Amar Bhid\u00e9",
+      "Sramana Mitra",
+      "Howard Stevenson",
+      "Baker & Nelson",
+      "Charles Darwin",
+      "Jay Conrad Levinson",
+      "John Naisbitt",
+      "Vannevar Bush",
+      "Tarun Khanna",
+      "Roger Martin",
+      "Henry Chesbrough",
+      "Douglas Hofstadter"
+    ],
+    "problems_discussed": [
+      "Ill-defined problems",
+      "Wicked problems",
+      "Uncertainty vs. Risk",
+      "Finding problems worth solving",
+      "Problem validation"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Solution Framing",
+      "Validation",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [],
+    "key_claims": [
+      "Innovation is more than just 'new'; it drives significant change.",
+      "Understanding the problem is as crucial as developing the solution."
+    ],
+    "cohort_context": "Cohort-2025",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Creative Destruction",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Uncertainty",
+      "THIS_DOC -[USES_FRAMEWORK]-> Design Thinking",
+      "THIS_DOC -[USES_FRAMEWORK]-> Lean Startup",
+      "THIS_DOC -[USES_FRAMEWORK]-> Jobs to be Done",
+      "THIS_DOC -[CITES]-> Joseph Schumpeter",
+      "THIS_DOC -[CITES]-> Clayton Christensen",
+      "THIS_DOC -[CITES]-> Peter Drucker"
+    ]
+  },
+  "signals": {
+    "percentages": [
+      "42%"
+    ],
+    "years": [
+      "2016",
+      "2018",
+      "1995",
+      "2007",
+      "1995"
+    ],
+    "assumptions": [
+      "Assumption"
+    ],
+    "problems": [
+      "Problem",
+      "Problem",
+      "Problem",
+      "Problem",
+      "problem"
+    ],
+    "solutions": [
+      "approach",
+      "Solution",
+      "solution",
+      "strategy",
+      "Solution"
+    ],
+    "questions": [
+      "aspx?",
+      "aspx?",
+      "aspx?",
+      "aspx?",
+      "aspx?"
+    ],
+    "trends": [
+      "Emerging",
+      "trend",
+      "Trending",
+      "Trend",
+      "trend"
+    ],
+    "future": [
+      "future",
+      "Future",
+      "Future",
+      "future",
+      "Future"
+    ]
+  },
+  "char_count": 158380,
+  "extracted_at": "2026-01-28T12:44:00.433630"
+}

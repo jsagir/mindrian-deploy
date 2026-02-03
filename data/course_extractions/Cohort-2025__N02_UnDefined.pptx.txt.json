@@ -1,0 +1,146 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2025/SlideDecks 2025/N02_UnDefined.pptx.txt",
+  "display_name": "Course/Cohort-2025/SlideDecks 2025/N02_UnDefined.pptx.txt",
+  "category": "Cohort-2025",
+  "subfolder": "SlideDecks 2025",
+  "extraction": {
+    "title": "N02_UnDefined.pptx.txt",
+    "topic": "Un-Defined Problems",
+    "frameworks": [
+      "Design Thinking",
+      "Jobs-to-be-Done",
+      "Scenario Analysis",
+      "Systems Analysis",
+      "Red Teaming"
+    ],
+    "concepts": [
+      "Un-defined problems",
+      "Well-defined problems",
+      "Ill-defined problems",
+      "Macro Trending",
+      "Near-term Trending",
+      "Emerging technologies",
+      "Value migration",
+      "Opportunities",
+      "Weak signals",
+      "Trending to the absurd",
+      "Driving forces"
+    ],
+    "entities": [
+      "Eugene Ely",
+      "USS Birmingham",
+      "Charles Kirschbaum",
+      "Insper",
+      "Citi GPS",
+      "Henricus de Alemannia",
+      "Laurentius de Voltolina",
+      "Kupferstichkabinett Berlin"
+    ],
+    "problems_discussed": [
+      "Future of personal mobility",
+      "Future of work",
+      "Transition to clean energy",
+      "Future of medical care",
+      "Future of war",
+      "Future of education",
+      "Future of the city",
+      "Energy future",
+      "Future of the grid",
+      "Problems arising from Moore's Law",
+      "Problems arising from Urbanization",
+      "Water scarcity",
+      "Refugee crises"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Scenario Analysis",
+      "Red Teaming"
+    ],
+    "teaching_elements": [
+      "Examples of un-defined problems",
+      "Trending to the absurd exercise",
+      "Scenario analysis exercise",
+      "Case studies (First Plane Launched from a Ship, Number of Horses, Water, Refugees, Moore's Law, Urbanization)",
+      "Class exercise to identify changes and carry trends to absurd conclusions"
+    ],
+    "key_claims": [
+      "Opportunities are ideas, insights, problems worth solving, but they cannot be solved until they are well-defined.",
+      "The most important way of finding problems worth solving is to learn how to think differently about the future."
+    ],
+    "cohort_context": "Cohort-2025",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> \"Un-defined problems\"",
+      "THIS_DOC -[USES_FRAMEWORK]-> \"Design Thinking\"",
+      "THIS_DOC -[USES_FRAMEWORK]-> \"Jobs-to-be-Done\"",
+      "THIS_DOC -[USES_FRAMEWORK]-> \"Scenario Analysis\"",
+      "THIS_DOC -[USES_FRAMEWORK]-> \"Systems Analysis\"",
+      "THIS_DOC -[USES_FRAMEWORK]-> \"Red Teaming\"",
+      "THIS_DOC -[DISCUSSES]-> \"Future of Medical Care\"",
+      "THIS_DOC -[DISCUSSES]-> \"Future of War\"",
+      "THIS_DOC -[DISCUSSES]-> \"Future of Education\"",
+      "THIS_DOC -[DISCUSSES]-> \"Future of the City\"",
+      "THIS_DOC -[DISCUSSES]-> \"Energy Future\"",
+      "THIS_DOC -[DISCUSSES]-> \"Future of the Grid\"",
+      "THIS_DOC -[MENTIONS]-> \"Eugene Ely\"",
+      "THIS_DOC -[MENTIONS]-> \"Charles Kirschbaum\""
+    ]
+  },
+  "signals": {
+    "years": [
+      "2020",
+      "1965",
+      "2035",
+      "1910",
+      "1910"
+    ],
+    "assumptions": [
+      "assume",
+      "if we"
+    ],
+    "problems": [
+      "Problem",
+      "challenge",
+      "problem",
+      "challenge",
+      "challenge"
+    ],
+    "solutions": [
+      "METHOD",
+      "METHOD",
+      "Method",
+      "Strategy",
+      "Strategy"
+    ],
+    "questions": [
+      "UN-DEFINED PROBLEMS\u000b\nTools for Exploring Un-defined Problems\nConfidential: For Classroom Use Only\n1\n1\n\nProblem Types\nConfidential for classroom use only\n2\nIll-Defined\nWell-Defined\nUn-Defined\n?\n?\nMacro Trending\nScenario Planning\nAnalogies\nWhat\u2019s over the horizon? What\u2019s possible?\nNear-term Trending \nEmerging technologies\nValue migration\nWhat\u2019s next for us? What\u2019s the next opportunity?\nTraditional product development\nHow do we make this?\nAnalytic Tools:\nQuestion: \nExamples:\nWhat could our markets look like in 10 years?\nWhat market(s) should we enter?\nHow do we make this offering? \nWhat are the possible offering concepts?\nDesign Thinking\nJobs-to-be-Done\nPrototyping\nWhat specific offerings could we develop?\nOpportunities\nOpportunities are ideas, insights, problems worth solving, but they cannot be solved until they are well-defined \nOpportunities are conceptual\n2\n\nUn-Defined Problems\nGoal is to think deeply about the future in order to understand what is over the horizon and the opportunities and problems that might possibly be found there\n\nExamples:\nWhat is the future of personal mobility?\nWhat is the future of work?\nWhat will the transition to clean energy look like?\nQuestion: What problems, and thus, opportunities will be found in these futures?",
+      "\nemerging trends\n\nConfidential for classroom use only\n3\nThese questions depend on how you imagine the future\n3\n\nExample: What is the Future of Medical Care?",
+      "html\n\nExample: What is the Future of War?\nLand\nSea\nAir \nSpace\nCyber\nCognitive\nConfidential for classroom use only\n5\nLawfare, de-legitimization, intimidation\n5\n\nExample: What is the Future of Education?",
+      "com/site/lifeduringthemedievaltimes/education\u000b\nConfidential for classroom use only\n6\n\nWhat is the Future of the City? Our City?\nThe City of the Future Will Be Shaped by These 7\u00a0Factors:\nDenser but healthier cities\nInfrastructure for social equity\nDesign for resilience and sustainability\nA return to the \u201cmedieval city-state\u201d?",
+      "com/news/2020-02/the-city-of-the-future-will-be-shaped-by-these-7-factors/\n\nExample: What is our Energy Future?"
+    ],
+    "causation": [
+      "thus",
+      "due to",
+      "Because",
+      "therefore",
+      "therefore"
+    ],
+    "trends": [
+      "Trending",
+      "Trending",
+      "Emerging",
+      "emerging",
+      "Trending"
+    ],
+    "future": [
+      "future",
+      "future",
+      "future",
+      "will",
+      "will"
+    ]
+  },
+  "char_count": 51487,
+  "extracted_at": "2026-01-28T12:46:00.558587"
+}

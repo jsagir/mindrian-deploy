@@ -1,0 +1,59 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Portfolio Approach to Innovation 15d218d9469481f19261d22db6a859d5.md",
+  "display_name": "Course/Cohort-2024/Session #3/Portfolio Approach to Innovation 15d218d9469481f19261d22db6a859d5.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Portfolio Approach to Innovation",
+    "topic": "Innovation Portfolio Management",
+    "frameworks": [
+      "Diverge-Converge model"
+    ],
+    "concepts": [
+      "Ideation",
+      "Innovation pipeline",
+      "Bank of ideas",
+      "Portfolio diversification",
+      "Incremental innovation",
+      "Disruptive innovation",
+      "Opportunity evaluation",
+      "Idea generation"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Lack of diverse ideas",
+      "Focusing on single ideas",
+      "Inefficient innovation pipeline"
+    ],
+    "pws_phase_relevance": [
+      "Portfolio",
+      "Solution Framing"
+    ],
+    "teaching_elements": [],
+    "key_claims": [
+      "Building a diverse portfolio of ideas is crucial for innovation.",
+      "Structured ideation and evaluation processes are essential for creating a robust innovation pipeline."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Ideation",
+      "THIS_DOC -[TEACHES]-> Innovation pipeline",
+      "THIS_DOC -[TEACHES]-> Bank of ideas",
+      "THIS_DOC -[TEACHES]-> Portfolio diversification",
+      "THIS_DOC -[TEACHES]-> Incremental innovation",
+      "THIS_DOC -[TEACHES]-> Disruptive innovation",
+      "THIS_DOC -[USES_FRAMEWORK]-> Diverge-Converge model"
+    ]
+  },
+  "signals": {
+    "solutions": [
+      "Approach",
+      "approach"
+    ],
+    "questions": [
+      "# Portfolio Approach to Innovation\n\nPrompt: Up to 500 charters How does the chapter discuss building a diverse portfolio of ideas?"
+    ]
+  },
+  "char_count": 850,
+  "extracted_at": "2026-01-28T14:10:05.494321"
+}

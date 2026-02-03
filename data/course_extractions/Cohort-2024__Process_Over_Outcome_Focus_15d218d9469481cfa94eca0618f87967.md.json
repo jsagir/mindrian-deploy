@@ -1,0 +1,56 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Process Over Outcome Focus 15d218d9469481cfa94eca0618f87967.md",
+  "display_name": "Course/Cohort-2024/Session #3/Process Over Outcome Focus 15d218d9469481cfa94eca0618f87967.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Process Over Outcome Focus",
+    "topic": "Process vs. Outcome",
+    "frameworks": [],
+    "concepts": [
+      "Structured processes",
+      "Iterative exploration",
+      "Process-driven innovation",
+      "Systematic exploration",
+      "Cross-industry collaboration",
+      "Adaptability",
+      "Culture of discovery",
+      "Transformative innovation",
+      "Incremental innovation",
+      "Structured Ideation"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Lack of true innovation from outcome-focused approaches",
+      "Limitations of frameworks that categorize existing ideas instead of generating new ones"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [],
+    "key_claims": [
+      "True innovation stems from a commitment to systematic exploration rather than chasing predefined goals.",
+      "Prioritizing a continuous, open-ended process cultivates a culture of discovery, essential for transformative innovation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Structured processes",
+      "THIS_DOC -[TEACHES]-> Iterative exploration",
+      "THIS_DOC -[TEACHES]-> Process-driven innovation",
+      "THIS_DOC -[ADDRESSES]-> Lack of true innovation",
+      "THIS_DOC -[PROMOTES]-> Culture of discovery"
+    ]
+  },
+  "signals": {
+    "solutions": [
+      "address"
+    ],
+    "questions": [
+      "# Process Over Outcome Focus\n\nPrompt: in up to 500 charterers How does the chapter emphasize the importance of focusing on structured processes rather than specific outcomes?"
+    ]
+  },
+  "char_count": 1187,
+  "extracted_at": "2026-01-28T14:17:22.231110"
+}

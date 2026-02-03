@@ -1,0 +1,98 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2025/SlideDecks 2025/N08_Prior Art.pptx.txt",
+  "display_name": "Course/Cohort-2025/SlideDecks 2025/N08_Prior Art.pptx.txt",
+  "category": "Cohort-2025",
+  "subfolder": "SlideDecks 2025",
+  "extraction": {
+    "title": "N08_Prior Art.pptx.txt",
+    "topic": "Prior Art Search",
+    "frameworks": [],
+    "concepts": [
+      "Prior Art",
+      "Literature Search",
+      "Technical Information",
+      "Problem Definition",
+      "State of the Art",
+      "Standard Tests",
+      "Scientific Metrics",
+      "Intellectual Property",
+      "Design",
+      "Technology"
+    ],
+    "entities": [
+      "USPTO",
+      "EU",
+      "JP Patents",
+      "Google Scholar",
+      "Google Patents",
+      "JHU library",
+      "ASTM",
+      "ISO"
+    ],
+    "problems_discussed": [
+      "Unaddressed user needs",
+      "Limitations in current technology",
+      "Shortcomings of existing solutions"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Domain Selection"
+    ],
+    "teaching_elements": [
+      "Examples of standard tests (implant material strength, stent efficacy)",
+      "Instructions for literature search deliverable"
+    ],
+    "key_claims": [
+      "Prior art search forms the basis of knowledge related to a design problem.",
+      "Prior art search helps refine the problem statement and improve upon existing designs."
+    ],
+    "cohort_context": "Cohort-2025",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Prior Art",
+      "THIS_DOC -[TEACHES]-> Literature Search",
+      "THIS_DOC -[TEACHES]-> Technical Information",
+      "THIS_DOC -[TEACHES]-> Problem Definition",
+      "THIS_DOC -[TEACHES]-> State of the Art",
+      "THIS_DOC -[TEACHES]-> Standard Tests",
+      "THIS_DOC -[TEACHES]-> Scientific Metrics",
+      "THIS_DOC -[TEACHES]-> Intellectual Property",
+      "THIS_DOC -[RELATED_TO]-> Design",
+      "THIS_DOC -[RELATED_TO]-> Technology"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "problem",
+      "problem",
+      "problem",
+      "problem",
+      "problem"
+    ],
+    "solutions": [
+      "solution",
+      "solution",
+      "solve",
+      "method",
+      "solve"
+    ],
+    "questions": [
+      " \nTo identify gaps and limitations in the current technological and scientific landscape\nTo identify interdisciplinary connections and potential novel approaches to problem-solving\nTo refine your problem statement by understanding existing solutions and their shortcomings\n\n2\nConfidential: For Classroom Use Only\n\nWhy??",
+      "edu/discovery/search?",
+      "edu\n\nGoogle Scholar (with JHU library linked)\nGoogle Patents (includes USPTO, EU, JP Patents)\nTrade publications\nTechnical datasheets or catalogs\n\n4\nConfidential: For Classroom Use Only\n\nYour Literature Search Should:\nForm the introduction of the problem from the scientific / technological perspective\nThus far in this class, we\u2019ve learned about finding the problem from the world/market point of view\nGive an overview of \u201cthe state of the art\u201d on the tech\nNothing is (totally) new under the sun \u2013 what are the technologies that have been used to attempt to solve this problem?\nWhat are their advantages and disadvantages?",
+      " How is implant material \u201cstrength\u201d tested? Is there an ASTM or ISO method? Any particular parameters? What are the equipment that are used?",
+      " How are current stents tested in terms of their efficacy for opening vessels?"
+    ],
+    "causation": [
+      "Thus"
+    ],
+    "trends": [
+      "emerging"
+    ],
+    "future": [
+      "will"
+    ]
+  },
+  "char_count": 3631,
+  "extracted_at": "2026-01-28T12:46:11.319211"
+}

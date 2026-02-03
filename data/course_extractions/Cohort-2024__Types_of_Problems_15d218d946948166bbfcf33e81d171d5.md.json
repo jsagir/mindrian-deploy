@@ -1,0 +1,65 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Types of Problems 15d218d946948166bbfcf33e81d171d5.md",
+  "display_name": "Course/Cohort-2024/Session #3/Types of Problems 15d218d946948166bbfcf33e81d171d5.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Types of Problems",
+    "topic": "Problem Types",
+    "frameworks": [],
+    "concepts": [
+      "Un-defined problems",
+      "Ill-defined problems",
+      "Well-defined problems",
+      "Problem Definition Process",
+      "Diverge-Converge technique",
+      "Ideation",
+      "Evaluation tools",
+      "Taxonomy"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Un-defined problems",
+      "Ill-defined problems",
+      "Well-defined problems"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [],
+    "key_claims": [
+      "Different problem types (Un-defined, Ill-defined, Well-defined) require tailored approaches.",
+      "Using the correct approach based on the problem type enhances clarity and effectiveness in innovation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Un-defined problems",
+      "THIS_DOC -[TEACHES]-> Ill-defined problems",
+      "THIS_DOC -[TEACHES]-> Well-defined problems",
+      "THIS_DOC -[TEACHES]-> Problem Definition Process",
+      "THIS_DOC -[TEACHES]-> Diverge-Converge technique",
+      "THIS_DOC -[TEACHES]-> Ideation",
+      "THIS_DOC -[TEACHES]-> Evaluation tools",
+      "THIS_DOC -[TEACHES]-> Taxonomy"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "problem",
+      "problem",
+      "problem",
+      "Problem",
+      "problem"
+    ],
+    "solutions": [
+      "Approach",
+      "approach"
+    ],
+    "questions": [
+      "# Types of Problems\n\nPrompt: Up to 500 characters How does the chapter explain or use the taxonomy of problem types (Un-defined, Ill-defined, Well-defined)?"
+    ]
+  },
+  "char_count": 1152,
+  "extracted_at": "2026-01-28T14:21:57.140921"
+}

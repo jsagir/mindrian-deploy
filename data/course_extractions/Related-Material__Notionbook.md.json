@@ -1,0 +1,166 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Related Material/Notionbook.md",
+  "display_name": "Course/Related-Material/Notionbook.md",
+  "category": "Related-Material",
+  "subfolder": null,
+  "extraction": {
+    "title": "Notionbook.md",
+    "topic": "Jobs-to-be-Done, Systems Thinking",
+    "frameworks": [
+      "Jobs-to-be-Done",
+      "Outcome-Driven Innovation",
+      "Ulwick Methodology",
+      "Systems Thinking",
+      "Ackoff Pyramid",
+      "Thinking in Systems (Meadows)"
+    ],
+    "concepts": [
+      "Job Statement",
+      "Outcome-Driven Innovation",
+      "Measurement Vector",
+      "Desired Outcome",
+      "Theory of Jobs to Be Done",
+      "Customer Progress",
+      "Causal Mechanism",
+      "Reliable Innovation",
+      "Un-Defined Problems",
+      "Ill-Defined Problems",
+      "Well-Defined Problems",
+      "System Purposes",
+      "Efficiency vs Effectiveness"
+    ],
+    "entities": [
+      "Anthony Ulwick",
+      "Russell L. Ackoff",
+      "Donella H. Meadows",
+      "Diana Wright"
+    ],
+    "problems_discussed": [
+      "Un-Defined problems",
+      "Ill-Defined problems",
+      "Well-Defined problems",
+      "Problems with data-driven approaches",
+      "Misalignment of purposes in systems"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Solution Framing",
+      "Portfolio"
+    ],
+    "teaching_elements": [
+      "Flowchart",
+      "Examples of Job Statements",
+      "Exercise: Jobs to",
+      "Critique of AI technologies",
+      "Case studies (Healthcare, Government, Consumer)",
+      "References Table"
+    ],
+    "key_claims": [
+      "Jobs are about the progress an individual seeks in a given circumstance.",
+      "Successful innovations enable a customer's desired progress and resolve struggles.",
+      "Jobs have important social and emotional dimensions.",
+      "Systems thinking can reveal misalignments between stated purposes and actual incentives."
+    ],
+    "cohort_context": "Innovation & Entrepreneurship Lecture Series",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Job Statement",
+      "THIS_DOC -[TEACHES]-> Outcome-Driven Innovation",
+      "THIS_DOC -[TEACHES]-> Measurement Vector",
+      "THIS_DOC -[TEACHES]-> Desired Outcome",
+      "THIS_DOC -[TEACHES]-> Theory of Jobs to Be Done",
+      "THIS_DOC -[TEACHES]-> Customer Progress",
+      "THIS_DOC -[TEACHES]-> Causal Mechanism",
+      "THIS_DOC -[TEACHES]-> Reliable Innovation",
+      "THIS_DOC -[TEACHES]-> Un-Defined Problems",
+      "THIS_DOC -[TEACHES]-> Ill-Defined Problems",
+      "THIS_DOC -[TEACHES]-> Well-Defined Problems",
+      "THIS_DOC -[TEACHES]-> System Purposes",
+      "THIS_DOC -[TEACHES]-> Efficiency vs Effectiveness",
+      "THIS_DOC -[USES_FRAMEWORK]-> Jobs-to-be-Done",
+      "THIS_DOC -[USES_FRAMEWORK]-> Outcome-Driven Innovation",
+      "THIS_DOC -[USES_FRAMEWORK]-> Ulwick Methodology",
+      "THIS_DOC -[USES_FRAMEWORK]-> Systems Thinking",
+      "THIS_DOC -[USES_FRAMEWORK]-> Ackoff Pyramid",
+      "THIS_DOC -[USES_FRAMEWORK]-> Thinking in Systems (Meadows)",
+      "THIS_DOC -[MENTIONS]-> Anthony Ulwick",
+      "THIS_DOC -[MENTIONS]-> Russell L. Ackoff",
+      "THIS_DOC -[MENTIONS]-> Donella H. Meadows",
+      "THIS_DOC -[MENTIONS]-> Diana Wright"
+    ]
+  },
+  "signals": {
+    "percentages": [
+      "90%",
+      "100%",
+      "20%",
+      "80%",
+      "56%"
+    ],
+    "money": [
+      "$200\n\nbillion",
+      "$165",
+      "$170",
+      "$200\n\nbillion",
+      "$6.99"
+    ],
+    "years": [
+      "2008",
+      "1990",
+      "2024",
+      "2008",
+      "1969"
+    ],
+    "assumptions": [
+      "Suppose",
+      "assuming",
+      "assuming",
+      "Assumption",
+      "assumption"
+    ],
+    "problems": [
+      "problem",
+      "problem",
+      "problem",
+      "problem",
+      "problem"
+    ],
+    "solutions": [
+      "approach",
+      "Address",
+      "solution",
+      "solution",
+      "approach"
+    ],
+    "questions": [
+      "\n\nContext]\n\nB\n\n-->\n\nG[Who\n\nis\n\ntrying\n\nto\n\naccomplish\n\nthe\n\njob?]\n\nC\n\n-->\n\nH[What\n\naction\n\nare\n\nthey\n\ntaking?]\n\nD\n\n-->\n\nI[What\n\nis\n\nthe\n\ndesired\n\nresult?]\n\nE\n\n-->\n\nJ[How\n\nis\n\nsuccess\n\nmeasured?]\n\nF\n\n-->\n\nK[Under\n\nwhat\n\ncircumstances?",
+      "\n\nThe\n\ncontent\n\nis\n\norganized\n\nas\n\nfollows:\n\n\u25cf\n\nUn-Defined\n\nproblems:\n\nFocus\n\non\n\n\"What's\n\nover\n\nthe\n\nhorizon?\n\nWhat's\n\npossible?\",\n\nusing\n\ntools\n\nlike\n\nMacro\n\nTrending,\n\nScenario\n\nPlanning,\n\nand\n\nAnalogies\n\n\u25cf\n\nIll-Defined\n\nproblems:\n\nAddress\n\n\"What's\n\nnext\n\nfor\n\nus?\n\nWhat's\n\nthe\n\nnext\n\nopportunity?\",\n\nusing\n\nNear-term\n\nTrending,\n\nEmerging\n\ntechnologies,\n\nand\n\nValue\n\nmigration\n\n\u25cf\n\nOpportunities:\n\nExplore\n\n\"What\n\nare\n\nthe\n\npossible\n\noffering\n\nconcepts?\",\n\nusing\n\nDesign\n\nThinking,\n\nJobs-to-be-Done,\n\nand\n\nPrototyping\n\n\u25cf\n\nWell-Defined:\n\nConcerned\n\nwith\n\n\"How\n\ndo\n\nwe\n\nmake\n\nthis?",
+      "\n\n\ud83d\udd22\n\nSlide\n\nNumber\n\nand\n\nTitle\n\nSLIDE\n\n#89,\n\nTITLE:\n\nWhat\n\nis\n\na\n\nJob?",
+      "com/watch?",
+      "net/9-examples-of-writing-\nwith-openais-gpt-3-language-model/\n\n\ud83e\udde0\n\nMermaid\n\nDiagram\n\nflowchart\n\nTD\n\nA[Generative\n\nAI\n\nTechnology]\n\n-->\n\nB1[Text-Based\n\nAI]\n\nA\n\n-->\n\nB2[Image-Based\n\nAI]\n\nB1\n\n-->\n\nC1[Clear\n\nProblem\n\nApplications]\n\nC1\n\n-->\n\nD1[Information\n\nProcessing]\n\nC1\n\n-->\n\nD2[Content\n\nCreation]\n\nC1\n\n-->\n\nD3[Knowledge\n\nSynthesis]\n\nB2\n\n-->\n\nC2[Uncertain\n\nProblem\n\nValue]\n\nC2\n\n-->\n\nE1[Technical\n\nImpressiveness]\n\nC2\n\n-->\n\nE2[Aesthetic\n\nOutput]\n\nC2\n\n-->\n\nE3[Unclear\n\nProblem\n\nAddressed]\n\nF[Innovation\n\nAssessment]\n\n-->\n\nG1[Solution\n\nExists]\n\nF\n\n-->\n\nG2[Is\n\nProblem\n\nSignificant?]\n\nF\n\n-->\n\nG3[Business\n\nCase\n\nViable?"
+    ],
+    "causation": [
+      "because",
+      "Therefore",
+      "because",
+      "causes",
+      "causes"
+    ],
+    "trends": [
+      "Trending",
+      "Trending",
+      "Emerging",
+      "emerging",
+      "Trend"
+    ],
+    "future": [
+      "future",
+      "will",
+      "Future",
+      "future",
+      "will"
+    ]
+  },
+  "char_count": 9709011,
+  "extracted_at": "2026-01-28T11:53:51.138548"
+}

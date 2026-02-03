@@ -1,0 +1,67 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Process Over Outcome Focus 166218d9469481beaf25e8dc804ae9b4.md",
+  "display_name": "Course/Cohort-2024/Session #3/Process Over Outcome Focus 166218d9469481beaf25e8dc804ae9b4.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Process Over Outcome Focus",
+    "topic": "Process over Outcome",
+    "frameworks": [
+      "Futures Wheels"
+    ],
+    "concepts": [
+      "Structured Methodology",
+      "Critical Processed Thinking",
+      "Systematic Exploration",
+      "Iterative Learning",
+      "Continuous Discovery",
+      "Innovation",
+      "Problem Solving",
+      "Process Maps",
+      "Adaptation"
+    ],
+    "entities": [
+      "Luna",
+      "Linus Pauling",
+      "Royal Academy"
+    ],
+    "problems_discussed": [
+      "Rushing to solutions without understanding the problem",
+      "Relying on random inspiration instead of systematic processes"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Case study of Luna's journey",
+      "Examples of systematic approaches to innovation"
+    ],
+    "key_claims": [
+      "Innovation success comes from committing to systematic processes of exploration and discovery.",
+      "Focusing on understanding problems through careful observation is more effective than jumping to solutions."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Structured Methodology",
+      "THIS_DOC -[TEACHES]-> Critical Processed Thinking",
+      "THIS_DOC -[TEACHES]-> Systematic Exploration",
+      "THIS_DOC -[TEACHES]-> Iterative Learning",
+      "THIS_DOC -[TEACHES]-> Continuous Discovery",
+      "THIS_DOC -[USES_FRAMEWORK]-> Futures Wheels",
+      "THIS_DOC -[DISCUSSES]-> Problem Solving"
+    ]
+  },
+  "signals": {
+    "solutions": [
+      "Approach"
+    ],
+    "questions": [
+      "# Process Over Outcome Focus\n\nPrompt: in up to 500 charterers How does the chapter emphasize the importance of focusing on structured processes rather than specific outcomes?"
+    ]
+  },
+  "char_count": 1588,
+  "extracted_at": "2026-01-28T14:09:22.586224"
+}

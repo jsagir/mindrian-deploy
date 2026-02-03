@@ -1,0 +1,61 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #3/Structured Innovation Methodology 166218d9469481cd9cedd63d73d69878.md",
+  "display_name": "Course/Cohort-2024/Session #3/Structured Innovation Methodology 166218d9469481cd9cedd63d73d69878.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Structured Innovation Methodology",
+    "topic": "Structured Innovation",
+    "frameworks": [
+      "Diverge-Converge model"
+    ],
+    "concepts": [
+      "Problem Definition Process",
+      "Ideation",
+      "Strategic Ideation",
+      "Problem Definition",
+      "Innovation",
+      "Creativity",
+      "Solutions",
+      "Systematic Approach"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Lack of structured approach to innovation",
+      "Random brainstorming"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [],
+    "key_claims": [
+      "A structured approach to innovation involves specific tools and techniques.",
+      "Effective innovation requires a clearly defined problem and a systematic process of idea generation, evaluation, and refinement."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Problem Definition Process",
+      "THIS_DOC -[TEACHES]-> Ideation",
+      "THIS_DOC -[TEACHES]-> Strategic Ideation",
+      "THIS_DOC -[USES_FRAMEWORK]-> Diverge-Converge model",
+      "THIS_DOC -[ADDRESSES]-> Lack of structured approach to innovation"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "Problem",
+      "problem"
+    ],
+    "solutions": [
+      "approach",
+      "approach",
+      "approach"
+    ],
+    "questions": [
+      "# Structured Innovation Methodology\n\nPrompt: Up to 500 Charters How is a structured approach to innovation presented?"
+    ]
+  },
+  "char_count": 803,
+  "extracted_at": "2026-01-28T12:58:06.173690"
+}

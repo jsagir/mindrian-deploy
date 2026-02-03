@@ -1,0 +1,74 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Structured Innovation Methodology 15d218d9469481e39e1fd4fee052af05.md",
+  "display_name": "Course/Cohort-2024/Session #3/Structured Innovation Methodology 15d218d9469481e39e1fd4fee052af05.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Structured Innovation Methodology",
+    "topic": "Structured Innovation",
+    "frameworks": [
+      "Four Lenses of Innovation Framework",
+      "Jobs-to-be-done"
+    ],
+    "concepts": [
+      "Innovation",
+      "Problem-solving",
+      "Process mapping",
+      "User journey analysis",
+      "Importance-satisfaction assessment",
+      "User needs",
+      "Experimentation",
+      "Orthodoxies",
+      "Trends",
+      "Resources",
+      "User Pain"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Inefficiencies in processes",
+      "Unmet user needs"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [],
+    "key_claims": [
+      "Innovation should be systematic and focused, not random.",
+      "Understanding user needs and process inefficiencies are crucial for effective innovation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Problem-solving",
+      "THIS_DOC -[TEACHES]-> Process mapping",
+      "THIS_DOC -[TEACHES]-> User journey analysis",
+      "THIS_DOC -[TEACHES]-> Importance-satisfaction assessment",
+      "THIS_DOC -[TEACHES]-> User needs",
+      "THIS_DOC -[TEACHES]-> Experimentation",
+      "THIS_DOC -[USES_FRAMEWORK]-> Four Lenses of Innovation Framework",
+      "THIS_DOC -[USES_FRAMEWORK]-> Jobs-to-be-done"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "Challenge",
+      "problem",
+      "problem"
+    ],
+    "solutions": [
+      "approach",
+      "approach",
+      "approach"
+    ],
+    "questions": [
+      "# Structured Innovation Methodology\n\nPrompt: Up to 500 Charters How is a structured approach to innovation presented?"
+    ],
+    "trends": [
+      "emerging"
+    ]
+  },
+  "char_count": 1237,
+  "extracted_at": "2026-01-28T14:08:36.456795"
+}

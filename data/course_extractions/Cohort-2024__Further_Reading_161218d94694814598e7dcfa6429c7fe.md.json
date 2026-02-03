@@ -1,0 +1,69 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Further Reading 161218d94694814598e7dcfa6429c7fe.md",
+  "display_name": "Course/Cohort-2024/Session #3/Further Reading 161218d94694814598e7dcfa6429c7fe.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Further Reading 161218d94694814598e7dcfa6429c7fe.md",
+    "topic": "Innovation, Strategy, Economics",
+    "frameworks": [
+      "Blue Ocean Strategy",
+      "Lean Startup"
+    ],
+    "concepts": [
+      "Disruptive Innovation",
+      "Market Leadership",
+      "Competitive Advantage",
+      "Market Space",
+      "Validated Learning",
+      "Rapid Experimentation",
+      "Product Lifecycles",
+      "Economic Forces",
+      "Entrepreneurship",
+      "Transient Competitive Advantage"
+    ],
+    "entities": [
+      "Clayton M. Christensen",
+      "W. Chan Kim",
+      "Ren\u00e9e Mauborgne",
+      "Eric Ries",
+      "Rita Gunther McGrath",
+      "Geoffrey A. Moore",
+      "Israel M. Kirzner"
+    ],
+    "problems_discussed": [
+      "How successful companies fail due to disruptive innovation",
+      "Challenges of bringing innovative products to market",
+      "Maintaining competitive advantage in fast-moving environments"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Table of further reading resources with title, author, and relevance"
+    ],
+    "key_claims": [
+      "Successful companies can lose market leadership when faced with disruptive innovation.",
+      "Continuous innovation is essential for maintaining competitive advantage in fast-moving business environments."
+    ],
+    "cohort_context": "Cohort-2024, Chapter 2",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Disruptive Innovation",
+      "THIS_DOC -[TEACHES]-> Market Leadership",
+      "THIS_DOC -[TEACHES]-> Competitive Advantage",
+      "THIS_DOC -[USES_FRAMEWORK]-> Blue Ocean Strategy",
+      "THIS_DOC -[USES_FRAMEWORK]-> Lean Startup",
+      "THIS_DOC -[DISCUSSES]-> Challenges of bringing innovative products to market"
+    ]
+  },
+  "signals": {
+    "solutions": [
+      "Strategy",
+      "Strategy"
+    ]
+  },
+  "char_count": 1901,
+  "extracted_at": "2026-01-28T14:08:26.347160"
+}

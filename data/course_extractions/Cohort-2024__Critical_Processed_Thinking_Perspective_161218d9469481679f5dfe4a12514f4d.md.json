@@ -1,0 +1,70 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Critical Processed Thinking Perspective 161218d9469481679f5dfe4a12514f4d.md",
+  "display_name": "Course/Cohort-2024/Session #3/Critical Processed Thinking Perspective 161218d9469481679f5dfe4a12514f4d.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Critical Processed Thinking Perspective",
+    "topic": "Critical Thinking",
+    "frameworks": [],
+    "concepts": [
+      "Critical Thinking",
+      "Structured Thinking",
+      "Problem-Solving",
+      "Systematic Analysis",
+      "Evidence-Based Decision Making",
+      "Platform Opportunities",
+      "User Behaviors",
+      "Usage Patterns",
+      "Platform Strategies",
+      "Methodical Process"
+    ],
+    "entities": [
+      "LEGO"
+    ],
+    "problems_discussed": [
+      "Limitations in current thinking",
+      "Random innovation"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [
+      "Case studies (LEGO)",
+      "Specific questions for evaluating platform potential",
+      "Warning signs to identify limitations in current thinking"
+    ],
+    "key_claims": [
+      "Structured critical thinking involves systematic frameworks for evaluating and developing platform opportunities.",
+      "Moving beyond spontaneous ideation requires a methodical process of identifying, evaluating, and developing platform opportunities."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Critical Thinking",
+      "THIS_DOC -[TEACHES]-> Structured Thinking",
+      "THIS_DOC -[TEACHES]-> Problem-Solving",
+      "THIS_DOC -[TEACHES]-> Systematic Analysis",
+      "THIS_DOC -[TEACHES]-> Evidence-Based Decision Making",
+      "THIS_DOC -[DISCUSSES]-> Platform Opportunities",
+      "THIS_DOC -[MENTIONS]-> LEGO"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "problem"
+    ],
+    "solutions": [
+      "approach",
+      "approach",
+      "approach",
+      "approach"
+    ],
+    "questions": [
+      "# Critical Processed Thinking Perspective\n\nPrompt: in up to 500 charterers How does the chapter encourage a structured, critical thinking approach to problem-solving?"
+    ]
+  },
+  "char_count": 1226,
+  "extracted_at": "2026-01-28T14:06:42.457196"
+}

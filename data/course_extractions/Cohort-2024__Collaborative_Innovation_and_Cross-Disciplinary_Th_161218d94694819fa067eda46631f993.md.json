@@ -1,0 +1,78 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Collaborative Innovation and Cross-Disciplinary Th 161218d94694819fa067eda46631f993.md",
+  "display_name": "Course/Cohort-2024/Session #3/Collaborative Innovation and Cross-Disciplinary Th 161218d94694819fa067eda46631f993.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Collaborative Innovation and Cross-Disciplinary Thinking",
+    "topic": "Cross-Disciplinary Innovation",
+    "frameworks": [],
+    "concepts": [
+      "Collaboration",
+      "Cross-disciplinary thinking",
+      "Innovation",
+      "Diverse expertise",
+      "Interdisciplinary teams",
+      "Open innovation",
+      "Systems Thinking",
+      "Portfolio Approach"
+    ],
+    "entities": [
+      "LEGO",
+      "LEGO MINDSTORMS",
+      "Super Mario",
+      "LEGO Education",
+      "MIT Media Lab"
+    ],
+    "problems_discussed": [
+      "Incremental improvements vs. transformative innovations"
+    ],
+    "pws_phase_relevance": [
+      "Solution Framing",
+      "Portfolio"
+    ],
+    "teaching_elements": [
+      "Case studies (LEGO)",
+      "Examples (LEGO MINDSTORMS, Super Mario, LEGO Education)",
+      "Organizational approaches (Innovation labs, Open innovation programs)"
+    ],
+    "key_claims": [
+      "Cross-disciplinary collaboration leads to transformative innovations.",
+      "Integrating diverse expertise, such as engineers with educators, enhances product development and learning outcomes."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Collaboration",
+      "THIS_DOC -[TEACHES]-> Cross-disciplinary thinking",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Diverse expertise",
+      "THIS_DOC -[TEACHES]-> Interdisciplinary teams",
+      "THIS_DOC -[TEACHES]-> Open innovation",
+      "THIS_DOC -[TEACHES]-> Systems Thinking",
+      "THIS_DOC -[TEACHES]-> Portfolio Approach",
+      "THIS_DOC -[EXAMPLE_OF]-> LEGO",
+      "THIS_DOC -[EXAMPLE_OF]-> LEGO MINDSTORMS",
+      "THIS_DOC -[EXAMPLE_OF]-> Super Mario",
+      "THIS_DOC -[EXAMPLE_OF]-> LEGO Education",
+      "LEGO -[PARTNERED_WITH]-> MIT Media Lab"
+    ]
+  },
+  "signals": {
+    "percentages": [
+      "43%"
+    ],
+    "solutions": [
+      "Approach",
+      "approach"
+    ],
+    "questions": [
+      "# Collaborative Innovation and Cross-Disciplinary Thinking\n\nPrompt: up to 500 charterers How does the chapter promote collaboration across disciplines and leverage diverse expertise?",
+      " How does the chapter emphasize the importance of bringing together \"thinking heads\" with varied, in-depth expertise?"
+    ],
+    "causation": [
+      "leads to"
+    ]
+  },
+  "char_count": 1520,
+  "extracted_at": "2026-01-28T14:10:28.639183"
+}

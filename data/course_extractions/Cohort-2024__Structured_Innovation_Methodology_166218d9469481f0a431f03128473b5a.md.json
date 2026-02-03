@@ -1,0 +1,66 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Structured Innovation Methodology 166218d9469481f0a431f03128473b5a.md",
+  "display_name": "Course/Cohort-2024/Session #3/Structured Innovation Methodology 166218d9469481f0a431f03128473b5a.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Structured Innovation Methodology",
+    "topic": "Structured Innovation",
+    "frameworks": [
+      "Diverge-Converge model"
+    ],
+    "concepts": [
+      "Problem Definition Process",
+      "Ideation",
+      "Strategic Ideation",
+      "Innovation",
+      "Problem Solving",
+      "Creativity",
+      "Systematic Approach",
+      "Deliberate Innovation",
+      "Effective Innovation"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Lack of focus in innovation efforts",
+      "Ineffective brainstorming",
+      "Chance-based creativity"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [],
+    "key_claims": [
+      "A structured approach to innovation, using tools and techniques, is more effective than random brainstorming.",
+      "A clearly defined problem is the foundation for successful innovation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Problem Definition Process",
+      "THIS_DOC -[TEACHES]-> Ideation",
+      "THIS_DOC -[TEACHES]-> Strategic Ideation",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Problem Solving",
+      "THIS_DOC -[USES_FRAMEWORK]-> Diverge-Converge model",
+      "THIS_DOC -[ADDRESSES]-> Lack of focus in innovation efforts",
+      "THIS_DOC -[ADDRESSES]-> Ineffective brainstorming"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "Problem",
+      "problem"
+    ],
+    "solutions": [
+      "approach",
+      "approach",
+      "approach"
+    ],
+    "questions": [
+      "# Structured Innovation Methodology\n\nPrompt: Up to 500 Charters How is a structured approach to innovation presented?"
+    ]
+  },
+  "char_count": 803,
+  "extracted_at": "2026-01-28T14:22:20.208768"
+}

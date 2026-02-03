@@ -1,0 +1,71 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Collaborative Innovation and Cross-Disciplinary Th 166218d94694817ea20ef36465cd7ce3.md",
+  "display_name": "Course/Cohort-2024/Session #3/Collaborative Innovation and Cross-Disciplinary Th 166218d94694817ea20ef36465cd7ce3.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Collaborative Innovation and Cross-Disciplinary Thinking",
+    "topic": "Cross-Disciplinary Innovation",
+    "frameworks": [
+      "Four Lenses framework"
+    ],
+    "concepts": [
+      "Collaboration",
+      "Cross-disciplinary thinking",
+      "Diverse perspectives",
+      "Innovation",
+      "Resource integration",
+      "Cultural support",
+      "Multiple perspectives",
+      "Systems Thinking",
+      "Portfolio Approach"
+    ],
+    "entities": [
+      "Luna",
+      "Amazon Web Services"
+    ],
+    "problems_discussed": [
+      "Lack of cross-disciplinary collaboration",
+      "Limited perspectives in problem-solving"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [
+      "Case study of Luna's kingdom",
+      "Example of Amazon Web Services"
+    ],
+    "key_claims": [
+      "Diverse perspectives and resource integration are crucial for innovation.",
+      "A culture that encourages questioning, exploration, and empathy fosters innovation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Collaboration",
+      "THIS_DOC -[TEACHES]-> Cross-disciplinary thinking",
+      "THIS_DOC -[TEACHES]-> Diverse perspectives",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[USES_FRAMEWORK]-> Four Lenses framework",
+      "THIS_DOC -[MENTIONS]-> Luna",
+      "THIS_DOC -[MENTIONS]-> Amazon Web Services",
+      "THIS_DOC -[RELATED_TO]-> Systems Thinking",
+      "THIS_DOC -[RELATED_TO]-> Portfolio Approach"
+    ]
+  },
+  "signals": {
+    "solutions": [
+      "Approach",
+      "Approach"
+    ],
+    "questions": [
+      "# Collaborative Innovation and Cross-Disciplinary Thinking\n\nPrompt: up to 500 charterers How does the chapter promote collaboration across disciplines and leverage diverse expertise?",
+      " How does the chapter emphasize the importance of bringing together \"thinking heads\" with varied, in-depth expertise?"
+    ],
+    "trends": [
+      "emerging"
+    ]
+  },
+  "char_count": 1943,
+  "extracted_at": "2026-01-28T14:07:30.160146"
+}

@@ -1,0 +1,130 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Chapter 0 The Dance of Sustaining and Disruptive I 161218d9469481c597b7e7f77306e2fa.md",
+  "display_name": "Course/Cohort-2024/Session #3/Chapter 0 The Dance of Sustaining and Disruptive I 161218d9469481c597b7e7f77306e2fa.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Chapter 0 The Dance of Sustaining and Disruptive I 161218d9469481c597b7e7f77306e2fa.md",
+    "topic": "Innovation Strategies",
+    "frameworks": [
+      "Rowan Gibson\u2019s Four Lenses of Innovation"
+    ],
+    "concepts": [
+      "Sustaining Innovation",
+      "Disruptive Innovation",
+      "Ill-Defined Problems",
+      "Innovation",
+      "Market Disruption",
+      "Competitive Advantage",
+      "Problem Solving",
+      "Strategic Thinking"
+    ],
+    "entities": [
+      "Netflix",
+      "Reed Hastings",
+      "Kodak",
+      "Instagram",
+      "Tesla",
+      "Airbnb",
+      "Zoom",
+      "NASA",
+      "Square",
+      "Israel Innovation Authority (IIA)"
+    ],
+    "problems_discussed": [
+      "Ill-defined problems",
+      "Balancing sustaining and disruptive innovation",
+      "Adapting to market changes",
+      "Overcoming industry inertia",
+      "Improving access to healthcare",
+      "Making cities more livable",
+      "Making education more effective",
+      "Climate Change"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Case studies (Netflix, Kodak, Instagram, Tesla, Airbnb, Zoom, NASA, Square, Israel Innovation Authority)",
+      "Examples of sustaining and disruptive innovations",
+      "Questions to guide innovation strategy"
+    ],
+    "key_claims": [
+      "Balancing sustaining and disruptive innovations is crucial for addressing immediate needs while positioning for future breakthroughs.",
+      "Ill-defined problems present opportunities for innovation because they require fresh perspectives and solutions that aren't immediately clear."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Sustaining Innovation",
+      "THIS_DOC -[TEACHES]-> Disruptive Innovation",
+      "THIS_DOC -[TEACHES]-> Ill-Defined Problems",
+      "THIS_DOC -[USES_FRAMEWORK]-> Rowan Gibson\u2019s Four Lenses of Innovation",
+      "THIS_DOC -[MENTIONS]-> Netflix",
+      "THIS_DOC -[MENTIONS]-> Kodak",
+      "THIS_DOC -[MENTIONS]-> Instagram",
+      "THIS_DOC -[MENTIONS]-> Tesla",
+      "THIS_DOC -[MENTIONS]-> Airbnb",
+      "THIS_DOC -[MENTIONS]-> Zoom",
+      "THIS_DOC -[MENTIONS]-> NASA",
+      "THIS_DOC -[MENTIONS]-> Square",
+      "THIS_DOC -[MENTIONS]-> Israel Innovation Authority (IIA)",
+      "Netflix -[EXAMPLE_OF]-> Disruptive Innovation",
+      "Kodak -[EXAMPLE_OF]-> Sustaining Innovation",
+      "Instagram -[EXAMPLE_OF]-> Disruptive Innovation",
+      "Tesla -[EXAMPLE_OF]-> Sustaining Innovation",
+      "Tesla -[EXAMPLE_OF]-> Disruptive Innovation",
+      "Airbnb -[EXAMPLE_OF]-> Disruptive Innovation",
+      "Zoom -[EXAMPLE_OF]-> Disruptive Innovation",
+      "NASA -[EXAMPLE_OF]-> Sustaining Innovation",
+      "Square -[EXAMPLE_OF]-> Disruptive Innovation",
+      "Israel Innovation Authority (IIA) -[EXAMPLE_OF]-> Sustaining Innovation",
+      "Israel Innovation Authority (IIA) -[EXAMPLE_OF]-> Disruptive Innovation"
+    ]
+  },
+  "signals": {
+    "years": [
+      "2007"
+    ],
+    "assumptions": [
+      "assumption"
+    ],
+    "problems": [
+      "challenge",
+      "problem",
+      "Challenge",
+      "pain point",
+      "problem"
+    ],
+    "solutions": [
+      "address",
+      "Approach",
+      "solve",
+      "address",
+      "address"
+    ],
+    "questions": [
+      " This pivotal moment demonstrates the challenge of tackling an **ill-defined problem**: should a company stick with what\u2019s working or risk everything on a potentially disruptive innovation?",
+      " Examples of such problems might include:\n\n- **\"How do we make cities more livable?\"**\n- **\"How do we improve access to healthcare?\"**\n- **\"How do we make education more effective?",
+      " **Challenge Orthodoxies**\n\n- Ask: \"What if everything we believe is wrong?",
+      " **Spot Trends Early**\n\n- Ask: \"What\u2019s changing in technology or society?",
+      " **Leverage Resources Differently**\n\n- Ask: \"How can existing resources be used in new ways?"
+    ],
+    "causation": [
+      "because",
+      "because"
+    ],
+    "trends": [
+      "changing",
+      "trend"
+    ],
+    "future": [
+      "future",
+      "future",
+      "future"
+    ]
+  },
+  "char_count": 9404,
+  "extracted_at": "2026-01-28T14:05:09.621680"
+}

@@ -1,0 +1,114 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2025/Per-Session/Session 1  - Introduction/Transcript.docx",
+  "display_name": "Course/Cohort-2025/Per-Session/Session 1  - Introduction/Transcript.docx",
+  "category": "Cohort-2025",
+  "subfolder": "Per-Session/Session 1  - Introduction",
+  "extraction": {
+    "title": "Transcript.docx",
+    "topic": "Entrepreneurship & Innovation",
+    "frameworks": [],
+    "concepts": [
+      "Entrepreneurship",
+      "Innovation",
+      "Capitalism",
+      "Creative Destruction",
+      "Startups",
+      "Ideas",
+      "Team",
+      "Opportunity",
+      "Pivot",
+      "Visas"
+    ],
+    "entities": [
+      "Johns Hopkins",
+      "Google",
+      "Joseph Schumpeter",
+      "Peter Drucker",
+      "Oxford English Dictionary",
+      "Ariel"
+    ],
+    "problems_discussed": [
+      "Students sticking with bad ideas",
+      "Lack of teams willing to push ideas forward",
+      "Visa issues preventing foreign students from starting companies",
+      "Fear of failure preventing students from pursuing startups",
+      "Creative destruction rendering research obsolete"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [
+      "Examples of student experiences",
+      "Discussion of the definition of innovation",
+      "Lecture on capitalism and creative destruction"
+    ],
+    "key_claims": [
+      "The origin of interesting ideas is more important than the formulaic process of turning an idea into a startup.",
+      "A successful startup requires both a good idea and a strong team willing to push it forward.",
+      "Innovation is simply 'new' and always involves change."
+    ],
+    "cohort_context": "Cohort-2025, likely an introductory lecture on entrepreneurship and innovation, setting ground rules and expectations for the course.",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Entrepreneurship",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Capitalism",
+      "THIS_DOC -[DISCUSSES]-> Creative Destruction",
+      "THIS_DOC -[MENTIONS]-> Johns Hopkins",
+      "THIS_DOC -[MENTIONS]-> Google",
+      "THIS_DOC -[MENTIONS]-> Joseph Schumpeter",
+      "THIS_DOC -[MENTIONS]-> Peter Drucker",
+      "THIS_DOC -[DISCUSSES]-> Problems_discussed"
+    ]
+  },
+  "signals": {
+    "money": [
+      "$50,000",
+      "$200,000",
+      "$30,000,000",
+      "$5,000,000",
+      "$400,000,000"
+    ],
+    "assumptions": [
+      "suppose",
+      "suppose",
+      "suppose"
+    ],
+    "problems": [
+      "problem",
+      "problem",
+      "problem",
+      "problem",
+      "problem"
+    ],
+    "solutions": [
+      "solution",
+      "solution",
+      "solution",
+      "solution",
+      "solve"
+    ],
+    "causation": [
+      "because",
+      "because",
+      "because",
+      "because",
+      "because"
+    ],
+    "trends": [
+      "shifting",
+      "changing",
+      "changing"
+    ],
+    "future": [
+      "will",
+      "will",
+      "will",
+      "will",
+      "will"
+    ]
+  },
+  "char_count": 24952,
+  "extracted_at": "2026-01-28T12:47:02.952926"
+}

@@ -1,0 +1,99 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Chapter 8 Innovation Beyond Products Platforms and 161218d9469481fabccffe4ef5177ed6.md",
+  "display_name": "Course/Cohort-2024/Session #3/Chapter 8 Innovation Beyond Products Platforms and 161218d9469481fabccffe4ef5177ed6.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Chapter 8 Innovation Beyond Products Platforms and 161218d9469481fabccffe4ef5177ed6.md",
+    "topic": "Platform Innovation",
+    "frameworks": [],
+    "concepts": [
+      "Platform",
+      "Ecosystem",
+      "Innovation",
+      "Scalability",
+      "User Engagement",
+      "Continuous Improvement",
+      "Product-Centric",
+      "Platform-Centric",
+      "Cloud Computing",
+      "Software Updates"
+    ],
+    "entities": [
+      "Apple",
+      "App Store",
+      "Amazon",
+      "Amazon Web Services (AWS)",
+      "Tesla"
+    ],
+    "problems_discussed": [
+      "Limitations of product-centric business models",
+      "Difficulty in scaling innovation",
+      "Lack of continuous user engagement",
+      "Inability to adapt to changing market demands"
+    ],
+    "pws_phase_relevance": [
+      "Solution Framing",
+      "Validation",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Case studies (Apple App Store, AWS, Tesla)",
+      "Examples of platform features (Autopilot, FSD)",
+      "Key takeaways for innovators"
+    ],
+    "key_claims": [
+      "Creating platforms and ecosystems enables continuous innovation and long-term success.",
+      "A platform-centric approach fosters collaboration and allows for scalability by leveraging user contributions."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Platform",
+      "THIS_DOC -[TEACHES]-> Ecosystem",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Scalability",
+      "THIS_DOC -[TEACHES]-> User Engagement",
+      "THIS_DOC -[TEACHES]-> Continuous Improvement",
+      "THIS_DOC -[MENTIONS]-> Apple",
+      "THIS_DOC -[MENTIONS]-> Amazon",
+      "THIS_DOC -[MENTIONS]-> Tesla",
+      "Apple -[EXAMPLE_OF]-> Platform",
+      "Amazon -[EXAMPLE_OF]-> Platform",
+      "Tesla -[EXAMPLE_OF]-> Platform"
+    ]
+  },
+  "signals": {
+    "money": [
+      "$320 billion"
+    ],
+    "years": [
+      "2008",
+      "2024",
+      "2022",
+      "2022",
+      "2022"
+    ],
+    "problems": [
+      "obstacle",
+      "problem"
+    ],
+    "solutions": [
+      "approach",
+      "approach",
+      "approach",
+      "approach",
+      "approach"
+    ],
+    "trends": [
+      "changing",
+      "changing",
+      "emerging",
+      "emerging"
+    ],
+    "future": [
+      "will"
+    ]
+  },
+  "char_count": 7409,
+  "extracted_at": "2026-01-28T14:23:38.943676"
+}

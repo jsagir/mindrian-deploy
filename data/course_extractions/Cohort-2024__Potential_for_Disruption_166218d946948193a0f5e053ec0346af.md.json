@@ -1,0 +1,59 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Potential for Disruption 166218d946948193a0f5e053ec0346af.md",
+  "display_name": "Course/Cohort-2024/Session #3/Potential for Disruption 166218d946948193a0f5e053ec0346af.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Potential for Disruption",
+    "topic": "Disruptive Innovation",
+    "frameworks": [],
+    "concepts": [
+      "Disruptive Technologies",
+      "Innovation",
+      "Market Evolution",
+      "Competitive Advantage",
+      "Commoditization",
+      "Technological Disruption",
+      "Structured Approach"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Stagnation",
+      "Failure to adapt to market evolution",
+      "Commoditization of products",
+      "Loss of competitive edge"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [
+      "Examples of the tech industry"
+    ],
+    "key_claims": [
+      "Continuous innovation is critical for survival in a fast-paced business environment.",
+      "A structured approach is necessary for successful innovation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Disruptive Technologies",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Market Evolution",
+      "THIS_DOC -[TEACHES]-> Competitive Advantage",
+      "THIS_DOC -[TEACHES]-> Commoditization",
+      "THIS_DOC -[TEACHES]-> Technological Disruption",
+      "THIS_DOC -[TEACHES]-> Structured Approach"
+    ]
+  },
+  "signals": {
+    "solutions": [
+      "Approach",
+      "strategy"
+    ],
+    "trends": [
+      "evolving"
+    ]
+  },
+  "char_count": 1962,
+  "extracted_at": "2026-01-28T14:12:07.800759"
+}

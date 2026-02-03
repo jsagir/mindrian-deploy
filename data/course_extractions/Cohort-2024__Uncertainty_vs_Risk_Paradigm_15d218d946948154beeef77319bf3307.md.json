@@ -1,0 +1,56 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Uncertainty vs Risk Paradigm 15d218d946948154beeef77319bf3307.md",
+  "display_name": "Course/Cohort-2024/Session #3/Uncertainty vs Risk Paradigm 15d218d946948154beeef77319bf3307.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Uncertainty vs Risk Paradigm",
+    "topic": "Uncertainty vs. Risk",
+    "frameworks": [
+      "Structured Ideation"
+    ],
+    "concepts": [
+      "Uncertainty",
+      "Risk",
+      "Innovation",
+      "Opportunity",
+      "Mitigation",
+      "Discovery",
+      "Risk Management",
+      "Mindset Shift"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Managing risk",
+      "Mitigating uncertainty"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [],
+    "key_claims": [
+      "Risk can be measured and managed, while uncertainty involves unknowns that can\u2019t be fully predicted.",
+      "Uncertainty can be embraced as a source of opportunity for innovation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Uncertainty",
+      "THIS_DOC -[TEACHES]-> Risk",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Opportunity",
+      "THIS_DOC -[USES_FRAMEWORK]-> Structured Ideation"
+    ]
+  },
+  "signals": {
+    "solutions": [
+      "approach"
+    ],
+    "questions": [
+      " Risk Paradigm\n\nPrompt: Up to 500 charters How does the chapter distinguish between uncertainty and risk in innovation?",
+      " Does it provide a framework or mindset shift for leveraging uncertainty?"
+    ]
+  },
+  "char_count": 970,
+  "extracted_at": "2026-01-28T14:09:43.409735"
+}

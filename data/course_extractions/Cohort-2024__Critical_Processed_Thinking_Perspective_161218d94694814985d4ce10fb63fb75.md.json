@@ -1,0 +1,66 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Critical Processed Thinking Perspective 161218d94694814985d4ce10fb63fb75.md",
+  "display_name": "Course/Cohort-2024/Session #3/Critical Processed Thinking Perspective 161218d94694814985d4ce10fb63fb75.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Critical Processed Thinking Perspective",
+    "topic": "Critical Thinking",
+    "frameworks": [],
+    "concepts": [
+      "Critical Thinking",
+      "Problem-solving",
+      "Systematic Ideation",
+      "Problem Definition",
+      "Idea Generation",
+      "Evaluation",
+      "Planning",
+      "Structured Approach",
+      "Feasibility",
+      "Impact"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Unfocused brainstorming",
+      "Sporadic innovation"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [],
+    "key_claims": [
+      "A structured approach to problem-solving leads to more deliberate and impactful innovation.",
+      "Moving beyond random brainstorming to a disciplined framework is essential for effective problem-solving."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Critical Thinking",
+      "THIS_DOC -[TEACHES]-> Problem-solving",
+      "THIS_DOC -[TEACHES]-> Systematic Ideation",
+      "THIS_DOC -[TEACHES]-> Problem Definition",
+      "THIS_DOC -[TEACHES]-> Idea Generation",
+      "THIS_DOC -[TEACHES]-> Evaluation",
+      "THIS_DOC -[TEACHES]-> Planning",
+      "THIS_DOC -[TEACHES]-> Structured Approach"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "problem",
+      "problem",
+      "problem"
+    ],
+    "solutions": [
+      "approach",
+      "approach",
+      "approach",
+      "approach"
+    ],
+    "questions": [
+      "# Critical Processed Thinking Perspective\n\nPrompt: in up to 500 charterers How does the chapter encourage a structured, critical thinking approach to problem-solving?"
+    ]
+  },
+  "char_count": 881,
+  "extracted_at": "2026-01-28T14:21:25.074310"
+}

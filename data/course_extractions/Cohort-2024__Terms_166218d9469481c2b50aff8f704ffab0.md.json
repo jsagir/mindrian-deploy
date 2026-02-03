@@ -1,0 +1,86 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Terms 166218d9469481c2b50aff8f704ffab0.md",
+  "display_name": "Course/Cohort-2024/Session #3/Terms 166218d9469481c2b50aff8f704ffab0.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Terms 166218d9469481c2b50aff8f704ffab0.md",
+    "topic": "Innovation Terminology",
+    "frameworks": [
+      "Now, New, Next",
+      "Diverge-Converge Model"
+    ],
+    "concepts": [
+      "Structured Ideation",
+      "Cross-Industry Innovation",
+      "Customer Feedback",
+      "Competitive Analysis",
+      "Incremental Innovation",
+      "Disruptive Innovation",
+      "Problem Definition",
+      "AI-Enhanced Ideation",
+      "Market Maturity",
+      "Presentism"
+    ],
+    "entities": [
+      "McKinsey",
+      "U.S. Department of Energy",
+      "GEODE Initiative"
+    ],
+    "problems_discussed": [
+      "Limiting innovation to incremental changes",
+      "Imitating competitors instead of creating original ideas",
+      "Focusing only on current problems (Presentism)",
+      "Market Maturity challenges"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Table of terms and definitions"
+    ],
+    "key_claims": [
+      "Innovation can be categorized into incremental, significant, and disruptive efforts.",
+      "Structured ideation involves systematic steps for generating and evaluating ideas."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Structured Ideation",
+      "THIS_DOC -[TEACHES]-> Cross-Industry Innovation",
+      "THIS_DOC -[TEACHES]-> Customer Feedback",
+      "THIS_DOC -[TEACHES]-> Competitive Analysis",
+      "THIS_DOC -[TEACHES]-> Incremental Innovation",
+      "THIS_DOC -[TEACHES]-> Disruptive Innovation",
+      "THIS_DOC -[TEACHES]-> Problem Definition",
+      "THIS_DOC -[TEACHES]-> AI-Enhanced Ideation",
+      "THIS_DOC -[TEACHES]-> Market Maturity",
+      "THIS_DOC -[TEACHES]-> Presentism",
+      "THIS_DOC -[USES_FRAMEWORK]-> Now, New, Next",
+      "THIS_DOC -[USES_FRAMEWORK]-> Diverge-Converge Model",
+      "GEODE Initiative -[EXAMPLE_OF]-> Cross-Industry Innovation"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "problem",
+      "Problem",
+      "challenge"
+    ],
+    "solutions": [
+      "approach",
+      "method",
+      "method",
+      "address"
+    ],
+    "causation": [
+      "leads to"
+    ],
+    "future": [
+      "future"
+    ]
+  },
+  "char_count": 2657,
+  "extracted_at": "2026-01-28T14:06:54.728063"
+}

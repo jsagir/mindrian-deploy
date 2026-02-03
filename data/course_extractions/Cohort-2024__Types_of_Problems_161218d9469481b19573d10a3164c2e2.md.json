@@ -1,0 +1,85 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #3/Types of Problems 161218d9469481b19573d10a3164c2e2.md",
+  "display_name": "Course/Cohort-2024/Session #3/Types of Problems 161218d9469481b19573d10a3164c2e2.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Types of Problems",
+    "topic": "Problem Types",
+    "frameworks": [
+      "Platform Thinking Framework"
+    ],
+    "concepts": [
+      "Un-defined Problems",
+      "Ill-defined Problems",
+      "Well-defined Problems",
+      "Horizon Scanning",
+      "Transformative Opportunities",
+      "User Feedback",
+      "Platform Expansion",
+      "Workarounds",
+      "User Frustrations"
+    ],
+    "entities": [
+      "LEGO",
+      "BMW",
+      "ConnectedDrive"
+    ],
+    "problems_discussed": [
+      "Un-defined Problems",
+      "Ill-defined Problems",
+      "Well-defined Problems",
+      "LEGO project storage for teachers",
+      "Navigation in BMW ConnectedDrive"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [
+      "Table comparing problem types and approaches with examples"
+    ],
+    "key_claims": [
+      "The chapter emphasizes moving beyond well-defined problems to discover broader platform opportunities.",
+      "Systematic observation and user feedback are crucial for identifying and addressing different problem types."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Un-defined Problems",
+      "THIS_DOC -[TEACHES]-> Ill-defined Problems",
+      "THIS_DOC -[TEACHES]-> Well-defined Problems",
+      "THIS_DOC -[USES_FRAMEWORK]-> Platform Thinking Framework",
+      "THIS_DOC -[DISCUSSES]-> Horizon Scanning",
+      "THIS_DOC -[DISCUSSES]-> Transformative Opportunities",
+      "THIS_DOC -[DISCUSSES]-> User Feedback",
+      "THIS_DOC -[DISCUSSES]-> Platform Expansion",
+      "THIS_DOC -[DISCUSSES]-> Workarounds",
+      "THIS_DOC -[DISCUSSES]-> User Frustrations",
+      "THIS_DOC -[MENTIONS]-> LEGO",
+      "THIS_DOC -[MENTIONS]-> BMW",
+      "THIS_DOC -[MENTIONS]-> ConnectedDrive"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "problem",
+      "problem",
+      "problem",
+      "problem",
+      "Problem"
+    ],
+    "solutions": [
+      "Approach",
+      "Approach"
+    ],
+    "questions": [
+      "# Types of Problems\n\nPrompt: Up to 500 characters How does the chapter explain or use the taxonomy of problem types (Un-defined, Ill-defined, Well-defined)?",
+      " as a table \nRelated Core Ideas: Three-Part Framework, Portfolio Approach\nStatus: Done\n\nWhile the chapter doesn't explicitly use the taxonomy of problem types, we can analyze how it approaches different levels of problem definition through its platform thinking framework:\n\n| **Problem Type** | **Chapter's Approach** | **Examples** |\n| --- | --- | --- |\n| Un-defined Problems | Uses horizon scanning and transformative opportunities to identify emerging needs | LEGO asking \"what progress are people trying to make through play?"
+    ],
+    "trends": [
+      "emerging"
+    ]
+  },
+  "char_count": 1270,
+  "extracted_at": "2026-01-28T12:52:29.072879"
+}

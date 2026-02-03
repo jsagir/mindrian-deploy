@@ -1,0 +1,80 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Change as a Catalyst for Innovation 166218d94694818a8ab5c5faa2564a78.md",
+  "display_name": "Course/Cohort-2024/Session #3/Change as a Catalyst for Innovation 166218d94694818a8ab5c5faa2564a78.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Change as a Catalyst for Innovation",
+    "topic": "Innovation through Change",
+    "frameworks": [
+      "Futures Wheels",
+      "Trending to the Absurd"
+    ],
+    "concepts": [
+      "Innovation",
+      "Change",
+      "Dominant Designs",
+      "Risk",
+      "Uncertainty",
+      "Technological Change",
+      "Market Change",
+      "Social Change",
+      "Problem-Solving",
+      "Opportunity Identification"
+    ],
+    "entities": [
+      "Royal Institute",
+      "Luna"
+    ],
+    "problems_discussed": [
+      "Inefficient commerce",
+      "Inadequate message delivery",
+      "Resistance to change",
+      "Bottlenecks in established practices",
+      "Uncomfortable glasses"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Luna's story as a case study",
+      "Examples of historical innovations through combination"
+    ],
+    "key_claims": [
+      "Innovation is driven by responding to change, not predicting the future.",
+      "Innovation often arises from combining existing elements in new ways."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Change",
+      "THIS_DOC -[TEACHES]-> Dominant Designs",
+      "THIS_DOC -[TEACHES]-> Risk",
+      "THIS_DOC -[TEACHES]-> Uncertainty",
+      "THIS_DOC -[TEACHES]-> Technological Change",
+      "THIS_DOC -[TEACHES]-> Market Change",
+      "THIS_DOC -[TEACHES]-> Social Change",
+      "THIS_DOC -[USES_FRAMEWORK]-> Futures Wheels",
+      "THIS_DOC -[USES_FRAMEWORK]-> Trending to the Absurd"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "problem"
+    ],
+    "questions": [
+      "# Change as a Catalyst for Innovation\n\nPrompt: up to 500 charters  How does the chapter explain the role of change in driving innovation?"
+    ],
+    "trends": [
+      "Trending",
+      "changing"
+    ],
+    "future": [
+      "future"
+    ]
+  },
+  "char_count": 1559,
+  "extracted_at": "2026-01-28T14:20:11.732417"
+}

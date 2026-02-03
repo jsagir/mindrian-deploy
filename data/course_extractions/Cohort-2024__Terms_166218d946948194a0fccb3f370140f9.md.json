@@ -1,0 +1,66 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Terms 166218d946948194a0fccb3f370140f9.md",
+  "display_name": "Course/Cohort-2024/Session #3/Terms 166218d946948194a0fccb3f370140f9.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Terms 166218d946948194a0fccb3f370140f9.md",
+    "topic": "Innovation Methodologies",
+    "frameworks": [
+      "Four Lenses Framework"
+    ],
+    "concepts": [
+      "Challenging Orthodoxies",
+      "Harnessing Trends",
+      "Leveraging Resources",
+      "Understanding Needs",
+      "Trending to the Absurd",
+      "Jobs to be Done",
+      "Recombinant Creativity",
+      "Innovation Insight",
+      "Systematic Ideation"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Identifying innovation opportunities",
+      "Generating breakthrough ideas",
+      "Overcoming established beliefs"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [],
+    "key_claims": [
+      "The Four Lenses Framework provides a systematic approach to innovation.",
+      "Innovation can be achieved by leveraging existing resources and understanding user needs."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Challenging Orthodoxies",
+      "THIS_DOC -[TEACHES]-> Harnessing Trends",
+      "THIS_DOC -[TEACHES]-> Leveraging Resources",
+      "THIS_DOC -[TEACHES]-> Understanding Needs",
+      "THIS_DOC -[TEACHES]-> Trending to the Absurd",
+      "THIS_DOC -[TEACHES]-> Jobs to be Done",
+      "THIS_DOC -[TEACHES]-> Recombinant Creativity",
+      "THIS_DOC -[TEACHES]-> Innovation Insight",
+      "THIS_DOC -[TEACHES]-> Systematic Ideation",
+      "THIS_DOC -[USES_FRAMEWORK]-> Four Lenses Framework"
+    ]
+  },
+  "signals": {
+    "solutions": [
+      "approach"
+    ],
+    "causation": [
+      "leads to"
+    ],
+    "trends": [
+      "emerging",
+      "Trending"
+    ]
+  },
+  "char_count": 1699,
+  "extracted_at": "2026-01-28T14:06:18.948040"
+}

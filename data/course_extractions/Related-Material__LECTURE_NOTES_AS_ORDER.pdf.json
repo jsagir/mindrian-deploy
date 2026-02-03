@@ -1,0 +1,146 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Related Material/LECTURE NOTES AS ORDER.pdf",
+  "display_name": "Course/Related-Material/LECTURE NOTES AS ORDER.pdf",
+  "category": "Related-Material",
+  "subfolder": null,
+  "extraction": {
+    "title": "LECTURE NOTES AS ORDER.pdf",
+    "topic": "Innovation, E-commerce",
+    "frameworks": [
+      "PEST Analysis"
+    ],
+    "concepts": [
+      "E-commerce",
+      "Trend Analysis",
+      "Scenario Analysis",
+      "Innovation",
+      "Entrepreneurship",
+      "Competitive Advantage",
+      "Market Maturity",
+      "Problem Solving",
+      "Value Creation",
+      "Systematic Innovation"
+    ],
+    "entities": [
+      "Amazon",
+      "Alibaba",
+      "Wikipedia",
+      "Johns Hopkins Hospital",
+      "Johns Hopkins University School of Medicine",
+      "Guglielmo Marconi",
+      "OpenAI",
+      "GPT-3",
+      "J.B. Say",
+      "Wright Brothers"
+    ],
+    "problems_discussed": [
+      "Market maturation",
+      "Finding competitive advantage",
+      "Exploiting change",
+      "Identifying valuable problems",
+      "IV infiltration detection",
+      "Lymphedema",
+      "Presentism"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis",
+      "Validation"
+    ],
+    "teaching_elements": [
+      "E-commerce market breakdown",
+      "Trend analysis exercise",
+      "Scenario analysis task",
+      "Johns Hopkins Hospital case study",
+      "LymphaSense case study",
+      "GPT-3 example"
+    ],
+    "key_claims": [
+      "Innovation is an economic or social rather than a technical term, changing the yield of resources.",
+      "Systematic innovation consists in the purposeful and organized search for changes, and in the systematic analysis of the opportunities such changes might offer for economic or social innovation."
+    ],
+    "cohort_context": "Unknown",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> E-commerce",
+      "THIS_DOC -[TEACHES]-> Trend Analysis",
+      "THIS_DOC -[TEACHES]-> Scenario Analysis",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Entrepreneurship",
+      "THIS_DOC -[USES_FRAMEWORK]-> PEST Analysis",
+      "THIS_DOC -[MENTIONS]-> Amazon",
+      "THIS_DOC -[MENTIONS]-> Alibaba",
+      "THIS_DOC -[DISCUSSES]-> Market Maturation",
+      "THIS_DOC -[DISCUSSES]-> Finding Competitive Advantage",
+      "THIS_DOC -[DISCUSSES]-> Exploiting Change",
+      "THIS_DOC -[DISCUSSES]-> Identifying Valuable Problems"
+    ]
+  },
+  "signals": {
+    "percentages": [
+      "100%",
+      "100%"
+    ],
+    "money": [
+      "$1000"
+    ],
+    "years": [
+      "1972",
+      "1995",
+      "1999",
+      "2018",
+      "1909"
+    ],
+    "assumptions": [
+      "assumption",
+      "assumption",
+      "assumption",
+      "assumption"
+    ],
+    "problems": [
+      "CHALLENGE",
+      "barrier",
+      "problem",
+      "problem",
+      "problem"
+    ],
+    "solutions": [
+      "Method",
+      "Method",
+      "Method",
+      "solution",
+      "approach"
+    ],
+    "questions": [
+      "\n(Wikipedia)\n \n\u25cf\nFirst\ntransactions\ntook\nplace\nas\nearly\nas\n1972\n \n\u25cf\nE-commerce\ngiants\nAmazon\nand\nAlibaba\nwere founded\nin\n1995\nand\n1999 \nrespectively\n \n\u25cf\nE-commerce\nhas\nseen\nnonstop\nyearly\ngrowth throughout\nthe\n2010s\n \n\u25cf\nMarket\nBreakdown \n\u25cf\nChina\nand\nthe\nUS\ncontain\nthe largest\ne-commerce\nmarkets\n \n\u25cf\nBoth\ncountries\nhave\na\nmarket\nleader and\nseveral\nsmaller\nplayers\n \n\u25cf\nAlibaba\nin\nChina\ncontains\na\nmajority share\nof\nChina\u2019s\ne-commerce market\n(2018)\n \n\u25cf\nExercise\n\u25cf\nWhat\nis\nthe\nnext\nbig\nopportunity\nin\ne-commerce?",
+      " \n\u25cf\nFor\nexample: \n\u25cf\nWhat\ndoes\na\nworld\nwith\n100%\ne-commerce\ntransactions\nlook\nlike? \n\u25cf\nWhat\nwould\nbe\ndifferent\nabout\nthis\nworld? \n\u25cf\nWhat\nproducts,\nservice,\nand\npolicies\nwill\nbe\nneeded? \n\u25cf\nMethod\n2:\nScenario\nAnalysis \n\u25cf\nTask:\n \n\u25cf\nWhat\nis\nthe\nfuture\nof\ne-commerce?",
+      "\nPhysical\npresence \n\u25cf\nOther\n  \n\u25cf\nScenario\nAnalysis:\nE-Commerce \n\u25cf\nMethod\n3:\nThe\nNext\nBig\nThing \n\u25cf\nWhat\nis\nthe\nnext\nbig\nthing\ninherent\nin\nthe\nsituation: \n\u25cf\nPEST\n(political,\neconomic,\nsocial,\nand\ntechnological\nchanges) \n\u25cf\nPayment\nmethods\n\n\u25cf\nLogistics\n\u25cf\nThe\nuser\nexperience \n\u25cf\nHow\nwe\nbuy \n\u25cf\nHow\nwe\nfind\nthings\nto\nbuy \n\u25cf\nAn\nindustry\nspace \n\u25cf\nWho\nare\n(might\nbe?)\nthe\nmain\nplayers\nin\nthe\nspace? \n\u25cf\nWhat\nproducts\nor\nservices\nare\nmissing? \n\u25cf\nHow\ncan\ncurrent\nofferings\nbe\nre-directed?",
+      "\n\u25cf\n2\n\u25cf\nINTRODUCTION\n\u25cf\nA\nFRAMEWORK\nFOR\nINNOVATION: \nFINDING\nPROBLEMS\nWORTH\nWORKING\nON \n\u25cf\nGetting\nStarted \n\u25cf\nWhat\nis\nyour\nbig\nidea\nfor\na\nstartup\u2026? \n\u25cf\nWHY\nINNOVATE?",
+      "\nBut\nthen\nthey\nask,\n\u2018Which\nof\nthese \nopportunities\nfits\nme,\nfits\nthis\ncompany,\nputs\nto\nwork\nwhat\nwe\n(or\nI)\nare\ngood\nat \nand\nhave\nshown\ncapacity\nfor\nin\nperformance?"
+    ],
+    "causation": [
+      "Thus",
+      "causes",
+      "therefore",
+      "thus",
+      "thus"
+    ],
+    "trends": [
+      "Trend",
+      "trend",
+      "growing",
+      "shifting",
+      "Shifting"
+    ],
+    "future": [
+      "FUTURE",
+      "future",
+      "will",
+      "future",
+      "future"
+    ]
+  },
+  "char_count": 115746,
+  "extracted_at": "2026-01-28T12:01:07.074962"
+}

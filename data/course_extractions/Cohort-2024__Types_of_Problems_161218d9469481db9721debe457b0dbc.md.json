@@ -1,0 +1,66 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #3/Types of Problems 161218d9469481db9721debe457b0dbc.md",
+  "display_name": "Course/Cohort-2024/Session #3/Types of Problems 161218d9469481db9721debe457b0dbc.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Types of Problems",
+    "topic": "Problem Types",
+    "frameworks": [
+      "Three-Part Framework"
+    ],
+    "concepts": [
+      "Un-defined problems",
+      "Ill-defined problems",
+      "Well-defined problems",
+      "Problem Definition Process",
+      "Diverge-Converge technique",
+      "Ideation",
+      "Evaluation",
+      "Innovation"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Un-defined problems",
+      "Ill-defined problems",
+      "Well-defined problems"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [],
+    "key_claims": [
+      "Different problem types require tailored approaches.",
+      "Understanding problem type enhances clarity and effectiveness in innovation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Un-defined problems",
+      "THIS_DOC -[TEACHES]-> Ill-defined problems",
+      "THIS_DOC -[TEACHES]-> Well-defined problems",
+      "THIS_DOC -[TEACHES]-> Problem Definition Process",
+      "THIS_DOC -[TEACHES]-> Diverge-Converge technique",
+      "THIS_DOC -[USES_FRAMEWORK]-> Three-Part Framework",
+      "THIS_DOC -[RELATES_TO]-> Portfolio Approach"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "problem",
+      "problem",
+      "problem",
+      "Problem",
+      "problem"
+    ],
+    "solutions": [
+      "Approach",
+      "approach"
+    ],
+    "questions": [
+      "# Types of Problems\n\nPrompt: Up to 500 characters How does the chapter explain or use the taxonomy of problem types (Un-defined, Ill-defined, Well-defined)?"
+    ]
+  },
+  "char_count": 1152,
+  "extracted_at": "2026-01-28T12:52:07.298780"
+}

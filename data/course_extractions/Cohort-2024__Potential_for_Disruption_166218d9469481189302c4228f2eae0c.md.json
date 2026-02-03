@@ -1,0 +1,59 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Potential for Disruption 166218d9469481189302c4228f2eae0c.md",
+  "display_name": "Course/Cohort-2024/Session #3/Potential for Disruption 166218d9469481189302c4228f2eae0c.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Potential for Disruption",
+    "topic": "Disruptive Innovation",
+    "frameworks": [],
+    "concepts": [
+      "Disruptive Technologies",
+      "Innovation",
+      "Market Evolution",
+      "Competitive Advantage",
+      "Commoditization",
+      "Technological Disruption",
+      "Business Strategy"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Stagnation",
+      "Failure to innovate",
+      "Commoditization",
+      "Loss of competitive edge"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [
+      "Examples of tech industry disruption"
+    ],
+    "key_claims": [
+      "Continuous innovation is critical for survival in a fast-paced business environment.",
+      "Innovation requires a structured, supported process."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Disruptive Technologies",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Market Evolution",
+      "THIS_DOC -[TEACHES]-> Competitive Advantage",
+      "THIS_DOC -[TEACHES]-> Commoditization",
+      "THIS_DOC -[TEACHES]-> Technological Disruption",
+      "THIS_DOC -[TEACHES]-> Business Strategy"
+    ]
+  },
+  "signals": {
+    "solutions": [
+      "Approach",
+      "strategy"
+    ],
+    "trends": [
+      "evolving"
+    ]
+  },
+  "char_count": 1962,
+  "extracted_at": "2026-01-28T14:23:03.359572"
+}

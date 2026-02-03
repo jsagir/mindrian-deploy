@@ -1,0 +1,133 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/I&E Lecture Notes Fall.docx",
+  "display_name": "Course/Cohort-2024/I&E Lecture Notes Fall.docx",
+  "category": "Cohort-2024",
+  "subfolder": null,
+  "extraction": {
+    "title": "I&E Lecture Notes Fall",
+    "topic": "Innovation and Entrepreneurship",
+    "frameworks": [],
+    "concepts": [
+      "Innovation",
+      "Entrepreneurship",
+      "Problem-solving",
+      "Opportunity identification",
+      "Trend analysis",
+      "Scenario analysis",
+      "Market analysis",
+      "Technological uncertainty",
+      "Business case",
+      "Solution validation"
+    ],
+    "entities": [
+      "Johns Hopkins",
+      "Sascha",
+      "Peter Drucker",
+      "Marconi",
+      "Ford",
+      "Jonathan Haidt",
+      "Delta"
+    ],
+    "problems_discussed": [
+      "Finding problems worth solving",
+      "Markets maturing",
+      "Competitive disadvantage",
+      "Exploiting change",
+      "Presentism (focusing on immediate problems)",
+      "Ill-defined problems",
+      "Lack of innovation",
+      "Uncertainty"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "E-commerce example",
+      "Trend analysis exercise",
+      "Scenario analysis exercise",
+      "Discussion questions"
+    ],
+    "key_claims": [
+      "Innovation is about finding problems worth solving and turning them into opportunities.",
+      "Entrepreneurship is about purposeful, systematic innovation and begins with the hunt for opportunities."
+    ],
+    "cohort_context": "Cohort-2024, introductory lecture on innovation and entrepreneurship, setting the theoretical framework for the course.",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Entrepreneurship",
+      "THIS_DOC -[TEACHES]-> Problem-solving",
+      "THIS_DOC -[TEACHES]-> Opportunity identification",
+      "THIS_DOC -[MENTIONS]-> Johns Hopkins",
+      "THIS_DOC -[DISCUSSES]-> Presentism",
+      "THIS_DOC -[USES_EXAMPLE]-> E-commerce",
+      "THIS_DOC -[USES_METHOD]-> Trend analysis",
+      "THIS_DOC -[USES_METHOD]-> Scenario analysis"
+    ]
+  },
+  "signals": {
+    "money": [
+      "$165"
+    ],
+    "years": [
+      "1910",
+      "1910",
+      "1920",
+      "1950",
+      "1905"
+    ],
+    "assumptions": [
+      "Suppose",
+      "Suppose",
+      "assumption",
+      "if we",
+      "if we"
+    ],
+    "problems": [
+      "challenge",
+      "problem",
+      "problem",
+      "problem",
+      "Problem"
+    ],
+    "solutions": [
+      "Method",
+      "Method",
+      "Method",
+      "solution",
+      "solution"
+    ],
+    "questions": [
+      "INTRODUCTION\nIntroduce myself\nThis is a course about innovation; and our goal is to teach you how to do innovation \nSuppose you hated your boss and never wanted to work in corporate America again, what would you do?\nLook for a new job? \u2013 always a possibility\nGo back to school? \u2013 we love that idea\nOr try something on your own?\nGetting Started\nSo what is the next big thing in \u2026?",
+      " the new products and services that could be delivered to the market, only about the problems worth working on\nSolutions we will deal with next term\nThis remainder of the slide deck contains an introduction to the methodology that we have developed at Johns Hopkins and that we will use here in class\nThere is no textbook; these slides will function as your textbook and they have been so structured as to act as a resource for you\nIn other words, they are not typical corporate slides\nI apologize up front that this slide deck is dominated by lecture as we lay out the theoretical framework for what we will be doing here\nI promise that after this, we will do mostly exercises and discussion\nSo let\u2019s go down that path and get warmed up with an exercise \u2013 e-commerce\nCHANGE SLIDE\nIts origins are in the 1970s, and now of course it is ubiquitous\nCHANGE SLIDE\nBoth China and the US have massive online markets and they are only getting larger\nDid Covid increase the share of e-commerce as a percentage of retail sales?",
+      " carrying a trend to its absurd conclusion and then seeing what you find\nSo you could have asked, what if there is no retail at all?  What will cities look like and what kinds of problems will we find that we can start working on today?\nWhat will be missing?\nWhat products and services and policies will be needed?",
+      "\nAnd one of the major reasons why successful companies eventually fail\nThey keep innovating for yesterday\u2019s market\nMethod 2: Scenario Analysis\nThe second technique for re-imagining the future is what is called scenario analysis\nThis is where we create four alternative futures \u2013 think of them as stories or science fiction\nThe key is to figure out what the axes are\nThere is no formula or rule here \u2013 whatever seems to work\nAnd once you have your boxes, they can then be analyzed for what products and services will be needed in that future\nScenario Analysis: E-Commerce\nThese were the two axes chosen by my colleague Sascha\nHe then created stories in the four boxes, accompanied by pictures\nCHANGE SLIDE\nAnd then he filled out the stories\nEach represents an alternative future that presents different challenges, uncertainties, and problems; and thus opportunities\nScenarios give you a chance to ask\nHow will life be different in such a future?\nHow will people live and what new products and services will they need?",
+      ")\nWhy Innovate?"
+    ],
+    "causation": [
+      "because",
+      "because",
+      "thus",
+      "because",
+      "because"
+    ],
+    "trends": [
+      "Trend",
+      "trend",
+      "trend",
+      "changing",
+      "changing"
+    ],
+    "future": [
+      "future",
+      "will",
+      "will",
+      "will",
+      "will"
+    ]
+  },
+  "char_count": 109911,
+  "extracted_at": "2026-01-28T12:41:04.704149"
+}

@@ -1,0 +1,70 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #7/Upload videos f12150a0bff643e6ba3678db664f9db2.md",
+  "display_name": "Course/Cohort-2024/Session #7/Upload videos f12150a0bff643e6ba3678db664f9db2.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #7",
+  "extraction": {
+    "title": "Upload videos f12150a0bff643e6ba3678db664f9db2.md",
+    "topic": "Video Presentation Portfolio",
+    "frameworks": [],
+    "concepts": [
+      "Presentation",
+      "Portfolio",
+      "Innovation",
+      "Feedback",
+      "Review",
+      "Deliverables",
+      "Speakers",
+      "Investor Relations"
+    ],
+    "entities": [
+      "Lital Attia",
+      "Jonathan Sagir",
+      "Ben Wiener",
+      "Daniela Pratham",
+      "Hannan Brand",
+      "Yaakov",
+      "Yishai",
+      "Uriel",
+      "Bank of Opportunities"
+    ],
+    "problems_discussed": [
+      "Dropouts from program",
+      "Clear instruction on deliverables"
+    ],
+    "pws_phase_relevance": [
+      "Solution Framing",
+      "Portfolio"
+    ],
+    "teaching_elements": [
+      "Presentation template",
+      "Google form for feedback"
+    ],
+    "key_claims": [
+      "Create a presentation template for a portfolio of innovation.",
+      "Collect comments and reviews on presentations."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Presentation",
+      "THIS_DOC -[TEACHES]-> Portfolio",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[MENTIONS]-> Lital Attia",
+      "THIS_DOC -[MENTIONS]-> Jonathan Sagir",
+      "THIS_DOC -[MENTIONS]-> Ben Wiener",
+      "THIS_DOC -[MENTIONS]-> Daniela Pratham",
+      "THIS_DOC -[MENTIONS]-> Hannan Brand",
+      "THIS_DOC -[MENTIONS]-> Yaakov",
+      "THIS_DOC -[MENTIONS]-> Yishai",
+      "THIS_DOC -[MENTIONS]-> Uriel",
+      "THIS_DOC -[MENTIONS]-> Bank of Opportunities"
+    ]
+  },
+  "signals": {
+    "years": [
+      "2024"
+    ]
+  },
+  "char_count": 948,
+  "extracted_at": "2026-01-28T12:49:31.843034"
+}

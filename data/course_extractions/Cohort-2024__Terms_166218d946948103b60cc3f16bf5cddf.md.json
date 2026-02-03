@@ -1,0 +1,77 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #3/Terms 166218d946948103b60cc3f16bf5cddf.md",
+  "display_name": "Course/Cohort-2024/Session #3/Terms 166218d946948103b60cc3f16bf5cddf.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Terms 166218d946948103b60cc3f16bf5cddf.md",
+    "topic": "Innovation Terms",
+    "frameworks": [
+      "Now, New, Next",
+      "Diverge-Converge Model"
+    ],
+    "concepts": [
+      "Structured Ideation",
+      "Cross-Industry Innovation",
+      "Customer Feedback",
+      "Competitive Analysis",
+      "Incremental Innovation",
+      "Disruptive Innovation",
+      "Problem Definition",
+      "AI-Enhanced Ideation",
+      "Market Maturity",
+      "Presentism"
+    ],
+    "entities": [
+      "McKinsey",
+      "U.S. Department of Energy"
+    ],
+    "problems_discussed": [
+      "Lack of original ideas",
+      "Inability to anticipate future challenges",
+      "Stagnation due to market maturity"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Definitions of innovation terms",
+      "Examples of innovation approaches (GEODE Initiative)"
+    ],
+    "key_claims": [
+      "Innovation can be categorized into incremental, significant, and disruptive efforts.",
+      "Structured ideation and cross-industry collaboration can lead to more impactful innovations."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Structured Ideation",
+      "THIS_DOC -[TEACHES]-> Cross-Industry Innovation",
+      "THIS_DOC -[TEACHES]-> Disruptive Innovation",
+      "THIS_DOC -[USES_FRAMEWORK]-> Now, New, Next",
+      "THIS_DOC -[USES_FRAMEWORK]-> Diverge-Converge Model"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "problem",
+      "Problem",
+      "challenge"
+    ],
+    "solutions": [
+      "approach",
+      "method",
+      "method",
+      "address"
+    ],
+    "causation": [
+      "leads to"
+    ],
+    "future": [
+      "future"
+    ]
+  },
+  "char_count": 2657,
+  "extracted_at": "2026-01-28T12:58:41.720610"
+}

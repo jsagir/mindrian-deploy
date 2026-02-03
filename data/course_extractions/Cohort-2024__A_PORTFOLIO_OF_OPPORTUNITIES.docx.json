@@ -1,0 +1,77 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/A PORTFOLIO OF OPPORTUNITIES.docx",
+  "display_name": "Course/Cohort-2024/A PORTFOLIO OF OPPORTUNITIES.docx",
+  "category": "Cohort-2024",
+  "subfolder": null,
+  "extraction": {
+    "title": "A PORTFOLIO OF OPPORTUNITIES",
+    "topic": "Opportunity Identification",
+    "frameworks": [
+      "Ansoff Matrix"
+    ],
+    "concepts": [
+      "Opportunity",
+      "Problem",
+      "Innovation",
+      "Uncertainty",
+      "Risk",
+      "Demand",
+      "Technological Feasibility",
+      "Use Cases",
+      "Domain"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Ill-defined problems",
+      "Un-defined problems",
+      "Problems where things don't work as they should",
+      "Problems where things need to work better"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Portfolio"
+    ],
+    "teaching_elements": [
+      "Exercise: Creating a Portfolio of Opportunities",
+      "Use case analysis"
+    ],
+    "key_claims": [
+      "Opportunities are problems to be solved.",
+      "Opportunities allow us to create a different future."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Opportunity",
+      "THIS_DOC -[TEACHES]-> Problem",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Uncertainty",
+      "THIS_DOC -[TEACHES]-> Risk",
+      "THIS_DOC -[USES_FRAMEWORK]-> Ansoff Matrix",
+      "THIS_DOC -[DISCUSSES]-> Ill-defined problems",
+      "THIS_DOC -[DISCUSSES]-> Un-defined problems"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "Problem",
+      "problem",
+      "problem",
+      "problem",
+      "problem"
+    ],
+    "questions": [
+      "CREATING A PORTFOLIO OF OPPORTUNITIES\nA FRAMEWORK FOR INNOVATION:\nFINDING PROBLEMS WORTH WORKING ON\nReminder: Problem Types\nReminder: Finding Opportunities is the Key\nOpportunities are found when things don\u2019t work as they should, or need to work better than they currently do\nOpportunities are, therefore, problems to be solved \nOpportunities allow us to create a different future, a future we want\nBut they must be researched and explored if they are to be turned into well-defined problems and thus become innovations\nCreating a Portfolio of Opportunities\nNow: Incremental Improvements\nNew: The Ansoff Matrix\nThe Goal: Next Opportunities\nWhere are the Best Opportunities?\nUncertainty: \nDemand\nTechnological feasibility\nRisk: \nFinancial\nPolitical\nReputational\nManagerial\nExercise: Creating a Portfolio of Opportunities\nChoose a domain of interest\nWhat un-defined or ill-defined problem(s) did you explore within that domain?\nShow your research\nIdentify your best three opportunities in that domain\nShow the process by which you developed these opportunities\nBe explicit about the tools you used\nFor each opportunity, think in terms of use cases:\nWhat is the problem?\nWho has the problem?\nWhy do they have the problem?"
+    ],
+    "causation": [
+      "therefore",
+      "thus"
+    ],
+    "future": [
+      "future",
+      "future"
+    ]
+  },
+  "char_count": 1218,
+  "extracted_at": "2026-01-28T12:38:16.801565"
+}

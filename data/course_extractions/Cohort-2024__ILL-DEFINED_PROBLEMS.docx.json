@@ -1,0 +1,134 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/ILL-DEFINED PROBLEMS.docx",
+  "display_name": "Course/Cohort-2024/ILL-DEFINED PROBLEMS.docx",
+  "category": "Cohort-2024",
+  "subfolder": null,
+  "extraction": {
+    "title": "ILL-DEFINED PROBLEMS.docx",
+    "topic": "Ill-Defined Problems",
+    "frameworks": [],
+    "concepts": [
+      "Ill-defined problems",
+      "Well-defined problems",
+      "Intersectional innovation",
+      "Directional innovation",
+      "Extensive searching",
+      "Intensive searching",
+      "Associative barriers",
+      "Trends",
+      "Needs",
+      "Orthodoxies",
+      "Resources"
+    ],
+    "entities": [
+      "Google",
+      "Baltimore Harbor",
+      "Johns Hopkins",
+      "Amazon",
+      "Blockbuster",
+      "Celcy",
+      "PixieDrone",
+      "Frans Johansson",
+      "Rowan Gibson"
+    ],
+    "problems_discussed": [
+      "Pollution in waterways",
+      "Finding problems worth solving",
+      "Identifying market opportunities",
+      "Improving user experience",
+      "Disrupting business models"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [
+      "Examples of ill-defined problems",
+      "Examples of intersectional innovation",
+      "Case studies (Amazon, Blockbuster, Celcy, PixieDrone)"
+    ],
+    "key_claims": [
+      "Ill-defined problems require the problem solver to specify missing elements before a solution can occur.",
+      "Powerful new ideas are always inspired by insights."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Ill-defined problems",
+      "THIS_DOC -[TEACHES]-> Well-defined problems",
+      "THIS_DOC -[TEACHES]-> Intersectional innovation",
+      "THIS_DOC -[TEACHES]-> Directional innovation",
+      "THIS_DOC -[TEACHES]-> Extensive searching",
+      "THIS_DOC -[TEACHES]-> Intensive searching",
+      "THIS_DOC -[TEACHES]-> Associative barriers",
+      "THIS_DOC -[MENTIONS]-> Frans Johansson",
+      "THIS_DOC -[MENTIONS]-> Rowan Gibson",
+      "THIS_DOC -[EXAMPLE_OF]-> Celcy",
+      "THIS_DOC -[EXAMPLE_OF]-> PixieDrone"
+    ]
+  },
+  "signals": {
+    "money": [
+      "$200 billion",
+      "$6.99"
+    ],
+    "years": [
+      "2006",
+      "2015",
+      "2013",
+      "2022",
+      "1986"
+    ],
+    "assumptions": [
+      "If we",
+      "if we",
+      "if we",
+      "If we",
+      "if we"
+    ],
+    "problems": [
+      "Problem",
+      "problem",
+      "Problem",
+      "problem",
+      "problem"
+    ],
+    "solutions": [
+      "solve",
+      "solve",
+      "solution",
+      "Solution",
+      "address"
+    ],
+    "questions": [
+      "ILL-DEFINED PROBLEMS\n\nTools for exploring ill-defined problems\nProblem Types\nIll-Defined Problems\nGoal is to find problems worth solving by asking what\u2019s the next big thing inherent in a situation\nWhat is plausible for us to begin working on now that will create new opportunities (products and markets) for us in the near and medium terms?\nExamples:\nWhat is the next big thing for AI in our industry?\nWhat is the next big thing for online learning?\nWhat is the next big thing for smart watches?\nWhat is the next big thing for the travel industry?\nWhat is the next big thing for Google?\nWhat is the next big thing in city services?\nWe explore ill-defined problems either\nBy themselves, or\nAs a result of exploring un-defined problems\nExample: What\u2019s Next Big Thing for Electric Vehicles?\nThe question is not \u201cWhat is the future of electric vehicles?\u201d\nBut how to take advantage of changes in:\nPersonal mobility\nSupply chains\nVehicle types\nBusiness models\nExample: Baltimore Harbor\nA visit to Baltimore Harbor revealed lots of pollution\nIf the problem were un-defined:  What is the future of Baltimore Harbor?",
+      "\nThe Process for Creating an Ill-Defined Problem\nStart with the domain of interest \u2013 How can we clean up pollution in waterways?\nConstrain the problem by identifying the missing elements:\nWhat kind of pollution?\nSewage\nDomestic effluents\nIndustrial effluents\nOil\nAgricultural runoff\nTrash\nWhat kind of waterway?\nOcean\nInland\nCreate an ill-defined problem: How can we clean up trash from inland waterways?\nCreate a list of opportunities\nThe Solution\nTake one opportunity and turn it into a well-defined problem: How can we continuously clean up trash from inland waterways with minimal human intervention and oversight?",
+      "\nTARGETS\nFloating waste in all its forms: organic, plastic, glass, metal, paper, fabric, rubber, etc\u2026\nSummary: Using Ill-Defined Problems\nHow can you find a problem worth solving?",
+      "\nAddresses questions such as\nWhat\u2019s next?\nWhat\u2019s missing in the marketplace?\nHow do we pivot?\nHow do we disrupt our business before competitors do?\nExamples:\nTechnology:  What big problems can blockchain address?\nUser Experience:  How can the doctor/patient experience be improved?\nIndustry space:  What\u2019s next for smartwatches?",
+      " How?"
+    ],
+    "causation": [
+      "As a result",
+      "because",
+      "therefore",
+      "therefore",
+      "because"
+    ],
+    "trends": [
+      "emerging",
+      "Growing",
+      "Growing",
+      "shifting",
+      "emerging"
+    ],
+    "future": [
+      "will",
+      "future",
+      "future",
+      "will",
+      "will"
+    ]
+  },
+  "char_count": 82610,
+  "extracted_at": "2026-01-28T12:38:54.522002"
+}

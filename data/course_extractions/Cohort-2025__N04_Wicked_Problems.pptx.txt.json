@@ -1,0 +1,138 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2025/SlideDecks 2025/N04_Wicked Problems.pptx.txt",
+  "display_name": "Course/Cohort-2025/SlideDecks 2025/N04_Wicked Problems.pptx.txt",
+  "category": "Cohort-2025",
+  "subfolder": "SlideDecks 2025",
+  "extraction": {
+    "title": "N04_Wicked Problems.pptx.txt",
+    "topic": "Wicked Problems",
+    "frameworks": [],
+    "concepts": [
+      "Wicked problems",
+      "Systems thinking",
+      "Systems mapping",
+      "Causal loop diagrams",
+      "Stock and flow diagrams",
+      "Reinforcing loops",
+      "Balancing loops",
+      "Stocks",
+      "Flows",
+      "Systems"
+    ],
+    "entities": [
+      "Horst Rittel",
+      "McKinsey",
+      "International Federation of Red Cross",
+      "United Nation Refugee Agency",
+      "Norwegian Refugee Council",
+      "Donella H. Meadows",
+      "Diana Wright",
+      "Sustainability Institute",
+      "Chelsea Green Publishing",
+      "Russell L. Ackoff",
+      "Daniel H. Kim",
+      "ChemBE"
+    ],
+    "problems_discussed": [
+      "Wicked problems",
+      "Food insecurity in Burkina Faso",
+      "Poverty",
+      "Sustainability",
+      "Equality",
+      "Health and wellness"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Examples of reinforcing and balancing loops",
+      "Case study: Food Insecurity in Burkina Faso",
+      "Examples of stock and flow diagrams",
+      "Exercise: Identifying S's and O's in feedback loops",
+      "ChemBE examples of reinforcing and balancing loops"
+    ],
+    "key_claims": [
+      "Wicked problems are difficult to solve due to incomplete knowledge, multiple stakeholders, economic burden, and interconnectedness.",
+      "Systems thinking and systems mapping are useful tools for understanding and addressing wicked problems.",
+      "Systems are interconnected sets of elements with a function or purpose, and improving a system requires focusing on the interactions of its parts."
+    ],
+    "cohort_context": "Cohort-2025",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Wicked problems",
+      "THIS_DOC -[TEACHES]-> Systems thinking",
+      "THIS_DOC -[TEACHES]-> Systems mapping",
+      "THIS_DOC -[TEACHES]-> Causal loop diagrams",
+      "THIS_DOC -[TEACHES]-> Stock and flow diagrams",
+      "THIS_DOC -[TEACHES]-> Reinforcing loops",
+      "THIS_DOC -[TEACHES]-> Balancing loops",
+      "THIS_DOC -[TEACHES]-> Stocks",
+      "THIS_DOC -[TEACHES]-> Flows",
+      "THIS_DOC -[MENTIONS]-> Horst Rittel",
+      "THIS_DOC -[MENTIONS]-> Russell L. Ackoff",
+      "THIS_DOC -[MENTIONS]-> Daniel H. Kim",
+      "THIS_DOC -[DISCUSSES]-> Food insecurity in Burkina Faso",
+      "THIS_DOC -[DISCUSSES]-> Poverty",
+      "THIS_DOC -[DISCUSSES]-> Sustainability",
+      "THIS_DOC -[DISCUSSES]-> Equality",
+      "THIS_DOC -[DISCUSSES]-> Health and wellness"
+    ]
+  },
+  "signals": {
+    "percentages": [
+      "10%"
+    ],
+    "years": [
+      "2020",
+      "2008",
+      "2012",
+      "2011",
+      "2008"
+    ],
+    "problems": [
+      "problem",
+      "problem",
+      "problem",
+      "problem",
+      "problem"
+    ],
+    "solutions": [
+      "solve",
+      "solve",
+      "approach",
+      "strategy",
+      "solution"
+    ],
+    "questions": [
+      "org/books/excerpts/entry/wicked_problems_problems_worth_solving#\n6\n\nWICKED PROBLEMS ARE SYSTEMS PROBLEMS\nConfidential for classroom use only\n7\n7\n\nReminder: What are Systems?",
+      " \nIs there anything that is not a system?",
+      "com/watch?",
+      " What accounts for this constancy?",
+      "com/better-systems/systems-thinking-part-2-stocks-flows-and-feedback-loops-b27eadfc200\n\nYou Try It \u2013 Where are the S\u2019s and O\u2019s?"
+    ],
+    "causation": [
+      "because",
+      "because",
+      "because",
+      "therefore",
+      "due to"
+    ],
+    "trends": [
+      "Changing",
+      "changing",
+      "Changing",
+      "changing",
+      "changing"
+    ],
+    "future": [
+      "will",
+      "future",
+      "will",
+      "future",
+      "will"
+    ]
+  },
+  "char_count": 48944,
+  "extracted_at": "2026-01-28T12:44:54.877806"
+}

@@ -1,0 +1,131 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2025/SlideDecks 2025/N05_Domains.pptx.txt",
+  "display_name": "Course/Cohort-2025/SlideDecks 2025/N05_Domains.pptx.txt",
+  "category": "Cohort-2025",
+  "subfolder": "SlideDecks 2025",
+  "extraction": {
+    "title": "N05_Domains.pptx.txt",
+    "topic": "Reverse Salients",
+    "frameworks": [
+      "The Four Actions Framework",
+      "Systems analysis"
+    ],
+    "concepts": [
+      "Reverse Salient",
+      "Ill-Defined Problems",
+      "Electrification",
+      "System",
+      "Critical Problems",
+      "Value Propositions",
+      "Innovation",
+      "Technology Adoption",
+      "Demand",
+      "Supply"
+    ],
+    "entities": [
+      "Thomas P. Hughes",
+      "The Johns Hopkins University Press",
+      "Edwin Drake",
+      "Russia",
+      "China",
+      "Middle East",
+      "Venezuela",
+      "Google",
+      "Westinghouse"
+    ],
+    "problems_discussed": [
+      "Ill-defined problems",
+      "High cost of transmission (electricity)",
+      "Impermeability of shale (oil & gas)",
+      "High synthesis and sequencing costs (DNA storage)",
+      "Slow encoding and decoding speeds (DNA storage)",
+      "Random access limitations (DNA storage)",
+      "Scalability and error-correction (DNA storage)"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Case studies (Electrification, Oil & Gas, DNA Storage)",
+      "Examples of ill-defined problems",
+      "Exercise: Combining Tools to Address Reverse Salients"
+    ],
+    "key_claims": [
+      "Reverse salients hamper system growth and require concentrated action.",
+      "Inventions and technological developments often result from efforts to correct reverse salients."
+    ],
+    "cohort_context": "Cohort-2025",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Reverse Salient",
+      "THIS_DOC -[TEACHES]-> Ill-Defined Problems",
+      "THIS_DOC -[TEACHES]-> System",
+      "THIS_DOC -[TEACHES]-> Critical Problems",
+      "THIS_DOC -[USES_FRAMEWORK]-> The Four Actions Framework",
+      "THIS_DOC -[USES_FRAMEWORK]-> Systems analysis",
+      "THIS_DOC -[DISCUSSES]-> Electrification",
+      "THIS_DOC -[DISCUSSES]-> Oil & Gas",
+      "THIS_DOC -[DISCUSSES]-> DNA Storage",
+      "THIS_DOC -[MENTIONS]-> Thomas P. Hughes"
+    ]
+  },
+  "signals": {
+    "percentages": [
+      "75%"
+    ],
+    "years": [
+      "1930",
+      "1983",
+      "1900",
+      "1930",
+      "1980"
+    ],
+    "assumptions": [
+      "if we"
+    ],
+    "problems": [
+      "problem",
+      "Problem",
+      "problem",
+      "challenge",
+      "problem"
+    ],
+    "solutions": [
+      "solution",
+      "solution",
+      "solution",
+      "solution",
+      "solution"
+    ],
+    "questions": [
+      "WORKING WITH THE TOOLKIT\u000b\nFinding areas of opportunity in specific domains\nConfidential: For Classroom Use Only\n1\n1\n\nIll-Defined Problems\nGoal is to find problems worth solving by asking what\u2019s the next big thing inherent in a specific situation, whether technological, market, or policy\nWhat is plausible for us to begin working on now that will create new opportunities (products, markets, and policies) for us in the near and medium terms?\n\nExamples:\nWhat is the next big thing for AI in our industry?\nWhat is the next big thing for online learning?\nWhat is the next big thing for smart watches?\nWhat is the next big thing for the travel industry?\nWhat is the next big thing for Google?\nWhat is the next big thing in city services?",
+      " \n(The Johns Hopkins University Press: 1983)\nConfidential for classroom use only\n3\nREVERSE SALIENTS\n3\n\nThe Problem of Electrification\nHow did the small, intercity lighting systems of the 1880s evolve into the regional power systems of the 1920s?",
+      ", system growth\n4\n\nHow do you Electrify Everything?",
+      "\n\nLike the computing industry between 1980 and 1995 \u2013 when did it all change?",
+      "\nWhy is this a reverse salient?"
+    ],
+    "causation": [
+      "As a result",
+      "Because",
+      "As a result",
+      "thus",
+      "As a result"
+    ],
+    "trends": [
+      "Growing",
+      "Trending",
+      "changing",
+      "Trending"
+    ],
+    "future": [
+      "will",
+      "will",
+      "will",
+      "will"
+    ]
+  },
+  "char_count": 18352,
+  "extracted_at": "2026-01-28T12:45:06.506907"
+}

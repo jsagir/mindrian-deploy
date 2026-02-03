@@ -1,0 +1,134 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/UN DEFINED PROBLEMS.docx",
+  "display_name": "Course/Cohort-2024/UN DEFINED PROBLEMS.docx",
+  "category": "Cohort-2024",
+  "subfolder": null,
+  "extraction": {
+    "title": "UN DEFINED PROBLEMS",
+    "topic": "Future Problem Exploration",
+    "frameworks": [
+      "Scenario Analysis",
+      "Systems Analysis",
+      "Redteaming",
+      "Trending to the Absurd"
+    ],
+    "concepts": [
+      "Un-defined problems",
+      "Trend analysis",
+      "Scenario planning",
+      "Systems thinking",
+      "Future forecasting",
+      "Use cases",
+      "Driving forces",
+      "Opportunity spaces",
+      "Problem definition",
+      "Ill-defined problems"
+    ],
+    "entities": [
+      "Eugene Ely",
+      "Henricus de Alemannia",
+      "Laurentius de Voltolina",
+      "Kupferstichkabinett Berlin"
+    ],
+    "problems_discussed": [
+      "Future of personal mobility",
+      "Future of work",
+      "Transition to clean energy",
+      "Future of medical care",
+      "Future of war",
+      "Future of education",
+      "Future of the city",
+      "Energy future",
+      "Future of the grid",
+      "Water scarcity",
+      "Refugee crisis",
+      "Climate change",
+      "Urbanization",
+      "Submarine warfare"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Scenario Analysis",
+      "Red Teaming"
+    ],
+    "teaching_elements": [
+      "Examples",
+      "Class exercises",
+      "Deliverable outlines",
+      "Case studies",
+      "Worksheets"
+    ],
+    "key_claims": [
+      "Thinking deeply about the future helps understand potential opportunities and problems.",
+      "Analyzing trends and scenarios can reveal ill-defined problems and potential solutions."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Un-defined problems",
+      "THIS_DOC -[TEACHES]-> Trend analysis",
+      "THIS_DOC -[TEACHES]-> Scenario planning",
+      "THIS_DOC -[TEACHES]-> Systems thinking",
+      "THIS_DOC -[USES_FRAMEWORK]-> Scenario Analysis",
+      "THIS_DOC -[USES_FRAMEWORK]-> Systems Analysis",
+      "THIS_DOC -[USES_FRAMEWORK]-> Redteaming",
+      "THIS_DOC -[USES_FRAMEWORK]-> Trending to the Absurd",
+      "THIS_DOC -[DISCUSSES]-> Future of medical care",
+      "THIS_DOC -[DISCUSSES]-> Future of education",
+      "THIS_DOC -[DISCUSSES]-> Climate change"
+    ]
+  },
+  "signals": {
+    "years": [
+      "1910",
+      "1910",
+      "2050",
+      "1930",
+      "2019"
+    ],
+    "problems": [
+      "Problem",
+      "challenge",
+      "problem",
+      "challenge",
+      "challenge"
+    ],
+    "solutions": [
+      "METHOD",
+      "solution",
+      "METHOD",
+      "Method",
+      "Strategy"
+    ],
+    "questions": [
+      "UN-DEFINED PROBLEMS\n\nTools for exploring un-defined problems\nProblem Types\nUn-Defined Problems\nGoal is to think deeply about the future in order to understand what is over the horizon and the opportunities and problems that might possibly be found there\nExamples:\nWhat is the future of personal mobility?\nWhat is the future of work?\nWhat will the transition to clean energy look like?\nWhat problems and opportunities will be found in these futures?\nExample: What is the Future of Medical Care?\nPossibilities:\nPrecision medicine\nBig data\nEarly cancer detection\nImmunotherapy\nExample: What is the Future of War?\nLand\nSea\nAir \nSpace\nCyber\nCognitive\nExample: What is the Future of Education?",
+      "com/site/lifeduringthemedievaltimes/education\n\nWhat is the Future of the City? Our City?\nThe City of the Future Will Be Shaped by These 7\u00a0Factors:\nDenser but healthier cities\nInfrastructure for social equity\nDesign for resilience and sustainability\nA return to the \u201cmedieval city-state\u201d?\nOn-demand mobility\nThe public-private conundrum\nData and design\nExample: What is our Energy Future?\nExample: What is the Future of the Grid?",
+      "\u00a0\n31 Years Later\nBut Only a Year Before\nExample: Number of Horses \nNow What is the Trend to the Absurd?",
+      "\nFor example:\nWhat if water were so scarce that all you had was a liter of water each day?\nExample: What if Refugees Can Never Go Home?",
+      "\u00a0\nClass Exercise\nWhat are some of the biggest changes to our everyday lives?"
+    ],
+    "causation": [
+      "due to",
+      "thus",
+      "due to",
+      "therefore",
+      "therefore"
+    ],
+    "trends": [
+      "Trending",
+      "TRENDING",
+      "Trend",
+      "trend",
+      "changing"
+    ],
+    "future": [
+      "future",
+      "future",
+      "future",
+      "will",
+      "will"
+    ]
+  },
+  "char_count": 30059,
+  "extracted_at": "2026-01-28T12:40:50.397873"
+}

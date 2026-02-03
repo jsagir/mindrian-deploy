@@ -1,0 +1,203 @@
+{
+  "file": "/home/jsagi/Mindrian/PWS - Lectures and worksheets created by Mindrian-20251219T001450Z-1-001/PWS - Lectures and worksheets created by Mindrian/Bono/BONO_Innovation_Framework_Materials_Guide.md",
+  "display_name": "T2_Tools/SixThinkingHats/BONO_Innovation_Framework_Materials_Guide.md",
+  "category": "BONO",
+  "subcategory": "Six Thinking Hats",
+  "extraction": {
+    "title": "BONO_Innovation_Framework_Materials_Guide.md",
+    "topic": "Six Thinking Hats / Parallel Thinking",
+    "hat_definitions": [
+      "White",
+      "Red",
+      "Black",
+      "Yellow",
+      "Green",
+      "Blue"
+    ],
+    "case_studies": [
+      "IBM",
+      "Challenger"
+    ],
+    "frameworks": [
+      "Six Thinking Hats",
+      "BONO-Innovation Framework",
+      "Parallel Thinking",
+      "PWS Methodology"
+    ],
+    "concepts": [
+      "Parallel thinking",
+      "Adversarial dynamics",
+      "Cognitive dissonance",
+      "Hat discipline",
+      "Sequence design",
+      "Thinking modes",
+      "Team dysfunction",
+      "Personal thinking style",
+      "Peer review",
+      "Validation criteria",
+      "Focus question",
+      "Time allocation",
+      "Problem anticipation",
+      "Materials and logistics",
+      "Opening framing",
+      "Output capture",
+      "Conclusion synthesis",
+      "Participant feedback",
+      "Self-assessment",
+      "Learning identification",
+      "Improvement plan",
+      "Artificial structure",
+      "Black Hat dominance",
+      "Superficial Red Hat",
+      "Senior voice dominance",
+      "Hat boundary confusion"
+    ],
+    "personas_discussed": [
+      "Instructors",
+      "Facilitators",
+      "Students",
+      "Practitioners",
+      "Self-learners",
+      "Executive teams"
+    ],
+    "session_designs": [
+      "Single Session Introduction (3 hours)",
+      "Two Sessions (2 x 2 hours)",
+      "Workshop Format (Full day, 8 hours)",
+      "Self-Paced Online"
+    ],
+    "standard_sequences": [],
+    "pws_integration": [
+      "Foundational tool for PWS curriculum",
+      "Prerequisites: Problem type taxonomy, Introduction to PWS methodology",
+      "Followed by: Scenario Analysis, Jobs To Be Done, Red Teaming"
+    ],
+    "teaching_elements": [
+      "Lecture",
+      "Workbook",
+      "Case Studies",
+      "Reference Library",
+      "Worksheets",
+      "Exercises",
+      "Assessments",
+      "Discussion questions",
+      "Peer checkpoints",
+      "Facilitation protocol",
+      "Hat Identification Exercise",
+      "Sequence Design Rationale",
+      "Live Practice Observation"
+    ],
+    "key_claims": [
+      "50-75% meeting time reduction at IBM",
+      "Self-assessment creates buy-in for the methodology",
+      "Hat mastery requires practice, not just explanation",
+      "The learning happens in actual facilitation",
+      "Each case demonstrates specific principles"
+    ],
+    "graph_connections": [
+      "BONO-Innovation Framework -[TEACHES]-> Six Thinking Hats",
+      "Six Thinking Hats -[HAS_PART]-> White Hat",
+      "Six Thinking Hats -[HAS_PART]-> Red Hat",
+      "Six Thinking Hats -[HAS_PART]-> Black Hat",
+      "Six Thinking Hats -[HAS_PART]-> Yellow Hat",
+      "Six Thinking Hats -[HAS_PART]-> Green Hat",
+      "Six Thinking Hats -[HAS_PART]-> Blue Hat",
+      "IBM -[IMPLEMENTED]-> Six Thinking Hats",
+      "BONO-Innovation Framework -[USES]-> Parallel Thinking",
+      "Workbook -[CONTAINS]-> Worksheets",
+      "Lecture -[EXPLAINS]-> Six Thinking Hats",
+      "PWS Methodology -[REQUIRES]-> Six Thinking Hats",
+      "Six Thinking Hats -[USED_IN]-> Scenario Analysis",
+      "Six Thinking Hats -[USED_IN]-> Jobs To Be Done",
+      "Six Thinking Hats -[USED_IN]-> Red Teaming"
+    ]
+  },
+  "signals": {
+    "percentages": [
+      "75%",
+      "75%",
+      "100%",
+      "90%",
+      "80%",
+      "80%",
+      "60%",
+      "80%",
+      "70%",
+      "75%"
+    ],
+    "years": [
+      "2026"
+    ],
+    "assumptions": [
+      "assume",
+      "assume"
+    ],
+    "problems": [
+      "problem",
+      "challenge",
+      "Problem",
+      "bottleneck",
+      "challenge",
+      "Problem",
+      "Challenge",
+      "Challenge",
+      "Challenge",
+      "Challenge"
+    ],
+    "solutions": [
+      "Solution",
+      "approach",
+      "Solution",
+      "Solution",
+      "Solution",
+      "Solution",
+      "Solution",
+      "Address",
+      "Address",
+      "Fix"
+    ],
+    "questions": [
+      "** The \"Why do smart people make bad decisions?",
+      "** Before explaining team dysfunction, ask \"What happens in your worst meetings?",
+      " Hat Identification Exercise**\nRead a statement and ask: \"What hat is this?",
+      "\"\n- Share research: 50-75% meeting time reduction at IBM\n- Ask skeptics: \"How's your current approach working?",
+      "\"\n- Use prompts: \"What's your gut telling you that logic can't explain?\"\n- Model vulnerability: Share your own genuine intuition first\n- Let silence stretch\u2014deep feelings need time to surface\n\n---\n\n### Challenge 4: Senior Voice Dominance\n\n**Symptoms:** Most senior person speaks first; others defer; diversity of thought disappears\n\n**Solution:**\n- Establish \"reverse hierarchy\" for certain hats\u2014junior speaks first\n- Use written responses before verbal sharing\n- Call on quiet voices directly: \"Jamie, we haven't heard your Red Hat\u2014what's your gut saying?\"\n- Praise dissent when it occurs\n\n---\n\n### Challenge 5: Confusion About Hat Boundaries\n\n**Symptoms:** Mixing modes in same statement; \"But isn't that also Yellow Hat?",
+      "\n- Offer quick-decision sequence (5 minutes) as alternative to no structure\n- Track meeting time before/after implementation\n- Ask: \"How much time did your last unstructured meeting waste?",
+      "0 | January 2026 | Initial release |\n\n---\n\n## APPENDIX: QUICK REFERENCE CARDS\n\n### The Six Hats at a Glance\n\n| Hat | Color | Focus | Key Question |\n|-----|-------|-------|--------------|\n| \ud83e\udd0d | White | Facts, data, information | \"What do we know? What don't we know?\" |\n| \u2764\ufe0f | Red | Emotions, intuitions | \"What does my gut tell me?\" |\n| \ud83d\udda4 | Black | Risks, problems, cautions | \"What could go wrong?\" |\n| \ud83d\udc9b | Yellow | Benefits, opportunities | \"What value could this create?\" |\n| \ud83d\udc9a | Green | Creativity, alternatives | \"What else is possible?\" |\n| \ud83d\udc99 | Blue | Process, meta-thinking | \"How should we think about this?\" |\n\n### Standard Sequences Quick Reference\n\n| Situation | Sequence |\n|-----------|----------|\n| Initial Exploration | Blue \u2192 White \u2192 Red \u2192 Green \u2192 Yellow \u2192 Black \u2192 Blue |\n| Idea Evaluation | Blue \u2192 White \u2192 Yellow \u2192 Black \u2192 Green \u2192 Red \u2192 Blue |\n| Creative Problem Solving | Blue \u2192 White \u2192 Green \u2192 Yellow \u2192 Black \u2192 Red \u2192 Blue |\n| Quick Decision | Blue \u2192 White \u2192 Red \u2192 Black \u2192 Yellow \u2192 Blue |\n| Cautious Assessment | Blue \u2192 White \u2192 Black \u2192 Yellow \u2192 Black \u2192 Green \u2192 Red \u2192 Blue |\n| Improvement Focus | Blue \u2192 White \u2192 Yellow \u2192 Red \u2192 Green \u2192 Black \u2192 Blue |\n\n### Common Problems Quick Fix\n\n| Problem | Quick Fix |\n|---------|-----------|\n| Hat jumping | \"Let's save that for [correct hat] time\" |\n| Black Hat dominance | Set timer; celebrate Yellow insights |\n| Superficial Red Hat | \"What's your gut telling you that logic can't explain?"
+    ],
+    "causation": [
+      "causes",
+      "causes",
+      "causes"
+    ],
+    "trends": [
+      "Trending"
+    ],
+    "hats": [
+      "Parallel Thinking",
+      "parallel thinking",
+      "Parallel thinking",
+      "Parallel thinking",
+      "Parallel thinking",
+      "Red Hat",
+      "Yellow Hat",
+      "Blue Hat",
+      "Black Hat",
+      "Red Hat"
+    ],
+    "frameworks": [
+      "BONO",
+      "Parallel Thinking",
+      "BONO",
+      "Six Thinking Hats",
+      "parallel thinking",
+      "de Bono",
+      "Parallel thinking",
+      "Parallel thinking",
+      "Parallel thinking",
+      "BONO"
+    ]
+  },
+  "char_count": 26121,
+  "extracted_at": "2026-01-28T14:26:28.524073"
+}

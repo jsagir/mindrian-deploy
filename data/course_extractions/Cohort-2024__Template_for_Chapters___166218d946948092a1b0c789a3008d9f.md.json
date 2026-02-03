@@ -1,0 +1,104 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Template for Chapters \u2014 166218d946948092a1b0c789a3008d9f.md",
+  "display_name": "Course/Cohort-2024/Session #3/Template for Chapters \u2014 166218d946948092a1b0c789a3008d9f.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Template for Chapters \u2014 166218d946948092a1b0c789a3008d9f.md",
+    "topic": "Innovation Opportunity Identification",
+    "frameworks": [
+      "Jobs to be Done",
+      "Trending to the Absurd",
+      "Futures Wheels"
+    ],
+    "concepts": [
+      "Innovation",
+      "Uncertainty",
+      "Risk",
+      "Disruptive Innovation",
+      "Intersectional Ideas",
+      "Reverse Salient",
+      "Process Maps",
+      "Alternative Futures",
+      "Problem Solving"
+    ],
+    "entities": [
+      "Royal Institute of Dominant Designs",
+      "Warby Parker",
+      "Linus Pauling",
+      "Clayton Christensen",
+      "Luna"
+    ],
+    "problems_discussed": [
+      "Inefficient communication",
+      "Cumbersome commerce",
+      "Uncomfortable eyewear",
+      "Identifying the right problems to solve"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Tale of Innovation (Kingdom of Paradigms)",
+      "Examples of combining existing things in new ways",
+      "Use of Trending to the Absurd and Futures Wheels"
+    ],
+    "key_claims": [
+      "Innovation begins not with solutions, but with finding the right problems to solve.",
+      "The best opportunities often lie in challenging accepted wisdom.",
+      "Innovation comes from seeing what others don't see."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Uncertainty",
+      "THIS_DOC -[TEACHES]-> Risk",
+      "THIS_DOC -[USES_FRAMEWORK]-> Jobs to be Done",
+      "THIS_DOC -[USES_FRAMEWORK]-> Trending to the Absurd",
+      "THIS_DOC -[USES_FRAMEWORK]-> Futures Wheels",
+      "THIS_DOC -[MENTIONS]-> Royal Institute of Dominant Designs",
+      "THIS_DOC -[MENTIONS]-> Warby Parker",
+      "THIS_DOC -[MENTIONS]-> Linus Pauling",
+      "THIS_DOC -[MENTIONS]-> Clayton Christensen",
+      "THIS_DOC -[IS_RELEVANT_TO]-> Problem Definition"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "problem",
+      "Problem",
+      "Problem",
+      "Problem",
+      "Problem"
+    ],
+    "solutions": [
+      "solve",
+      "approach",
+      "solution",
+      "solve",
+      "solve"
+    ],
+    "questions": [
+      "\nReviewed by Ohad?",
+      " \"Why must glasses be so uncomfortable?",
+      " \"Why must commerce be so cumbersome?",
+      " \"Why must information move so slowly?"
+    ],
+    "causation": [
+      "Thus",
+      "leads to"
+    ],
+    "trends": [
+      "Trending"
+    ],
+    "future": [
+      "future",
+      "future"
+    ]
+  },
+  "char_count": 9349,
+  "extracted_at": "2026-01-28T14:19:59.184586"
+}

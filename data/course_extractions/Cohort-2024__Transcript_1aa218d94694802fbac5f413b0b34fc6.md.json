@@ -1,0 +1,125 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #7/Transcript 1aa218d94694802fbac5f413b0b34fc6.md",
+  "display_name": "Course/Cohort-2024/Session #7/Transcript 1aa218d94694802fbac5f413b0b34fc6.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #7",
+  "extraction": {
+    "title": "Transcript 1aa218d94694802fbac5f413b0b34fc6.md",
+    "topic": "Innovation & Uncertainty",
+    "frameworks": [
+      "Ansoff Matrix"
+    ],
+    "concepts": [
+      "Innovation",
+      "Disruptive Innovation",
+      "Incremental Improvement",
+      "Uncertainty",
+      "Risk",
+      "Market Uncertainty",
+      "Technological Uncertainty",
+      "Problem Definition",
+      "Opportunity Identification",
+      "Portfolio of Innovation"
+    ],
+    "entities": [
+      "McKinsey",
+      "Hadi",
+      "Leonardo da Vinci",
+      "Igor Ansoff",
+      "Britannica",
+      "Wikipedia",
+      "Netflix",
+      "Uber",
+      "Noah"
+    ],
+    "problems_discussed": [
+      "Computer security vulnerabilities",
+      "Inefficient ketchup bottle design",
+      "Outdated classroom design"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [
+      "Ketchup bottle example",
+      "Britannica vs. Wikipedia case study",
+      "Blockbuster vs. Netflix case study",
+      "Taxi vs. Uber case study"
+    ],
+    "key_claims": [
+      "Disruptive innovations require reimagining the future and embracing uncertainty.",
+      "The ideal space for disruptive innovation is in areas with high technological and market uncertainty."
+    ],
+    "cohort_context": "Cohort-2024, focusing on developing a portfolio of innovation ideas and forming teams to work on them.",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Disruptive Innovation",
+      "THIS_DOC -[TEACHES]-> Uncertainty",
+      "THIS_DOC -[USES_FRAMEWORK]-> Ansoff Matrix",
+      "THIS_DOC -[MENTIONS]-> McKinsey",
+      "THIS_DOC -[EXAMPLE_OF]-> Britannica",
+      "THIS_DOC -[EXAMPLE_OF]-> Wikipedia",
+      "THIS_DOC -[EXAMPLE_OF]-> Netflix",
+      "THIS_DOC -[EXAMPLE_OF]-> Uber",
+      "THIS_DOC -[DISCUSSES]-> Computer security vulnerabilities",
+      "THIS_DOC -[DISCUSSES]-> Outdated classroom design"
+    ]
+  },
+  "signals": {
+    "percentages": [
+      "80%",
+      "80%",
+      "80%",
+      "20%"
+    ],
+    "money": [
+      "$10",
+      "$10",
+      "$2,000",
+      "$10"
+    ],
+    "years": [
+      "1966",
+      "1900"
+    ],
+    "assumptions": [
+      "premise"
+    ],
+    "problems": [
+      "challenge",
+      "problem",
+      "problem",
+      "problem",
+      "problem"
+    ],
+    "solutions": [
+      "approach",
+      "solution",
+      "approach",
+      "fix",
+      "approach"
+    ],
+    "causation": [
+      "because",
+      "because",
+      "therefore",
+      "because",
+      "because"
+    ],
+    "trends": [
+      "changing",
+      "changing"
+    ],
+    "future": [
+      "future",
+      "will",
+      "will",
+      "will",
+      "will"
+    ]
+  },
+  "char_count": 49764,
+  "extracted_at": "2026-01-28T12:49:06.534269"
+}

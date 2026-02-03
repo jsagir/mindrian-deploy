@@ -1,0 +1,116 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #7/Ill and Un defined to Well defined Portfolio of In aa0b75e7fcd64b07b4746792246b0820.md",
+  "display_name": "Course/Cohort-2024/Session #7/Ill and Un defined to Well defined Portfolio of In aa0b75e7fcd64b07b4746792246b0820.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #7",
+  "extraction": {
+    "title": "Ill and Un defined to Well defined Portfolio of Innovation",
+    "topic": "Innovation Portfolio",
+    "frameworks": [
+      "PWS Value Proposition Framework"
+    ],
+    "concepts": [
+      "Problem definition",
+      "Solution design",
+      "Actionable innovation",
+      "Value proposition",
+      "Opportunity definition",
+      "Market research",
+      "Root cause analysis",
+      "Use cases",
+      "Deliverables",
+      "Validation"
+    ],
+    "entities": [
+      "Lital Attia",
+      "Larry"
+    ],
+    "problems_discussed": [
+      "Ill-defined problems",
+      "Climate change impact on farming",
+      "Scaling startups in competitive markets",
+      "Urban planning challenges",
+      "Healthcare delivery during pandemics",
+      "Remote work productivity",
+      "Education during school closures",
+      "Economic recession impact on local businesses",
+      "Social isolation",
+      "Industrial pollution"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation",
+      "Portfolio"
+    ],
+    "teaching_elements": [
+      "Examples of problem statements using 'How can we help\u2026 do\u2026 under these circumstances\u2026 in order to\u2026?'",
+      "Deliverables checklist",
+      "PWS Master Guide to the Deliverables Process",
+      "Questions for each step of the deliverables process",
+      "Validation interview guide"
+    ],
+    "key_claims": [
+      "A well-defined problem is crucial for actionable innovation.",
+      "The 'How can we help\u2026 do\u2026 under these circumstances\u2026 in order to\u2026?' formula connects problem definition and solution design.",
+      "Validation through user interviews is essential to refine assumptions."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Problem definition",
+      "THIS_DOC -[TEACHES]-> Solution design",
+      "THIS_DOC -[TEACHES]-> Actionable innovation",
+      "THIS_DOC -[USES_FRAMEWORK]-> PWS Value Proposition Framework",
+      "THIS_DOC -[DISCUSSES]-> Opportunity definition",
+      "THIS_DOC -[REQUIRES]-> Validation",
+      "THIS_DOC -[PRESENTS]-> Deliverables",
+      "THIS_DOC -[PRESENTS]-> Use cases",
+      "THIS_DOC -[PRESENTS]-> Root cause analysis",
+      "THIS_DOC -[MENTIONS]-> Lital Attia"
+    ]
+  },
+  "signals": {
+    "years": [
+      "2024"
+    ],
+    "problems": [
+      "problem",
+      "issue",
+      "problem",
+      "problem",
+      "problem"
+    ],
+    "solutions": [
+      "approach",
+      "address",
+      "address",
+      "solve",
+      "solution"
+    ],
+    "questions": [
+      "\"\nsummary: Focus on defining clear problems and solutions using the formula \"How can we help X do Y under these circumstances in order to achieve Z?",
+      "so/Lital-Attia-e2fecee37d4e45e8809bf383d38ec253?",
+      "so/Dr-Lital-Atia-e2b02411626447e7b70222e7c0d81821?pvs=21) @Lital Attia \n\n# Well defined problem is : How can we help\u2026 do\u2026 under these circumstances\u2026 in order to\u2026?\n\n### Examples of \"How can we help\u2026 do\u2026 under these circumstances\u2026 in order to\u2026?",
+      " **How can we help teachers** use technology **under the constraints of limited resources** in order to enhance student learning outcomes?",
+      " **How can we help small farmers** improve crop yields **under the conditions of climate change** in order to ensure food security?"
+    ],
+    "causation": [
+      "causes",
+      "causes",
+      "because",
+      "because"
+    ],
+    "trends": [
+      "changing"
+    ],
+    "future": [
+      "will",
+      "will",
+      "Will",
+      "will",
+      "will"
+    ]
+  },
+  "char_count": 13835,
+  "extracted_at": "2026-01-28T12:48:48.092052"
+}

@@ -1,0 +1,144 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Related Material/I&E Lecture Notes Fall.docx.txt",
+  "display_name": "Course/Related-Material/I&E Lecture Notes Fall.docx.txt",
+  "category": "Related-Material",
+  "subfolder": null,
+  "extraction": {
+    "title": "I&E Lecture Notes Fall",
+    "topic": "Innovation and Entrepreneurship",
+    "frameworks": [
+      "Trend Analysis",
+      "Scenario Analysis"
+    ],
+    "concepts": [
+      "Innovation",
+      "Entrepreneurship",
+      "Problem-solving",
+      "Opportunity identification",
+      "Market analysis",
+      "Trend analysis",
+      "Scenario analysis",
+      "Competitive advantage",
+      "Disruptive innovation",
+      "Business case"
+    ],
+    "entities": [
+      "Johns Hopkins",
+      "Peter Drucker",
+      "Marconi",
+      "Ford",
+      "Jonathan Haidt",
+      "Sascha",
+      "Center for Bio-Innovation and Design (CBID)",
+      "Bio-Medical Engineering Department (BME)",
+      "Hopkins Hospital"
+    ],
+    "problems_discussed": [
+      "Finding problems worth solving",
+      "Markets maturing",
+      "Lack of competitive advantage",
+      "Failure to exploit change",
+      "Presentism (focusing only on current problems)",
+      "Identifying future problems",
+      "Unimportant messages",
+      "Inefficient telegraph"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "E-commerce example",
+      "Trend analysis exercise",
+      "Scenario analysis exercise",
+      "Marconi case study",
+      "Discussion prompts (e.g., 'So what are the best problems \u2013 you tell me')",
+      "Hypothetical: What is the next big thing?"
+    ],
+    "key_claims": [
+      "Innovation is about finding problems worth solving and turning them into opportunities.",
+      "Real innovation begins with real problems, problems worth solving.",
+      "Getting out of the building is important, but more important is to get out of your own head and your usual ways of thinking."
+    ],
+    "cohort_context": "Introductory lecture for an Innovation and Entrepreneurship course, likely at Johns Hopkins, focused on problem identification.",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Entrepreneurship",
+      "THIS_DOC -[TEACHES]-> Problem-solving",
+      "THIS_DOC -[TEACHES]-> Opportunity identification",
+      "THIS_DOC -[USES_FRAMEWORK]-> Trend Analysis",
+      "THIS_DOC -[USES_FRAMEWORK]-> Scenario Analysis",
+      "THIS_DOC -[MENTIONS]-> Johns Hopkins",
+      "THIS_DOC -[MENTIONS]-> Peter Drucker",
+      "THIS_DOC -[MENTIONS]-> Marconi",
+      "THIS_DOC -[DISCUSSES]-> Presentism",
+      "THIS_DOC -[DISCUSSES]-> Markets maturing",
+      "THIS_DOC -[DISCUSSES]-> Finding problems worth solving"
+    ]
+  },
+  "signals": {
+    "money": [
+      "$165",
+      "$100"
+    ],
+    "years": [
+      "1910",
+      "1910",
+      "1920",
+      "1950",
+      "1905"
+    ],
+    "assumptions": [
+      "Suppose",
+      "Suppose",
+      "assumption",
+      "if we",
+      "if we"
+    ],
+    "problems": [
+      "challenge",
+      "problem",
+      "problem",
+      "problem",
+      "Problem"
+    ],
+    "solutions": [
+      "Method",
+      "Method",
+      "Method",
+      "solution",
+      "solution"
+    ],
+    "questions": [
+      " Suppose you hated your boss and never wanted to work in corporate America again, what would you do?",
+      " Look for a new job?",
+      " Go back to school?",
+      " Or try something on your own?",
+      " So what is the next big thing in \u2026?"
+    ],
+    "causation": [
+      "because",
+      "because",
+      "thus",
+      "because",
+      "because"
+    ],
+    "trends": [
+      "Trend",
+      "trend",
+      "trend",
+      "changing",
+      "changing"
+    ],
+    "future": [
+      "future",
+      "will",
+      "will",
+      "will",
+      "will"
+    ]
+  },
+  "char_count": 134428,
+  "extracted_at": "2026-01-28T12:04:30.377476"
+}

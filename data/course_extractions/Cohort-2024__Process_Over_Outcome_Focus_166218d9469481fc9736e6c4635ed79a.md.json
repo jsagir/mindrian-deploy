@@ -1,0 +1,61 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #3/Process Over Outcome Focus 166218d9469481fc9736e6c4635ed79a.md",
+  "display_name": "Course/Cohort-2024/Session #3/Process Over Outcome Focus 166218d9469481fc9736e6c4635ed79a.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Process Over Outcome Focus",
+    "topic": "Process vs. Outcome",
+    "frameworks": [
+      "Now, New, Next"
+    ],
+    "concepts": [
+      "Structured processes",
+      "Iterative exploration",
+      "Process-driven innovation",
+      "Structured ideation",
+      "Cross-industry collaboration",
+      "Adaptability",
+      "Culture of discovery",
+      "Transformative innovation",
+      "Incremental innovation",
+      "Systematic exploration"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Lack of innovation due to focus on fixed goals",
+      "Ineffectiveness of frameworks that only categorize existing ideas"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [],
+    "key_claims": [
+      "True innovation stems from a commitment to systematic exploration rather than chasing predefined goals.",
+      "Process-driven approaches encourage iterative exploration and adaptability, allowing companies to uncover unexpected connections."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Structured processes",
+      "THIS_DOC -[TEACHES]-> Iterative exploration",
+      "THIS_DOC -[TEACHES]-> Process-driven innovation",
+      "THIS_DOC -[TEACHES]-> Structured ideation",
+      "THIS_DOC -[TEACHES]-> Cross-industry collaboration",
+      "THIS_DOC -[TEACHES]-> Adaptability",
+      "THIS_DOC -[TEACHES]-> Culture of discovery",
+      "THIS_DOC -[TEACHES]-> Transformative innovation",
+      "THIS_DOC -[CRITIQUES]-> Now, New, Next"
+    ]
+  },
+  "signals": {
+    "solutions": [
+      "address"
+    ],
+    "questions": [
+      "# Process Over Outcome Focus\n\nPrompt: in up to 500 charterers How does the chapter emphasize the importance of focusing on structured processes rather than specific outcomes?"
+    ]
+  },
+  "char_count": 1187,
+  "extracted_at": "2026-01-28T12:50:40.851256"
+}

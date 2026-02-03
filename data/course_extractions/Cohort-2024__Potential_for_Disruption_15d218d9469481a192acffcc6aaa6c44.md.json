@@ -1,0 +1,58 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #3/Potential for Disruption 15d218d9469481a192acffcc6aaa6c44.md",
+  "display_name": "Course/Cohort-2024/Session #3/Potential for Disruption 15d218d9469481a192acffcc6aaa6c44.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Potential for Disruption",
+    "topic": "Disruptive Innovation",
+    "frameworks": [],
+    "concepts": [
+      "Disruptive Innovation",
+      "Sustaining Innovation",
+      "Market Disruption",
+      "Underserved Markets",
+      "Business Models",
+      "Industry Assumptions"
+    ],
+    "entities": [
+      "Netflix"
+    ],
+    "problems_discussed": [
+      "Resistance to change within established organizations",
+      "Difficulty identifying and capitalizing on disruptive opportunities"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Case studies (Netflix, Digital Photography)",
+      "Examples of contrasting innovation types"
+    ],
+    "key_claims": [
+      "Disruptive innovation reshapes markets and serves overlooked customers.",
+      "Successful disruption requires challenging established norms and understanding user needs."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Disruptive Innovation",
+      "THIS_DOC -[TEACHES]-> Sustaining Innovation",
+      "THIS_DOC -[TEACHES]-> Market Disruption",
+      "THIS_DOC -[TEACHES]-> Underserved Markets",
+      "THIS_DOC -[TEACHES]-> Business Models",
+      "THIS_DOC -[MENTIONS]-> Netflix"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "challenge"
+    ],
+    "solutions": [
+      "Approach"
+    ]
+  },
+  "char_count": 1134,
+  "extracted_at": "2026-01-28T12:51:46.521586"
+}

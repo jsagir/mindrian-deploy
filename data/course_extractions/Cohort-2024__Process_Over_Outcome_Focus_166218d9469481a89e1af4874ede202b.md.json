@@ -1,0 +1,65 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Process Over Outcome Focus 166218d9469481a89e1af4874ede202b.md",
+  "display_name": "Course/Cohort-2024/Session #3/Process Over Outcome Focus 166218d9469481a89e1af4874ede202b.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Process Over Outcome Focus",
+    "topic": "Process-focused Innovation",
+    "frameworks": [
+      "Four Lenses framework"
+    ],
+    "concepts": [
+      "Structured Methodology",
+      "Critical Processed Thinking",
+      "Iterative Learning",
+      "Open-ended Discovery",
+      "Systematic Approach",
+      "Continuous Exploration",
+      "Problem Definition",
+      "Opportunity Spotting",
+      "Questioning",
+      "Empathy"
+    ],
+    "entities": [
+      "Luna"
+    ],
+    "problems_discussed": [
+      "Focusing on predetermined solutions instead of finding the right problems",
+      "Lack of systematic exploration in innovation"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [
+      "Luna's story",
+      "Exercises encouraging ongoing exploration"
+    ],
+    "key_claims": [
+      "Innovation comes from systematically spotting opportunities rather than focusing on specific outcomes.",
+      "Innovation is about questioning, exploring, and understanding, not having all the answers."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Structured Methodology",
+      "THIS_DOC -[TEACHES]-> Critical Processed Thinking",
+      "THIS_DOC -[TEACHES]-> Iterative Learning",
+      "THIS_DOC -[TEACHES]-> Open-ended Discovery",
+      "THIS_DOC -[USES_FRAMEWORK]-> Four Lenses framework",
+      "THIS_DOC -[DISCUSSES]-> Problem Definition"
+    ]
+  },
+  "signals": {
+    "solutions": [
+      "approach",
+      "solve"
+    ],
+    "questions": [
+      "# Process Over Outcome Focus\n\nPrompt: in up to 500 charterers How does the chapter emphasize the importance of focusing on structured processes rather than specific outcomes?",
+      "\nRelated Core Ideas: Structured Methodology, Critical Processed Thinking\nStatus: Done\n\nThe chapter emphasizes process-focused innovation through the Four Lenses framework in several ways:\n\n**Structured Exploration:**\n\n- Presents a systematic approach to viewing problems through multiple perspectives rather than jumping to solutions\n- Encourages continuous questioning and exploration through \"Why?\" and \"What if?"
+    ]
+  },
+  "char_count": 1324,
+  "extracted_at": "2026-01-28T14:23:26.476036"
+}

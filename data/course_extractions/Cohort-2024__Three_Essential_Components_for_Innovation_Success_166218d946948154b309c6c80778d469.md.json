@@ -1,0 +1,68 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Three Essential Components for Innovation Success 166218d946948154b309c6c80778d469.md",
+  "display_name": "Course/Cohort-2024/Session #3/Three Essential Components for Innovation Success 166218d946948154b309c6c80778d469.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Three Essential Components for Innovation Success",
+    "topic": "Innovation Components",
+    "frameworks": [
+      "Structured Ideation"
+    ],
+    "concepts": [
+      "Problem Worth Solving",
+      "Solution",
+      "Business Case",
+      "Innovation",
+      "Impact",
+      "Sustainability",
+      "Market Needs",
+      "Feasibility",
+      "Problem Definition"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Lack of scalability",
+      "Ineffective solutions",
+      "Unmet market needs"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [],
+    "key_claims": [
+      "True innovation requires a Problem Worth Solving, a viable Solution, and a strong Business Case.",
+      "These three components are interconnected and essential for impactful and sustainable innovation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Problem Worth Solving",
+      "THIS_DOC -[TEACHES]-> Solution",
+      "THIS_DOC -[TEACHES]-> Business Case",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[USES_FRAMEWORK]-> Structured Ideation"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "Problem",
+      "problem",
+      "Problem",
+      "Problem",
+      "problem"
+    ],
+    "solutions": [
+      "Solution",
+      "solution",
+      "Solution",
+      "solution"
+    ],
+    "questions": [
+      "# Three Essential Components for Innovation Success\n\nPrompt: up to 500 charters How does the chapter emphasize the need for all three components (Problem Worth Solving, Solution, Business Case)?"
+    ]
+  },
+  "char_count": 1020,
+  "extracted_at": "2026-01-28T14:08:02.433679"
+}

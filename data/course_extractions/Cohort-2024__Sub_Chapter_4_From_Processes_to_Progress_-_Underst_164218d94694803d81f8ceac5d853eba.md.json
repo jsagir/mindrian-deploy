@@ -1,0 +1,128 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Sub Chapter 4 From Processes to Progress - Underst 164218d94694803d81f8ceac5d853eba.md",
+  "display_name": "Course/Cohort-2024/Session #3/Sub Chapter 4 From Processes to Progress - Underst 164218d94694803d81f8ceac5d853eba.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Sub Chapter 4 From Processes to Progress - Underst 164218d94694803d81f8ceac5d853eba.md",
+    "topic": "Jobs To Be Done",
+    "frameworks": [
+      "Jobs to Be Done (JTBD)"
+    ],
+    "concepts": [
+      "Functional progress",
+      "Emotional progress",
+      "Social progress",
+      "Customer needs",
+      "Innovation",
+      "Problem-solving",
+      "Process mapping",
+      "User needs",
+      "Underlying needs",
+      "Progress"
+    ],
+    "entities": [
+      "Tony Ulwick",
+      "Strategyn",
+      "Richard Pedi",
+      "Re-Vector Corporation",
+      "Clayton Christensen",
+      "Harvard Business Review",
+      "Warby Parker",
+      "Apple",
+      "Netflix",
+      "Spotify",
+      "Bosch",
+      "Cordis Corporation",
+      "Ohad Schindler",
+      "Johns Hopkins"
+    ],
+    "problems_discussed": [
+      "Inefficiencies in processes",
+      "Lack of customer understanding",
+      "Developing solutions that don't address core needs",
+      "Low market share",
+      "Difficulty in teaching technology to non-digital natives"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [
+      "Case studies (iPad, Netflix, Spotify, Warby Parker, Bosch, Cordis Corporation)",
+      "Examples (coffee)",
+      "Hall of Fame Framework exercise",
+      "Questions to ensure solving the right problem"
+    ],
+    "key_claims": [
+      "People don't buy products, they hire them to do jobs.",
+      "Understanding the functional, emotional, and social dimensions of a job is crucial for innovation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Jobs to Be Done",
+      "THIS_DOC -[TEACHES]-> Functional progress",
+      "THIS_DOC -[TEACHES]-> Emotional progress",
+      "THIS_DOC -[TEACHES]-> Social progress",
+      "THIS_DOC -[USES_FRAMEWORK]-> Jobs to Be Done",
+      "THIS_DOC -[MENTIONS]-> Tony Ulwick",
+      "THIS_DOC -[MENTIONS]-> Clayton Christensen",
+      "THIS_DOC -[EXAMPLE_OF]-> Apple iPad",
+      "THIS_DOC -[EXAMPLE_OF]-> Netflix",
+      "THIS_DOC -[EXAMPLE_OF]-> Spotify",
+      "THIS_DOC -[EXAMPLE_OF]-> Warby Parker",
+      "THIS_DOC -[EXAMPLE_OF]-> Bosch",
+      "THIS_DOC -[EXAMPLE_OF]-> Cordis Corporation"
+    ]
+  },
+  "signals": {
+    "percentages": [
+      "1%",
+      "20%"
+    ],
+    "years": [
+      "2003",
+      "2001",
+      "1947"
+    ],
+    "problems": [
+      "problem",
+      "problem",
+      "Problem",
+      "problem",
+      "Problem"
+    ],
+    "solutions": [
+      "approach",
+      "strategy",
+      "address",
+      "Solution",
+      "solution"
+    ],
+    "questions": [
+      "\nReviewed by Ohad?",
+      " But there's a deeper question we need to address: How do we ensure our innovations actually matter to people?",
+      " What progress were they trying to make in their lives?",
+      " When I teach this concept at Johns Hopkins, I start with what seems like a simple question: \"Why do you drink coffee?",
+      " On a first date, is anyone really there for the coffee?"
+    ],
+    "causation": [
+      "thus",
+      "because",
+      "leads to",
+      "because",
+      "Because"
+    ],
+    "trends": [
+      "changing"
+    ],
+    "future": [
+      "will",
+      "will",
+      "Future"
+    ]
+  },
+  "char_count": 17430,
+  "extracted_at": "2026-01-28T14:25:57.664825"
+}

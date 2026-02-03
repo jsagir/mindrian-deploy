@@ -1,0 +1,121 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Related Material/Lawrence Aronhime ABOUT .txt",
+  "display_name": "Course/Related-Material/Lawrence Aronhime ABOUT .txt",
+  "category": "Related-Material",
+  "subfolder": null,
+  "extraction": {
+    "title": "Lawrence Aronhime ABOUT .txt",
+    "topic": "Innovation & Entrepreneurship",
+    "frameworks": [],
+    "concepts": [
+      "Innovation",
+      "Entrepreneurship",
+      "Business Design",
+      "Product Design",
+      "Corporate Strategy",
+      "Financial Accounting",
+      "Managerial Accounting",
+      "Technology Commercialization",
+      "Cognitive Warfare",
+      "Sustainability"
+    ],
+    "entities": [
+      "Lawrence Aronhime",
+      "Loyola College",
+      "Johns Hopkins University",
+      "Technion University",
+      "Carey Business School",
+      "Bloomberg School of Public Health",
+      "Stevenson University",
+      "Horeb School",
+      "Center for Leadership Education (CLE)",
+      "Center for Bioengineering Innovation and Design (CBID)",
+      "NATO",
+      "Imperial College London",
+      "Israel Institute of Technology (Technion)",
+      "The Hebrew University of Jerusalem",
+      "Insper (Sao Paulo)",
+      "Air University",
+      "US Military Academy West Point",
+      "Harvard Aerospace and Defense Alumni Organization",
+      "MIT Lisbon",
+      "Intellicost Systems",
+      "Healthware Solutions",
+      "Alexander Cocron",
+      "John Wierman",
+      "Robert H. Allen",
+      "Artin A. Shoukas"
+    ],
+    "problems_discussed": [
+      "Searching for problems worth solving",
+      "Innovation under uncertainty",
+      "Countering disinformation",
+      "Cognitive warfare",
+      "Technology commercialization",
+      "Sustainability"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Solution Framing",
+      "Validation",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Case studies",
+      "Live cases with outside entities",
+      "Consulting projects",
+      "Textbook (Foundations of American Enterprise)"
+    ],
+    "key_claims": [
+      "Innovation can be taught through a structured process.",
+      "Theories and methodologies for 'doing innovation' can be developed and applied."
+    ],
+    "cohort_context": "Undergraduate and graduate students in engineering, business, and public health.",
+    "graph_connections": [
+      "Lawrence Aronhime -[TEACHES]-> Innovation",
+      "Lawrence Aronhime -[TEACHES]-> Entrepreneurship",
+      "Lawrence Aronhime -[DEVELOPS]-> Business Design",
+      "Lawrence Aronhime -[WORKS_WITH]-> NATO",
+      "THIS_DOC -[MENTIONS]-> Lawrence Aronhime",
+      "THIS_DOC -[MENTIONS]-> Johns Hopkins University",
+      "THIS_DOC -[MENTIONS]-> Alexander Cocron"
+    ]
+  },
+  "signals": {
+    "years": [
+      "2020",
+      "2014",
+      "2008",
+      "2020",
+      "2000"
+    ],
+    "problems": [
+      "Challenge",
+      "Problem"
+    ],
+    "solutions": [
+      "solution",
+      "solution",
+      "Strategy",
+      "strategy",
+      "strategy"
+    ],
+    "questions": [
+      " Cognitive Warfare: What\u2019s Next?",
+      "com/watch?"
+    ],
+    "causation": [
+      "due to"
+    ],
+    "trends": [
+      "Emerging"
+    ],
+    "future": [
+      "Future",
+      "Future"
+    ]
+  },
+  "char_count": 12294,
+  "extracted_at": "2026-01-28T12:04:16.096036"
+}

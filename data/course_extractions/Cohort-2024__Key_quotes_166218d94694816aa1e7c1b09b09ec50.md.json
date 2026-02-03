@@ -1,0 +1,65 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Key quotes 166218d94694816aa1e7c1b09b09ec50.md",
+  "display_name": "Course/Cohort-2024/Session #3/Key quotes 166218d94694816aa1e7c1b09b09ec50.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Key quotes 166218d94694816aa1e7c1b09b09ec50.md",
+    "topic": "Innovation, Problem Solving",
+    "frameworks": [
+      "Four Lenses"
+    ],
+    "concepts": [
+      "Innovation",
+      "Problem Identification",
+      "Orthodoxies",
+      "Resource Leveraging",
+      "Trends Analysis",
+      "User Needs",
+      "Jobs to be Done"
+    ],
+    "entities": [
+      "Gibson"
+    ],
+    "problems_discussed": [
+      "Ineffective problem solving",
+      "Lack of innovation",
+      "Failure to challenge assumptions",
+      "Underutilization of resources",
+      "Superficial understanding of user needs"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [],
+    "key_claims": [
+      "Innovation starts with identifying the right problems.",
+      "Challenging orthodoxies is crucial for innovation."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Problem Identification",
+      "THIS_DOC -[TEACHES]-> Orthodoxies",
+      "THIS_DOC -[TEACHES]-> Resource Leveraging",
+      "THIS_DOC -[TEACHES]-> Trends Analysis",
+      "THIS_DOC -[TEACHES]-> User Needs",
+      "THIS_DOC -[TEACHES]-> Jobs to be Done",
+      "THIS_DOC -[USES_FRAMEWORK]-> Four Lenses"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "problem"
+    ],
+    "solutions": [
+      "solve"
+    ],
+    "trends": [
+      "trend"
+    ]
+  },
+  "char_count": 1794,
+  "extracted_at": "2026-01-28T14:07:17.822750"
+}

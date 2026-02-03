@@ -1,0 +1,71 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Chapter 4 The Power of Process Mapping User Journe 161218d94694817284def928255e4bc0.md",
+  "display_name": "Course/Cohort-2024/Session #3/Chapter 4 The Power of Process Mapping User Journe 161218d94694817284def928255e4bc0.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Chapter 4 The Power of Process Mapping User Journey",
+    "topic": "Process Mapping",
+    "frameworks": [],
+    "concepts": [
+      "Process mapping",
+      "User journey",
+      "Innovation",
+      "User experience",
+      "Pain points",
+      "Customer satisfaction",
+      "Process optimization",
+      "Efficiency",
+      "Customer journey mapping"
+    ],
+    "entities": [
+      "Happy Socks",
+      "Mikael S\u00f6derlindh",
+      "Viktor Tell",
+      "The Beatles",
+      "Snoop Dogg"
+    ],
+    "problems_discussed": [
+      "Inconvenient shopping experiences",
+      "Uncertainty in making the right choice",
+      "Limited product variety",
+      "Low customer loyalty",
+      "Inefficient processes"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [
+      "Case study (Happy Socks)",
+      "Example (Sock purchase process)",
+      "Step-by-step breakdown of a process"
+    ],
+    "key_claims": [
+      "Process mapping helps identify inefficiencies in user journeys, leading to innovation.",
+      "Focusing on user experience and streamlining processes can be more impactful than reinventing the product itself."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Process mapping",
+      "THIS_DOC -[TEACHES]-> User journey",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[ILLUSTRATES]-> Happy Socks",
+      "THIS_DOC -[DISCUSSES]-> User experience",
+      "Happy Socks -[EXAMPLE_OF]-> Process mapping"
+    ]
+  },
+  "signals": {
+    "solutions": [
+      "method",
+      "approach",
+      "approach"
+    ],
+    "trends": [
+      "changing"
+    ]
+  },
+  "char_count": 6876,
+  "extracted_at": "2026-01-28T14:21:46.919834"
+}

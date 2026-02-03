@@ -1,0 +1,70 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Collaborative Innovation and Cross-Disciplinary Th 166218d9469481d5873cd2e1a19ff907.md",
+  "display_name": "Course/Cohort-2024/Session #3/Collaborative Innovation and Cross-Disciplinary Th 166218d9469481d5873cd2e1a19ff907.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Collaborative Innovation and Cross-Disciplinary Thinking",
+    "topic": "Cross-Disciplinary Innovation",
+    "frameworks": [],
+    "concepts": [
+      "Collaboration",
+      "Cross-disciplinary thinking",
+      "Innovation",
+      "Diverse expertise",
+      "Interdisciplinary teams",
+      "Problem-solving",
+      "Unique insights",
+      "Systems Thinking",
+      "Portfolio Approach"
+    ],
+    "entities": [
+      "GEODE Initiative"
+    ],
+    "problems_discussed": [
+      "Solving complex problems requiring diverse expertise",
+      "Incremental improvements vs. transformative ideas"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Portfolio"
+    ],
+    "teaching_elements": [
+      "Case study (GEODE Initiative)"
+    ],
+    "key_claims": [
+      "Merging diverse expertise leads to unique insights and innovative solutions.",
+      "Interdisciplinary teams enhance problem-solving and foster transformative ideas."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Collaboration",
+      "THIS_DOC -[TEACHES]-> Cross-disciplinary thinking",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Diverse expertise",
+      "THIS_DOC -[TEACHES]-> Interdisciplinary teams",
+      "THIS_DOC -[TEACHES]-> Problem-solving",
+      "THIS_DOC -[TEACHES]-> Unique insights",
+      "THIS_DOC -[TEACHES]-> Systems Thinking",
+      "THIS_DOC -[TEACHES]-> Portfolio Approach",
+      "THIS_DOC -[MENTIONS]-> GEODE Initiative"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "problem"
+    ],
+    "solutions": [
+      "Approach",
+      "solve",
+      "approach"
+    ],
+    "questions": [
+      "# Collaborative Innovation and Cross-Disciplinary Thinking\n\nPrompt: up to 500 charterers How does the chapter promote collaboration across disciplines and leverage diverse expertise?",
+      " How does the chapter emphasize the importance of bringing together \"thinking heads\" with varied, in-depth expertise?"
+    ]
+  },
+  "char_count": 1263,
+  "extracted_at": "2026-01-28T14:12:51.785824"
+}

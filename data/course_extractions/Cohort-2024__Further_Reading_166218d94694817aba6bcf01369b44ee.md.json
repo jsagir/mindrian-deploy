@@ -1,0 +1,68 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #3/Further Reading 166218d94694817aba6bcf01369b44ee.md",
+  "display_name": "Course/Cohort-2024/Session #3/Further Reading 166218d94694817aba6bcf01369b44ee.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Further Reading 166218d94694817aba6bcf01369b44ee.md",
+    "topic": "Innovation, Strategy",
+    "frameworks": [
+      "Blue Ocean Strategy",
+      "Lean Startup"
+    ],
+    "concepts": [
+      "Disruptive Innovation",
+      "Market Leadership",
+      "Competitive Advantage",
+      "Market Space",
+      "Validated Learning",
+      "Rapid Experimentation",
+      "Product Lifecycles",
+      "Market Maturity",
+      "Entrepreneurship"
+    ],
+    "entities": [
+      "Clayton M. Christensen",
+      "W. Chan Kim",
+      "Ren\u00e9e Mauborgne",
+      "Eric Ries",
+      "Rita Gunther McGrath",
+      "Geoffrey A. Moore",
+      "Israel M. Kirzner"
+    ],
+    "problems_discussed": [
+      "How successful companies fail due to disruptive innovation",
+      "Challenges of bringing innovative products to market",
+      "Maintaining competitive advantage in fast-moving environments"
+    ],
+    "pws_phase_relevance": [
+      "Solution Framing",
+      "Validation",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Table of further reading resources with relevance justifications"
+    ],
+    "key_claims": [
+      "Successful companies can fail when faced with disruptive innovation.",
+      "Continuous innovation is essential for maintaining competitive advantage."
+    ],
+    "cohort_context": "Cohort-2024, Chapter 2",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Disruptive Innovation",
+      "THIS_DOC -[TEACHES]-> Competitive Advantage",
+      "THIS_DOC -[USES_FRAMEWORK]-> Blue Ocean Strategy",
+      "THIS_DOC -[USES_FRAMEWORK]-> Lean Startup",
+      "THIS_DOC -[MENTIONS]-> Clayton M. Christensen",
+      "THIS_DOC -[MENTIONS]-> Eric Ries"
+    ]
+  },
+  "signals": {
+    "solutions": [
+      "Strategy",
+      "Strategy"
+    ]
+  },
+  "char_count": 1901,
+  "extracted_at": "2026-01-28T12:53:51.821754"
+}

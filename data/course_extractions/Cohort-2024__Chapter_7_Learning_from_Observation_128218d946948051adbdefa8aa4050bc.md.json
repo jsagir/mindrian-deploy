@@ -1,0 +1,92 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Chapter 7 Learning from Observation 128218d946948051adbdefa8aa4050bc.md",
+  "display_name": "Course/Cohort-2024/Session #3/Chapter 7 Learning from Observation 128218d946948051adbdefa8aa4050bc.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Chapter 7 Learning from Observation 128218d946948051adbdefa8aa4050bc.md",
+    "topic": "Learning from Observation",
+    "frameworks": [],
+    "concepts": [
+      "Observation",
+      "User needs",
+      "Innovation",
+      "Ethnographic research",
+      "Actionable insights",
+      "Prototyping",
+      "User behavior",
+      "Workarounds",
+      "Unmet needs",
+      "Real-world observation"
+    ],
+    "entities": [
+      "Henry Ford",
+      "Steve Jobs",
+      "Apple",
+      "iPhone",
+      "Airbnb",
+      "Brian Chesky",
+      "Joe Gebbia",
+      "Procter & Gamble",
+      "Swiffer"
+    ],
+    "problems_discussed": [
+      "Disconnect between stated and actual needs",
+      "Inefficiencies in existing products/services",
+      "Hidden pain points in user experience",
+      "Users not realizing their own needs"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing",
+      "Validation"
+    ],
+    "teaching_elements": [
+      "Case studies (Apple, Airbnb, P&G)",
+      "Examples of observation techniques",
+      "Steps for turning observation into actionable insights"
+    ],
+    "key_claims": [
+      "Observing user behavior in their natural environment is crucial for identifying unmet needs and driving innovation.",
+      "What people say they need often differs from what they actually need; observation reveals these disconnects."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Observation",
+      "THIS_DOC -[TEACHES]-> User needs",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Ethnographic research",
+      "THIS_DOC -[TEACHES]-> Actionable insights",
+      "THIS_DOC -[TEACHES]-> Prototyping",
+      "THIS_DOC -[ILLUSTRATED_BY]-> Apple",
+      "THIS_DOC -[ILLUSTRATED_BY]-> Airbnb",
+      "THIS_DOC -[ILLUSTRATED_BY]-> Procter & Gamble"
+    ]
+  },
+  "signals": {
+    "problems": [
+      "problem",
+      "problem",
+      "obstacle"
+    ],
+    "solutions": [
+      "solution",
+      "approach",
+      "approach",
+      "solution",
+      "method"
+    ],
+    "questions": [
+      " What do they do when they encounter an obstacle? How do they respond to different stages of the user journey?",
+      " How is the user preparing to use the product? What happens after they use it?"
+    ],
+    "causation": [
+      "because"
+    ],
+    "trends": [
+      "emerging"
+    ]
+  },
+  "char_count": 9206,
+  "extracted_at": "2026-01-28T14:23:52.370707"
+}

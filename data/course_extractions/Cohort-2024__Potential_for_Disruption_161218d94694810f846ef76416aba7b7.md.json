@@ -1,0 +1,64 @@
+{
+  "file": "/home/jsagi/Course Material/Cohort 2024/Session #3/Potential for Disruption 161218d94694810f846ef76416aba7b7.md",
+  "display_name": "Course/Cohort-2024/Session #3/Potential for Disruption 161218d94694810f846ef76416aba7b7.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Potential for Disruption",
+    "topic": "Disruptive Innovation",
+    "frameworks": [],
+    "concepts": [
+      "Disruptive Technologies",
+      "Innovation",
+      "Market Evolution",
+      "Competitive Advantage",
+      "Commoditization",
+      "Technological Disruption",
+      "Structured Approach",
+      "Business Strategy"
+    ],
+    "entities": [],
+    "problems_discussed": [
+      "Stagnation",
+      "Failure to innovate",
+      "Commoditization",
+      "Loss of competitive edge"
+    ],
+    "pws_phase_relevance": [
+      "Problem Definition",
+      "Solution Framing"
+    ],
+    "teaching_elements": [
+      "Examples"
+    ],
+    "key_claims": [
+      "Continuous innovation is critical for survival in a fast-paced business environment.",
+      "Successful innovation requires a structured, supported process."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Disruptive Technologies",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Market Evolution",
+      "THIS_DOC -[TEACHES]-> Competitive Advantage",
+      "THIS_DOC -[TEACHES]-> Commoditization",
+      "THIS_DOC -[TEACHES]-> Technological Disruption",
+      "THIS_DOC -[TEACHES]-> Structured Approach",
+      "THIS_DOC -[ADDRESSES]-> Stagnation",
+      "THIS_DOC -[ADDRESSES]-> Failure to innovate",
+      "THIS_DOC -[ADDRESSES]-> Commoditization",
+      "THIS_DOC -[ADDRESSES]-> Loss of competitive edge"
+    ]
+  },
+  "signals": {
+    "solutions": [
+      "Approach",
+      "strategy"
+    ],
+    "trends": [
+      "evolving"
+    ]
+  },
+  "char_count": 1962,
+  "extracted_at": "2026-01-28T14:08:13.872955"
+}

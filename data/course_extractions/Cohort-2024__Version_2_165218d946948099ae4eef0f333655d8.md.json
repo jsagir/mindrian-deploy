@@ -1,0 +1,97 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Cohort 2024/Session #3/Version 2 165218d946948099ae4eef0f333655d8.md",
+  "display_name": "Course/Cohort-2024/Session #3/Version 2 165218d946948099ae4eef0f333655d8.md",
+  "category": "Cohort-2024",
+  "subfolder": "Session #3",
+  "extraction": {
+    "title": "Version 2",
+    "topic": "Platform Innovation",
+    "frameworks": [],
+    "concepts": [
+      "Platform",
+      "Tool",
+      "Ecosystem",
+      "Innovation",
+      "Value Creation",
+      "Network Effects",
+      "Scalability",
+      "User Engagement",
+      "Continuous Improvement",
+      "User-Centered Innovation"
+    ],
+    "entities": [
+      "Apple",
+      "App Store",
+      "Amazon Web Services (AWS)",
+      "Amazon",
+      "Tesla",
+      "LEGO"
+    ],
+    "problems_discussed": [
+      "Stagnation associated with incremental improvements",
+      "Solving immediate, well-defined problems vs. creating long-term value",
+      "Burden of maintaining costly in-house IT systems"
+    ],
+    "pws_phase_relevance": [
+      "Solution Framing",
+      "Validation",
+      "Scenario Analysis"
+    ],
+    "teaching_elements": [
+      "Case studies (Apple App Store, AWS, Tesla, LEGO)",
+      "Examples of tools vs. platforms"
+    ],
+    "key_claims": [
+      "Platforms create fertile grounds for unearthing undefined opportunities and future innovations, while tools solve well-defined, current problems.",
+      "Platforms succeed by creating rich ecosystems that engage multiple stakeholders and foster creativity at scale."
+    ],
+    "cohort_context": "Cohort-2024",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Platform",
+      "THIS_DOC -[TEACHES]-> Ecosystem",
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Value Creation",
+      "THIS_DOC -[EXAMPLE_OF]-> Apple App Store",
+      "THIS_DOC -[EXAMPLE_OF]-> Amazon Web Services (AWS)",
+      "THIS_DOC -[EXAMPLE_OF]-> Tesla",
+      "THIS_DOC -[EXAMPLE_OF]-> LEGO",
+      "THIS_DOC -[CONTRAST]-> Tool"
+    ]
+  },
+  "signals": {
+    "money": [
+      "$320 billion"
+    ],
+    "years": [
+      "2024"
+    ],
+    "problems": [
+      "problem"
+    ],
+    "solutions": [
+      "address",
+      "solve",
+      "solution",
+      "approach",
+      "solve"
+    ],
+    "questions": [
+      "As we delve into this transition, we must ask ourselves: Are we merely solving today's problems, or are we building environments that unlock the innovations of tomorrow?",
+      " As we look to the future, innovators must ask themselves:\n\n- Are we building tools for today, or platforms for tomorrow?\n- How can we design ecosystems that unlock future opportunities and foster continuous innovation?"
+    ],
+    "trends": [
+      "evolving",
+      "evolving",
+      "Shifting",
+      "emerging"
+    ],
+    "future": [
+      "future",
+      "By 2024",
+      "future",
+      "future"
+    ]
+  },
+  "char_count": 7284,
+  "extracted_at": "2026-01-28T12:55:45.994123"
+}

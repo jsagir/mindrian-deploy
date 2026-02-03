@@ -1,0 +1,152 @@
+{
+  "file": "/home/jsagi/course-material/Course Material/Related Material/PWS_INNOVATION_BOOK.txt",
+  "display_name": "Course/Related-Material/PWS_INNOVATION_BOOK.txt",
+  "category": "Related-Material",
+  "subfolder": null,
+  "extraction": {
+    "title": "PWS_INNOVATION_BOOK.txt",
+    "topic": "Innovation under Uncertainty",
+    "frameworks": [
+      "Jobs to be Done (JTBD)",
+      "2x2 Matrix"
+    ],
+    "concepts": [
+      "Innovation",
+      "Entrepreneurship",
+      "Uncertainty",
+      "Risk",
+      "Problem-solving",
+      "Opportunity identification",
+      "Scenario analysis",
+      "Systems analysis",
+      "Red Teaming",
+      "Product Life Cycles",
+      "Reverse Salient"
+    ],
+    "entities": [
+      "Johns Hopkins University",
+      "Israel Institute of Technology",
+      "Hebrew University",
+      "NATO Innovation Hub",
+      "National Science Foundation",
+      "Silicon Valley",
+      "Peter Drucker",
+      "Conference Board",
+      "I-Corps"
+    ],
+    "problems_discussed": [
+      "Un-defined problems",
+      "Ill-defined problems",
+      "Well-defined problems",
+      "Lack of innovation culture",
+      "Corporate stagnation",
+      "Presentism",
+      "Incrementalism"
+    ],
+    "pws_phase_relevance": [
+      "Domain Selection",
+      "Problem Definition",
+      "Solution Framing",
+      "Scenario Analysis",
+      "Red Teaming"
+    ],
+    "teaching_elements": [
+      "Case study (NATO Innovation Hub)",
+      "Exercises (startup idea generation)",
+      "Methodologies for problem exploration (Trending to the Absurd, Scenario Analysis, Systems Analysis, Red Teaming, Extensive Searching, Intensive Searching, Harnessing Trends, Understanding Needs, Challenging Orthodoxies)"
+    ],
+    "key_claims": [
+      "Innovation requires a problem worth solving, a solution that solves the problem, and a business case that makes sense.",
+      "Purposeful, systematic innovation begins with the analysis of opportunities."
+    ],
+    "cohort_context": "Innovation classes (graduate and undergraduate) at Johns Hopkins University, Israel Institute of Technology, and Hebrew University, and workshops all over the world.",
+    "graph_connections": [
+      "THIS_DOC -[TEACHES]-> Innovation",
+      "THIS_DOC -[TEACHES]-> Entrepreneurship",
+      "THIS_DOC -[TEACHES]-> Uncertainty",
+      "THIS_DOC -[TEACHES]-> Risk",
+      "THIS_DOC -[TEACHES]-> Problem-solving",
+      "THIS_DOC -[TEACHES]-> Opportunity identification",
+      "THIS_DOC -[TEACHES]-> Scenario analysis",
+      "THIS_DOC -[TEACHES]-> Systems analysis",
+      "THIS_DOC -[TEACHES]-> Red Teaming",
+      "THIS_DOC -[USES_FRAMEWORK]-> Jobs to be Done (JTBD)",
+      "THIS_DOC -[USES_FRAMEWORK]-> 2x2 Matrix",
+      "THIS_DOC -[DISCUSSES]-> Un-defined problems",
+      "THIS_DOC -[DISCUSSES]-> Ill-defined problems",
+      "THIS_DOC -[DISCUSSES]-> Well-defined problems",
+      "THIS_DOC -[MENTIONS]-> Johns Hopkins University",
+      "THIS_DOC -[MENTIONS]-> Israel Institute of Technology",
+      "THIS_DOC -[MENTIONS]-> Hebrew University",
+      "THIS_DOC -[MENTIONS]-> NATO Innovation Hub",
+      "THIS_DOC -[MENTIONS]-> Peter Drucker"
+    ]
+  },
+  "signals": {
+    "percentages": [
+      "2300%",
+      "75%"
+    ],
+    "money": [
+      "$1000"
+    ],
+    "years": [
+      "2021",
+      "2021",
+      "2004",
+      "1985",
+      "2021"
+    ],
+    "assumptions": [
+      "Suppose",
+      "assume",
+      "assume",
+      "assumption",
+      "assumption"
+    ],
+    "problems": [
+      "problem",
+      "Problem",
+      "problem",
+      "Problem",
+      "Problem"
+    ],
+    "solutions": [
+      "Solution",
+      "approach",
+      "Solution",
+      "approach",
+      "solve"
+    ],
+    "questions": [
+      " Preface\n\u25cb Introduction to the fundamental question: How to create a startup?",
+      "\n\n**Preface**\n\nSuppose you wanted to create a startup?\u00a0 How would you begin?",
+      " So why are their ideas so un-interesting?",
+      "so/PWS-Innovation-Under-Uncertainty-A-Structured-Approach-19f218d946948085a72aff60d559a969?",
+      "so/PWS-Innovation-Under-Uncertainty-A-Structured-Approach-19f218d946948085a72aff60d559a969?"
+    ],
+    "causation": [
+      "due to",
+      "therefore",
+      "Thus",
+      "thus",
+      "because"
+    ],
+    "trends": [
+      "Trending",
+      "changing",
+      "changing",
+      "Trending",
+      "Trending"
+    ],
+    "future": [
+      "will",
+      "will",
+      "future",
+      "will",
+      "future"
+    ]
+  },
+  "char_count": 145436,
+  "extracted_at": "2026-01-28T12:00:54.222747"
+}
