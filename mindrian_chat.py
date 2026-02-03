@@ -4446,10 +4446,11 @@ async def on_show_example(action: cl.Action):
             "Format: **Title (Year/Era)**: The story..."
         )
 
+        # BUG FIX: Increased max_output_tokens from 600 to 800 to prevent example truncation
         response = client.models.generate_content(
             model="gemini-2.5-flash",
             contents=synthesis_prompt,
-            config=types.GenerateContentConfig(temperature=0.7, max_output_tokens=600),
+            config=types.GenerateContentConfig(temperature=0.7, max_output_tokens=800),
         )
 
         if response.text and len(response.text.strip()) > 30:
@@ -7215,10 +7216,11 @@ async def on_think_through(action: cl.Action):
     chat_profile = cl.user_session.get("chat_profile", "lawrence")
 
     # Build context from recent conversation
+    # BUG FIX: Increased content truncation from 500 to 1000 chars to prevent incomplete analysis
     recent_context = ""
     for msg in history[-6:]:
         role = msg.get("role", "user")
-        content = msg.get("content", "")[:500]
+        content = msg.get("content", "")[:1000]  # Increased from 500 for better context
         recent_context += f"{role}: {content}\n"
 
     try:
@@ -7238,10 +7240,11 @@ WORKSHOP: {chat_profile}
 In 1-2 sentences, state the core problem or question. Be specific and clear."""
 
                 problem_step.input = "Extracting core problem..."
+                # BUG FIX: Increased max_output_tokens from 200 to 400 to prevent truncation
                 problem_response = client.models.generate_content(
                     model="gemini-2.5-flash",
                     contents=problem_prompt,
-                    config=types.GenerateContentConfig(temperature=0.3, max_output_tokens=200)
+                    config=types.GenerateContentConfig(temperature=0.3, max_output_tokens=400)
                 )
                 core_problem = problem_response.text.strip()
                 problem_step.output = core_problem
@@ -7256,10 +7259,11 @@ And context:
 List 2-3 key assumptions that underlie this problem. Be specific about what is being taken for granted."""
 
                 assumptions_step.input = f"Core problem: {core_problem[:100]}"
+                # BUG FIX: Increased max_output_tokens from 300 to 500 to prevent truncation
                 assumptions_response = client.models.generate_content(
                     model="gemini-2.5-flash",
                     contents=assumptions_prompt,
-                    config=types.GenerateContentConfig(temperature=0.4, max_output_tokens=300)
+                    config=types.GenerateContentConfig(temperature=0.4, max_output_tokens=500)
                 )
                 assumptions = assumptions_response.text.strip()
                 assumptions_step.output = assumptions
@@ -7287,10 +7291,11 @@ Be specific and actionable."""
 
             # Step 4: Generate next steps
             async with cl.Step(name="Planning Next Steps", type="llm") as steps_step:
+                # BUG FIX: Increased truncation limits from 200 to 500 chars for better context
                 steps_prompt = f"""Given:
 - Core Problem: {core_problem}
-- Assumptions: {assumptions[:200]}
-- Knowledge Gaps: {knowledge_analysis[:200]}
+- Assumptions: {assumptions[:500]}
+- Knowledge Gaps: {knowledge_analysis[:500]}
 
 Suggest 2-3 concrete, actionable next steps to move forward. Be specific."""
 
@@ -7445,25 +7450,37 @@ Your insights help us improve Mindrian!"""
                 step.output = f"Image generation failed, falling back to text response"
 
     # === Triple-Mode: Auto-detect entry point on first message ===
+    # BUG FIX: Only run entry point detection for NEW sessions (no history).
+    # If there's existing history, user is in an active session - don't re-initialize.
     if TRIPLE_MODE_ENABLED:
         entry_point = cl.user_session.get("entry_point")
+        existing_history = cl.user_session.get("history", [])
+
         if entry_point is None:
-            # First real message - auto-detect entry point
-            has_attachment = bool(message.elements)
-            detection = await auto_detect_entry_point(message.content, has_attachment)
+            # Check if this is a NEW session or a session that lost entry_point
+            if len(existing_history) > 0:
+                # Session has history but lost entry_point - set default, don't show selector
+                # This prevents mid-session re-initialization on typo-heavy messages
+                cl.user_session.set("entry_point", "brainstorming")
+                cl.user_session.set("mode", "sandbox")
+                print(f"[TRIPLE_MODE] Recovered lost entry_point for active session (history={len(existing_history)})")
+            else:
+                # True first message - auto-detect entry point
+                has_attachment = bool(message.elements)
+                detection = await auto_detect_entry_point(message.content, has_attachment)
 
-            if detection["should_show_selector"]:
-                # Low confidence - show selector and wait
-                await show_entry_point_selector()
-                return  # Don't process message yet
+                if detection["should_show_selector"]:
+                    # Low confidence - show selector and wait
+                    await show_entry_point_selector()
+                    return  # Don't process message yet
 
-            # High confidence - set entry point and continue
-            cl.user_session.set("entry_point", detection["entry_point"])
-            cl.user_session.set("mode", detection["mode"])
+                # High confidence - set entry point and continue
+                cl.user_session.set("entry_point", detection["entry_point"])
+                cl.user_session.set("mode", detection["mode"])
 
-            # Show sidebar for brainstorming
-            if detection["entry_point"] == "brainstorming":
-                await show_exploration_progress_sidebar()
+                # Show sidebar for brainstorming
+                if detection["entry_point"] == "brainstorming":
+                    await show_exploration_progress_sidebar()
 
     bot = cl.user_session.get("bot", BOTS["lawrence"])
     history = cl.user_session.get("history", [])
@@ -8673,6 +8690,7 @@ async def process_voice_transcript(transcript: str, track_id: str):
     history = cl.user_session.get("history", [])
     current_phase = cl.user_session.get("current_phase", 0)
     phases = cl.user_session.get("phases", [])
+    settings = cl.user_session.get("settings", {})  # BUG FIX: Get settings for voice pipeline
 
     # Build contents for Gemini
     contents = []
@@ -8686,9 +8704,17 @@ async def process_voice_transcript(transcript: str, track_id: str):
     if phases and current_phase < len(phases):
         phase_context = f"\n\n[CURRENT WORKSHOP PHASE: {phases[current_phase]['name']}]"
 
+    # BUG FIX: Apply detail_instruction to voice responses (was missing)
+    detail_level = settings.get("response_detail", 1)
+    detail_instruction = ""
+    if detail_level <= 3:
+        detail_instruction = "\n[USER PREFERENCE: Be concise and brief in your response.]"
+    elif detail_level >= 8:
+        detail_instruction = "\n[USER PREFERENCE: Provide comprehensive, detailed explanations.]"
+
     contents.append(types.Content(
         role="user",
-        parts=[types.Part(text=transcript + phase_context)]
+        parts=[types.Part(text=transcript + phase_context + detail_instruction)]
     ))
 
     # Create response message
