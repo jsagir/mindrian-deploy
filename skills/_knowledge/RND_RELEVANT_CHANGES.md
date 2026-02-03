@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-03 09:41*
+*Auto-generated: 2026-02-03 09:44*
 
 ---
 
 ## 2026-02-03
+
+### ✨ feat: Rename all skills to Mindrian-Team-X convention + auto-update knowledge base
+
+- **Commit:** `b268be7c`
+- **Author:** jsagir
+- **Files changed:** 19
+  - scripts/update_consultant_knowledge.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+  - skills/chainlit-consultant/SKILL.md
+- **Details:** - Renamed all skills to Mindrian-Team-{Function} naming convention:
 
 ### 🐛 fix: Move commands to .claude/skills for Claude Code recognition
 

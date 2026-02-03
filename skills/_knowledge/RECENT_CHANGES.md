@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-03 09:41*
+*Auto-generated: 2026-02-03 09:44*
 
 ---
 
 ## 2026-02-03
+
+### ✨ feat: Rename all skills to Mindrian-Team-X convention + auto-update knowledge base
+
+- **Commit:** `b268be7c`
+- **Author:** jsagir
+- **Files changed:** 19
+  - scripts/update_consultant_knowledge.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+  - skills/chainlit-consultant/SKILL.md
+- **Details:** - Renamed all skills to Mindrian-Team-{Function} naming convention:
 
 ### 🐛 fix: Move commands to .claude/skills for Claude Code recognition
 
@@ -472,11 +484,3 @@
   - scripts/cron_config.txt
   - scripts/daily_summary.py
 - **Details:** - Updated cron schedule to Israel time (8 AM / 8 PM IST = 6 AM / 6 PM UTC)
-
-### 🔧 chore: Update email schedule to every 12 hours
-
-- **Commit:** `0f632a63`
-- **Author:** Claude
-- **Files changed:** 1
-  - scripts/cron_config.txt
-- **Details:** Schedule: 8 AM and 8 PM UTC (0 8,20 * * *)
