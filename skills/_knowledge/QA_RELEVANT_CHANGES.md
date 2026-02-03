@@ -1,6 +1,6 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-03 10:11*
+*Auto-generated: 2026-02-03 17:21*
 
 ---
 
@@ -177,14 +177,3 @@
 - **Files changed:** 1
   - mindrian_chat.py
 - **Details:** - Created get_core_action_buttons() helper for consistent button sets
-
-## 2026-01-30
-
-### 🐛 fix: Handle Chainlit TaskList.send() for_id compatibility issue
-
-- **Commit:** `157022a8`
-- **Author:** Claude
-- **Files changed:** 2
-  - mindrian_chat.py
-  - utils/ui_elements.py
-- **Details:** Added safe_task_list_send() wrapper to handle TypeError when Chainlit
