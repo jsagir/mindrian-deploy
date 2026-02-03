@@ -1,3 +1,7 @@
+---
+description: R&D project status, architecture decisions, find prior research on Mindrian features
+---
+
 # Mindrian-Team-RND-Consultant
 
 Get current R&D project status, understand architecture decisions, find prior research.

@@ -1,3 +1,7 @@
+---
+description: Provocative code review with PWS methodology - debugging, feature analysis, Neo4j knowledge graph queries
+---
+
 # Mindrian-Team-Larry
 
 Provocative code review, debugging, and feature analysis with PWS methodology grounding.

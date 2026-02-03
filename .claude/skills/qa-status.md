@@ -1,3 +1,7 @@
+---
+description: Get QA status, analyze tester feedback patterns, prioritize P0/P1 issues
+---
+
 # Mindrian-Team-QA-Consultant
 
 Get current QA status, analyze tester feedback patterns, and prioritize issues.

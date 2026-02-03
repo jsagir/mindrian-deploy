@@ -221,6 +221,50 @@ except ImportError as e:
     UI_ELEMENTS_ENABLED = False
     print(f"UI Elements not available: {e}")
 
+# === LangGraph Pipelines - Advanced multi-step workflows ===
+try:
+    from intelligence.pipelines import (
+        # BONO Innovation (Six Hats + Lateral Thinking)
+        run_bono_session,
+        format_bono_report,
+        HAT_SEQUENCES,
+        HAT_ICONS,
+        # Reverse Salient Discovery
+        run_reverse_salient,
+        format_reverse_salient_result,
+        # Domain Discovery
+        run_domain_discovery,
+        format_domain_discovery_result,
+        # Oracle Prediction Market
+        run_oracle_formulation,
+        run_oracle_resolution,
+        format_research_brief,
+        # Message Router
+        route_message as route_message_pipeline,
+        # File Processing
+        process_uploaded_files_langgraph,
+        # Grading
+        run_grading_pipeline,
+        # Minto Pyramid (already used)
+        run_minto_pipeline,
+        format_minto_result,
+    )
+    LANGGRAPH_PIPELINES_ENABLED = True
+    print("LangGraph Pipelines enabled (BONO, RS, Domain, Oracle, Router)")
+except ImportError as e:
+    LANGGRAPH_PIPELINES_ENABLED = False
+    print(f"LangGraph Pipelines not available: {e}")
+    # Fallback stubs
+    async def run_bono_session(*args, **kwargs): return {"error": "Pipeline not available"}
+    async def run_reverse_salient(*args, **kwargs): return {"error": "Pipeline not available"}
+    async def run_domain_discovery(*args, **kwargs): return {"error": "Pipeline not available"}
+    async def run_oracle_formulation(*args, **kwargs): return {"error": "Pipeline not available"}
+    async def run_grading_pipeline(*args, **kwargs): return {"error": "Pipeline not available"}
+    def format_bono_report(*args, **kwargs): return "Pipeline not available"
+    def format_reverse_salient_result(*args, **kwargs): return "Pipeline not available"
+    HAT_SEQUENCES = {}
+    HAT_ICONS = {}
+
 
 # === TaskList Compatibility Helper ===
 async def safe_task_list_send(task_list):
@@ -1262,6 +1306,57 @@ def get_core_action_buttons(include_example: bool = True) -> list:
         ))
 
     return actions
+
+
+def get_pipeline_buttons(bot_id: str) -> list:
+    """
+    Get LangGraph pipeline buttons specific to the current bot.
+    These enable advanced multi-step analysis workflows.
+    """
+    pipeline_buttons = {
+        "bono": [
+            cl.Action(
+                name="run_bono_analysis",
+                payload={"action": "bono"},
+                label="🎭 Run Six Hats",
+                tooltip="Run complete Six Thinking Hats + Lateral Thinking pipeline",
+            ),
+        ],
+        "nested_hierarchies": [
+            cl.Action(
+                name="run_rs_discovery",
+                payload={"action": "rs"},
+                label="🔍 Find Reverse Salients",
+                tooltip="Discover constraints holding back system hierarchies",
+            ),
+        ],
+        "domain": [
+            cl.Action(
+                name="run_domain_discovery",
+                payload={"action": "domain"},
+                label="🌐 Discover Domains",
+                tooltip="Run LangGraph domain discovery pipeline",
+            ),
+        ],
+        "scenario": [
+            cl.Action(
+                name="run_oracle_prediction",
+                payload={"action": "oracle"},
+                label="🔮 Oracle Prediction",
+                tooltip="Generate prediction market and research brief",
+            ),
+        ],
+        "validation": [
+            cl.Action(
+                name="run_bono_analysis",
+                payload={"action": "bono"},
+                label="🎭 Multi-Perspective Hats",
+                tooltip="Run Six Hats analysis for multi-perspective validation",
+            ),
+        ],
+    }
+
+    return pipeline_buttons.get(bot_id, [])
 
 
 def get_phase_navigation_buttons(current_phase: int, total_phases: int, include_core: bool = True) -> list:
@@ -8784,6 +8879,12 @@ The user expects you to be responsive to what they JUST said, not to lecture fro
             if research_tools:
                 actions.extend(research_tools)
 
+            # LangGraph pipeline buttons (bot-specific advanced workflows)
+            if LANGGRAPH_PIPELINES_ENABLED:
+                pipeline_buttons = get_pipeline_buttons(current_bot_id)
+                if pipeline_buttons:
+                    actions.extend(pipeline_buttons)
+
         if actions:
             msg.actions = actions
 
@@ -10445,3 +10546,223 @@ The grade reflects:
 *Want to discuss specific aspects of this grade?*
 """
     await cl.Message(content=explanation).send()
+
+
+# =============================================================================
+# LangGraph Pipeline Action Callbacks
+# =============================================================================
+
+@cl.action_callback("run_bono_analysis")
+async def on_run_bono_analysis(action: cl.Action):
+    """Run BONO Innovation pipeline (Six Thinking Hats + Lateral Thinking)."""
+    if not LANGGRAPH_PIPELINES_ENABLED:
+        await cl.Message(content="BONO pipeline not available. Please check system configuration.").send()
+        return
+
+    history = cl.user_session.get("history", [])
+    session_id = str(cl.user_session.get("id", "default"))
+
+    # Extract problem from recent conversation
+    recent_context = " ".join([m.get("content", "") for m in history[-6:]])[-2000:]
+
+    if len(recent_context.strip()) < 20:
+        await cl.Message(content="Please describe a problem or challenge first, then run the Six Hats analysis.").send()
+        return
+
+    # Show progress
+    msg = cl.Message(content="")
+    await msg.send()
+    await msg.stream_token("## 🎭 Six Thinking Hats Analysis\n\n")
+    await msg.stream_token("Running comprehensive BONO Innovation pipeline...\n\n")
+
+    # Progress phases
+    phases = [
+        "🔍 Classifying problem type",
+        "🌐 Discovering relevant domains",
+        "👤 Constructing domain personas",
+        "🎨 Gathering research context",
+        "🎭 Running Six Hats exploration",
+        "💡 Generating lateral insights",
+        "📊 Synthesizing recommendations"
+    ]
+    for phase in phases:
+        await msg.stream_token(f"- {phase}...\n")
+
+    try:
+        # Run the BONO pipeline
+        result = await run_bono_session(
+            problem=recent_context,
+            session_id=session_id,
+            context_type="innovation"  # or "strategic", "crisis", "product"
+        )
+
+        if "error" in result:
+            await msg.stream_token(f"\n\n⚠️ Pipeline error: {result['error']}")
+            await msg.update()
+            return
+
+        # Format and display results
+        await msg.stream_token("\n\n---\n\n")
+        report = format_bono_report(result)
+        await msg.stream_token(report)
+        await msg.update()
+
+        # Add to history
+        history.append({"role": "model", "content": f"[BONO Analysis]\n{report[:2000]}"})
+        cl.user_session.set("history", history)
+
+    except Exception as e:
+        await msg.stream_token(f"\n\n❌ Error: {str(e)[:200]}")
+        await msg.update()
+        print(f"[BONO] Pipeline error: {e}")
+
+
+@cl.action_callback("run_rs_discovery")
+async def on_run_rs_discovery(action: cl.Action):
+    """Run Reverse Salient Discovery pipeline."""
+    if not LANGGRAPH_PIPELINES_ENABLED:
+        await cl.Message(content="RS Discovery pipeline not available.").send()
+        return
+
+    history = cl.user_session.get("history", [])
+    session_id = str(cl.user_session.get("id", "default"))
+
+    # Extract context
+    recent_context = " ".join([m.get("content", "") for m in history[-6:]])[-2000:]
+
+    if len(recent_context.strip()) < 20:
+        await cl.Message(content="Please describe a system, technology, or industry first, then run RS Discovery.").send()
+        return
+
+    msg = cl.Message(content="")
+    await msg.send()
+    await msg.stream_token("## 🔍 Reverse Salient Discovery\n\n")
+    await msg.stream_token("Finding constraints that hold back entire system hierarchies...\n\n")
+
+    # Progress phases
+    phases = [
+        "📊 Mapping system hierarchy",
+        "🔗 Identifying component relationships",
+        "⚡ Detecting bottlenecks",
+        "🎯 Finding reverse salients",
+        "💡 Generating innovation opportunities",
+        "📋 Prioritizing by leverage"
+    ]
+    for phase in phases:
+        await msg.stream_token(f"- {phase}...\n")
+
+    try:
+        result = await run_reverse_salient(
+            domain=recent_context,
+            session_id=session_id
+        )
+
+        if "error" in result:
+            await msg.stream_token(f"\n\n⚠️ Error: {result['error']}")
+            await msg.update()
+            return
+
+        await msg.stream_token("\n\n---\n\n")
+        report = format_reverse_salient_result(result)
+        await msg.stream_token(report)
+        await msg.update()
+
+        history.append({"role": "model", "content": f"[RS Discovery]\n{report[:2000]}"})
+        cl.user_session.set("history", history)
+
+    except Exception as e:
+        await msg.stream_token(f"\n\n❌ Error: {str(e)[:200]}")
+        await msg.update()
+        print(f"[RS] Pipeline error: {e}")
+
+
+@cl.action_callback("run_oracle_prediction")
+async def on_run_oracle_prediction(action: cl.Action):
+    """Run Oracle Foresight Engine for prediction markets."""
+    if not LANGGRAPH_PIPELINES_ENABLED:
+        await cl.Message(content="Oracle pipeline not available.").send()
+        return
+
+    history = cl.user_session.get("history", [])
+    session_id = str(cl.user_session.get("id", "default"))
+
+    recent_context = " ".join([m.get("content", "") for m in history[-6:]])[-2000:]
+
+    if len(recent_context.strip()) < 20:
+        await cl.Message(content="Please describe a prediction question or scenario first.").send()
+        return
+
+    msg = cl.Message(content="")
+    await msg.send()
+    await msg.stream_token("## 🔮 Oracle Foresight Engine\n\n")
+    await msg.stream_token("Formulating prediction market and research brief...\n\n")
+
+    try:
+        result = await run_oracle_formulation(
+            question=recent_context,
+            session_id=session_id
+        )
+
+        if "error" in result:
+            await msg.stream_token(f"\n\n⚠️ Error: {result['error']}")
+            await msg.update()
+            return
+
+        await msg.stream_token("\n\n---\n\n")
+        brief = format_research_brief(result)
+        await msg.stream_token(brief)
+        await msg.update()
+
+        history.append({"role": "model", "content": f"[Oracle Prediction]\n{brief[:2000]}"})
+        cl.user_session.set("history", history)
+
+    except Exception as e:
+        await msg.stream_token(f"\n\n❌ Error: {str(e)[:200]}")
+        await msg.update()
+        print(f"[Oracle] Pipeline error: {e}")
+
+
+@cl.action_callback("run_domain_discovery")
+async def on_run_domain_discovery(action: cl.Action):
+    """Run Domain Discovery pipeline with LangGraph."""
+    if not LANGGRAPH_PIPELINES_ENABLED:
+        await cl.Message(content="Domain Discovery pipeline not available.").send()
+        return
+
+    history = cl.user_session.get("history", [])
+    session_id = str(cl.user_session.get("id", "default"))
+
+    recent_context = " ".join([m.get("content", "") for m in history[-6:]])[-2000:]
+
+    if len(recent_context.strip()) < 20:
+        await cl.Message(content="Please describe your background, interests, or research area first.").send()
+        return
+
+    msg = cl.Message(content="")
+    await msg.send()
+    await msg.stream_token("## 🌐 Domain Discovery Pipeline\n\n")
+    await msg.stream_token("Discovering innovation domains from your context...\n\n")
+
+    try:
+        result = await run_domain_discovery(
+            input_text=recent_context,
+            session_id=session_id
+        )
+
+        if "error" in result:
+            await msg.stream_token(f"\n\n⚠️ Error: {result['error']}")
+            await msg.update()
+            return
+
+        await msg.stream_token("\n\n---\n\n")
+        report = format_domain_discovery_result(result)
+        await msg.stream_token(report)
+        await msg.update()
+
+        history.append({"role": "model", "content": f"[Domain Discovery]\n{report[:2000]}"})
+        cl.user_session.set("history", history)
+
+    except Exception as e:
+        await msg.stream_token(f"\n\n❌ Error: {str(e)[:200]}")
+        await msg.update()
+        print(f"[Domain] Pipeline error: {e}")

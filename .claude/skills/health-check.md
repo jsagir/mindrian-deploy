@@ -1,3 +1,7 @@
+---
+description: Run Mindrian health check to verify all systems (Gemini, Neo4j, Tavily, Supabase, ElevenLabs, LangExtract)
+---
+
 Run the Mindrian health check protocol to verify all systems are operational.
 
 Execute: `python3 scripts/health_check.py` from the mindrian-deploy directory.
@@ -14,3 +18,5 @@ This checks:
 9. Code integrity (syntax check all critical files + prompt imports)
 
 Report any failures and suggest fixes.
+
+$ARGUMENTS

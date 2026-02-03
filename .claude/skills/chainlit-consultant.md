@@ -1,3 +1,7 @@
+---
+description: Chainlit customization expert - Custom JSX Elements, TaskList, React Client, Copilot Widget
+---
+
 # Mindrian-Team-Chainlit-Consultant
 
 Get expert advice on Chainlit customization: Custom JSX Elements, TaskList, React Client, Copilot Widget.

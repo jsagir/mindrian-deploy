@@ -1,3 +1,7 @@
+---
+description: Analyze tester feedback, locate issues in codebase, recommend fixes for Mindrian bugs
+---
+
 # Mindrian-Team-QA-Analyzer
 
 Analyze tester feedback, locate issues in the Mindrian codebase, and recommend fixes.

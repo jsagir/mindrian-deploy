@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-04 01:01*
+*Auto-generated: 2026-02-04 01:19*
 
 ---
 
 ## 2026-02-04
+
+### 🐛 fix: Critical context management and research query bugs
+
+- **Commit:** `4df6d1e0`
+- **Author:** jsagir
+- **Files changed:** 6
+  - intelligence/pipelines/__init__.py
+  - intelligence/pipelines/bono_innovation.py
+  - mindrian_chat.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+- **Details:** Bug fixes:
 
 ### ✨ feat: Add Message Router pipeline + update README with Intelligence Layer
 

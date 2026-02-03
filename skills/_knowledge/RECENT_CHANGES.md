@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-04 01:01*
+*Auto-generated: 2026-02-04 01:19*
 
 ---
 
 ## 2026-02-04
+
+### 🐛 fix: Critical context management and research query bugs
+
+- **Commit:** `4df6d1e0`
+- **Author:** jsagir
+- **Files changed:** 6
+  - intelligence/pipelines/__init__.py
+  - intelligence/pipelines/bono_innovation.py
+  - mindrian_chat.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+- **Details:** Bug fixes:
 
 ### ✨ feat: Add Message Router pipeline + update README with Intelligence Layer
 
@@ -503,11 +515,3 @@
   - protocols/agent_registry.py
   - scripts/neo4j_triple_mode_migration.py
 - **Details:** Multi-level systems analysis workshop for finding leverage points.
-
-### 🐛 fix: Complete venture stage mappings for agents
-
-- **Commit:** `e408dbbb`
-- **Author:** jsagir
-- **Files changed:** 1
-  - protocols/agent_registry.py
-- **Details:** - Add "*" wildcard handling in get_agents_for_venture_stage()

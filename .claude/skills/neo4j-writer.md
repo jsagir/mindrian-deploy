@@ -1,3 +1,7 @@
+---
+description: Write to Neo4j graph safely - MERGE patterns, pre-flight checks, batch operations, rollback
+---
+
 # Mindrian-Team-Neo4j-Writer
 
 Safely write to the Mindrian Neo4j knowledge graph with schema governance and pre-flight checks.
