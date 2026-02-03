@@ -64,6 +64,20 @@ from .message_router import (
     DOCUMENT_EXTENSIONS,
 )
 
+from .bono_innovation import (
+    BONOState,
+    ProblemClassification,
+    DomainPersona,
+    HatContribution,
+    LateralInsight,
+    create_bono_pipeline,
+    run_bono_session,
+    format_bono_report,
+    HAT_SEQUENCES,
+    HAT_ICONS,
+    HAT_FOCUS,
+)
+
 __all__ = [
     # Minto Pyramid (deep_research_full)
     "MintoPyramidState",

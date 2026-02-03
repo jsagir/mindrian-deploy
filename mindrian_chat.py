@@ -6447,21 +6447,40 @@ async def _research_sources_first(recent_context: str, bot_name: str, search_dep
     research_depth = "quick" if is_simple else ("standard" if search_depth == "basic" else "deep")
 
     # Extract the main question from context
-    # BUG FIX: Increased token limits to prevent truncated research questions (Bug 7)
+    # BUG FIX: Prioritize the USER's topic, not the bot's question back to them
+    # First, find the last substantive user message (not just "go" or "yes")
+
+    last_user_topic = ""
+    for msg in reversed(history):
+        if msg.get("role") == "user":
+            content = msg.get("content", "").strip()
+            # Skip trivial messages
+            if len(content) > 5 and content.lower() not in ["go", "yes", "ok", "next", "continue"]:
+                last_user_topic = content[:200]
+                break
+
     try:
         query_response = client.models.generate_content(
             model="gemini-2.5-flash",
             contents=(
-                f"Based on this conversation, identify the main research question or topic. "
-                f"Return a clear, specific question (max 50 words).\n\n"
-                f"Conversation:\n{recent_context[:2000]}"  # Increased from 1000 for longer docs
+                f"Extract a RESEARCH TOPIC from this conversation.\n\n"
+                f"IMPORTANT: Focus on the USER'S topic, not the assistant's questions.\n"
+                f"USER'S MAIN TOPIC: {last_user_topic}\n\n"
+                f"Return a clear, specific research question about '{last_user_topic}' (max 50 words).\n"
+                f"If the user mentioned a specific subject (like 'printed houseplants'), research THAT subject.\n"
+                f"DO NOT return generic phrases like 'What about' or 'Tell me more'.\n\n"
+                f"Recent context:\n{recent_context[:1500]}"
             ),
-            config=types.GenerateContentConfig(temperature=0.2, max_output_tokens=150),  # Increased from 60
+            config=types.GenerateContentConfig(temperature=0.2, max_output_tokens=150),
         )
         research_question = query_response.text.strip().strip('"').strip("'")
+
+        # Validate: reject if it's a generic question fragment
+        if research_question.lower().startswith(("what about", "tell me", "how about", "can you")):
+            research_question = last_user_topic if last_user_topic else research_question
     except Exception:
-        # Fallback: use last user message
-        research_question = recent_context.split("user:")[-1][:150].strip()
+        # Fallback: use last user topic directly
+        research_question = last_user_topic if last_user_topic else recent_context.split("user:")[-1][:150].strip()
 
     if not research_question or len(research_question) < 5:
         await msg.stream_token("Could not determine what to research. Try asking a more specific question.")
@@ -6504,19 +6523,36 @@ async def _research_sources_first(recent_context: str, bot_name: str, search_dep
         if report.synthesis:
             await msg.stream_token(f"### 💡 Key Insights\n\n{report.synthesis}\n\n")
 
-        # Show top findings with confidence indicators
+        # Show top findings with RICH CONTEXT explaining WHY each source is relevant
         if report.findings:
             await msg.stream_token(f"### 📚 Research Findings ({len(report.findings)} sources)\n\n")
-            for i, finding in enumerate(report.findings[:6], 1):
+            for i, finding in enumerate(report.findings[:5], 1):
                 confidence_icon = {"high": "🟢", "medium": "🟡", "low": "🟠"}.get(finding.confidence, "⚪")
-                # Extract URL from sources
                 source_url = finding.sources[0] if finding.sources else ""
-                fact_preview = finding.fact[:200] if finding.fact else ""
 
-                await msg.stream_token(f"**{i}. {confidence_icon}** {fact_preview}...\n")
+                # Full finding with paragraph context
+                await msg.stream_token(f"#### {i}. {confidence_icon} {finding.category.title() if finding.category else 'Finding'}\n\n")
+
+                # Show the full finding (not truncated)
+                await msg.stream_token(f"{finding.fact}\n\n")
+
+                # Explain WHY this is relevant using pws_relevance
+                if finding.pws_relevance:
+                    await msg.stream_token(f"**Why this matters:** {finding.pws_relevance}\n\n")
+
+                # Confidence explanation
+                confidence_reason = {
+                    "high": "Multiple sources confirm this finding",
+                    "medium": "Some supporting evidence available",
+                    "low": "Limited sources - verify independently"
+                }.get(finding.confidence, "")
+                if confidence_reason:
+                    await msg.stream_token(f"*Confidence: {finding.confidence} — {confidence_reason}*\n")
+
+                # Source link
                 if source_url:
-                    await msg.stream_token(f"   *[Source]({source_url})*\n")
-                await msg.stream_token("\n")
+                    await msg.stream_token(f"📎 [View Source]({source_url})\n")
+                await msg.stream_token("\n---\n\n")
 
         # PWS Implications
         if report.pws_implications:
@@ -7051,7 +7087,16 @@ async def on_deep_research(action: cl.Action):
 async def on_arxiv_search(action: cl.Action):
     """Search ArXiv for academic papers based on conversation context."""
     history = cl.user_session.get("history", [])
-    recent = " ".join([m.get("content", "") for m in history[-4:]])[-500:]
+
+    # BUG FIX: Prioritize the LAST USER MESSAGE as the primary topic
+    last_user_msg = ""
+    for m in reversed(history):
+        if m.get("role") == "user":
+            last_user_msg = m.get("content", "")[:200]
+            break
+
+    recent = " ".join([m.get("content", "") for m in history[-4:]])[-300:]
+    context_for_query = f"MOST RECENT USER TOPIC: {last_user_msg}\n\nBACKGROUND: {recent}"
     reason = action.payload.get("reason", "Graph suggested academic research")
 
     msg = cl.Message(content="")
@@ -7061,7 +7106,7 @@ async def on_arxiv_search(action: cl.Action):
     # Extract search query from context via Gemini
     qr = client.models.generate_content(
         model="gemini-2.5-flash",
-        contents=f"Extract a concise academic search query (max 8 words) from this conversation. Return ONLY the query:\n\n{recent}",
+        contents=f"Extract a concise academic search query (max 8 words). IMPORTANT: Focus on the MOST RECENT USER TOPIC, not old context. Return ONLY the query:\n\n{context_for_query}",
     )
     search_query = qr.text.strip().strip('"')
 
@@ -7080,7 +7125,16 @@ async def on_arxiv_search(action: cl.Action):
 async def on_patent_search(action: cl.Action):
     """Search patents based on conversation context."""
     history = cl.user_session.get("history", [])
-    recent = " ".join([m.get("content", "") for m in history[-4:]])[-500:]
+
+    # BUG FIX: Prioritize the LAST USER MESSAGE as the primary topic
+    last_user_msg = ""
+    for m in reversed(history):
+        if m.get("role") == "user":
+            last_user_msg = m.get("content", "")[:200]
+            break
+
+    recent = " ".join([m.get("content", "") for m in history[-4:]])[-300:]
+    context_for_query = f"MOST RECENT USER TOPIC: {last_user_msg}\n\nBACKGROUND: {recent}"
     reason = action.payload.get("reason", "Graph suggested patent landscaping")
 
     msg = cl.Message(content="")
@@ -7090,7 +7144,7 @@ async def on_patent_search(action: cl.Action):
     # Extract search query from context via Gemini
     qr = client.models.generate_content(
         model="gemini-2.5-flash",
-        contents=f"Extract a concise patent search query (max 8 words) from this conversation. Return ONLY the query:\n\n{recent}",
+        contents=f"Extract a concise patent search query (max 8 words). IMPORTANT: Focus on the MOST RECENT USER TOPIC, not old context. Return ONLY the query:\n\n{context_for_query}",
     )
     search_query = qr.text.strip().strip('"')
 
@@ -7109,7 +7163,16 @@ async def on_patent_search(action: cl.Action):
 async def on_trends_search(action: cl.Action):
     """Search Google Trends based on conversation context (graph-driven)."""
     history = cl.user_session.get("history", [])
-    recent = " ".join([m.get("content", "") for m in history[-4:]])[-500:]
+
+    # BUG FIX: Prioritize the LAST USER MESSAGE as the primary topic
+    last_user_msg = ""
+    for m in reversed(history):
+        if m.get("role") == "user":
+            last_user_msg = m.get("content", "")[:200]
+            break
+
+    recent = " ".join([m.get("content", "") for m in history[-4:]])[-300:]
+    context_for_query = f"MOST RECENT USER TOPIC: {last_user_msg}\n\nBACKGROUND: {recent}"
     reason = action.payload.get("reason", "Graph suggested trend analysis")
 
     msg = cl.Message(content="")
@@ -7120,8 +7183,9 @@ async def on_trends_search(action: cl.Action):
     qr = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=(
-            "Extract 1-3 concise Google Trends search terms (each max 3 words) from this conversation. "
-            "Return ONLY comma-separated terms, no explanation:\n\n" + recent
+            "Extract 1-3 concise Google Trends search terms (each max 3 words). "
+            "IMPORTANT: Focus on the MOST RECENT USER TOPIC, not old context. "
+            "Return ONLY comma-separated terms, no explanation:\n\n" + context_for_query
         ),
     )
     search_query = qr.text.strip().strip('"')
@@ -7147,7 +7211,19 @@ async def on_trends_search(action: cl.Action):
 async def on_govdata_search(action: cl.Action):
     """Search US government data (BLS, FRED, Census) based on conversation context."""
     history = cl.user_session.get("history", [])
-    recent = " ".join([m.get("content", "") for m in history[-4:]])[-500:]
+
+    # BUG FIX: Prioritize the LAST USER MESSAGE as the primary topic
+    # Extract last user message (most recent topic)
+    last_user_msg = ""
+    for m in reversed(history):
+        if m.get("role") == "user":
+            last_user_msg = m.get("content", "")[:200]
+            break
+
+    # Include recent context but prioritize current topic
+    recent = " ".join([m.get("content", "") for m in history[-4:]])[-300:]
+    context_for_query = f"MOST RECENT USER TOPIC: {last_user_msg}\n\nBACKGROUND CONTEXT: {recent}"
+
     reason = action.payload.get("reason", "Graph suggested public data grounding")
 
     msg = cl.Message(content="")
@@ -7155,13 +7231,15 @@ async def on_govdata_search(action: cl.Action):
     await msg.stream_token(f"**🏛️ Pulling Public Statistics**\n*Why: {reason}*\n\n")
 
     # Use Gemini to extract a data-oriented query and pick sources
+    # Emphasize that the query should focus on the MOST RECENT USER TOPIC
     qr = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=(
-            "From this conversation, extract: 1) a concise data search query (max 6 words), "
+            "Extract a data search query from this conversation. IMPORTANT: Focus on the MOST RECENT USER TOPIC, not old context.\n"
+            "1) concise data search query (max 6 words) based on what the user JUST asked about\n"
             "2) which US government data sources are relevant: 'bls' (labor/employment/wages/CPI), "
             "'fred' (GDP/interest rates/economic indicators), 'census' (demographics/income/population). "
-            "Return JSON like: {\"query\": \"...\", \"sources\": [\"bls\", \"fred\"]}\n\n" + recent
+            "Return JSON like: {\"query\": \"...\", \"sources\": [\"bls\", \"fred\"]}\n\n" + context_for_query
         ),
     )
 
@@ -7189,7 +7267,16 @@ async def on_govdata_search(action: cl.Action):
 async def on_dataset_search(action: cl.Action):
     """Search Kaggle + Socrata for datasets based on conversation context."""
     history = cl.user_session.get("history", [])
-    recent = " ".join([m.get("content", "") for m in history[-4:]])[-500:]
+
+    # BUG FIX: Prioritize the LAST USER MESSAGE as the primary topic
+    last_user_msg = ""
+    for m in reversed(history):
+        if m.get("role") == "user":
+            last_user_msg = m.get("content", "")[:200]
+            break
+
+    recent = " ".join([m.get("content", "") for m in history[-4:]])[-300:]
+    context_for_query = f"MOST RECENT USER TOPIC: {last_user_msg}\n\nBACKGROUND: {recent}"
     reason = action.payload.get("reason", "Graph suggested dataset discovery")
 
     msg = cl.Message(content="")
@@ -7200,9 +7287,10 @@ async def on_dataset_search(action: cl.Action):
     qr = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=(
-            "Extract a concise dataset search query (max 5 words) from this conversation. "
+            "Extract a concise dataset search query (max 5 words). "
+            "IMPORTANT: Focus on the MOST RECENT USER TOPIC, not old context or bot questions. "
             "Think about what raw data would help validate or explore the topic. "
-            "Return ONLY the query:\n\n" + recent
+            "Return ONLY the query:\n\n" + context_for_query
         ),
     )
     search_query = qr.text.strip().strip('"')
@@ -7222,7 +7310,16 @@ async def on_dataset_search(action: cl.Action):
 async def on_news_search(action: cl.Action):
     """Search NewsMesh for structured news based on conversation context."""
     history = cl.user_session.get("history", [])
-    recent = " ".join([m.get("content", "") for m in history[-4:]])[-500:]
+
+    # BUG FIX: Prioritize the LAST USER MESSAGE as the primary topic
+    last_user_msg = ""
+    for m in reversed(history):
+        if m.get("role") == "user":
+            last_user_msg = m.get("content", "")[:200]
+            break
+
+    recent = " ".join([m.get("content", "") for m in history[-4:]])[-300:]
+    context_for_query = f"MOST RECENT USER TOPIC: {last_user_msg}\n\nBACKGROUND: {recent}"
     reason = action.payload.get("reason", "Graph suggested news signal analysis")
 
     msg = cl.Message(content="")
@@ -7233,10 +7330,11 @@ async def on_news_search(action: cl.Action):
     qr = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=(
-            "From this conversation, extract: 1) a news search query (max 6 words), "
+            "Extract a news search query from this conversation. IMPORTANT: Focus on the MOST RECENT USER TOPIC, not old context.\n"
+            "1) a news search query (max 6 words) based on what the user JUST asked about\n"
             "2) the most relevant news category from: politics, technology, business, "
             "health, science, environment, world (or 'none' if unclear). "
-            "Return JSON: {\"query\": \"...\", \"category\": \"...\"}\n\n" + recent
+            "Return JSON: {\"query\": \"...\", \"category\": \"...\"}\n\n" + context_for_query
         ),
     )
 
@@ -8434,7 +8532,8 @@ Your insights help us improve Mindrian!"""
     # Show thinking panel for non-simple bots or when explicitly enabled
     settings = cl.user_session.get("settings", {})
     show_thinking = settings.get("show_thinking", True)  # Default to showing thinking
-    bot_id = cl.user_session.get("bot_id", "lawrence")
+    # BUG FIX: Use chat_profile as source of truth (Chainlit sets this), then fall back to bot_id
+    bot_id = cl.user_session.get("chat_profile") or cl.user_session.get("bot_id", "lawrence")
 
     if show_thinking and not bot.get("simple_mode", False):
         # Capture reasoning steps before generating response
@@ -8494,10 +8593,13 @@ Your insights help us improve Mindrian!"""
             handoff_addendum = f"""
 
 [CONTEXT HANDOFF NOTICE]
-The user was previously working with {previous_bot_name} and has switched to you while preserving conversation context.
-The previous conversation history is included above. Continue the discussion from your unique perspective.
-DO NOT repeat what was already discussed. Build on the existing conversation.
-The user expects you to understand the context and add your specialized value.
+The user was previously working with {previous_bot_name} and has conversation context available.
+Previous context is in history BUT:
+- ALWAYS prioritize the user's CURRENT message over historical context
+- If the user's new message introduces a NEW topic, ADDRESS THAT TOPIC directly
+- Only reference previous context if directly relevant to the user's current question
+- Do NOT continue old discussions if the user clearly changed subjects
+The user expects you to be responsive to what they JUST said, not to lecture from old context.
 [END HANDOFF NOTICE]
 """
             system_instruction = system_instruction + handoff_addendum
@@ -8691,6 +8793,12 @@ The user expects you to understand the context and add your specialized value.
         history.append({"role": "user", "content": message.content})
         history.append({"role": "model", "content": full_response})
         cl.user_session.set("history", history)
+
+        # BUG FIX: Clear context_handoff after first response to prevent persistent context pollution
+        # The handoff notice should only affect the FIRST message after a bot switch
+        if cl.user_session.get("context_handoff"):
+            cl.user_session.set("context_handoff", None)
+            cl.user_session.set("previous_bot", None)
 
         # === Triple-Mode: Extract topics and check semantic grounding ===
         if TRIPLE_MODE_ENABLED:

@@ -1,6 +1,6 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-04 00:56*
+*Auto-generated: 2026-02-04 01:01*
 
 ---
 
@@ -149,11 +149,3 @@
 - **Files changed:** 1
   - protocols/agent_registry.py
 - **Details:** - Add "*" wildcard handling in get_agents_for_venture_stage()
-
-### 🐛 fix: Improve entry point detection with keyword hints
-
-- **Commit:** `e4cb33b4`
-- **Author:** jsagir
-- **Files changed:** 1
-  - protocols/triple_mode.py
-- **Details:** - Move "idea" from brainstorm to venture keywords (startup ideas → build_venture)

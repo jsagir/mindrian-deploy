@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-04 00:56*
+*Auto-generated: 2026-02-04 01:01*
 
 ---
 
 ## 2026-02-04
+
+### ✨ feat: Add Message Router pipeline + update README with Intelligence Layer
+
+- **Commit:** `da768322`
+- **Author:** jsagir
+- **Files changed:** 6
+  - README.md
+  - intelligence/pipelines/__init__.py
+  - intelligence/pipelines/message_router.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+- **Details:** New pipeline:
 
 ### 📝 docs: Add refactoring analysis + update skills with LangGraph pipelines
 
@@ -499,11 +511,3 @@
 - **Files changed:** 1
   - protocols/agent_registry.py
 - **Details:** - Add "*" wildcard handling in get_agents_for_venture_stage()
-
-### 🐛 fix: Improve entry point detection with keyword hints
-
-- **Commit:** `e4cb33b4`
-- **Author:** jsagir
-- **Files changed:** 1
-  - protocols/triple_mode.py
-- **Details:** - Move "idea" from brainstorm to venture keywords (startup ideas → build_venture)

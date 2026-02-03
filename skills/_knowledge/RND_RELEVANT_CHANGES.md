@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-04 00:56*
+*Auto-generated: 2026-02-04 01:01*
 
 ---
 
 ## 2026-02-04
+
+### ✨ feat: Add Message Router pipeline + update README with Intelligence Layer
+
+- **Commit:** `da768322`
+- **Author:** jsagir
+- **Files changed:** 6
+  - README.md
+  - intelligence/pipelines/__init__.py
+  - intelligence/pipelines/message_router.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+- **Details:** New pipeline:
 
 ### 📝 docs: Add refactoring analysis + update skills with LangGraph pipelines
 
