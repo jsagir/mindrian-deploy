@@ -8139,26 +8139,22 @@ Your insights help us improve Mindrian!"""
         }
         methodology = methodology_map.get(bot_id)
 
-        # Build thinking display
-        thinking_md = f"""<details>
-<summary>🧠 **{BOTS.get(bot_id, {}).get('name', 'Larry')}'s Thinking** (click to expand)</summary>
+        # Build thinking display using cl.Step for proper Chainlit rendering
+        # BUG FIX: Replaced raw HTML <details> with cl.Step (Bug 10)
+        # <details> tags were showing as raw text instead of collapsible sections
+        async with cl.Step(name=f"🧠 {BOTS.get(bot_id, {}).get('name', 'Larry')}'s Thinking", type="run") as thinking_step:
+            thinking_output = ""
+            for step in thinking_steps:
+                status_icon = "✅" if step["status"] == "complete" else "🔄" if step["status"] == "active" else "⏳"
+                thinking_output += f"{status_icon} {step['name']}"
+                if step.get("output"):
+                    thinking_output += f": {step['output']}"
+                thinking_output += "\n"
 
-"""
-        for step in thinking_steps:
-            status_icon = "✅" if step["status"] == "complete" else "🔄" if step["status"] == "active" else "⏳"
-            thinking_md += f"- {status_icon} **{step['name']}**"
-            if step.get("output"):
-                thinking_md += f": {step['output']}"
-            thinking_md += "\n"
+            if methodology:
+                thinking_output += f"\n*Applying: {methodology}*"
 
-        if methodology:
-            thinking_md += f"\n*Applying: {methodology}*\n"
-
-        thinking_md += "\n</details>\n"
-
-        # Show thinking panel
-        thinking_msg = cl.Message(content=thinking_md)
-        await thinking_msg.send()
+            thinking_step.output = thinking_output
 
     # Create streaming message
     msg = cl.Message(content="")
