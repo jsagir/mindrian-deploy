@@ -1,6 +1,6 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-03 22:56*
+*Auto-generated: 2026-02-03 22:58*
 
 ---
 
@@ -180,11 +180,3 @@
 - **Files changed:** 1
   - mindrian_chat.py
 - **Details:** - Move /api/daily-summary registration to top of file
-
-### 🐛 fix: TaskList for_id compatibility in grading flow
-
-- **Commit:** `1d004506`
-- **Author:** Claude
-- **Files changed:** 1
-  - mindrian_chat.py
-- **Details:** - Send TaskList separately instead of as Message element

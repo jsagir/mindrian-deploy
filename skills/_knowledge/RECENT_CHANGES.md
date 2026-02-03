@@ -1,10 +1,21 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-03 22:56*
+*Auto-generated: 2026-02-03 22:58*
 
 ---
 
 ## 2026-02-03
+
+### ✨ feat: Complete Opportunity Bank UI integration
+
+- **Commit:** `0a564a26`
+- **Author:** jsagir
+- **Files changed:** 4
+  - mindrian_chat.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Added missing UI integration for Opportunity Bank feature:
 
 ### 📝 docs: Update README with v3.1 features + improve agent welcome messages
 
@@ -482,11 +493,3 @@
 - **Files changed:** 1
   - mindrian_chat.py
 - **Details:** - Move /api/daily-summary registration to top of file
-
-### 🐛 fix: TaskList for_id compatibility in grading flow
-
-- **Commit:** `1d004506`
-- **Author:** Claude
-- **Files changed:** 1
-  - mindrian_chat.py
-- **Details:** - Send TaskList separately instead of as Message element

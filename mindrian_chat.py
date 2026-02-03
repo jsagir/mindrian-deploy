@@ -1225,8 +1225,8 @@ def get_core_action_buttons(include_example: bool = True) -> list:
         cl.Action(
             name="map_ideas",
             payload={"action": "map"},
-            label="🗺️ Map Ideas",
-            tooltip="Visualize key ideas as a mindmap diagram",
+            label="📊 Visualize",
+            tooltip="Auto-select best diagram type: mindmap, flowchart, quadrant, journey, or sequence",
         ),
         cl.Action(
             name="view_opportunities",
@@ -6043,15 +6043,19 @@ async def on_speak_response(action: cl.Action):
 
 @cl.action_callback("map_ideas")
 async def on_map_ideas(action: cl.Action):
-    """Generate a mindmap or flowchart from the conversation."""
-    from utils.diagrams import create_mindmap, create_mermaid_element
+    """Generate the most appropriate diagram type based on conversation content."""
+    from utils.diagrams import (
+        create_mindmap, create_mermaid_element, create_flowchart,
+        create_quadrant_chart, create_user_journey
+    )
     import json
+    import re
 
     history = cl.user_session.get("history", [])
     bot = cl.user_session.get("bot", BOTS["lawrence"])
 
     if len(history) < 2:
-        await cl.Message(content="Not enough conversation to map. Have a discussion first!").send()
+        await cl.Message(content="Not enough conversation to visualize. Have a discussion first!").send()
         return
 
     # Build conversation summary for AI to analyze
@@ -6062,18 +6066,237 @@ async def on_map_ideas(action: cl.Action):
         conversation_text += f"{role}: {content}\n\n"
 
     try:
-        async with cl.Step(name="Generating Idea Map", type="llm") as map_step:
-            map_step.input = f"Analyzing {len(history)} messages for key ideas..."
+        async with cl.Step(name="Analyzing Best Visualization", type="llm") as map_step:
+            map_step.input = f"Analyzing {len(history)} messages to determine best diagram type..."
 
-            # Use Gemini to extract mindmap structure
-            prompt = f"""Analyze this conversation and create a mindmap structure.
+            # Step 1: Ask Gemini to recommend the best diagram type
+            classify_prompt = f"""Analyze this conversation and recommend the BEST Mermaid diagram type.
 
 Conversation:
 {conversation_text}
 
-Return a JSON object with this EXACT structure (no markdown, just JSON):
+DIAGRAM TYPES (choose the MOST appropriate one):
+
+1. "mindmap" - Best for:
+   - Brainstorming sessions
+   - Exploring ideas/concepts
+   - Showing relationships between themes
+   - When user is discovering or exploring
+
+2. "flowchart" - Best for:
+   - Processes with steps
+   - Decision trees (if/then logic)
+   - Workflows or procedures
+   - When user discusses "how to" or sequences
+
+3. "quadrant" - Best for:
+   - Prioritization (urgent/important)
+   - Risk assessment (impact/likelihood)
+   - Comparing options on 2 dimensions
+   - When user is evaluating/ranking
+
+4. "journey" - Best for:
+   - Customer/user experiences
+   - Emotional journeys
+   - Timeline of experiences
+   - When discussing user pain points
+
+5. "sequence" - Best for:
+   - Interactions between parties
+   - API/system communications
+   - Meeting/conversation flows
+   - When multiple actors are involved
+
+Return ONLY a JSON object (no markdown):
 {{
-  "central_topic": "Main topic being discussed (2-4 words)",
+  "diagram_type": "mindmap|flowchart|quadrant|journey|sequence",
+  "reason": "Brief explanation why this type fits best",
+  "title": "2-4 word title for the diagram"
+}}"""
+
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=classify_prompt,
+                config=types.GenerateContentConfig(temperature=0.2, max_output_tokens=300)
+            )
+            classify_text = response.text.strip()
+
+            # Extract JSON from response
+            if "```" in classify_text:
+                parts = classify_text.split("```")
+                for part in parts:
+                    part = part.strip()
+                    if part.startswith("json"):
+                        part = part[4:].strip()
+                    if part.startswith("{"):
+                        classify_text = part
+                        break
+
+            try:
+                classification = json.loads(classify_text)
+                diagram_type = classification.get("diagram_type", "mindmap")
+                title = classification.get("title", "Visualization")
+                reason = classification.get("reason", "")
+            except json.JSONDecodeError:
+                diagram_type = "mindmap"
+                title = "Idea Map"
+                reason = "Default fallback"
+
+            map_step.output = f"Selected: {diagram_type} - {reason}"
+
+        # Step 2: Generate the appropriate diagram based on type
+        async with cl.Step(name=f"Creating {diagram_type.title()}", type="llm") as gen_step:
+
+            if diagram_type == "flowchart":
+                # Generate flowchart structure
+                flow_prompt = f"""Create a flowchart structure from this conversation.
+
+Conversation:
+{conversation_text}
+
+Return ONLY valid JSON (no markdown):
+{{
+  "steps": [
+    {{"id": "A", "label": "Start/Trigger", "type": "start", "next": ["B"]}},
+    {{"id": "B", "label": "First step", "type": "process", "next": ["C"]}},
+    {{"id": "C", "label": "Decision?", "type": "decision", "next": ["D", "E"]}},
+    {{"id": "D", "label": "Yes path", "type": "process", "next": ["F"]}},
+    {{"id": "E", "label": "No path", "type": "process", "next": ["F"]}},
+    {{"id": "F", "label": "End", "type": "end", "next": []}}
+  ]
+}}
+
+Types: "start", "end", "process", "decision"
+Keep labels to 2-5 words. Create 4-8 steps."""
+
+                response = client.models.generate_content(
+                    model="gemini-2.5-flash",
+                    contents=flow_prompt,
+                    config=types.GenerateContentConfig(temperature=0.3, max_output_tokens=1000)
+                )
+                flow_data = _extract_json(response.text)
+                steps = flow_data.get("steps", [])
+                diagram = await create_flowchart(steps, title=title)
+                gen_step.output = f"Created flowchart with {len(steps)} steps"
+
+            elif diagram_type == "quadrant":
+                # Generate quadrant chart structure
+                quad_prompt = f"""Create a 2x2 quadrant chart from this conversation.
+
+Conversation:
+{conversation_text}
+
+Return ONLY valid JSON (no markdown):
+{{
+  "x_label": "X-axis label (e.g., 'Urgency', 'Effort')",
+  "y_label": "Y-axis label (e.g., 'Impact', 'Value')",
+  "items": [
+    {{"name": "Item 1", "x": 75, "y": 85}},
+    {{"name": "Item 2", "x": 25, "y": 60}},
+    {{"name": "Item 3", "x": 80, "y": 30}},
+    {{"name": "Item 4", "x": 20, "y": 20}}
+  ]
+}}
+
+x and y are 0-100. Create 3-6 items from the conversation."""
+
+                response = client.models.generate_content(
+                    model="gemini-2.5-flash",
+                    contents=quad_prompt,
+                    config=types.GenerateContentConfig(temperature=0.3, max_output_tokens=800)
+                )
+                quad_data = _extract_json(response.text)
+                diagram = await create_quadrant_chart(
+                    title=title,
+                    x_label=quad_data.get("x_label", "X-Axis"),
+                    y_label=quad_data.get("y_label", "Y-Axis"),
+                    items=quad_data.get("items", [])
+                )
+                gen_step.output = f"Created quadrant with {len(quad_data.get('items', []))} items"
+
+            elif diagram_type == "journey":
+                # Generate user journey
+                journey_prompt = f"""Create a user journey map from this conversation.
+
+Conversation:
+{conversation_text}
+
+Return ONLY valid JSON (no markdown):
+{{
+  "title": "Journey title",
+  "sections": [
+    {{
+      "name": "Discovery",
+      "tasks": [
+        {{"name": "Realizes problem", "score": 3}},
+        {{"name": "Searches for solution", "score": 4}}
+      ]
+    }},
+    {{
+      "name": "Evaluation",
+      "tasks": [
+        {{"name": "Compares options", "score": 2}},
+        {{"name": "Gets confused", "score": 1}}
+      ]
+    }}
+  ]
+}}
+
+Score is emotion: 1=frustrated, 3=neutral, 5=happy. Create 3-4 sections with 2-3 tasks each."""
+
+                response = client.models.generate_content(
+                    model="gemini-2.5-flash",
+                    contents=journey_prompt,
+                    config=types.GenerateContentConfig(temperature=0.3, max_output_tokens=1000)
+                )
+                journey_data = _extract_json(response.text)
+                diagram = await create_user_journey(
+                    title=journey_data.get("title", title),
+                    sections=journey_data.get("sections", [])
+                )
+                gen_step.output = f"Created journey with {len(journey_data.get('sections', []))} sections"
+
+            elif diagram_type == "sequence":
+                # Generate sequence diagram
+                seq_prompt = f"""Create a sequence diagram from this conversation.
+
+Conversation:
+{conversation_text}
+
+Return ONLY valid Mermaid sequence diagram syntax (no JSON, no markdown code blocks):
+
+sequenceDiagram
+    participant User
+    participant System
+    User->>System: Request something
+    System-->>User: Response
+    Note over User,System: Important note
+
+Create 4-8 interactions. Use ->> for requests, -->> for responses."""
+
+                response = client.models.generate_content(
+                    model="gemini-2.5-flash",
+                    contents=seq_prompt,
+                    config=types.GenerateContentConfig(temperature=0.3, max_output_tokens=800)
+                )
+                mermaid_code = response.text.strip()
+                if "```" in mermaid_code:
+                    mermaid_code = mermaid_code.split("```")[1].replace("mermaid", "").strip()
+                if not mermaid_code.startswith("sequenceDiagram"):
+                    mermaid_code = "sequenceDiagram\n" + mermaid_code
+                diagram = await create_mermaid_element(mermaid_code, title=title)
+                gen_step.output = "Created sequence diagram"
+
+            else:  # Default: mindmap
+                # Generate mindmap (original logic)
+                mind_prompt = f"""Create a mindmap structure from this conversation.
+
+Conversation:
+{conversation_text}
+
+Return ONLY valid JSON (no markdown):
+{{
+  "central_topic": "Main topic (2-4 words)",
   "branches": {{
     "Key Ideas": ["idea 1", "idea 2", "idea 3"],
     "Questions": ["question 1", "question 2"],
@@ -6082,81 +6305,65 @@ Return a JSON object with this EXACT structure (no markdown, just JSON):
   }}
 }}
 
-Rules:
-- Central topic should capture the core discussion theme
-- Create 3-5 branches with 2-4 items each
-- Keep items concise (2-5 words max)
-- Return ONLY valid JSON, nothing else"""
+Create 3-5 branches with 2-4 items each. Keep items to 2-5 words."""
 
-            # FIX: Use client.models.generate_content (correct API pattern)
-            response = client.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=prompt,
-                config=types.GenerateContentConfig(temperature=0.3, max_output_tokens=1000)
-            )
-            response_text = response.text.strip()
-
-            # BUG FIX: Improved JSON extraction from Gemini response (Bug 9)
-            # Clean up response - remove markdown code blocks if present
-            if "```" in response_text:
-                # Extract content between code blocks
-                parts = response_text.split("```")
-                for part in parts:
-                    part = part.strip()
-                    # Skip empty parts and language identifiers
-                    if part.startswith("json"):
-                        part = part[4:].strip()
-                    if part.startswith("{") and "central_topic" in part:
-                        response_text = part
-                        break
-
-            # Also try to find JSON object if wrapped in other text
-            if not response_text.startswith("{"):
-                import re
-                json_match = re.search(r'\{[^{}]*"central_topic"[^{}]*\}', response_text, re.DOTALL)
-                if json_match:
-                    response_text = json_match.group(0)
-
-            try:
-                mindmap_data = json.loads(response_text)
-                map_step.output = f"Extracted: {mindmap_data.get('central_topic', 'Unknown')}"
-
-                # Create the mindmap
+                response = client.models.generate_content(
+                    model="gemini-2.5-flash",
+                    contents=mind_prompt,
+                    config=types.GenerateContentConfig(temperature=0.3, max_output_tokens=1000)
+                )
+                mindmap_data = _extract_json(response.text)
                 diagram = await create_mindmap(
                     central_topic=mindmap_data.get("central_topic", "Discussion"),
                     branches=mindmap_data.get("branches", {}),
-                    title="Idea Map"
+                    title=title
                 )
+                gen_step.output = f"Created mindmap: {mindmap_data.get('central_topic', 'Unknown')}"
 
-                await cl.Message(
-                    content="**🗺️ Your Idea Map**\n\nHere's a visual map of the key ideas from our conversation:",
-                    elements=[diagram]
-                ).send()
+        # Send the diagram
+        type_icons = {
+            "mindmap": "🗺️", "flowchart": "📊", "quadrant": "📐",
+            "journey": "🚶", "sequence": "🔄"
+        }
+        icon = type_icons.get(diagram_type, "📈")
 
-            except json.JSONDecodeError as je:
-                map_step.output = f"JSON parse error: {je}"
-                # Fallback: create simple mindmap from last user message
-                last_user_msg = ""
-                for msg in reversed(history):
-                    if msg.get("role") == "user":
-                        last_user_msg = msg.get("content", "")[:50]
-                        break
-
-                fallback_diagram = await create_mindmap(
-                    central_topic=last_user_msg or "Discussion",
-                    branches={
-                        "Explore": ["Key themes", "Questions raised"],
-                        "Actions": ["Next steps", "Follow up"]
-                    },
-                    title="Idea Map"
-                )
-                await cl.Message(
-                    content="**🗺️ Quick Idea Map**\n\n(Detailed mapping unavailable - here's a simplified view)",
-                    elements=[fallback_diagram]
-                ).send()
+        await cl.Message(
+            content=f"**{icon} {title}** ({diagram_type})\n\n*{reason}*",
+            elements=[diagram]
+        ).send()
 
     except Exception as e:
-        await cl.Message(content=f"Mapping error: {str(e)}").send()
+        await cl.Message(content=f"Visualization error: {str(e)[:200]}").send()
+
+
+def _extract_json(text: str) -> dict:
+    """Extract JSON from Gemini response, handling markdown and extra text."""
+    import json
+    import re
+
+    text = text.strip()
+
+    # Remove markdown code blocks
+    if "```" in text:
+        parts = text.split("```")
+        for part in parts:
+            part = part.strip()
+            if part.startswith("json"):
+                part = part[4:].strip()
+            if part.startswith("{"):
+                text = part
+                break
+
+    # Find JSON object if wrapped in other text
+    if not text.startswith("{"):
+        json_match = re.search(r'\{[\s\S]*\}', text)
+        if json_match:
+            text = json_match.group(0)
+
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        return {}
 
 
 async def _research_sources_first(recent_context: str, bot_name: str, search_depth: str, history: list):
