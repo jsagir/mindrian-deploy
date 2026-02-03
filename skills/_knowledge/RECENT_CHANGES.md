@@ -6,6 +6,14 @@
 
 ## 2026-02-03
 
+### 📝 docs: Final skills sync
+
+- **Commit:** `142b73ab`
+- **Author:** jsagir
+- **Files changed:** 2
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+
 ### 📝 docs: Sync skills knowledge base
 
 - **Commit:** `85f304ad`
@@ -486,11 +494,3 @@
   - mindrian_chat.py
   - public/elements/WorkshopRoadmap.jsx
 - **Details:** Implements the interactive phase sidebar to replace TaskList:
-
-### ✨ feat: Quick Win - Soft phase transitions + back navigation
-
-- **Commit:** `77109b23`
-- **Author:** Claude
-- **Files changed:** 1
-  - mindrian_chat.py
-- **Details:** UX improvements per PM analysis (80% improvement, 2% effort):
