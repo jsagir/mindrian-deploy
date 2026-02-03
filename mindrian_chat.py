@@ -142,9 +142,65 @@ except ImportError as e:
     PHASE_INSIGHTS_ENABLED = False
     print(f"Phase Insights not available: {e}")
 
-# === Custom Roadmap Feature Flag ===
-# Set to True to use the new WorkshopRoadmap CustomElement instead of TaskList
-USE_CUSTOM_ROADMAP = True  # Quick Win: Enabled by default
+# === Recursive Intelligence Session Logger - Learning from every session ===
+try:
+    from utils.session_logger import (
+        log_session_event,
+        log_session_summary,
+        track_agent_start,
+        get_agents_used,
+        get_logger_stats
+    )
+    SESSION_LOGGER_ENABLED = True
+    print("Session Logger enabled (Recursive Intelligence Phase 1)")
+except ImportError as e:
+    SESSION_LOGGER_ENABLED = False
+    print(f"Session Logger not available: {e}")
+    # Fallback stubs
+    async def log_session_event(*args, **kwargs): pass
+    async def log_session_summary(*args, **kwargs): pass
+    def track_agent_start(*args, **kwargs): pass
+    def get_agents_used(*args, **kwargs): return []
+    def get_logger_stats(): return {}
+
+# === Reaction Classifier - Detect user sentiment signals ===
+try:
+    from utils.reaction_classifier import classify_reaction, ReactionSignal
+    REACTION_CLASSIFIER_ENABLED = True
+    print("Reaction Classifier enabled (Recursive Intelligence Phase 2)")
+except ImportError as e:
+    REACTION_CLASSIFIER_ENABLED = False
+    print(f"Reaction Classifier not available: {e}")
+    # Fallback stub
+    def classify_reaction(msg):
+        return type('ReactionSignal', (), {'signal_type': 'neutral', 'confidence': 0.5, 'indicators': []})()
+
+# === Session Distiller - Extract insights at session end ===
+try:
+    from utils.session_distiller import on_session_end, on_significant_turn
+    SESSION_DISTILLER_ENABLED = True
+    print("Session Distiller enabled (Recursive Intelligence Phase 3)")
+except ImportError as e:
+    SESSION_DISTILLER_ENABLED = False
+    print(f"Session Distiller not available: {e}")
+    async def on_session_end(*args, **kwargs): pass
+    async def on_significant_turn(*args, **kwargs): return None
+
+# === Self-Describing Phases - Auto-discovery from prompt modules ===
+try:
+    from utils.phase_discovery import get_phases_for_bot, get_tracker_criteria_for_bot, bot_has_phases
+    PHASE_DISCOVERY_ENABLED = True
+    print("Phase Discovery enabled (self-describing phases)")
+except ImportError as e:
+    PHASE_DISCOVERY_ENABLED = False
+    print(f"Phase Discovery not available: {e}")
+    # Fallback stubs
+    def get_phases_for_bot(bot_id): return None
+    def bot_has_phases(bot_id): return False
+
+# === WorkshopRoadmap is now the ONLY progress UI ===
+# TaskList fallbacks have been removed (Feb 2026 simplification)
+# All progress visualization goes through create_or_update_roadmap()
 
 # === UI Elements - Custom components for grading, opportunities, etc. ===
 try:
@@ -160,7 +216,7 @@ try:
         display_opportunities,
     )
     UI_ELEMENTS_ENABLED = True
-    print("UI Elements module enabled (TaskList, GradeReveal, ScoreBreakdown)")
+    print("UI Elements module enabled (GradeReveal, ScoreBreakdown)")
 except ImportError as e:
     UI_ELEMENTS_ENABLED = False
     print(f"UI Elements not available: {e}")
@@ -1116,44 +1172,47 @@ I'll run the complete grading pipeline including mandatory bias detection."""
 }
 
 
-async def create_task_list(profile: str) -> Optional[cl.TaskList]:
+def _get_phases_for_bot(bot_id: str) -> Optional[list]:
     """
-    Create a task list or custom roadmap for workshop phases.
+    Get phases for a bot with auto-discovery fallback.
+    Priority: 1. Self-describing (from prompt module), 2. Legacy WORKSHOP_PHASES dict
+    """
+    # Try self-describing phases first
+    if PHASE_DISCOVERY_ENABLED:
+        phases = get_phases_for_bot(bot_id)
+        if phases:
+            return phases
 
-    If USE_CUSTOM_ROADMAP is enabled, creates an interactive WorkshopRoadmap
-    CustomElement instead of the basic TaskList.
+    # Fall back to legacy dict
+    if bot_id in WORKSHOP_PHASES:
+        return [p.copy() for p in WORKSHOP_PHASES[bot_id]]
+
+    return None
+
+
+async def create_workshop_roadmap(profile: str) -> None:
     """
-    if profile not in WORKSHOP_PHASES:
-        return None
+    Create the WorkshopRoadmap custom element for phase visualization.
+
+    This is the ONLY progress UI (TaskList fallback removed Feb 2026).
+    """
+    # Use auto-discovery with legacy fallback
+    phases = _get_phases_for_bot(profile)
+    if phases is None:
+        return
 
     bot = BOTS.get(profile, BOTS.get("lawrence", {}))
-    phases = [p.copy() for p in WORKSHOP_PHASES[profile]]
 
-    # Use custom roadmap if enabled
-    if USE_CUSTOM_ROADMAP:
-        try:
-            await create_or_update_roadmap(
-                phases=phases,
-                current_phase=0,
-                bot_name=bot.get("name", "Workshop"),
-                bot_icon=bot.get("icon", "🎯"),
-                phase_context={}
-            )
-            return None  # Roadmap handles its own display
-        except Exception as e:
-            print(f"Custom roadmap failed, falling back to TaskList: {e}")
-            # Fall through to TaskList
-
-    # Fallback: Standard TaskList
-    task_list = cl.TaskList()
-    task_list.name = "Workshop Progress"
-
-    for phase in phases:
-        status = cl.TaskStatus.READY if phase["status"] == "ready" else cl.TaskStatus.RUNNING if phase["status"] == "running" else cl.TaskStatus.DONE if phase["status"] == "done" else cl.TaskStatus.READY
-        task = cl.Task(title=phase["name"], status=status)
-        await task_list.add_task(task)
-
-    return task_list
+    try:
+        await create_or_update_roadmap(
+            phases=phases,
+            current_phase=0,
+            bot_name=bot.get("name", "Workshop"),
+            bot_icon=bot.get("icon", "🎯"),
+            phase_context={}
+        )
+    except Exception as e:
+        print(f"WorkshopRoadmap creation failed: {e}")
 
 
 def get_core_action_buttons(include_example: bool = True) -> list:
@@ -1317,20 +1376,8 @@ async def create_or_update_roadmap(
             await roadmap.update()
 
     except Exception as e:
-        # Fallback to TaskList if CustomElement fails
-        print(f"WorkshopRoadmap error, falling back to TaskList: {e}")
-        task_list = cl.TaskList()
-        task_list.name = "Workshop Progress"
-        for i, phase in enumerate(phases):
-            if phase["status"] == "done":
-                status = cl.TaskStatus.DONE
-            elif i == current_phase:
-                status = cl.TaskStatus.RUNNING
-            else:
-                status = cl.TaskStatus.READY
-            task = cl.Task(title=phase["name"], status=status)
-            await task_list.add_task(task)
-        await safe_task_list_send(task_list)
+        # Log error but don't fallback - WorkshopRoadmap is the only UI
+        print(f"WorkshopRoadmap error: {e}")
         return None
 
     return roadmap
@@ -1585,29 +1632,25 @@ async def send_phase_transition_card(
 
 
 async def update_phase(profile: str, phase_index: int, new_status: str):
-    """Update a workshop phase status."""
+    """Update a workshop phase status and refresh the roadmap."""
     phases = cl.user_session.get("phases", [])
     if phase_index < len(phases):
         phases[phase_index]["status"] = new_status
         cl.user_session.set("phases", phases)
 
-        # Recreate task list with updated statuses
-        task_list = cl.TaskList()
-        task_list.name = "Workshop Progress"
+        # Update WorkshopRoadmap
+        bot_id = cl.user_session.get("bot_id", profile)
+        bot = BOTS.get(bot_id, BOTS.get("lawrence", {}))
+        history = cl.user_session.get("history", [])
+        phase_insights = extract_phase_insights(history, phases, phase_index)
 
-        for i, phase in enumerate(phases):
-            if phase["status"] == "done":
-                status = cl.TaskStatus.DONE
-            elif phase["status"] == "running":
-                status = cl.TaskStatus.RUNNING
-            elif i == phase_index:
-                status = cl.TaskStatus.RUNNING
-            else:
-                status = cl.TaskStatus.READY
-            task = cl.Task(title=phase["name"], status=status)
-            await task_list.add_task(task)
-
-        await safe_task_list_send(task_list)
+        await create_or_update_roadmap(
+            phases=phases,
+            current_phase=phase_index,
+            bot_name=bot.get("name", "Workshop"),
+            bot_icon=bot.get("icon", "🎯"),
+            phase_context=phase_insights
+        )
 
 
 # ============================================================================
@@ -1616,34 +1659,27 @@ async def update_phase(profile: str, phase_index: int, new_status: str):
 
 async def show_phase_progress_element():
     """
-    Show the interactive PhaseProgress custom element.
+    Show the WorkshopRoadmap element (replaced PhaseProgress Feb 2026).
     Displays workshop progress with clickable phase navigation.
     """
     phases = cl.user_session.get("phases", [])
     current_phase = cl.user_session.get("current_phase", 0)
     bot_id = cl.user_session.get("bot_id", "lawrence")
     bot = BOTS.get(bot_id, BOTS["lawrence"])
+    history = cl.user_session.get("history", [])
 
     if not phases:
         return
 
-    # Format phases for the component
-    phase_data = [
-        {"name": p["name"], "status": p.get("status", "pending")}
-        for p in phases
-    ]
+    phase_insights = extract_phase_insights(history, phases, current_phase)
 
-    element = cl.CustomElement(
-        name="PhaseProgress",
-        props={
-            "phases": phase_data,
-            "currentPhase": current_phase,
-            "botName": bot.get("name", "Workshop"),
-            "botIcon": bot.get("icon", "🎯")
-        }
+    await create_or_update_roadmap(
+        phases=phases,
+        current_phase=current_phase,
+        bot_name=bot.get("name", "Workshop"),
+        bot_icon=bot.get("icon", "🎯"),
+        phase_context=phase_insights
     )
-
-    await cl.Message(content="", elements=[element]).send()
 
 
 async def show_dikw_pyramid_element(highlight_level: str = None, scores: dict = None):
@@ -1718,7 +1754,7 @@ async def setup_workshop_sidebar(bot_id: str):
 
     # Phase checklist for workshop bots
     if bot.get("has_phases"):
-        phases = cl.user_session.get("phases", WORKSHOP_PHASES.get(bot_id, []))
+        phases = cl.user_session.get("phases") or _get_phases_for_bot(bot_id) or []
         current_phase = cl.user_session.get("current_phase", 0)
 
         checklist_lines = ["## Phase Checklist\n"]
@@ -2728,7 +2764,7 @@ Be conservative - only suggest a switch if it would clearly add value."""
 
     try:
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=prompt,
             config=types.GenerateContentConfig(
                 temperature=0.1,
@@ -2787,6 +2823,10 @@ async def start():
     preserved_history = preserved_context.get("history", [])
     is_bot_switch = previous_bot and previous_bot != chat_profile and len(preserved_history) > 0
 
+    # Also try to restore phases from persisted context
+    preserved_phases = preserved_context.get("phases", [])
+    preserved_current_phase = preserved_context.get("current_phase", 0)
+
     if is_bot_switch:
         # Switching bots with existing context
         # Preserve history but switch personality
@@ -2797,20 +2837,39 @@ async def start():
         context_summary = f"[CONTEXT HANDOFF: User was previously working with {BOTS.get(previous_bot, {}).get('name', previous_bot)}. "
         context_summary += f"Continuing the conversation with preserved context. {len(preserved_history)} messages in history.]"
         cl.user_session.set("context_handoff", context_summary)
+
+        # Restore phases if returning to same bot (or same bot type with phases)
+        if previous_bot == chat_profile and preserved_phases:
+            cl.user_session.set("phases", [p.copy() for p in preserved_phases])
+            cl.user_session.set("current_phase", preserved_current_phase)
     else:
-        # Fresh start
-        cl.user_session.set("history", [])
+        # Fresh start OR server restart with persisted context
+        cl.user_session.set("history", preserved_history.copy() if preserved_history else [])
         cl.user_session.set("previous_bot", None)
         cl.user_session.set("context_handoff", None)
 
+        # Restore phases if we have them from persistence (server restart case)
+        if preserved_phases and preserved_context.get("last_bot_id") == chat_profile:
+            cl.user_session.set("phases", [p.copy() for p in preserved_phases])
+            cl.user_session.set("current_phase", preserved_current_phase)
+
     cl.user_session.set("bot", bot)
     cl.user_session.set("bot_id", chat_profile or "lawrence")
-    cl.user_session.set("current_phase", 0)
 
-    # Update context store with current session info
+    # === Recursive Intelligence: Track session start ===
+    if SESSION_LOGGER_ENABLED and session_id:
+        track_agent_start(session_id, chat_profile or "lawrence")
+
+    # Only set current_phase to 0 if not already restored
+    if cl.user_session.get("current_phase") is None:
+        cl.user_session.set("current_phase", 0)
+
+    # Update context store with current session info (including phases)
     context_store[context_key] = {
         "bot_id": chat_profile or "lawrence",
         "history": cl.user_session.get("history", []),
+        "phases": cl.user_session.get("phases", []),
+        "current_phase": cl.user_session.get("current_phase", 0),
     }
 
     # Initialize settings
@@ -2823,16 +2882,14 @@ async def start():
             content="💡 **Tip:** Use the ⚙️ Settings gear (top right) to adjust **Response Detail** — it's set to **1** (concise) by default. Slide up for more detail.",
         ).send()
 
-    # Initialize phases for workshop bots
-    if chat_profile in WORKSHOP_PHASES:
-        phases = [p.copy() for p in WORKSHOP_PHASES[chat_profile]]
+    # Initialize phases for workshop bots (auto-discovery with legacy fallback)
+    phases = _get_phases_for_bot(chat_profile)
+    if phases:
         cl.user_session.set("phases", phases)
         cl.user_session.set("phase_context", {})  # For smart phase transitions
 
-        # Create and send task list
-        task_list = await create_task_list(chat_profile)
-        if task_list:
-            await safe_task_list_send(task_list)
+        # Create WorkshopRoadmap (the only progress UI)
+        await create_workshop_roadmap(chat_profile)
 
     # Build action buttons for workshop bots
     actions = []
@@ -3120,29 +3177,22 @@ async def on_chat_resume(thread: dict):
     current_phase = metadata.get("current_phase", 0)
     phases = metadata.get("phases", None)
 
-    if phases is None and chat_profile in WORKSHOP_PHASES:
-        # Fallback: initialize fresh phases
-        phases = [p.copy() for p in WORKSHOP_PHASES[chat_profile]]
+    if phases is None:
+        # Fallback: initialize fresh phases (auto-discovery with legacy fallback)
+        phases = _get_phases_for_bot(chat_profile)
 
     if phases:
         cl.user_session.set("phases", phases)
         cl.user_session.set("current_phase", current_phase)
 
-        # Recreate task list
-        task_list = cl.TaskList()
-        task_list.name = "Workshop Progress"
-
-        for i, phase in enumerate(phases):
-            if phase.get("status") == "done":
-                status = cl.TaskStatus.DONE
-            elif phase.get("status") == "running" or i == current_phase:
-                status = cl.TaskStatus.RUNNING
-            else:
-                status = cl.TaskStatus.READY
-            task = cl.Task(title=phase["name"], status=status)
-            await task_list.add_task(task)
-
-        await safe_task_list_send(task_list)
+        # Create WorkshopRoadmap
+        await create_or_update_roadmap(
+            phases=phases,
+            current_phase=current_phase,
+            bot_name=bot.get("name", "Workshop"),
+            bot_icon=bot.get("icon", "🎯"),
+            phase_context={}  # Will be populated as history is restored
+        )
 
     # Restore conversation history from thread messages
     history = []
@@ -4111,9 +4161,26 @@ async def handle_agent_switch(new_agent_id: str):
     handoff = f"[CONTEXT HANDOFF: User switched from {old_bot.get('name')} to {new_bot.get('name')}. Previous conversation preserved.]"
     cl.user_session.set("context_handoff", handoff)
 
+    # === Recursive Intelligence: Log agent switch event ===
+    if SESSION_LOGGER_ENABLED:
+        session_id = cl.user_session.get("id")
+        if session_id:
+            # Fire-and-forget async log (non-blocking)
+            await log_session_event(
+                session_id=session_id,
+                event_type="agent_switch",
+                agent=new_agent_id,
+                from_agent=current_bot_id,
+                to_agent=new_agent_id,
+                user_initiated=True,  # User clicked switch button
+                turn_count=len(history),
+                metadata={"context_preserved": True}
+            )
+
     # Initialize or restore phases for new bot if it's a workshop
     context_key = get_context_key()  # Define early for use in both branches
-    if new_agent_id in WORKSHOP_PHASES:
+    bot_phases = _get_phases_for_bot(new_agent_id)  # Auto-discovery with fallback
+    if bot_phases:
         # Check if we have saved phase progress for this bot (QA-006 fix)
         saved_context = context_store.get(context_key, {})
         saved_bot_id = saved_context.get("bot_id")
@@ -4126,25 +4193,22 @@ async def handle_agent_switch(new_agent_id: str):
             current_phase = saved_current_phase
         else:
             # Fresh start for this workshop
-            phases = [p.copy() for p in WORKSHOP_PHASES[new_agent_id]]
+            phases = bot_phases
             current_phase = 0
 
         cl.user_session.set("phases", phases)
         cl.user_session.set("current_phase", current_phase)
 
-        # Create task list showing current progress
-        task_list = cl.TaskList()
-        task_list.name = "Workshop Progress"
-        for i, phase in enumerate(phases):
-            if phase["status"] == "done":
-                status = cl.TaskStatus.DONE
-            elif phase["status"] == "running" or i == current_phase:
-                status = cl.TaskStatus.RUNNING
-            else:
-                status = cl.TaskStatus.READY
-            task = cl.Task(title=phase["name"], status=status)
-            await task_list.add_task(task)
-        await safe_task_list_send(task_list)
+        # Create WorkshopRoadmap showing current progress
+        history = cl.user_session.get("history", [])
+        phase_insights = extract_phase_insights(history, phases, current_phase)
+        await create_or_update_roadmap(
+            phases=phases,
+            current_phase=current_phase,
+            bot_name=new_bot.get("name", "Workshop"),
+            bot_icon=new_bot.get("icon", "🎯"),
+            phase_context=phase_insights
+        )
     else:
         cl.user_session.set("phases", [])
         cl.user_session.set("current_phase", 0)
@@ -4191,7 +4255,7 @@ Be direct and engaging. Show your unique value."""
 
     try:
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=handoff_prompt,
             config=types.GenerateContentConfig(
                 system_instruction=new_bot.get("system_prompt", ""),
@@ -4321,7 +4385,7 @@ async def on_show_example(action: cl.Action):
         )
 
         fit_response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=fit_prompt,
             config=types.GenerateContentConfig(temperature=0.3, max_output_tokens=80),
         )
@@ -4383,7 +4447,7 @@ async def on_show_example(action: cl.Action):
         )
 
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=synthesis_prompt,
             config=types.GenerateContentConfig(temperature=0.7, max_output_tokens=600),
         )
@@ -4581,32 +4645,34 @@ async def on_next_phase(action: cl.Action):
         cl.user_session.set("phases", phases)
         cl.user_session.set("current_phase", current_phase_idx + 1)
 
-        # Update progress UI (Roadmap or TaskList)
+        # === Recursive Intelligence: Log phase completion ===
+        if SESSION_LOGGER_ENABLED:
+            session_id = cl.user_session.get("id")
+            completed_phase_name = phases[current_phase_idx].get("name", f"Phase {current_phase_idx + 1}")
+            if session_id:
+                await log_session_event(
+                    session_id=session_id,
+                    event_type="phase_completion",
+                    agent=bot_id,
+                    phase_name=completed_phase_name,
+                    turn_count=len(history),
+                    metadata={
+                        "phase_index": current_phase_idx,
+                        "next_phase": phases[current_phase_idx + 1].get("name") if current_phase_idx + 1 < len(phases) else None,
+                        "total_phases": len(phases)
+                    }
+                )
+
+        # Update WorkshopRoadmap
         bot = BOTS.get(bot_id, BOTS["lawrence"])
-        if USE_CUSTOM_ROADMAP:
-            # Use custom roadmap with phase insights
-            phase_insights = extract_phase_insights(history, phases, current_phase_idx + 1)
-            await create_or_update_roadmap(
-                phases=phases,
-                current_phase=current_phase_idx + 1,
-                bot_name=bot.get("name", "Workshop"),
-                bot_icon=bot.get("icon", "🎯"),
-                phase_context=phase_insights
-            )
-        else:
-            # Fallback to TaskList
-            task_list = cl.TaskList()
-            task_list.name = "Workshop Progress"
-            for i, phase in enumerate(phases):
-                if phase["status"] == "done":
-                    status = cl.TaskStatus.DONE
-                elif phase["status"] == "running":
-                    status = cl.TaskStatus.RUNNING
-                else:
-                    status = cl.TaskStatus.READY
-                task = cl.Task(title=phase["name"], status=status)
-                await task_list.add_task(task)
-            await safe_task_list_send(task_list)
+        phase_insights = extract_phase_insights(history, phases, current_phase_idx + 1)
+        await create_or_update_roadmap(
+            phases=phases,
+            current_phase=current_phase_idx + 1,
+            bot_name=bot.get("name", "Workshop"),
+            bot_icon=bot.get("icon", "🎯"),
+            phase_context=phase_insights
+        )
 
         # Update sidebar to reflect phase progress
         await update_sidebar_phase(current_phase_idx + 1)
@@ -4725,30 +4791,16 @@ async def on_prev_phase(action: cl.Action):
         cl.user_session.set("phases", phases)
         cl.user_session.set("current_phase", current_phase_idx - 1)
 
-        # Update progress UI (Roadmap or TaskList)
+        # Update WorkshopRoadmap
         history = cl.user_session.get("history", [])
-        if USE_CUSTOM_ROADMAP:
-            phase_insights = extract_phase_insights(history, phases, current_phase_idx - 1)
-            await create_or_update_roadmap(
-                phases=phases,
-                current_phase=current_phase_idx - 1,
-                bot_name=bot.get("name", "Workshop"),
-                bot_icon=bot.get("icon", "🎯"),
-                phase_context=phase_insights
-            )
-        else:
-            task_list = cl.TaskList()
-            task_list.name = "Workshop Progress"
-            for i, phase in enumerate(phases):
-                if phase["status"] == "done":
-                    status = cl.TaskStatus.DONE
-                elif phase["status"] == "running":
-                    status = cl.TaskStatus.RUNNING
-                else:
-                    status = cl.TaskStatus.READY
-                task = cl.Task(title=phase["name"], status=status)
-                await task_list.add_task(task)
-            await safe_task_list_send(task_list)
+        phase_insights = extract_phase_insights(history, phases, current_phase_idx - 1)
+        await create_or_update_roadmap(
+            phases=phases,
+            current_phase=current_phase_idx - 1,
+            bot_name=bot.get("name", "Workshop"),
+            bot_icon=bot.get("icon", "🎯"),
+            phase_context=phase_insights
+        )
 
         # Sync to context_store
         context_key = get_context_key()
@@ -4974,7 +5026,7 @@ Journal content:
 Provide a clear, bulleted summary in 150-200 words."""
 
             response = client.models.generate_content(
-                model="gemini-2.0-flash",
+                model="gemini-2.5-flash",
                 contents=summary_prompt
             )
 
@@ -5129,26 +5181,18 @@ async def on_show_progress(action: cl.Action):
             print(f"Smart progress analysis failed: {e}")
             # Fall through to basic progress display
 
-    # === FALLBACK: Basic Progress Display ===
+    # === FALLBACK: Basic Progress Display using WorkshopRoadmap ===
     try:
-        phase_data = [
-            {"name": p["name"], "status": p.get("status", "pending")}
-            for p in phases
-        ]
-
-        element = cl.CustomElement(
-            name="PhaseProgress",
-            props={
-                "phases": phase_data,
-                "currentPhase": current_phase,
-                "botName": bot.get("name", "Workshop"),
-                "botIcon": bot.get("icon", "🎯")
-            }
+        phase_insights = extract_phase_insights(history, phases, current_phase)
+        await create_or_update_roadmap(
+            phases=phases,
+            current_phase=current_phase,
+            bot_name=bot.get("name", "Workshop"),
+            bot_icon=bot.get("icon", "🎯"),
+            phase_context=phase_insights
         )
-
-        await cl.Message(content="", elements=[element]).send()
     except Exception:
-        # Fallback to text-based progress
+        # Last resort: text-based progress
         progress_text = "**📊 Workshop Progress:**\n\n"
         for i, phase in enumerate(phases):
             if phase["status"] == "done":
@@ -5227,7 +5271,7 @@ async def on_help_start_phase(action: cl.Action):
         messages.append({"role": "user", "parts": [{"text": help_request + phase_context}]})
 
         response_stream = client.models.generate_content_stream(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=messages,
             config=types.GenerateContentConfig(
                 system_instruction=bot.get("system_prompt", ""),
@@ -5789,7 +5833,7 @@ Now synthesize this conversation in Larry's voice. Create a document titled "Con
             client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 
             response = client.models.generate_content(
-                model="gemini-2.0-flash",
+                model="gemini-2.5-flash",
                 contents=synthesis_prompt,
                 config=genai.types.GenerateContentConfig(
                     system_instruction=LARRY_RAG_SYSTEM_PROMPT[:2000],  # Use Larry's core personality
@@ -6051,7 +6095,12 @@ Rules:
 - Keep items concise (2-5 words max)
 - Return ONLY valid JSON, nothing else"""
 
-            response = model.generate_content(prompt)
+            # FIX: Use client.models.generate_content (correct API pattern)
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=prompt,
+                config=types.GenerateContentConfig(temperature=0.3, max_output_tokens=1000)
+            )
             response_text = response.text.strip()
 
             # Clean up response - remove markdown code blocks if present
@@ -6134,7 +6183,7 @@ async def _research_sources_first(recent_context: str, bot_name: str, search_dep
     # Extract the main question from context
     try:
         query_response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=(
                 f"Based on this conversation, identify the main research question or topic. "
                 f"Return a clear, specific question (max 30 words).\n\n"
@@ -6394,7 +6443,7 @@ async def on_deep_research(action: cl.Action):
                 )
 
                 scqa_response = client.models.generate_content(
-                    model="gemini-2.0-flash",
+                    model="gemini-2.5-flash",
                     contents=scqa_prompt,
                     config=types.GenerateContentConfig(
                         temperature=0.3,
@@ -6435,7 +6484,7 @@ async def on_deep_research(action: cl.Action):
                 )
 
                 questions_response = client.models.generate_content(
-                    model="gemini-2.0-flash",
+                    model="gemini-2.5-flash",
                     contents=questions_prompt,
                     config=types.GenerateContentConfig(
                         temperature=0.5,
@@ -6476,7 +6525,7 @@ async def on_deep_research(action: cl.Action):
                 )
 
                 thinking_response = client.models.generate_content(
-                    model="gemini-2.0-flash",
+                    model="gemini-2.5-flash",
                     contents=thinking_prompt,
                     config=types.GenerateContentConfig(
                         temperature=0.4,
@@ -6527,7 +6576,7 @@ async def on_deep_research(action: cl.Action):
                 )
 
                 matrix_response = client.models.generate_content(
-                    model="gemini-2.0-flash",
+                    model="gemini-2.5-flash",
                     contents=matrix_prompt,
                     config=types.GenerateContentConfig(
                         temperature=0.4,
@@ -6664,7 +6713,7 @@ async def on_deep_research(action: cl.Action):
                 )
 
                 synthesis_response = client.models.generate_content(
-                    model="gemini-2.0-flash",
+                    model="gemini-2.5-flash",
                     contents=synthesis_prompt,
                     config=types.GenerateContentConfig(
                         temperature=0.5,
@@ -6744,7 +6793,7 @@ async def on_arxiv_search(action: cl.Action):
 
     # Extract search query from context via Gemini
     qr = client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-2.5-flash",
         contents=f"Extract a concise academic search query (max 8 words) from this conversation. Return ONLY the query:\n\n{recent}",
     )
     search_query = qr.text.strip().strip('"')
@@ -6773,7 +6822,7 @@ async def on_patent_search(action: cl.Action):
 
     # Extract search query from context via Gemini
     qr = client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-2.5-flash",
         contents=f"Extract a concise patent search query (max 8 words) from this conversation. Return ONLY the query:\n\n{recent}",
     )
     search_query = qr.text.strip().strip('"')
@@ -6802,7 +6851,7 @@ async def on_trends_search(action: cl.Action):
 
     # Extract 1-3 trend search terms from context via Gemini
     qr = client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-2.5-flash",
         contents=(
             "Extract 1-3 concise Google Trends search terms (each max 3 words) from this conversation. "
             "Return ONLY comma-separated terms, no explanation:\n\n" + recent
@@ -6840,7 +6889,7 @@ async def on_govdata_search(action: cl.Action):
 
     # Use Gemini to extract a data-oriented query and pick sources
     qr = client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-2.5-flash",
         contents=(
             "From this conversation, extract: 1) a concise data search query (max 6 words), "
             "2) which US government data sources are relevant: 'bls' (labor/employment/wages/CPI), "
@@ -6882,7 +6931,7 @@ async def on_dataset_search(action: cl.Action):
 
     # Extract dataset search query from context via Gemini
     qr = client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-2.5-flash",
         contents=(
             "Extract a concise dataset search query (max 5 words) from this conversation. "
             "Think about what raw data would help validate or explore the topic. "
@@ -6915,7 +6964,7 @@ async def on_news_search(action: cl.Action):
 
     # Extract news search query + optional category from context via Gemini
     qr = client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-2.5-flash",
         contents=(
             "From this conversation, extract: 1) a news search query (max 6 words), "
             "2) the most relevant news category from: politics, technology, business, "
@@ -7190,7 +7239,7 @@ In 1-2 sentences, state the core problem or question. Be specific and clear."""
 
                 problem_step.input = "Extracting core problem..."
                 problem_response = client.models.generate_content(
-                    model="gemini-2.0-flash",
+                    model="gemini-2.5-flash",
                     contents=problem_prompt,
                     config=types.GenerateContentConfig(temperature=0.3, max_output_tokens=200)
                 )
@@ -7208,7 +7257,7 @@ List 2-3 key assumptions that underlie this problem. Be specific about what is b
 
                 assumptions_step.input = f"Core problem: {core_problem[:100]}"
                 assumptions_response = client.models.generate_content(
-                    model="gemini-2.0-flash",
+                    model="gemini-2.5-flash",
                     contents=assumptions_prompt,
                     config=types.GenerateContentConfig(temperature=0.4, max_output_tokens=300)
                 )
@@ -7229,7 +7278,7 @@ Be specific and actionable."""
 
                 gaps_step.input = "Analyzing evidence and gaps..."
                 gaps_response = client.models.generate_content(
-                    model="gemini-2.0-flash",
+                    model="gemini-2.5-flash",
                     contents=gaps_prompt,
                     config=types.GenerateContentConfig(temperature=0.4, max_output_tokens=400)
                 )
@@ -7246,10 +7295,11 @@ Be specific and actionable."""
 Suggest 2-3 concrete, actionable next steps to move forward. Be specific."""
 
                 steps_step.input = "Generating action plan..."
+                # FIX: Increase max_output_tokens from 300 to 800 for complete Think button responses
                 steps_response = client.models.generate_content(
-                    model="gemini-2.0-flash",
+                    model="gemini-2.5-flash",
                     contents=steps_prompt,
-                    config=types.GenerateContentConfig(temperature=0.4, max_output_tokens=300)
+                    config=types.GenerateContentConfig(temperature=0.4, max_output_tokens=800)
                 )
                 next_steps = steps_response.text.strip()
                 steps_step.output = next_steps
@@ -7421,6 +7471,31 @@ Your insights help us improve Mindrian!"""
     phases = cl.user_session.get("phases", [])
     settings = cl.user_session.get("settings", {})
     session_id = cl.user_session.get("id")
+    bot_id = cl.user_session.get("bot_id", "lawrence")
+    turn_count = len(history)
+
+    # === Recursive Intelligence: Classify and log user reaction ===
+    if SESSION_LOGGER_ENABLED and REACTION_CLASSIFIER_ENABLED and session_id:
+        try:
+            reaction = classify_reaction(message.content)
+            # Only log non-neutral signals (reduce noise)
+            if reaction.signal_type != "neutral" or reaction.confidence > 0.7:
+                await log_session_event(
+                    session_id=session_id,
+                    event_type="reaction",
+                    agent=bot_id,
+                    signal_type=reaction.signal_type,
+                    turn_count=turn_count,
+                    metadata={
+                        "confidence": reaction.confidence,
+                        "indicators": reaction.indicators,
+                        "suggested_action": getattr(reaction, 'suggested_action', None),
+                        "message_preview": message.content[:100] if len(message.content) > 100 else message.content
+                    }
+                )
+        except Exception as e:
+            # Non-blocking - don't fail the message if classification fails
+            print(f"[ReactionClassifier] Error (non-critical): {e}")
 
     # Reset stop event for this request
     if session_id and session_id in stop_events:
@@ -8295,12 +8370,31 @@ The user expects you to understand the context and add your specialized value.
                         break
 
                 if phase_advanced:
+                    completed_phase_idx = current_phase  # Save before incrementing
                     phases[current_phase]["status"] = "done"
                     phases[current_phase + 1]["status"] = "running"
                     current_phase += 1
                     cl.user_session.set("phases", phases)
                     cl.user_session.set("current_phase", current_phase)
                     print(f"[PHASE] Auto-advanced to phase {current_phase + 1}: {phases[current_phase]['name']}")
+
+                    # === Recursive Intelligence: Log auto-advance phase completion ===
+                    if SESSION_LOGGER_ENABLED:
+                        session_id = cl.user_session.get("id")
+                        if session_id:
+                            await log_session_event(
+                                session_id=session_id,
+                                event_type="phase_completion",
+                                agent=bot_id,
+                                phase_name=phases[completed_phase_idx].get("name", f"Phase {completed_phase_idx + 1}"),
+                                turn_count=turn_count,
+                                metadata={
+                                    "phase_index": completed_phase_idx,
+                                    "auto_advanced": True,
+                                    "next_phase": phases[current_phase].get("name") if current_phase < len(phases) else None,
+                                    "total_phases": len(phases)
+                                }
+                            )
 
                     # Send explicit phase transition card so user knows what happened
                     await send_phase_transition_card(
@@ -8358,30 +8452,31 @@ The user expects you to understand the context and add your specialized value.
             except Exception as e:
                 print(f"[PHASE INSIGHT] Error (non-critical): {e}")
 
-        # Refresh task panel for workshop bots (keeps it in sync every message)
+        # Refresh WorkshopRoadmap for workshop bots (keeps it in sync every message)
         if phases and bot.get("has_phases"):
             try:
-                task_list = cl.TaskList()
-                task_list.name = "Workshop Progress"
-                for i, phase in enumerate(phases):
-                    if phase["status"] == "done":
-                        status = cl.TaskStatus.DONE
-                    elif phase["status"] == "running" or i == current_phase:
-                        status = cl.TaskStatus.RUNNING
-                    else:
-                        status = cl.TaskStatus.READY
-                    task = cl.Task(title=phase["name"], status=status)
-                    await task_list.add_task(task)
-                await safe_task_list_send(task_list)
+                phase_insights = extract_phase_insights(history, phases, current_phase)
+                await create_or_update_roadmap(
+                    phases=phases,
+                    current_phase=current_phase,
+                    bot_name=bot.get("name", "Workshop"),
+                    bot_icon=bot.get("icon", "🎯"),
+                    phase_context=phase_insights
+                )
             except Exception:
                 pass
 
-        # Sync history to context store for preservation across bot switches
+        # Sync history + phases to context store for preservation across bot switches
         context_key = get_context_key()
         bot_id = cl.user_session.get("bot_id", "lawrence")
+        phases = cl.user_session.get("phases", [])
+        current_phase = cl.user_session.get("current_phase", 0)
+
         context_store[context_key] = {
             "bot_id": bot_id,
             "history": history.copy(),
+            "phases": [p.copy() for p in phases] if phases else [],
+            "current_phase": current_phase,
         }
 
         # Persist to Supabase for cross-session survival (fire-and-forget)
@@ -8390,7 +8485,9 @@ The user expects you to understand the context and add your specialized value.
             user_key=context_key,
             history=history.copy(),
             bot_id=bot_id,
-            bot_name=BOTS.get(bot_id, {}).get("name", bot_id)
+            bot_name=BOTS.get(bot_id, {}).get("name", bot_id),
+            phases=[p.copy() for p in phases] if phases else None,
+            current_phase=current_phase
         ))
 
         # Background intelligence: deep extraction + coherence tracking
@@ -8611,7 +8708,7 @@ async def process_voice_transcript(transcript: str, track_id: str):
 
             # Start Gemini stream
             response_stream = client.models.generate_content_stream(
-                model="gemini-2.0-flash",
+                model="gemini-2.5-flash",
                 contents=contents,
                 config=types.GenerateContentConfig(
                     system_instruction=bot["system_prompt"],
@@ -8649,7 +8746,7 @@ async def process_voice_transcript(transcript: str, track_id: str):
     if not response_text:
         print("🔊 [VOICE] Using text-only fallback")
         response_stream = client.models.generate_content_stream(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=contents,
             config=types.GenerateContentConfig(
                 system_instruction=bot["system_prompt"],
@@ -8782,7 +8879,7 @@ async def on_audio_end(elements: list = None):
                 gemini_mime = "audio/wav"
 
         transcription_response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=[
                 types.Content(
                     role="user",
@@ -8817,7 +8914,7 @@ async def _gemini_json_call(prompt_text: str) -> dict:
     """Call Gemini and parse JSON response."""
     import re
     response = client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-2.5-flash",
         contents=prompt_text,
         config=types.GenerateContentConfig(temperature=0.3),
     )
@@ -9308,7 +9405,7 @@ Structure your response as:
 5. Recommended PWS Phase 1 Starting Points (specific problem hypotheses to investigate)"""
 
             response = client.models.generate_content(
-                model="gemini-2.0-flash",
+                model="gemini-2.5-flash",
                 contents=synthesis_prompt,
                 config=types.GenerateContentConfig(temperature=0.3),
             )
