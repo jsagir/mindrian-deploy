@@ -10,12 +10,21 @@ from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass
 from enum import Enum
 
-# Use Google Generative AI directly (already configured in the project)
-import google.generativeai as genai
+# Use Google GenAI SDK (new unified SDK)
+from google import genai
+from google.genai import types
 import os
 
-# Configure Gemini
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+# Initialize client
+_client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
+
+# Import phase discovery for self-describing phases
+try:
+    from utils.phase_discovery import get_tracker_criteria_for_bot
+    PHASE_DISCOVERY_ENABLED = True
+except ImportError:
+    PHASE_DISCOVERY_ENABLED = False
+    get_tracker_criteria_for_bot = lambda x: None
 
 
 @dataclass
@@ -182,6 +191,36 @@ WORKSHOP_PHASE_CRITERIA = {
                 "key_outputs": ["job_statement"]
             }
         ]
+    },
+    # FIX: Add nested_hierarchies phases (bot added Feb 2, phases missing from tracker)
+    "nested_hierarchies": {
+        "phases": [
+            {
+                "name": "Introduction",
+                "criteria": ["System context established", "Problem domain identified"],
+                "key_outputs": ["context", "problem_domain"]
+            },
+            {
+                "name": "Map the Hierarchy",
+                "criteria": ["L1-L5 levels identified", "Hierarchy structure mapped", "Components at each level named"],
+                "key_outputs": ["hierarchy_map", "level_components"]
+            },
+            {
+                "name": "Find Reverse Salients",
+                "criteria": ["Lagging components identified at each level", "Bottlenecks located", "Constraints analyzed"],
+                "key_outputs": ["reverse_salients", "bottlenecks"]
+            },
+            {
+                "name": "Locate Leverage Points",
+                "criteria": ["High-impact intervention points identified", "Cascade effects analyzed", "Priority points selected"],
+                "key_outputs": ["leverage_points", "cascade_analysis"]
+            },
+            {
+                "name": "Design the Intervention",
+                "criteria": ["Intervention strategy defined", "Action plan created", "Next steps clear"],
+                "key_outputs": ["intervention_strategy", "action_plan"]
+            }
+        ]
     }
 }
 
@@ -258,11 +297,20 @@ async def analyze_workshop_state(
         WorkshopState with accurate phase tracking
     """
     # Get phase criteria for this workshop type
+    # Priority: 1. Self-describing (from prompt module), 2. Legacy dict, 3. Default
     workshop_key = workshop_type.lower().replace(" ", "_")
-    if workshop_key in WORKSHOP_PHASE_CRITERIA:
-        criteria = WORKSHOP_PHASE_CRITERIA[workshop_key]
-    else:
-        criteria = DEFAULT_PHASE_CRITERIA
+
+    # Try auto-discovered criteria first (self-describing phases)
+    criteria = None
+    if PHASE_DISCOVERY_ENABLED:
+        criteria = get_tracker_criteria_for_bot(workshop_key)
+
+    # Fall back to legacy hardcoded dict
+    if criteria is None:
+        if workshop_key in WORKSHOP_PHASE_CRITERIA:
+            criteria = WORKSHOP_PHASE_CRITERIA[workshop_key]
+        else:
+            criteria = DEFAULT_PHASE_CRITERIA
 
     # Use actual phases from session if provided, otherwise use criteria
     if phases:
@@ -298,11 +346,11 @@ async def analyze_workshop_state(
     )
 
     try:
-        # Use Gemini Flash for fast analysis
-        model = genai.GenerativeModel("gemini-2.0-flash")
-        response = model.generate_content(
-            prompt,
-            generation_config=genai.GenerationConfig(
+        # Use Gemini Flash for fast analysis (new SDK pattern)
+        response = _client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt,
+            config=types.GenerateContentConfig(
                 temperature=0.1,  # Low temperature for consistent analysis
                 max_output_tokens=2000
             )

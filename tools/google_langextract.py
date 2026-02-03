@@ -38,7 +38,7 @@ except ImportError:
 
 # Gemini API key
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-LANGEXTRACT_MODEL = os.getenv("LANGEXTRACT_MODEL", "gemini-2.0-flash")
+LANGEXTRACT_MODEL = os.getenv("LANGEXTRACT_MODEL", "gemini-2.5-flash")
 
 
 # =============================================================================

@@ -62,7 +62,7 @@ def test_gemini_api():
         from google import genai
         client = genai.Client(api_key=api_key)
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents="Say 'API test successful' in exactly those words."
         )
         if response and response.text:

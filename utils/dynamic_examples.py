@@ -268,7 +268,7 @@ async def fetch_filesearch_example(bot_id: str, phase: int = 0) -> Optional[Exam
         query += f" Focus on an example {random_seed}."
 
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=query,
             config=types.GenerateContentConfig(
                 temperature=0.9,  # Higher temperature for variety

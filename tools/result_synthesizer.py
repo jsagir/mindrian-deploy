@@ -203,7 +203,7 @@ async def synthesize_results(
         client = _get_client()
 
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=prompt,
             config={
                 "temperature": 0.3,
@@ -501,7 +501,7 @@ Be concise, actionable, and connect to PWS methodology (assumptions, evidence, c
         client = _get_client()
 
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=prompt,
             config={
                 "temperature": 0.4,

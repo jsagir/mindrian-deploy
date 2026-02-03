@@ -362,7 +362,7 @@ Return a JSON object with these fields:
 Return ONLY valid JSON, no markdown or explanation."""
 
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=extraction_prompt,
             config=genai.types.GenerateContentConfig(
                 temperature=0.2,

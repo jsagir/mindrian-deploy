@@ -1,287 +1,157 @@
 /**
- * WorkshopRoadmap - Chainlit-Safe Interactive Phase Navigation
+ * WorkshopRoadmap - Simple Numbered Roadmap (Larry's Preference)
  *
- * A custom sidebar component that replaces cl.TaskList with:
- * - Visual progress bar
- * - Click-to-navigate on completed phases
- * - Phase context summaries on hover
- * - Back/Next navigation
- * - AI-extracted insights per phase
+ * "Just show a roadmap, call it a day."
+ * - No checkmarks ✓
+ * - No lines between steps
+ * - No spinning wheels
+ * - Simple numbered list showing where user is going
  *
  * IMPORTANT: Uses inline styles only (no shadcn imports for Chainlit compatibility)
  */
 
 export default function WorkshopRoadmap() {
     // Chainlit APIs
-    const { callAction, updateElement } = window.Chainlit || {};
+    const { callAction } = window.Chainlit || {};
 
     // Props from Python
     const {
         phases = [],
         currentPhase = 0,
         botName = "Workshop",
-        botIcon = "🎯",
-        phaseContext = {},        // AI-extracted context per phase
-        canGoBack = true,
-        showInsights = true,
-        completedInsights = [],   // Summary of what user accomplished
     } = props || {};
 
-    // Calculations
     const totalPhases = phases.length;
-    const completedPhases = phases.filter(p => p.status === 'done' || p.status === 'completed').length;
-    const progressPercent = totalPhases > 0 ? (completedPhases / totalPhases) * 100 : 0;
 
-    // Styles
+    // Styles - intentionally minimal
     const styles = {
         container: {
-            width: '300px',
+            width: '260px',
             backgroundColor: '#ffffff',
-            borderRadius: '12px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-            overflow: 'hidden',
+            borderRadius: '8px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
             fontFamily: 'system-ui, -apple-system, sans-serif',
+            padding: '16px',
         },
-        header: {
-            padding: '16px 20px',
-            borderBottom: '1px solid #e5e7eb',
-            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-        },
-        headerTitle: {
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            marginBottom: '12px',
-        },
-        headerIcon: {
-            fontSize: '20px',
-        },
-        headerText: {
+        title: {
+            fontSize: '14px',
             fontWeight: '600',
-            fontSize: '16px',
-            color: '#1e293b',
-        },
-        progressContainer: {
-            marginTop: '8px',
-        },
-        progressLabel: {
-            display: 'flex',
-            justifyContent: 'space-between',
-            fontSize: '12px',
-            color: '#64748b',
-            marginBottom: '6px',
-        },
-        progressBar: {
-            height: '8px',
-            backgroundColor: '#e2e8f0',
-            borderRadius: '4px',
-            overflow: 'hidden',
-        },
-        progressFill: {
-            height: '100%',
-            backgroundColor: '#6366f1',
-            borderRadius: '4px',
-            transition: 'width 0.4s ease',
-            width: `${progressPercent}%`,
+            color: '#374151',
+            marginBottom: '16px',
+            paddingBottom: '8px',
+            borderBottom: '1px solid #e5e7eb',
         },
         phaseList: {
-            padding: '12px',
-            maxHeight: '280px',
-            overflowY: 'auto',
+            listStyle: 'none',
+            padding: 0,
+            margin: 0,
         },
-        phaseItem: (isDone, isCurrent, isClickable) => ({
+        phaseItem: (isCurrent, isPast) => ({
             display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            padding: '10px 12px',
-            marginBottom: '4px',
-            borderRadius: '8px',
-            cursor: isClickable ? 'pointer' : 'default',
-            transition: 'all 0.2s ease',
-            backgroundColor: isCurrent ? '#eef2ff' : isDone ? '#f0fdf4' : '#f8fafc',
-            border: isCurrent ? '2px solid #6366f1' : '1px solid transparent',
-            opacity: !isDone && !isCurrent ? 0.6 : 1,
+            alignItems: 'flex-start',
+            gap: '12px',
+            padding: '8px 0',
+            cursor: isPast ? 'pointer' : 'default',
         }),
-        phaseIcon: {
-            flexShrink: 0,
+        phaseNumber: (isCurrent, isPast) => ({
             width: '24px',
             height: '24px',
+            borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            borderRadius: '50%',
-        },
-        phaseName: (isCurrent) => ({
+            fontSize: '12px',
+            fontWeight: '600',
+            flexShrink: 0,
+            backgroundColor: isCurrent ? '#4f46e5' : isPast ? '#e5e7eb' : '#f9fafb',
+            color: isCurrent ? '#ffffff' : isPast ? '#6b7280' : '#9ca3af',
+        }),
+        phaseName: (isCurrent, isPast) => ({
             fontSize: '14px',
             fontWeight: isCurrent ? '600' : '400',
-            color: isCurrent ? '#4338ca' : '#374151',
-            flex: 1,
+            color: isCurrent ? '#1f2937' : isPast ? '#6b7280' : '#9ca3af',
+            lineHeight: '24px',
         }),
-        phaseNumber: {
-            fontSize: '11px',
-            color: '#9ca3af',
-            marginLeft: 'auto',
-        },
-        insightBox: {
-            margin: '0 12px 12px',
-            padding: '12px',
-            backgroundColor: '#fefce8',
-            borderRadius: '8px',
-            border: '1px solid #fef08a',
-        },
-        insightTitle: {
-            fontSize: '11px',
-            fontWeight: '600',
-            color: '#a16207',
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px',
-            marginBottom: '6px',
-        },
-        insightText: {
-            fontSize: '13px',
-            color: '#713f12',
-            lineHeight: '1.4',
-        },
-        navContainer: {
-            padding: '12px 16px',
-            borderTop: '1px solid #e5e7eb',
+        navRow: {
             display: 'flex',
             gap: '8px',
-            backgroundColor: '#f8fafc',
+            marginTop: '16px',
+            paddingTop: '12px',
+            borderTop: '1px solid #e5e7eb',
         },
-        navButton: (isPrimary, isDisabled) => ({
+        navButton: (isPrimary) => ({
             flex: 1,
-            padding: '10px 16px',
+            padding: '8px 12px',
             border: isPrimary ? 'none' : '1px solid #d1d5db',
-            borderRadius: '8px',
-            backgroundColor: isDisabled ? '#e5e7eb' : isPrimary ? '#6366f1' : '#ffffff',
-            color: isDisabled ? '#9ca3af' : isPrimary ? '#ffffff' : '#374151',
-            fontSize: '14px',
+            borderRadius: '6px',
+            backgroundColor: isPrimary ? '#4f46e5' : '#ffffff',
+            color: isPrimary ? '#ffffff' : '#374151',
+            fontSize: '13px',
             fontWeight: '500',
-            cursor: isDisabled ? 'not-allowed' : 'pointer',
-            transition: 'all 0.2s ease',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '4px',
+            cursor: 'pointer',
         }),
     };
 
-    // Handlers
     const handlePhaseClick = (index) => {
-        if (index <= currentPhase && callAction) {
-            callAction({
-                name: 'jump_to_phase',
-                payload: { phase: index }
-            });
+        if (index < currentPhase && callAction) {
+            callAction({ name: 'jump_to_phase', payload: { phase: index } });
         }
     };
 
-    const handlePrevPhase = () => {
-        if (currentPhase > 0 && callAction) {
-            callAction({ name: 'prev_phase', payload: {} });
-        }
-    };
-
-    const handleNextPhase = () => {
+    const handleNext = () => {
         if (currentPhase < totalPhases - 1 && callAction) {
             callAction({ name: 'next_phase', payload: {} });
         }
     };
 
-    // Get phase icon
-    const getPhaseIcon = (status, isCurrent) => {
-        if (status === 'done' || status === 'completed') {
-            return <span style={{ color: '#22c55e', fontSize: '16px' }}>✓</span>;
+    const handleBack = () => {
+        if (currentPhase > 0 && callAction) {
+            callAction({ name: 'prev_phase', payload: {} });
         }
-        if (isCurrent) {
-            return <span style={{ color: '#6366f1', fontSize: '14px' }}>●</span>;
-        }
-        return <span style={{ color: '#d1d5db', fontSize: '14px' }}>○</span>;
     };
-
-    // Get current phase insight
-    const currentInsight = phaseContext[currentPhase] || completedInsights[currentPhase];
 
     return (
         <div style={styles.container}>
-            {/* Header */}
-            <div style={styles.header}>
-                <div style={styles.headerTitle}>
-                    <span style={styles.headerIcon}>{botIcon}</span>
-                    <span style={styles.headerText}>{botName}</span>
-                </div>
+            <div style={styles.title}>{botName} Roadmap</div>
 
-                {/* Progress Bar */}
-                <div style={styles.progressContainer}>
-                    <div style={styles.progressLabel}>
-                        <span>Phase {currentPhase + 1} of {totalPhases}</span>
-                        <span>{Math.round(progressPercent)}%</span>
-                    </div>
-                    <div style={styles.progressBar}>
-                        <div style={styles.progressFill} />
-                    </div>
-                </div>
-            </div>
-
-            {/* Phase List */}
-            <div style={styles.phaseList}>
+            <ul style={styles.phaseList}>
                 {phases.map((phase, i) => {
-                    const isDone = phase.status === 'done' || phase.status === 'completed';
                     const isCurrent = i === currentPhase;
-                    const isClickable = i <= currentPhase;
+                    const isPast = i < currentPhase;
 
                     return (
-                        <div
+                        <li
                             key={i}
-                            style={styles.phaseItem(isDone, isCurrent, isClickable)}
-                            onClick={() => isClickable && handlePhaseClick(i)}
-                            title={phaseContext[i] || phase.name}
+                            style={styles.phaseItem(isCurrent, isPast)}
+                            onClick={() => isPast && handlePhaseClick(i)}
                         >
-                            <div style={{
-                                ...styles.phaseIcon,
-                                backgroundColor: isDone ? '#dcfce7' : isCurrent ? '#e0e7ff' : '#f3f4f6'
-                            }}>
-                                {getPhaseIcon(phase.status, isCurrent)}
-                            </div>
-                            <span style={styles.phaseName(isCurrent)}>{phase.name}</span>
-                            <span style={styles.phaseNumber}>{i + 1}</span>
-                        </div>
+                            <span style={styles.phaseNumber(isCurrent, isPast)}>
+                                {i + 1}
+                            </span>
+                            <span style={styles.phaseName(isCurrent, isPast)}>
+                                {phase.name}
+                            </span>
+                        </li>
                     );
                 })}
-            </div>
+            </ul>
 
-            {/* AI Insight Box (if available) */}
-            {showInsights && currentInsight && (
-                <div style={styles.insightBox}>
-                    <div style={styles.insightTitle}>💡 Phase Insight</div>
-                    <div style={styles.insightText}>{currentInsight}</div>
-                </div>
-            )}
-
-            {/* Navigation Buttons */}
-            <div style={styles.navContainer}>
-                <button
-                    style={styles.navButton(false, !canGoBack || currentPhase === 0)}
-                    onClick={handlePrevPhase}
-                    disabled={!canGoBack || currentPhase === 0}
-                >
-                    ← Back
-                </button>
-
+            <div style={styles.navRow}>
+                {currentPhase > 0 && (
+                    <button style={styles.navButton(false)} onClick={handleBack}>
+                        ← Back
+                    </button>
+                )}
                 {currentPhase < totalPhases - 1 ? (
-                    <button
-                        style={styles.navButton(true, false)}
-                        onClick={handleNextPhase}
-                    >
+                    <button style={styles.navButton(true)} onClick={handleNext}>
                         Next →
                     </button>
                 ) : (
                     <button
-                        style={styles.navButton(true, false)}
+                        style={styles.navButton(true)}
                         onClick={() => callAction?.({ name: 'synthesize_conversation', payload: {} })}
                     >
-                        ✓ Complete
+                        Complete
                     </button>
                 )}
             </div>

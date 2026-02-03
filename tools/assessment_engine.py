@@ -996,7 +996,7 @@ async def run_synthesis(state: AssessmentState) -> ModuleOutput:
     try:
         client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=prompt,
             config=types.GenerateContentConfig(
                 temperature=0.3,
@@ -1472,7 +1472,7 @@ async def extract_claims(content: str) -> List[str]:
     try:
         client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=f"""Extract the 5 most important claims or assertions from this text.
 Return as JSON array of strings:
 ["claim1", "claim2", ...]

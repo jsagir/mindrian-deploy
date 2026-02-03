@@ -26,7 +26,11 @@ from .beautiful_question import (
     WHAT_IF_PHASE_PROMPT as BQ_WHAT_IF_PROMPT,
     HOW_PHASE_PROMPT as BQ_HOW_PROMPT,
 )
-from .nested_hierarchies import NESTED_HIERARCHIES_PROMPT
+from .nested_hierarchies import (
+    NESTED_HIERARCHIES_PROMPT,
+    PHASES as NESTED_HIERARCHIES_PHASES,
+    PHASE_TRACKER_CRITERIA as NESTED_HIERARCHIES_TRACKER_CRITERIA,
+)
 
 from .cv_domain_prompts import (
     CV_EXTRACTION_PROMPT,

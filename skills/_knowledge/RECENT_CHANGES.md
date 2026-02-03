@@ -6,6 +6,15 @@
 
 ## 2026-02-03
 
+### 📝 docs: Sync skills knowledge (auto-generated)
+
+- **Commit:** `1702d8a0`
+- **Author:** jsagir
+- **Files changed:** 3
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+
 ### 📝 docs: Update skills knowledge base with Recursive Intelligence
 
 - **Commit:** `294a865d`
@@ -481,11 +490,3 @@
   - mindrian_chat.py
   - utils/context_persistence.py
 - **Details:** - Replace storing complex ValidationState dataclass with simple dict summary
-
-### 📝 docs: Add QA Analyzer & PM Advisor Instructions
-
-- **Commit:** `be1a6942`
-- **Author:** Claude
-- **Files changed:** 1
-  - qa/QA_ANALYZER_INSTRUCTIONS.md
-- **Details:** Comprehensive guide for AI assistants to:

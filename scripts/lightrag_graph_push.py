@@ -103,7 +103,7 @@ def extract_with_gemini(text: str) -> dict:
 
         client = genai.Client(api_key=GOOGLE_API_KEY)
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=EXTRACTION_PROMPT + text,
             config={
                 "response_mime_type": "application/json",

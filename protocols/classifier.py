@@ -150,7 +150,7 @@ Previous agent: {context.get('previous_agent', 'none')}
             from google import genai
             client = genai.Client()
             response = client.models.generate_content(
-                model="gemini-2.0-flash",
+                model="gemini-2.5-flash",
                 contents=prompt,
                 config={
                     "temperature": temperature,

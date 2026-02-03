@@ -109,7 +109,7 @@ try:
         gclient = genai.Client(api_key=api_key)
         t0 = time.time()
         resp = gclient.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents="Reply with exactly: HEALTH_CHECK_OK",
             config=types.GenerateContentConfig(max_output_tokens=20),
         )

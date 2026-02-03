@@ -886,7 +886,7 @@ Return ONLY valid JSON."""
 MINDRIAN_TOOLS_CONFIG = {
     "gemini_model": {
         "primary": "gemini-3-flash-preview",  # For complex reasoning (grading, bias detection)
-        "secondary": "gemini-2.0-flash",  # For quick extractions
+        "secondary": "gemini-2.5-flash",  # For quick extractions
     },
     "neo4j": {
         "description": "Graph database (Mindrian_Brain) for framework discovery and hidden connections",

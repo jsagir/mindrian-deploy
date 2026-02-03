@@ -289,7 +289,7 @@ async def generate_streaming_voice_response(
     full_text = ""
 
     response_stream = client.models.generate_content_stream(
-        model="gemini-2.0-flash",
+        model="gemini-2.5-flash",
         contents=contents,
         config=types.GenerateContentConfig(
             system_instruction=system_prompt,

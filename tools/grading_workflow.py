@@ -198,7 +198,7 @@ async def run_framework_validation(
         neo4j_frameworks=neo4j_frameworks[:3000]
     )
 
-    return await gemini_json_call(prompt, model="gemini-2.0-flash")
+    return await gemini_json_call(prompt, model="gemini-2.5-flash")
 
 
 # ==============================================================================
@@ -211,7 +211,7 @@ async def run_problem_extraction(student_work: str) -> Dict[str, Any]:
 
     prompt = PROBLEM_EXTRACTION_PROMPT.format(student_work=student_work[:15000])
 
-    return await gemini_json_call(prompt, model="gemini-2.0-flash")
+    return await gemini_json_call(prompt, model="gemini-2.5-flash")
 
 
 # ==============================================================================
@@ -224,7 +224,7 @@ async def run_evidence_quality(student_work: str) -> Dict[str, Any]:
 
     prompt = EVIDENCE_QUALITY_PROMPT.format(student_work=student_work[:15000])
 
-    return await gemini_json_call(prompt, model="gemini-2.0-flash")
+    return await gemini_json_call(prompt, model="gemini-2.5-flash")
 
 
 # ==============================================================================
@@ -279,7 +279,7 @@ async def validate_quality(assessment_results: Dict) -> Dict[str, Any]:
         assessment_results=json.dumps(assessment_results, indent=2)[:10000]
     )
 
-    validation = await gemini_json_call(prompt, model="gemini-2.0-flash")
+    validation = await gemini_json_call(prompt, model="gemini-2.5-flash")
 
     # Manual threshold checks
     validation["thresholds"] = QUALITY_THRESHOLDS

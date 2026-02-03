@@ -123,7 +123,7 @@ class AuditTrail:
         bot_id: str,
         user_message: str,
         bot_response: str,
-        model_name: str = "gemini-2.0-flash",
+        model_name: str = "gemini-2.5-flash",
         model_version: str = "2.0",
         prompt_version: str = "1.0.0",
         risk_tier: int = 1,
@@ -369,7 +369,7 @@ def get_prompt_card_info(bot_id: str) -> Dict[str, Any]:
     card_path = Path(__file__).parent / "prompt_cards" / f"{bot_id}.yaml"
 
     defaults = {
-        "model_name": "gemini-2.0-flash",
+        "model_name": "gemini-2.5-flash",
         "model_version": "2.0",
         "prompt_version": "1.0.0",
         "risk_tier": 1,

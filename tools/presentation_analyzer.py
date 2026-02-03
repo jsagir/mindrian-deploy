@@ -359,7 +359,7 @@ async def analyze_presentation_with_gemini(
 
         # Call Gemini
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=[types.Content(role="user", parts=parts)],
             config=types.GenerateContentConfig(
                 temperature=0.3,
@@ -686,7 +686,7 @@ async def analyze_pdf_visually(
 
     try:
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=[types.Content(role="user", parts=parts)],
             config=types.GenerateContentConfig(
                 temperature=0.3,

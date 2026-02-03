@@ -62,7 +62,7 @@ def create_workshop_cache(
     workshop_id: str,
     file_paths: list,
     system_instruction: str,
-    model: str = "models/gemini-2.0-flash-001",
+    model: str = "gemini-2.5-flash",
     ttl_seconds: int = 86400  # 24 hours
 ) -> str:
     """
@@ -220,7 +220,7 @@ def setup_ackoff_cache():
         workshop_id="ackoff",
         file_paths=[str(fp) for fp in file_paths],
         system_instruction=ACKOFF_WORKSHOP_PROMPT,
-        model="models/gemini-2.0-flash-001",
+        model="gemini-2.5-flash",
         ttl_seconds=604800  # 7 days
     )
 
@@ -255,7 +255,7 @@ def setup_domain_cache():
         workshop_id="domain",
         file_paths=[str(fp) for fp in file_paths],
         system_instruction=DOMAIN_EXPLORER_PROMPT,
-        model="models/gemini-2.0-flash-001",
+        model="gemini-2.5-flash",
         ttl_seconds=604800  # 7 days
     )
 

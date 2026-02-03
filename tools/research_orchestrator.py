@@ -153,7 +153,7 @@ async def decompose_query(
 
     try:
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=prompt,
             config={"temperature": 0.3, "max_output_tokens": 1000}
         )
@@ -451,8 +451,9 @@ async def deep_extract(
     for source in priority_sources:
         try:
             # Use Tavily to get content
+            # FIX: Add source.title to query - site: operator alone fails
             context = get_search_context(
-                query=f"site:{source.url}",
+                query=f"{source.title} site:{source.url}",
                 max_results=1,
                 max_tokens=3000,
             )
@@ -544,7 +545,7 @@ async def analyze_gaps(
 
     try:
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=prompt,
             config={"temperature": 0.3, "max_output_tokens": 1000}
         )
@@ -748,7 +749,7 @@ Format as JSON:
 
     try:
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=prompt,
             config={"temperature": 0.4, "max_output_tokens": 1500}
         )

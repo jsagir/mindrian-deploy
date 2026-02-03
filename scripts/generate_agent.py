@@ -334,7 +334,7 @@ def setup_{bot_id}_cache():
         workshop_id="{bot_id}",
         file_paths=[str(fp) for fp in file_paths],
         system_instruction={bot_id.upper()}_PROMPT,
-        model="models/gemini-2.0-flash-001",
+        model="gemini-2.5-flash",
         ttl_seconds=604800  # 7 days
     )
 

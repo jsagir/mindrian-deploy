@@ -156,7 +156,7 @@ async def call_gemini(prompt: str, temperature: float = 0.3, max_tokens: int = 2
 
     try:
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=prompt,
             config=types.GenerateContentConfig(
                 temperature=temperature,

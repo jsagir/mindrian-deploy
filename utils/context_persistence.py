@@ -316,7 +316,9 @@ async def save_cross_bot_context(
     user_key: str,
     history: List[Dict],
     bot_id: str,
-    bot_name: str
+    bot_name: str,
+    phases: Optional[List[Dict]] = None,
+    current_phase: int = 0
 ) -> bool:
     """
     Save context to in-memory cache and Supabase Storage.
@@ -325,12 +327,15 @@ async def save_cross_bot_context(
     - Safe JSON serialization (handles datetime, bytes, custom objects)
     - Exponential backoff retry for Supabase
     - Tracks failed saves for potential recovery
+    - Persists workshop phases and current progress
 
     Args:
         user_key: Unique identifier for the user/session context
         history: List of conversation messages
         bot_id: Current bot identifier
         bot_name: Display name of the current bot
+        phases: Optional list of workshop phase dicts
+        current_phase: Current phase index (0-based)
 
     Returns:
         True if saved to at least in-memory cache
@@ -342,6 +347,8 @@ async def save_cross_bot_context(
         "last_bot_name": bot_name,
         "timestamp": datetime.utcnow().isoformat(),
         "message_count": len(history),
+        "phases": phases or [],
+        "current_phase": current_phase,
     }
 
     # Always update in-memory cache (fast, reliable)

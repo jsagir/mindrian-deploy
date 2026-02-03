@@ -117,7 +117,7 @@ Provide your unique perspective on this. Build on what others said, add new insi
 
     try:
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=full_prompt,
             config=types.GenerateContentConfig(
                 system_instruction=agent["prompt"],
@@ -159,7 +159,7 @@ Be concise but comprehensive. The user should walk away with a clear path forwar
 
     try:
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=synthesis_prompt,
             config=types.GenerateContentConfig(
                 system_instruction=LARRY_RAG_SYSTEM_PROMPT,
@@ -272,7 +272,7 @@ Example: larry,redteam,ackoff"""
 
     try:
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=router_prompt,
             config=types.GenerateContentConfig(
                 temperature=0.1,
@@ -649,7 +649,7 @@ Format as:
 
         try:
             plan_response = client.models.generate_content(
-                model="gemini-2.0-flash",
+                model="gemini-2.5-flash",
                 contents=planning_prompt,
                 config=types.GenerateContentConfig(temperature=0.3, max_output_tokens=200)
             )
@@ -762,7 +762,7 @@ ASSUMPTIONS:
 
             try:
                 extract_response = client.models.generate_content(
-                    model="gemini-2.0-flash",
+                    model="gemini-2.5-flash",
                     contents=extraction_prompt,
                     config=types.GenerateContentConfig(temperature=0.2, max_output_tokens=500)
                 )
@@ -793,7 +793,7 @@ Provide a structured validation report with:
 
         try:
             validation_response = client.models.generate_content(
-                model="gemini-2.0-flash",
+                model="gemini-2.5-flash",
                 contents=validation_prompt,
                 config=types.GenerateContentConfig(
                     system_instruction="You are a rigorous data validation expert. Apply strict evidentiary standards.",
@@ -855,7 +855,7 @@ Format your response as a structured analysis report."""
 
         try:
             analysis_response = client.models.generate_content(
-                model="gemini-2.0-flash",
+                model="gemini-2.5-flash",
                 contents=analysis_prompt,
                 config=types.GenerateContentConfig(
                     temperature=0.4,

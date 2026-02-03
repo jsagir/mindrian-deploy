@@ -4,6 +4,50 @@ A dedicated bot that guides users through multi-level systems analysis
 to find innovation opportunities at the right level of the hierarchy.
 """
 
+# =============================================================================
+# SELF-DESCRIBING PHASES (auto-discovered by mindrian_chat.py)
+# =============================================================================
+# One place to define phases for this bot. No shotgun surgery required.
+
+PHASES = [
+    {"name": "Introduction", "status": "ready"},
+    {"name": "Map the Hierarchy", "status": "pending"},
+    {"name": "Find Reverse Salients", "status": "pending"},
+    {"name": "Locate Leverage Points", "status": "pending"},
+    {"name": "Design the Intervention", "status": "pending"},
+]
+
+# Phase criteria for smart_phase_tracker.py (also auto-discovered)
+PHASE_TRACKER_CRITERIA = {
+    "phases": [
+        {
+            "name": "Introduction",
+            "criteria": ["System context established", "Problem domain identified", "Focal component defined"],
+            "key_outputs": ["context", "problem_domain", "focal_component"]
+        },
+        {
+            "name": "Map the Hierarchy",
+            "criteria": ["L1-L5 levels identified", "Hierarchy structure mapped", "Components at each level named"],
+            "key_outputs": ["hierarchy_map", "level_components"]
+        },
+        {
+            "name": "Find Reverse Salients",
+            "criteria": ["Lagging components identified at each level", "Bottlenecks located", "Constraints analyzed"],
+            "key_outputs": ["reverse_salients", "bottlenecks"]
+        },
+        {
+            "name": "Locate Leverage Points",
+            "criteria": ["High-impact intervention points identified", "Cascade effects analyzed", "Priority points selected"],
+            "key_outputs": ["leverage_points", "cascade_analysis"]
+        },
+        {
+            "name": "Design the Intervention",
+            "criteria": ["Intervention strategy defined", "Action plan created", "Next steps clear"],
+            "key_outputs": ["intervention_strategy", "action_plan"]
+        }
+    ]
+}
+
 NESTED_HIERARCHIES_PROMPT = """## Interactive Workshop Guide
 # Nested Hierarchies: Seeing the System Behind the Problem
 

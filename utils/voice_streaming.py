@@ -285,7 +285,7 @@ async def stream_gemini_with_voice(
 
     # Start Gemini stream
     response_stream = client.models.generate_content_stream(
-        model="gemini-2.0-flash",
+        model="gemini-2.5-flash",
         contents=contents,
         config=types.GenerateContentConfig(
             system_instruction=system_prompt,
@@ -354,7 +354,7 @@ async def process_voice_input_with_response(
     print("🎤 [VOICE] Transcribing with Gemini...")
 
     transcription_response = client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-2.5-flash",
         contents=[
             types.Content(
                 role="user",
@@ -415,7 +415,7 @@ async def process_voice_input_with_response(
         response_text = ""
 
         response_stream = client.models.generate_content_stream(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=contents,
             config=types.GenerateContentConfig(
                 system_instruction=bot["system_prompt"],
