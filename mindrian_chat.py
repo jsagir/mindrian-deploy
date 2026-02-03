@@ -3118,9 +3118,14 @@ async def start():
         init_triple_mode_session()
 
     # Send welcome message with context info if switching
-    if is_bot_switch:
-        previous_bot_name = BOTS.get(previous_bot, {}).get("name", previous_bot)
-        switch_message = f"""**{bot.get('emoji', '')} {bot['name']}** is now active.
+    # BUG FIX: Add guard to prevent welcome re-send on WebSocket reconnection (Bug 6)
+    # Check if welcome was already sent in this session
+    welcome_already_sent = cl.user_session.get("welcome_sent", False)
+
+    if not welcome_already_sent:
+        if is_bot_switch:
+            previous_bot_name = BOTS.get(previous_bot, {}).get("name", previous_bot)
+            switch_message = f"""**{bot.get('emoji', '')} {bot['name']}** is now active.
 
 **Context preserved from {previous_bot_name}** ({len(preserved_history)} messages)
 I'll continue our conversation with my perspective. Your previous discussion has been handed off to me.
@@ -3129,11 +3134,17 @@ I'll continue our conversation with my perspective. Your previous discussion has
 
 {bot.get('welcome', 'How can I help?')}"""
 
-        await cl.Message(content=switch_message, actions=actions if actions else None).send()
-    elif bot.get("has_phases"):
-        await cl.Message(content=bot["welcome"], actions=actions).send()
+            await cl.Message(content=switch_message, actions=actions if actions else None).send()
+        elif bot.get("has_phases"):
+            await cl.Message(content=bot["welcome"], actions=actions).send()
+        else:
+            await cl.Message(content=bot["welcome"], actions=actions if actions else None).send()
+
+        # Mark welcome as sent for this session
+        cl.user_session.set("welcome_sent", True)
     else:
-        await cl.Message(content=bot["welcome"], actions=actions if actions else None).send()
+        # Reconnection case - just log, don't re-send welcome
+        print(f"[WELCOME] Skipping duplicate welcome (session already active with history={len(preserved_history)})")
 
 
 # === Chat Resume Handler ===
@@ -6104,12 +6115,26 @@ Rules:
             )
             response_text = response.text.strip()
 
+            # BUG FIX: Improved JSON extraction from Gemini response (Bug 9)
             # Clean up response - remove markdown code blocks if present
-            if response_text.startswith("```"):
-                response_text = response_text.split("```")[1]
-                if response_text.startswith("json"):
-                    response_text = response_text[4:]
-                response_text = response_text.strip()
+            if "```" in response_text:
+                # Extract content between code blocks
+                parts = response_text.split("```")
+                for part in parts:
+                    part = part.strip()
+                    # Skip empty parts and language identifiers
+                    if part.startswith("json"):
+                        part = part[4:].strip()
+                    if part.startswith("{") and "central_topic" in part:
+                        response_text = part
+                        break
+
+            # Also try to find JSON object if wrapped in other text
+            if not response_text.startswith("{"):
+                import re
+                json_match = re.search(r'\{[^{}]*"central_topic"[^{}]*\}', response_text, re.DOTALL)
+                if json_match:
+                    response_text = json_match.group(0)
 
             try:
                 mindmap_data = json.loads(response_text)
@@ -6182,15 +6207,16 @@ async def _research_sources_first(recent_context: str, bot_name: str, search_dep
     research_depth = "quick" if is_simple else ("standard" if search_depth == "basic" else "deep")
 
     # Extract the main question from context
+    # BUG FIX: Increased token limits to prevent truncated research questions (Bug 7)
     try:
         query_response = client.models.generate_content(
             model="gemini-2.5-flash",
             contents=(
                 f"Based on this conversation, identify the main research question or topic. "
-                f"Return a clear, specific question (max 30 words).\n\n"
-                f"Conversation:\n{recent_context[:1000]}"
+                f"Return a clear, specific question (max 50 words).\n\n"
+                f"Conversation:\n{recent_context[:2000]}"  # Increased from 1000 for longer docs
             ),
-            config=types.GenerateContentConfig(temperature=0.2, max_output_tokens=60),
+            config=types.GenerateContentConfig(temperature=0.2, max_output_tokens=150),  # Increased from 60
         )
         research_question = query_response.text.strip().strip('"').strip("'")
     except Exception:
@@ -8364,64 +8390,16 @@ The user expects you to understand the context and add your specialized value.
                 if grounding_reason:
                     await show_grounding_prompt(grounding_reason)
 
-        # Auto-detect phase progression from LLM response for workshop bots
-        if phases and bot.get("has_phases") and current_phase < len(phases) - 1:
-            try:
-                # Check if the response mentions moving to next phase or completing current
-                response_lower = full_response.lower()
-                next_phase_name = phases[current_phase + 1]["name"].lower()
-                current_phase_name = phases[current_phase]["name"].lower()
-
-                # Detect phase transition signals
-                phase_advanced = False
-                transition_signals = [
-                    f"phase {current_phase + 2}",
-                    f"moving to {next_phase_name}",
-                    f"let's move to {next_phase_name}",
-                    f"now let's {next_phase_name}",
-                    f"proceed to {next_phase_name}",
-                ]
-                for signal in transition_signals:
-                    if signal in response_lower:
-                        phase_advanced = True
-                        break
-
-                if phase_advanced:
-                    completed_phase_idx = current_phase  # Save before incrementing
-                    phases[current_phase]["status"] = "done"
-                    phases[current_phase + 1]["status"] = "running"
-                    current_phase += 1
-                    cl.user_session.set("phases", phases)
-                    cl.user_session.set("current_phase", current_phase)
-                    print(f"[PHASE] Auto-advanced to phase {current_phase + 1}: {phases[current_phase]['name']}")
-
-                    # === Recursive Intelligence: Log auto-advance phase completion ===
-                    if SESSION_LOGGER_ENABLED:
-                        session_id = cl.user_session.get("id")
-                        if session_id:
-                            await log_session_event(
-                                session_id=session_id,
-                                event_type="phase_completion",
-                                agent=bot_id,
-                                phase_name=phases[completed_phase_idx].get("name", f"Phase {completed_phase_idx + 1}"),
-                                turn_count=turn_count,
-                                metadata={
-                                    "phase_index": completed_phase_idx,
-                                    "auto_advanced": True,
-                                    "next_phase": phases[current_phase].get("name") if current_phase < len(phases) else None,
-                                    "total_phases": len(phases)
-                                }
-                            )
-
-                    # Send explicit phase transition card so user knows what happened
-                    await send_phase_transition_card(
-                        phases=phases,
-                        current_phase=current_phase,
-                        bot_name=bot.get("name", "Workshop"),
-                        is_auto=True
-                    )
-            except Exception as e:
-                print(f"[PHASE] Auto-detect error (non-critical): {e}")
+        # === DISABLED: Auto-detect phase progression ===
+        # BUG FIX: Removed auto-advancement based on LLM response keywords.
+        # This caused unexpected phase jumps without user consent (Bug 8).
+        # Users now control ALL phase navigation via explicit "Next Phase" button.
+        # The code below is preserved as comment for reference but disabled:
+        #
+        # if phases and bot.get("has_phases") and current_phase < len(phases) - 1:
+        #     # Auto-detect based on transition signals in response
+        #     # DISABLED: This caused phases to jump unexpectedly
+        #     pass
 
         # === Phase Insights: Surface AI intelligence to user ===
         if phases and bot.get("has_phases") and PHASE_INSIGHTS_ENABLED and SMART_PHASE_ENABLED:
