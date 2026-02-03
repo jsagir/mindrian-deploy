@@ -1,6 +1,6 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-03 23:05*
+*Auto-generated: 2026-02-03 23:10*
 
 ---
 
@@ -154,11 +154,3 @@
   - scripts/daily_summary.py
   - utils/email_sender.py
 - **Details:** The daily summary cron endpoint was returning "Unknown error" because
-
-### ✨ feat: Enhance daily summary with opportunity content and fix yesterday counts
-
-- **Commit:** `f81537e6`
-- **Author:** Claude
-- **Files changed:** 1
-  - scripts/daily_summary.py
-- **Details:** - Fix date counting: today and yesterday counts are now separate (not combined in 'last 24h')

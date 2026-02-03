@@ -1,10 +1,20 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-03 23:05*
+*Auto-generated: 2026-02-03 23:10*
 
 ---
 
 ## 2026-02-03
+
+### 📝 docs: Sync skills and update knowledge base
+
+- **Commit:** `7454e857`
+- **Author:** jsagir
+- **Files changed:** 3
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Skills verified in sync with source:
 
 ### ✨ feat: Add sticky action buttons above chat input
 
@@ -490,11 +500,3 @@
   - scripts/daily_summary.py
   - utils/email_sender.py
 - **Details:** The daily summary cron endpoint was returning "Unknown error" because
-
-### ✨ feat: Enhance daily summary with opportunity content and fix yesterday counts
-
-- **Commit:** `f81537e6`
-- **Author:** Claude
-- **Files changed:** 1
-  - scripts/daily_summary.py
-- **Details:** - Fix date counting: today and yesterday counts are now separate (not combined in 'last 24h')
