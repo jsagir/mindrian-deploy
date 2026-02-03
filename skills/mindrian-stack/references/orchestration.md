@@ -289,3 +289,92 @@ const results = await batchLookup(ids)  // Good: 1 query
 4. **Cache strategically** - Cache stable data, not volatile
 5. **Monitor latency** - Track component response times
 6. **Batch when possible** - Reduce round trips
+
+---
+
+## LangGraph Pipeline Orchestration
+
+Mindrian uses LangGraph for complex workflows. Pipelines live in `intelligence/pipelines/`.
+
+### Pattern 5: File Processing Pipeline
+
+```
+File Upload
+    │
+    ▼
+┌─────────────────┐
+│ DETECT          │  Identify file type (PDF, DOCX, image)
+│ (LangGraph)     │  Check for scanned PDFs
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│ EXTRACT         │  Route to appropriate extractor
+│ (LangGraph)     │  PyPDF2 → DocAI fallback → OCR
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│ CHUNK           │  Semantic chunking with overlap
+│ (LangGraph)     │  Paragraph/sentence boundaries
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│ EMBED           │  Neo4j LazyGraph + LangExtract
+│ (LangGraph)     │  Document → Chunk → Concept relationships
+└─────────────────┘
+```
+
+### Pattern 6: Oracle Prediction Pipeline
+
+```
+Market Idea
+    │
+    ▼
+┌─────────────────┐
+│ FORMULATE       │  Structure question, resolution criteria
+│ (LangGraph)     │
+└────────┬────────┘
+         │
+         ├──────────────────┬──────────────────┐
+         ▼                  ▼                  ▼
+┌─────────────┐   ┌─────────────┐   ┌─────────────┐
+│ Web Search  │   │ Neo4j       │   │ FileSearch  │
+│ (Tavily)    │   │ Context     │   │ RAG         │
+└──────┬──────┘   └──────┬──────┘   └──────┬──────┘
+       │                 │                 │
+       └────────┬────────┴────────┬────────┘
+                │                 │
+                ▼                 ▼
+        ┌───────────────┐ ┌───────────────┐
+        │ Research      │ │ HSI Surprise  │
+        │ Brief         │ │ Analysis      │
+        └───────┬───────┘ └───────┬───────┘
+                │                 │
+                └────────┬────────┘
+                         │
+                         ▼
+                ┌───────────────┐
+                │ PREDICTION    │  Users predict with reasoning
+                │ COLLECTION    │
+                └───────┬───────┘
+                        │
+                        ▼
+                ┌───────────────┐
+                │ RESOLUTION    │  Brier scoring, outcome
+                │ + AUTOPSY     │  Pattern extraction → Neo4j
+                └───────────────┘
+```
+
+### Available LangGraph Pipelines
+
+| Pipeline | Import | Purpose |
+|----------|--------|---------|
+| `process_files()` | `intelligence.pipelines` | File upload → extract → embed |
+| `run_oracle_formulation()` | `intelligence.pipelines` | Market creation + research |
+| `run_oracle_resolution()` | `intelligence.pipelines` | Resolution + retrospective |
+| `run_minto_pipeline()` | `intelligence.pipelines` | SCQA deep research |
+| `run_grading_pipeline()` | `intelligence.pipelines` | Assessment with evidence |
+| `run_domain_discovery()` | `intelligence.pipelines` | CV → research domain mapping |
+| `run_reverse_salient()` | `intelligence.pipelines` | Cross-domain discovery |

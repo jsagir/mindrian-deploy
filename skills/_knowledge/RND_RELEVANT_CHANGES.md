@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-04 00:44*
+*Auto-generated: 2026-02-04 00:48*
 
 ---
 
 ## 2026-02-04
+
+### ✨ feat: Add LangGraph file processing pipeline with LazyGraph integration
+
+- **Commit:** `2644dd52`
+- **Author:** jsagir
+- **Files changed:** 6
+  - intelligence/__init__.py
+  - intelligence/pipelines/__init__.py
+  - intelligence/pipelines/file_processing.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+- **Details:** New file_processing.py pipeline:
 
 ### ✨ feat: Add Oracle Foresight Engine + Intelligence Layer
 
@@ -381,13 +393,3 @@
   - docs/DUAL_MODE_ARCHITECTURE_PLAN.md
   - docs/TRIPLE_MODE_ARCHITECTURE_SPEC.md
 - **Details:** - Add protocols layer: agent_registry (14 agents), triple_mode (entry points,
-
-### ✨ feat: Add lazy embedding cache and Google LangExtract integration
-
-- **Commit:** `bb5e841c`
-- **Author:** jsagir
-- **Files changed:** 3
-  - requirements.txt
-  - tools/google_langextract.py
-  - tools/opportunity_bank.py
-- **Details:** - opportunity_bank.py: Implement lazy cache pattern for embeddings
