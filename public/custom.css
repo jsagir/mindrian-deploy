@@ -1,105 +1,80 @@
-/* Mindrian Custom Styles - Action Buttons Enhancement */
+/**
+ * Mindrian Custom CSS - Sticky Action Buttons
+ *
+ * Makes action buttons float above the chat input instead of
+ * scrolling away with messages.
+ */
 
-/* Make action buttons more prominent and visible */
-.MuiButton-root[class*="action"] {
-    font-weight: 600 !important;
-    border-radius: 8px !important;
-    padding: 6px 12px !important;
-    margin: 4px !important;
-    transition: all 0.2s ease !important;
+/* Target the action buttons container on the last message */
+.cl-message:last-child .cl-message-actions {
+  position: fixed !important;
+  bottom: 85px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 100 !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px) !important;
+  padding: 8px 16px !important;
+  border-radius: 24px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  max-width: 90vw !important;
+  overflow-x: auto !important;
 }
 
-/* Action button container - better spacing */
-.message-actions,
-[class*="actions"] {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 8px !important;
-    margin-top: 12px !important;
-    padding: 8px !important;
-    background: rgba(99, 102, 241, 0.05) !important;
-    border-radius: 12px !important;
-    border: 1px solid rgba(99, 102, 241, 0.1) !important;
-}
-
-/* Hover effect for actions */
-.MuiButton-root[class*="action"]:hover {
-    transform: translateY(-1px) !important;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2) !important;
-}
-
-/* Primary actions (Research, Think, Synthesize) - more prominent */
-.MuiButton-root[class*="action"][class*="contained"] {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
-    color: white !important;
-}
-
-/* Secondary actions (Example, Next Phase) */
-.MuiButton-root[class*="action"][class*="outlined"] {
-    border-color: #6366f1 !important;
-    color: #6366f1 !important;
-}
-
-/* Agent switch suggestion buttons - distinct styling */
-.MuiButton-root[class*="switch_to"] {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-    color: white !important;
-    border: none !important;
-}
-
-/* Task list / Workshop progress styling */
-.task-list {
-    background: rgba(99, 102, 241, 0.03) !important;
-    border-radius: 12px !important;
-    padding: 12px !important;
-    margin: 8px 0 !important;
-}
-
-/* Message content area - ensure actions don't get cut off */
-.message-content {
-    overflow: visible !important;
-}
-
-/* Floating action indicator for long conversations */
-.scroll-to-bottom {
-    bottom: 100px !important;
-}
-
-/* Mobile responsiveness for action buttons */
-@media (max-width: 768px) {
-    .message-actions,
-    [class*="actions"] {
-        flex-direction: column !important;
-    }
-
-    .MuiButton-root[class*="action"] {
-        width: 100% !important;
-        justify-content: center !important;
-    }
-}
-
-/* Dark mode adjustments */
+/* Dark mode support */
 @media (prefers-color-scheme: dark) {
-    .message-actions,
-    [class*="actions"] {
-        background: rgba(129, 140, 248, 0.1) !important;
-        border-color: rgba(129, 140, 248, 0.2) !important;
-    }
+  .cl-message:last-child .cl-message-actions {
+    background: rgba(30, 30, 46, 0.95) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
 }
 
-/* Chain of thought steps - better visibility */
-.step-container {
-    border-left: 3px solid #6366f1 !important;
-    margin-left: 8px !important;
-    padding-left: 12px !important;
+/* Also target when Chainlit uses dark theme class */
+.dark .cl-message:last-child .cl-message-actions,
+[data-theme="dark"] .cl-message:last-child .cl-message-actions {
+  background: rgba(30, 30, 46, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-/* Starter buttons - more inviting */
-.starter-button {
-    transition: all 0.2s ease !important;
+/* Style the action buttons themselves */
+.cl-message:last-child .cl-message-actions button {
+  border-radius: 16px !important;
+  padding: 8px 14px !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
 }
 
-.starter-button:hover {
-    transform: scale(1.02) !important;
-    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.15) !important;
+.cl-message:last-child .cl-message-actions button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Ensure the floating bar doesn't overlap with scroll content */
+.cl-chat-container {
+  padding-bottom: 120px !important;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+  .cl-message:last-child .cl-message-actions {
+    bottom: 75px !important;
+    padding: 6px 12px !important;
+    gap: 4px !important;
+  }
+
+  .cl-message:last-child .cl-message-actions button {
+    padding: 6px 10px !important;
+    font-size: 12px !important;
+  }
+}
+
+/* Hide actions on older messages to reduce visual clutter */
+.cl-message:not(:last-child) .cl-message-actions {
+  opacity: 0.3 !important;
+  transition: opacity 0.2s ease !important;
+}
+
+.cl-message:not(:last-child):hover .cl-message-actions {
+  opacity: 1 !important;
 }

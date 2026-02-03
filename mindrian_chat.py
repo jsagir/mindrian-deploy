@@ -2857,6 +2857,17 @@ async def start():
     settings = await cl.ChatSettings(await get_settings_widgets()).send()
     cl.user_session.set("settings", settings)
 
+    # Inject sticky action buttons CSS (renders nothing visible, just injects CSS)
+    try:
+        sticky_css_injector = cl.CustomElement(
+            name="StickyActionsInjector",
+            props={},
+            display="inline"
+        )
+        await cl.Message(content="", elements=[sticky_css_injector]).send()
+    except Exception as e:
+        print(f"StickyActionsInjector not available: {e}")
+
     # Show slider reminder on main page (so users don't have to find Settings)
     if not bot.get("has_phases"):
         await cl.Message(

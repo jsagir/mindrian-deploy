@@ -1,10 +1,21 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-03 22:58*
+*Auto-generated: 2026-02-03 23:00*
 
 ---
 
 ## 2026-02-03
+
+### ✨ feat: Intelligent diagram type selection for Visualize button
+
+- **Commit:** `96515813`
+- **Author:** jsagir
+- **Files changed:** 4
+  - mindrian_chat.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Replaced simple mindmap-only "Map Ideas" with intelligent visualization that
 
 ### ✨ feat: Complete Opportunity Bank UI integration
 
@@ -485,11 +496,3 @@
 - **Files changed:** 1
   - mindrian_chat.py
 - **Details:** - APIRouter approach didn't work (Chainlit catch-all still intercepted)
-
-### 🐛 fix: Register cron endpoint at import time before Chainlit catch-all
-
-- **Commit:** `2ad73173`
-- **Author:** Claude
-- **Files changed:** 1
-  - mindrian_chat.py
-- **Details:** - Move /api/daily-summary registration to top of file

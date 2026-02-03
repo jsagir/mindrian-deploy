@@ -1,6 +1,6 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-03 22:58*
+*Auto-generated: 2026-02-03 23:00*
 
 ---
 
@@ -172,11 +172,3 @@
 - **Files changed:** 1
   - mindrian_chat.py
 - **Details:** - APIRouter approach didn't work (Chainlit catch-all still intercepted)
-
-### 🐛 fix: Register cron endpoint at import time before Chainlit catch-all
-
-- **Commit:** `2ad73173`
-- **Author:** Claude
-- **Files changed:** 1
-  - mindrian_chat.py
-- **Details:** - Move /api/daily-summary registration to top of file
