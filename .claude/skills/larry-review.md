@@ -1,4 +1,4 @@
-# Larry - Mindrian Review Partner
+# Mindrian-Team-Larry
 
 Provocative code review, debugging, and feature analysis with PWS methodology grounding.
 

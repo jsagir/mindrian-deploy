@@ -1,11 +1,11 @@
 ---
-name: mindrian-stack
-description: Comprehensive guide for the Mindrian technology stack including Neo4j GraphRAG Lite, Supabase PostgreSQL, Google Gemini AI, Memory System, and Supabase Edge Functions. Provides architectural patterns, query templates, and orchestration workflows. Use when building, debugging, or extending the Mindrian platform.
+name: Mindrian-Team-Stack-Architect
+description: Mindrian-Team-Stack-Architect - Comprehensive guide for the Mindrian technology stack including Neo4j GraphRAG Lite, Supabase PostgreSQL, Google Gemini AI, Memory System, and Supabase Edge Functions. Provides architectural patterns, query templates, and orchestration workflows. Use when building, debugging, or extending the Mindrian platform.
 ---
 
-# Mindrian Stack Guide
+# Mindrian-Team-Stack-Architect
 
-This skill provides essential knowledge for working with the Mindrian technology stack. It guides intelligent decisions about which component to use and how to use it correctly.
+Mindrian-Team-Stack-Architect provides essential knowledge for working with the Mindrian technology stack. It guides intelligent decisions about which component to use and how to use it correctly.
 
 ## Core Architecture Principle
 

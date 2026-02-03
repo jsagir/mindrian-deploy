@@ -1,4 +1,4 @@
-# Mindrian Stack Guide
+# Mindrian-Team-Stack-Architect
 
 Get guidance on the Mindrian technology stack: Neo4j GraphRAG Lite, Supabase, Gemini AI, Memory System, Edge Functions.
 

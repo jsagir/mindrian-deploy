@@ -1,4 +1,4 @@
-# QA Analyzer
+# Mindrian-Team-QA-Analyzer
 
 Analyze tester feedback, locate issues in the Mindrian codebase, and recommend fixes.
 

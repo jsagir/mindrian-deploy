@@ -1,0 +1,16 @@
+#!/bin/bash
+# Post-commit hook: Update Mindrian Consultant knowledge base
+# This ensures consultant skills always know about recent changes
+
+SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+
+echo "🔄 Updating consultant knowledge base..."
+
+# Run the update script
+python3 "$SCRIPT_DIR/scripts/update_consultant_knowledge.py" 2>/dev/null
+
+# Stage the updated knowledge files (but don't commit - user can do that)
+if [ -d "$SCRIPT_DIR/skills/_knowledge" ]; then
+    git add "$SCRIPT_DIR/skills/_knowledge/" 2>/dev/null
+    echo "📚 Knowledge files staged for next commit"
+fi

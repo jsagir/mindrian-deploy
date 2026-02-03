@@ -1,18 +1,18 @@
 ---
-name: neo4j-graph-writer
+name: Mindrian-Team-Neo4j-Writer
 description: >
-  Safely write nodes, relationships, and structured knowledge to the Mindrian Neo4j 
-  knowledge graph. Use when asked to: add a framework/concept/entity to the graph, 
-  create relationships between nodes, store PWS insights, add ReverseSalients or 
-  BeautifulQuestions, link concepts to Cynefin domains, enrich Larry's knowledge base,
+  Mindrian-Team-Neo4j-Writer - Safely write nodes, relationships, and structured knowledge
+  to the Mindrian Neo4j knowledge graph. Use when asked to: add a framework/concept/entity
+  to the graph, create relationships between nodes, store PWS insights, add ReverseSalients
+  or BeautifulQuestions, link concepts to Cynefin domains, enrich Larry's knowledge base,
   batch import structured data to Neo4j, or update the Mindrian knowledge graph.
   Enforces WHAT/WHY/HOW pre-flight checks, schema governance, and 512MB memory safety.
   Repository: https://github.com/jsagir/mindrian-deploy
 ---
 
-# Neo4j Graph Writer
+# Mindrian-Team-Neo4j-Writer
 
-Write safely to Mindrian's Neo4j knowledge graph (~20K nodes, ~166K edges).
+Mindrian-Team-Neo4j-Writer writes safely to Mindrian's Neo4j knowledge graph (~20K nodes, ~166K edges).
 
 ## Pre-Flight Checklist (MANDATORY)
 

@@ -1,4 +1,4 @@
-# Neo4j Graph Writer
+# Mindrian-Team-Neo4j-Writer
 
 Safely write to the Mindrian Neo4j knowledge graph with schema governance and pre-flight checks.
 
