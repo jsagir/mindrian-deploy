@@ -1,10 +1,19 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-03 17:29*
+*Auto-generated: 2026-02-03 17:34*
 
 ---
 
 ## 2026-02-03
+
+### 📝 docs: Add QA release notes for Feb 3 - Recursive Intelligence + Gemini 2.5
+
+- **Commit:** `2895440b`
+- **Author:** jsagir
+- **Files changed:** 3
+  - qa/2026-02-03/QA_RELEASE_NOTES_FEB3.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
 
 ### 📝 docs: Add corrected QA analysis for Lawrence Aronhime test sessions
 

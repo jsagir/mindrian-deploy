@@ -214,3 +214,171 @@ RESEARCH_SCENARIO_QUERIES = {
 def get_scenario_query(scenario: str) -> str:
     """Get a pre-built query for a research scenario."""
     return RESEARCH_SCENARIO_QUERIES.get(scenario, "")
+
+
+# ==============================================================================
+# SEMANTIC SEARCH FUNCTIONS (Required by assessment_engine.py)
+# ==============================================================================
+
+async def semantic_search(query: str, limit: int = 5) -> List[Dict]:
+    """
+    Perform semantic search across PWS knowledge base.
+
+    Uses Neo4j full-text search on Framework, Concept, and CaseStudy nodes.
+
+    Args:
+        query: Search query string
+        limit: Maximum results to return
+
+    Returns:
+        List of dicts with 'content', 'source', 'score' keys
+    """
+    try:
+        from tools.graphrag_lite import get_neo4j_driver
+
+        driver = get_neo4j_driver()
+        if not driver:
+            return []
+
+        # Search across multiple node types
+        search_query = """
+        CALL db.index.fulltext.queryNodes('pwsSearchIndex', $query)
+        YIELD node, score
+        WHERE score > 0.1
+        RETURN
+            labels(node)[0] AS type,
+            node.name AS name,
+            coalesce(node.description, node.content, '') AS content,
+            score
+        ORDER BY score DESC
+        LIMIT $limit
+        """
+
+        # Fallback if no full-text index exists
+        fallback_query = """
+        MATCH (n)
+        WHERE (n:Framework OR n:Concept OR n:CaseStudy OR n:Methodology)
+          AND (toLower(n.name) CONTAINS toLower($query)
+               OR toLower(coalesce(n.description, '')) CONTAINS toLower($query))
+        RETURN
+            labels(n)[0] AS type,
+            n.name AS name,
+            coalesce(n.description, n.content, '') AS content,
+            0.5 AS score
+        LIMIT $limit
+        """
+
+        results = []
+        with driver.session() as session:
+            try:
+                # Try full-text search first
+                records = session.run(search_query, {"query": query, "limit": limit})
+                for record in records:
+                    results.append({
+                        "content": f"{record['name']}: {record['content'][:300]}",
+                        "source": f"neo4j:{record['type']}:{record['name']}",
+                        "score": record['score']
+                    })
+            except Exception:
+                # Fallback to basic CONTAINS search
+                records = session.run(fallback_query, {"query": query, "limit": limit})
+                for record in records:
+                    results.append({
+                        "content": f"{record['name']}: {record['content'][:300]}",
+                        "source": f"neo4j:{record['type']}:{record['name']}",
+                        "score": record['score']
+                    })
+
+        return results
+
+    except Exception as e:
+        print(f"[PWS Brain] semantic_search error: {e}")
+        return []
+
+
+async def search_pws_knowledge(query: str, limit: int = 5) -> List[Dict]:
+    """
+    Search PWS knowledge base for patterns and frameworks.
+
+    This is the main search function used by the assessment engine.
+    Combines Neo4j graph search with keyword extraction.
+
+    Args:
+        query: Search query string
+        limit: Maximum results to return
+
+    Returns:
+        List of dicts with 'content', 'source', 'score' keys
+    """
+    results = []
+
+    try:
+        from tools.graphrag_lite import get_neo4j_driver
+
+        driver = get_neo4j_driver()
+        if not driver:
+            # Return empty but don't fail - allows other modules to run
+            return []
+
+        # Extract keywords from query
+        keywords = extract_challenge_keywords(query)
+
+        with driver.session() as session:
+            # Search frameworks
+            fw_query = """
+            MATCH (f:Framework)
+            WHERE any(kw IN $keywords WHERE toLower(f.name) CONTAINS toLower(kw))
+               OR any(kw IN $keywords WHERE toLower(coalesce(f.description, '')) CONTAINS toLower(kw))
+            RETURN f.name AS name, f.description AS description,
+                   f.domain AS domain, 'Framework' AS type
+            LIMIT $limit
+            """
+
+            records = session.run(fw_query, {"keywords": keywords, "limit": limit})
+            for record in records:
+                results.append({
+                    "content": f"Framework: {record['name']} - {record['description'] or 'No description'}",
+                    "source": f"neo4j:Framework:{record['name']}",
+                    "score": 0.8
+                })
+
+            # Search concepts
+            concept_query = """
+            MATCH (c:Concept)
+            WHERE any(kw IN $keywords WHERE toLower(c.name) CONTAINS toLower(kw))
+               OR any(kw IN $keywords WHERE toLower(coalesce(c.description, '')) CONTAINS toLower(kw))
+            RETURN c.name AS name, c.description AS description, 'Concept' AS type
+            LIMIT $limit
+            """
+
+            records = session.run(concept_query, {"keywords": keywords, "limit": limit})
+            for record in records:
+                results.append({
+                    "content": f"Concept: {record['name']} - {record['description'] or 'No description'}",
+                    "source": f"neo4j:Concept:{record['name']}",
+                    "score": 0.7
+                })
+
+            # Search case studies
+            case_query = """
+            MATCH (cs:CaseStudy)
+            WHERE any(kw IN $keywords WHERE toLower(cs.name) CONTAINS toLower(kw))
+               OR any(kw IN $keywords WHERE toLower(coalesce(cs.description, '')) CONTAINS toLower(kw))
+            RETURN cs.name AS name, cs.description AS description,
+                   cs.outcome AS outcome, 'CaseStudy' AS type
+            LIMIT $limit
+            """
+
+            records = session.run(case_query, {"keywords": keywords, "limit": limit})
+            for record in records:
+                desc = record['description'] or record['outcome'] or 'No description'
+                results.append({
+                    "content": f"Case Study: {record['name']} - {desc}",
+                    "source": f"neo4j:CaseStudy:{record['name']}",
+                    "score": 0.6
+                })
+
+    except Exception as e:
+        print(f"[PWS Brain] search_pws_knowledge error: {e}")
+
+    return results[:limit]

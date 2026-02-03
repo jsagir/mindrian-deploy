@@ -76,6 +76,43 @@ def _get_neo4j():
     return _neo4j_driver
 
 
+# Public alias for external modules (assessment_engine, pws_brain)
+def get_neo4j_driver():
+    """Public alias for getting Neo4j driver. Used by assessment_engine.py and pws_brain.py."""
+    return _get_neo4j()
+
+
+def query_neo4j(cypher_query: str, params: dict = None) -> List[Dict]:
+    """
+    Execute a Cypher query and return results as list of dicts.
+
+    Used by assessment_engine.py for graph analysis.
+
+    Args:
+        cypher_query: Cypher query string
+        params: Query parameters dict
+
+    Returns:
+        List of result records as dicts
+    """
+    driver = _get_neo4j()
+    if not driver:
+        return []
+
+    params = params or {}
+    results = []
+
+    try:
+        with driver.session() as session:
+            records = session.run(cypher_query, params)
+            for record in records:
+                results.append(dict(record))
+    except Exception as e:
+        logger.warning(f"query_neo4j error: {e}")
+
+    return results
+
+
 def _get_cache() -> _LazyCache:
     """Get or warm the bounded cache. Thread-safe enough for single-process."""
     global _cache, _cache_loaded_at
