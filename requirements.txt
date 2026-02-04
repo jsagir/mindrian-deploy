@@ -25,7 +25,7 @@ elevenlabs>=1.0.0
 websockets>=12.0  # WebSocket streaming for real-time TTS/STT
 deepgram-sdk>=3.0.0  # Real-time speech-to-text streaming (backup)
 google-cloud-speech>=2.0.0  # Google Cloud STT for real-time voice
-pyaudio>=0.2.14  # Audio I/O for real-time voice
+# pyaudio>=0.2.14  # Audio I/O - DISABLED: requires system portaudio (use for local dev only)
 
 # Supabase Storage
 supabase>=2.0.0
