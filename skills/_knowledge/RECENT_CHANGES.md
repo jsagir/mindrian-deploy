@@ -6,6 +6,15 @@
 
 ## 2026-02-04
 
+### 📝 docs: Sync knowledge base
+
+- **Commit:** `59c9dcb0`
+- **Author:** jsagir
+- **Files changed:** 3
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+
 ### 🐛 fix: Disable pyaudio (requires system portaudio not available on Render)
 
 - **Commit:** `7a740d4a`
@@ -514,12 +523,3 @@
 - **Files changed:** 1
   - tools/graphrag_lite.py
 - **Details:** Renamed Cypher parameter from $query to $q to avoid conflict with
-
-### 📝 docs: Add research ideas and full meeting transcript
-
-- **Commit:** `ce4a4e53`
-- **Author:** jsagir
-- **Files changed:** 2
-  - docs/SHARED_FOLDER_RAG_ARCHITECTURE.md
-  - docs/transcripts/TEAM_MEETING_FEB_2025_FULL.md
-- **Details:** - Added 10 research ideas to Shared Folder RAG doc
