@@ -1,6 +1,6 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-04 13:37*
+*Auto-generated: 2026-02-04 13:39*
 
 ---
 
@@ -217,11 +217,3 @@
 - **Files changed:** 1
   - mindrian_chat.py
 - **Details:** Bug 10: The thinking stream was showing as raw markdown instead of
-
-### 🐛 fix: Resolve session bugs from Nested Hierarchies analysis
-
-- **Commit:** `323c8bc4`
-- **Author:** Claude
-- **Files changed:** 1
-  - mindrian_chat.py
-- **Details:** Bug fixes from second session analysis (Nested Hierarchies → MOTJ):

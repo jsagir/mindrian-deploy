@@ -1,10 +1,21 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-04 13:37*
+*Auto-generated: 2026-02-04 13:39*
 
 ---
 
 ## 2026-02-04
+
+### ✨ feat: Humanize file upload feedback with PWS/Lawrence-style language
+
+- **Commit:** `1a220553`
+- **Author:** jsagir
+- **Files changed:** 4
+  - mindrian_chat.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Replace robotic processing messages with conversational, thinking-out-loud style:
 
 ### 📝 docs: User-friendly README + legal disclaimers
 
@@ -545,11 +556,3 @@
 - **Files changed:** 1
   - mindrian_chat.py
 - **Details:** Bug 10: The thinking stream was showing as raw markdown instead of
-
-### 🐛 fix: Resolve session bugs from Nested Hierarchies analysis
-
-- **Commit:** `323c8bc4`
-- **Author:** Claude
-- **Files changed:** 1
-  - mindrian_chat.py
-- **Details:** Bug fixes from second session analysis (Nested Hierarchies → MOTJ):

@@ -3433,6 +3433,24 @@ I'll continue our conversation with my perspective.
 
         # Mark welcome as sent for this session
         cl.user_session.set("welcome_sent", True)
+
+        # === PWS Tools Panel: Floating toolbar for methodology tools ===
+        # Shows in bottom-right corner with contextual tooltips
+        try:
+            tools_panel = cl.CustomElement(
+                name="ToolsPanel",
+                props={
+                    "conversationContext": "",  # Will be updated as conversation progresses
+                    "currentBot": chat_profile or "lawrence",
+                    "expanded": False,  # Start collapsed
+                },
+                display="inline"  # Renders as fixed position via CSS
+            )
+            # Send in empty message (panel positions itself)
+            await cl.Message(content="", elements=[tools_panel]).send()
+            cl.user_session.set("tools_panel_id", tools_panel.id if hasattr(tools_panel, 'id') else None)
+        except Exception as e:
+            print(f"[TOOLS_PANEL] Not available: {e}")
     else:
         # Reconnection case - just log, don't re-send welcome
         print(f"[WELCOME] Skipping duplicate welcome (session already active with history={len(preserved_history)})")
@@ -12002,3 +12020,67 @@ async def on_run_domain_discovery(action: cl.Action):
         await msg.stream_token(f"\n\n❌ Error: {str(e)[:200]}")
         await msg.update()
         print(f"[Domain] Pipeline error: {e}")
+
+
+@cl.action_callback("run_minto_analysis")
+async def on_run_minto_analysis(action: cl.Action):
+    """Run Minto Pyramid SCQA pipeline for structured analysis."""
+    if not LANGGRAPH_PIPELINES_ENABLED:
+        await cl.Message(content="Minto Pyramid pipeline not available. Please check system configuration.").send()
+        return
+
+    history = cl.user_session.get("history", [])
+    session_id = str(cl.user_session.get("id", "default"))
+
+    # Extract problem from recent conversation
+    recent_context = " ".join([m.get("content", "") for m in history[-6:]])[-2000:]
+
+    if len(recent_context.strip()) < 20:
+        await cl.Message(content="Please describe a situation or problem first, then run the Minto SCQA analysis.").send()
+        return
+
+    # Show progress
+    msg = cl.Message(content="")
+    await msg.send()
+    await msg.stream_token("## 📊 Minto Pyramid Analysis\n\n")
+    await msg.stream_token("Running SCQA structured analysis...\n\n")
+
+    # Progress phases
+    phases = [
+        "📍 Analyzing current Situation",
+        "⚡ Identifying the Complication",
+        "❓ Formulating the key Question",
+        "💡 Structuring the Answer",
+        "🔗 Building supporting arguments",
+        "📋 Synthesizing recommendations"
+    ]
+    for phase in phases:
+        await msg.stream_token(f"- {phase}...\n")
+
+    try:
+        # Run the Minto pipeline
+        result = await run_minto_pipeline(
+            query=recent_context,
+            session_id=session_id,
+            context=""
+        )
+
+        if "error" in result:
+            await msg.stream_token(f"\n\n⚠️ Pipeline error: {result['error']}")
+            await msg.update()
+            return
+
+        # Format and display results
+        await msg.stream_token("\n\n---\n\n")
+        report = format_minto_result(result)
+        await msg.stream_token(report)
+        await msg.update()
+
+        # Add to history
+        history.append({"role": "model", "content": f"[Minto Analysis]\n{report[:2000]}"})
+        cl.user_session.set("history", history)
+
+    except Exception as e:
+        await msg.stream_token(f"\n\n❌ Error: {str(e)[:200]}")
+        await msg.update()
+        print(f"[Minto] Pipeline error: {e}")

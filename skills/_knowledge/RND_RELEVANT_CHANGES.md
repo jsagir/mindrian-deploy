@@ -1,10 +1,21 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-04 13:37*
+*Auto-generated: 2026-02-04 13:39*
 
 ---
 
 ## 2026-02-04
+
+### ✨ feat: Humanize file upload feedback with PWS/Lawrence-style language
+
+- **Commit:** `1a220553`
+- **Author:** jsagir
+- **Files changed:** 4
+  - mindrian_chat.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Replace robotic processing messages with conversational, thinking-out-loud style:
 
 ### 📝 docs: User-friendly README + legal disclaimers
 
