@@ -1,10 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-04 09:47*
+*Auto-generated: 2026-02-04 09:55*
 
 ---
 
 ## 2026-02-04
+
+### 🐛 fix: QA UI/UX improvements - accessibility and error handling
+
+- **Commit:** `cc1ed3ca`
+- **Author:** jsagir
+- **Files changed:** 8
+  - mindrian_chat.py
+  - public/elements/BusinessModelCanvas.jsx
+  - public/elements/FloatingActionBar.jsx
+  - public/elements/QuadrantChart.jsx
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+- **Details:** UI Accessibility (P1):
 
 ### 🐛 fix: Reduce log noise from expected errors
 
