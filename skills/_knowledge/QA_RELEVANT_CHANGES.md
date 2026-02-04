@@ -1,10 +1,20 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-04 02:33*
+*Auto-generated: 2026-02-04 02:37*
 
 ---
 
 ## 2026-02-04
+
+### 🐛 fix: Disable pyaudio (requires system portaudio not available on Render)
+
+- **Commit:** `7a740d4a`
+- **Author:** jsagir
+- **Files changed:** 3
+  - requirements.txt
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** pyaudio needs portaudio.h header file which is a system-level dependency.
 
 ### 📝 docs: Add QA feedback from excellent Nested Hierarchies session
 
