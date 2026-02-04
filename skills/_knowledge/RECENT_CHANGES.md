@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-04 03:11*
+*Auto-generated: 2026-02-04 03:15*
 
 ---
 
 ## 2026-02-04
+
+### ✨ feat: Smart multi-model document processing (Gemini FREE first)
+
+- **Commit:** `0b116abd`
+- **Author:** jsagir
+- **Files changed:** 6
+  - intelligence/pipelines/file_processing.py
+  - mindrian_chat.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Fallback priority:
 
 ### ✨ feat: Claude Vision for document processing (replaces Document AI)
 
@@ -517,14 +529,3 @@
 - **Files changed:** 1
   - docs/DOCUMENT_AI_IMPLEMENTATION_PLAN.md
 - **Details:** Research and planning for Google Document AI integration:
-
-### ✨ feat: Add QuadrantChart and BusinessModelCanvas visualizations
-
-- **Commit:** `a4145e3f`
-- **Author:** jsagir
-- **Files changed:** 4
-  - CLAUDE.md
-  - public/elements/BusinessModelCanvas.jsx
-  - public/elements/QuadrantChart.jsx
-  - utils/diagrams.py
-- **Details:** New components:

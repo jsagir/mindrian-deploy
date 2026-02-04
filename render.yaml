@@ -1,0 +1,15 @@
+# Render Blueprint for Mindrian
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: mindrian
+    env: python
+    buildCommand: |
+      apt-get update && apt-get install -y poppler-utils
+      pip install -r requirements.txt
+    startCommand: chainlit run mindrian_chat.py --host 0.0.0.0 --port $PORT -h
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"
+    autoDeploy: true
