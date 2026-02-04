@@ -1,10 +1,21 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-04 13:59*
+*Auto-generated: 2026-02-04 14:07*
 
 ---
 
 ## 2026-02-04
+
+### ✨ feat: Add Claude Code-style thinking streamer for file processing
+
+- **Commit:** `ac991a2f`
+- **Author:** jsagir
+- **Files changed:** 4
+  - mindrian_chat.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** - Add PWS_THINKING_TOKENS with Larry-style vocabulary
 
 ### 🐛 fix: Rewrite ToolsPanel with inline styles for Chainlit compatibility
 
@@ -553,12 +564,3 @@
   - prompts/__init__.py
   - prompts/agent_generator_meta.py
 - **Details:** - Complete meta-prompt for generating Mindrian agent configurations
-
-### ✨ feat: Integrate ThinkingPanel custom element for rich thinking display
-
-- **Commit:** `98678f56`
-- **Author:** Claude
-- **Files changed:** 2
-  - mindrian_chat.py
-  - public/elements/ThinkingPanel.jsx
-- **Details:** Enhancement: Replace cl.Step with ThinkingPanel custom element for
