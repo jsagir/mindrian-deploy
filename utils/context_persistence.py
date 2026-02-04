@@ -422,8 +422,8 @@ async def load_cross_bot_context(user_key: str) -> Optional[Dict]:
                     print(f"Failed to parse context JSON for {user_key}")
         except Exception as e:
             error_str = str(e).lower()
-            # File likely doesn't exist (new user)
-            if "not found" not in error_str and "404" not in error_str:
+            # File likely doesn't exist (new user) - these are expected, don't log
+            if "not found" not in error_str and "404" not in error_str and "400" not in error_str and "bad request" not in error_str:
                 print(f"Context load error: {e}")
 
     return None

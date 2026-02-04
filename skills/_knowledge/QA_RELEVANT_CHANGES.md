@@ -1,10 +1,21 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-04 08:37*
+*Auto-generated: 2026-02-04 08:39*
 
 ---
 
 ## 2026-02-04
+
+### 🐛 fix: Add immediate file upload feedback for better UX
+
+- **Commit:** `23720333`
+- **Author:** jsagir
+- **Files changed:** 4
+  - mindrian_chat.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** - Show "File received: filename - Processing..." immediately when file detected
 
 ### 🔧 debug: Add detailed file upload logging to diagnose processing issue
 

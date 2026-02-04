@@ -348,7 +348,13 @@ async def store_session(session: UserSession) -> bool:
         return True
 
     except Exception as e:
-        logger.error(f"Store session error: {e}")
+        # Only log auth errors once per session to avoid spam
+        if "Unauthorized" in str(e) or "authentication" in str(e).lower():
+            if not getattr(store_session, '_auth_warned', False):
+                logger.warning(f"User memory disabled (Neo4j auth): {str(e)[:100]}")
+                store_session._auth_warned = True
+        else:
+            logger.error(f"Store session error: {e}")
         return False
 
 
@@ -634,7 +640,13 @@ async def load_user_memory(user_id: str) -> UserMemory:
         return memory
 
     except Exception as e:
-        logger.error(f"Load user memory error: {e}")
+        # Only log auth errors once to avoid spam
+        if "Unauthorized" in str(e) or "authentication" in str(e).lower():
+            if not getattr(load_user_memory, '_auth_warned', False):
+                logger.warning(f"User memory disabled (Neo4j auth): {str(e)[:100]}")
+                load_user_memory._auth_warned = True
+        else:
+            logger.error(f"Load user memory error: {e}")
         return UserMemory(user_id=user_id)
 
 

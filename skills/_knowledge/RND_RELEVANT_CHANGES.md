@@ -1,10 +1,21 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-04 08:37*
+*Auto-generated: 2026-02-04 08:39*
 
 ---
 
 ## 2026-02-04
+
+### 🐛 fix: Add immediate file upload feedback for better UX
+
+- **Commit:** `23720333`
+- **Author:** jsagir
+- **Files changed:** 4
+  - mindrian_chat.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** - Show "File received: filename - Processing..." immediately when file detected
 
 ### 🔧 debug: Add detailed file upload logging to diagnose processing issue
 
@@ -354,15 +365,3 @@
   - governance/eval_suite.py
   - prompts/__init__.py
 - **Details:** Model Upgrades (gemini-2.0-flash → gemini-2.5-flash):
-
-### ✨ feat: Add Recursive Intelligence - session learning system
-
-- **Commit:** `0a4f6f34`
-- **Author:** jsagir
-- **Files changed:** 12
-  - docs/RECURSIVE_INTELLIGENCE_IMPLEMENTATION.md
-  - mindrian_chat.py
-  - scripts/process_insights.py
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-- **Details:** Phase 1: Event Logging
