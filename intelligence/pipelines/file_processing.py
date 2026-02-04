@@ -232,7 +232,7 @@ async def _extract_single_file(file_state: FileState, pipeline_state: FilePipeli
         if file_type == "pdf":
             if file_state.get("is_scanned"):
                 # Try Document AI or OCR for scanned PDFs
-                content, metadata = await _extract_with_claude(file_path)
+                content, metadata = await _extract_with_smart_doc(file_path)
                 file_state["extraction_method"] = "docai"
             else:
                 # Use PyPDF2 for text PDFs
@@ -242,7 +242,7 @@ async def _extract_single_file(file_state: FileState, pipeline_state: FilePipeli
                 # Fallback to Document AI if extraction is poor
                 if len(content.strip()) < 100 and file_state["retry_count"] < 2:
                     file_state["retry_count"] += 1
-                    content, metadata = await _extract_with_claude(file_path)
+                    content, metadata = await _extract_with_smart_doc(file_path)
                     file_state["extraction_method"] = "docai_fallback"
 
         elif file_type == "docx":
@@ -322,17 +322,16 @@ def _extract_pdf_pypdf2(file_path: str) -> tuple[str, dict]:
     }
 
 
-async def _extract_with_claude(file_path: str) -> tuple[str, dict]:
-    """Extract text using Claude Vision (200K context, handwriting + equations)."""
+async def _extract_with_smart_doc(file_path: str) -> tuple[str, dict]:
+    """Extract text using smart multi-model processor (Gemini Flash → Pro → Claude → PyPDF2)."""
     try:
-        from tools.claude_document import is_claude_doc_available, process_document_with_claude
+        from tools.smart_document import is_smart_doc_available, process_document_smart
 
-        if not is_claude_doc_available():
-            # Fallback to PyPDF2
-            print("[FILE_PIPELINE] Claude not configured, falling back to PyPDF2")
+        if not is_smart_doc_available():
+            print("[FILE_PIPELINE] Smart doc not configured, falling back to PyPDF2")
             return _extract_pdf_pypdf2(file_path)
 
-        result = await process_document_with_claude(
+        result = await process_document_smart(
             file_path=file_path,
             file_name=Path(file_path).name,
             extract_equations=True,
@@ -340,23 +339,26 @@ async def _extract_with_claude(file_path: str) -> tuple[str, dict]:
             max_pages=20
         )
 
-        if result.get("error"):
-            print(f"[FILE_PIPELINE] Claude extraction error: {result['error']}")
+        if result.get("error") or not result.get("text"):
+            print(f"[FILE_PIPELINE] Smart doc failed: {result.get('error', 'empty')}")
             return _extract_pdf_pypdf2(file_path)
+
+        method = result.get("method", "unknown")
+        confidence_map = {"high": 0.95, "medium": 0.8, "low": 0.6}
+        confidence = confidence_map.get(result.get("confidence", "medium"), 0.8)
 
         return result.get("text", ""), {
             "page_count": result.get("pages_processed"),
-            "has_tables": True,  # Claude extracts tables inline as markdown
+            "has_tables": True,
             "has_equations": bool(result.get("equations")),
-            "confidence": 0.95 if result.get("confidence") == "high" else 0.8,
-            "method": "claude",
+            "confidence": confidence,
+            "method": method,
         }
     except ImportError:
-        # Claude not available, fallback
-        print("[FILE_PIPELINE] Claude module not found, falling back to PyPDF2")
+        print("[FILE_PIPELINE] Smart document module not found, falling back to PyPDF2")
         return _extract_pdf_pypdf2(file_path)
     except Exception as e:
-        print(f"[FILE_PIPELINE] Claude failed: {e}")
+        print(f"[FILE_PIPELINE] Smart doc failed: {e}")
         return _extract_pdf_pypdf2(file_path)
 
 
@@ -437,27 +439,28 @@ def _extract_text(file_path: str) -> tuple[str, dict]:
 
 
 async def _extract_image_ocr(file_path: str) -> tuple[str, dict]:
-    """Extract text from images using Claude Vision."""
+    """Extract text from images using smart multi-model processor."""
     try:
-        from tools.claude_document import is_claude_doc_available, process_document_with_claude
+        from tools.smart_document import is_smart_doc_available, process_document_smart
 
-        if is_claude_doc_available():
-            result = await process_document_with_claude(
+        if is_smart_doc_available():
+            result = await process_document_smart(
                 file_path=file_path,
                 file_name=Path(file_path).name,
                 extract_equations=True,
                 extract_handwriting=True,
             )
 
-            if not result.get("error"):
+            if not result.get("error") and result.get("text"):
+                confidence_map = {"high": 0.95, "medium": 0.8, "low": 0.6}
                 return result.get("text", ""), {
-                    "confidence": 0.95 if result.get("confidence") == "high" else 0.8,
-                    "method": "claude",
+                    "confidence": confidence_map.get(result.get("confidence", "medium"), 0.8),
+                    "method": result.get("method", "unknown"),
                 }
     except Exception as e:
-        print(f"[FILE_PIPELINE] Claude Image OCR failed: {e}")
+        print(f"[FILE_PIPELINE] Image OCR failed: {e}")
 
-    return "[Image content - OCR not available. Set ANTHROPIC_API_KEY]", {"confidence": 0.0}
+    return "[Image content - OCR not available. Set GOOGLE_API_KEY]", {"confidence": 0.0}
 
 
 def _extract_spreadsheet(file_path: str) -> tuple[str, dict]:

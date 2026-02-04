@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-04 03:06*
+*Auto-generated: 2026-02-04 03:11*
 
 ---
 
 ## 2026-02-04
+
+### ✨ feat: Claude Vision for document processing (replaces Document AI)
+
+- **Commit:** `cd034edc`
+- **Author:** jsagir
+- **Files changed:** 7
+  - intelligence/pipelines/file_processing.py
+  - mindrian_chat.py
+  - requirements.txt
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+- **Details:** Multi-model architecture:
 
 ### ✨ feat: Document AI as PRIMARY PDF processor (handwriting + equations)
 
@@ -516,12 +528,3 @@
   - public/elements/QuadrantChart.jsx
   - utils/diagrams.py
 - **Details:** New components:
-
-### ♻️ refactor: Simplify Mermaid to CDN-only (remove server-side option)
-
-- **Commit:** `d61cb0ff`
-- **Author:** jsagir
-- **Files changed:** 2
-  - public/elements/MermaidDiagram.jsx
-  - utils/diagrams.py
-- **Details:** Client-side rendering via jsDelivr CDN is sufficient:

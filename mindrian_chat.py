@@ -8627,17 +8627,17 @@ Your insights help us improve Mindrian!"""
                         content = ""
                         metadata = {}
 
-                        # For PDFs: Try Claude FIRST (200K context, handwriting + equations)
+                        # For PDFs: Smart multi-model extraction (Gemini Flash → Pro → Claude → PyPDF2)
                         if file_ext == '.pdf':
                             try:
-                                from tools.claude_document import is_claude_doc_available, process_document_with_claude
+                                from tools.smart_document import is_smart_doc_available, process_document_smart
 
-                                if is_claude_doc_available():
-                                    file_step.input = f"Using Claude Vision for {element.name}"
-                                    logger.info(f"[CLAUDE DOC] Processing PDF with Claude Vision: {element.name}")
+                                if is_smart_doc_available():
+                                    file_step.input = f"Smart document processing for {element.name}"
+                                    logger.info(f"[SMART DOC] Processing PDF: {element.name}")
 
-                                    # Process with Claude - enable math + handwriting
-                                    claude_result = await process_document_with_claude(
+                                    # Process with smart multi-model fallback
+                                    smart_result = await process_document_smart(
                                         file_path=element.path,
                                         file_name=element.name,
                                         extract_equations=True,
@@ -8645,25 +8645,26 @@ Your insights help us improve Mindrian!"""
                                         max_pages=20
                                     )
 
-                                    if claude_result.get("text") and not claude_result.get("error"):
-                                        content = claude_result["text"]
+                                    if smart_result.get("text") and not smart_result.get("error"):
+                                        content = smart_result["text"]
+                                        method = smart_result.get("method", "unknown")
 
                                         metadata = {
                                             "type": "pdf",
-                                            "method": "claude",
+                                            "method": method,
                                             "char_count": len(content),
-                                            "confidence": claude_result.get("confidence", "high"),
-                                            "equations": claude_result.get("equations", []),
-                                            "pages_processed": claude_result.get("pages_processed", 0),
+                                            "confidence": smart_result.get("confidence", "high"),
+                                            "equations": smart_result.get("equations", []),
+                                            "pages_processed": smart_result.get("pages_processed", 0),
                                         }
-                                        logger.info(f"[CLAUDE DOC] Success: {len(content)} chars, {len(metadata['equations'])} equations")
+                                        logger.info(f"[SMART DOC] Success via {method}: {len(content)} chars, {len(metadata.get('equations', []))} equations")
                                     else:
-                                        logger.warning(f"[CLAUDE DOC] Failed or empty, falling back to PyPDF2: {claude_result.get('error', 'empty result')}")
+                                        logger.warning(f"[SMART DOC] All methods failed, using PyPDF2: {smart_result.get('error', 'empty result')}")
                                 else:
-                                    logger.info(f"[CLAUDE DOC] Not configured (set ANTHROPIC_API_KEY), using PyPDF2 for {element.name}")
+                                    logger.info(f"[SMART DOC] Not configured, using PyPDF2 for {element.name}")
 
-                            except Exception as claude_err:
-                                logger.warning(f"[CLAUDE DOC] Error, falling back to PyPDF2: {claude_err}")
+                            except Exception as smart_err:
+                                logger.warning(f"[SMART DOC] Error, falling back to PyPDF2: {smart_err}")
 
                         # Fallback to standard extraction (PyPDF2 for PDF, python-docx for DOCX, etc.)
                         if not content:
@@ -8701,9 +8702,14 @@ Your insights help us improve Mindrian!"""
                             info_msg = f"**{element.name}** processed"
 
                             # Show method used
-                            if method == "claude":
+                            if method in ["gemini_flash", "gemini_pro", "claude"]:
                                 confidence = metadata.get("confidence", "high")
-                                info_msg += f" ✨ *Claude Vision ({confidence} confidence)*"
+                                method_label = {
+                                    "gemini_flash": "⚡ Gemini Flash",
+                                    "gemini_pro": "🚀 Gemini Pro",
+                                    "claude": "🤖 Claude"
+                                }.get(method, method)
+                                info_msg += f" {method_label} ({confidence})"
                                 if metadata.get("equations"):
                                     info_msg += f" | {len(metadata['equations'])} equations"
                                 if metadata.get("pages_processed"):
