@@ -53,6 +53,12 @@ try:
 except ImportError:
     LANGEXTRACT_AVAILABLE = False
 
+# LightRAG for document-based knowledge graph
+LIGHTRAG_URL = os.getenv("LIGHTRAG_URL", "https://mondrian-ts.onrender.com")
+LIGHTRAG_USERNAME = os.getenv("LIGHTRAG_USERNAME", "jsagir")
+LIGHTRAG_PASSWORD = os.getenv("LIGHTRAG_PASSWORD", "12345678")
+LIGHTRAG_AVAILABLE = bool(LIGHTRAG_URL)
+
 # Supabase for persistence
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
@@ -955,6 +961,120 @@ async def export_for_filesearch(opportunity: Opportunity, output_dir: str = "opp
 
 
 # ==============================================================================
+# LIGHTRAG DOCUMENT INGESTION
+# ==============================================================================
+
+_lightrag_token = None
+
+async def store_opportunity_lightrag(opportunity: Opportunity) -> bool:
+    """
+    Push opportunity to LightRAG using document ingestion API.
+
+    This uses /documents/text endpoint which allows LightRAG to automatically:
+    - Extract entities (Opportunity, Problem, Domain)
+    - Build relationships via its knowledge graph
+    - Create embeddings for hybrid RAG queries
+
+    Returns True if successful.
+    """
+    global _lightrag_token
+
+    if not LIGHTRAG_AVAILABLE:
+        return False
+
+    try:
+        import requests
+
+        # Login if needed
+        if not _lightrag_token:
+            resp = requests.post(
+                f"{LIGHTRAG_URL}/login",
+                data={"username": LIGHTRAG_USERNAME, "password": LIGHTRAG_PASSWORD},
+                timeout=15
+            )
+            if resp.status_code == 200:
+                _lightrag_token = resp.json().get("access_token")
+            else:
+                print(f"[LightRAG] Login failed: {resp.status_code}")
+                return False
+
+        # Format opportunity as rich document (same format as push script)
+        value = opportunity.value_potential or "medium"
+        domain = opportunity.domain or "General"
+        problem = opportunity.problem or ""
+
+        doc_parts = [
+            f"# OPPORTUNITY: {opportunity.name}",
+            "",
+            f"**Value Potential**: {value.upper()}",
+            f"**Domain**: {domain}",
+            "",
+            "## Problem Statement",
+            f"This opportunity ADDRESSES the following PROBLEM: {problem}" if problem else "Problem not specified.",
+            "",
+        ]
+
+        if opportunity.description:
+            doc_parts.extend([
+                "## Description",
+                opportunity.description,
+                "",
+            ])
+
+        if opportunity.solution_direction:
+            doc_parts.extend([
+                "## Solution Direction",
+                opportunity.solution_direction,
+                "",
+            ])
+
+        if opportunity.job_to_be_done:
+            doc_parts.extend([
+                "## Jobs to Be Done",
+                f"Users need to: {opportunity.job_to_be_done}",
+                "",
+            ])
+
+        # For high-value opportunities, add reverse salient framing
+        if value in ["high", "transformative"] and problem:
+            doc_parts.extend([
+                "## Reverse Salient (Innovation Bottleneck)",
+                f"The REVERSE SALIENT '{problem}' represents a critical bottleneck that, if solved, would unlock significant value.",
+                "",
+            ])
+
+        doc_parts.extend([
+            "## Metadata",
+            f"- Created: {opportunity.created_at}",
+            f"- Created by: {opportunity.created_by or 'AI'}",
+            f"- Frameworks: {', '.join(opportunity.frameworks_applied) if opportunity.frameworks_applied else 'None'}",
+        ])
+
+        document_text = "\n".join(doc_parts)
+
+        # Push to LightRAG
+        headers = {"Authorization": f"Bearer {_lightrag_token}"}
+        resp = requests.post(
+            f"{LIGHTRAG_URL}/documents/text",
+            headers=headers,
+            json={"text": document_text},
+            timeout=30
+        )
+
+        if resp.status_code == 200:
+            result = resp.json()
+            print(f"[LightRAG] Pushed opportunity '{opportunity.name}' (track: {result.get('status', 'ok')})")
+            return True
+        else:
+            print(f"[LightRAG] Push failed: {resp.status_code} - {resp.text[:100]}")
+            return False
+
+    except Exception as e:
+        print(f"[LightRAG] Error: {e}")
+        return False
+
+
+# ==============================================================================
 # MAIN STORAGE FUNCTION
 # ==============================================================================
 
@@ -970,6 +1090,7 @@ async def store_opportunity(
     2. Neo4j (graph relationships)
     3. Supabase JSON (legacy backup)
     4. FileSearch export
+    5. LightRAG (document ingestion for knowledge graph)
 
     Args:
         opportunity: The Opportunity to store
@@ -982,6 +1103,7 @@ async def store_opportunity(
         "neo4j": False,
         "supabase_json": False,
         "filesearch": False,
+        "lightrag": False,
         "embedding": False
     }
 
@@ -1012,6 +1134,13 @@ async def store_opportunity(
         results["filesearch"] = True
     except Exception as e:
         print(f"FileSearch export error: {e}")
+
+    # LightRAG document ingestion (automatic entity extraction + knowledge graph)
+    try:
+        lightrag_result = await store_opportunity_lightrag(opportunity)
+        results["lightrag"] = lightrag_result
+    except Exception as e:
+        print(f"LightRAG push error: {e}")
 
     return results
 

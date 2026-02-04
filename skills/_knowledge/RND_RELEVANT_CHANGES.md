@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-04 04:07*
+*Auto-generated: 2026-02-04 04:19*
 
 ---
 
 ## 2026-02-04
+
+### 🐛 fix: Resolve Chainlit 2.9 compatibility + module naming conflict
+
+- **Commit:** `95c9ecb3`
+- **Author:** jsagir
+- **Files changed:** 8
+  - backups/filesearch/store_manifest.json
+  - intelligence/__init__.py
+  - intelligence/research_tools.py
+  - intelligence/tools.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+- **Details:** - data_layer.py: Handle removed BaseStorageClient with Protocol fallback
 
 ### 🐛 fix: Add file processing error handling and logging
 
@@ -355,15 +367,3 @@
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
   - skills/chainlit-consultant/SKILL.md
 - **Details:** - Renamed all skills to Mindrian-Team-{Function} naming convention:
-
-### 🐛 fix: Move commands to .claude/skills for Claude Code recognition
-
-- **Commit:** `e77af393`
-- **Author:** jsagir
-- **Files changed:** 201
-  - backups/filesearch/local_pws_files.json
-  - backups/filesearch/store_manifest.json
-  - data/course_extractions/BONO__BONO_Innovation_Framework_Case_Studies_Reference_Library.md.json
-  - data/course_extractions/BONO__BONO_Innovation_Framework_Complete_Workbook.md.json
-  - data/course_extractions/BONO__BONO_Innovation_Framework_Materials_Guide.md.json
-- **Details:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
