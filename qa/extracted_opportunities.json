@@ -1,0 +1,222 @@
+[
+  {
+    "name": "Sources-First Research UX",
+    "description": "Users expect clickable source links immediately, not complex multi-phase analysis. Current Minto Pyramid is valuable but should be opt-in.",
+    "problem": "Research button runs complex 7-phase pipeline when users just want quick sources with links",
+    "value_potential": "high",
+    "domain": "UX",
+    "target_users": ["Lawrence mode users", "Quick researchers", "Journalists"],
+    "solution_direction": "Show sources first, offer 'Deep Analyze' as optional follow-up",
+    "source_evidence": "Bug #2: Research Button Does Wrong Thing",
+    "tags": ["research", "ux", "sources", "tavily"]
+  },
+  {
+    "name": "API Key Runtime Diagnostics",
+    "description": "No visibility into whether API keys configured in Render are actually loading at runtime.",
+    "problem": "API keys may be configured but not loading, with no debugging visibility",
+    "value_potential": "high",
+    "domain": "Infrastructure",
+    "target_users": ["Developers", "DevOps"],
+    "solution_direction": "Add startup diagnostic logging with masked key status",
+    "source_evidence": "Bug #1 & #4: API Keys Configured But Not Working",
+    "tags": ["api-keys", "debugging", "diagnostics"]
+  },
+  {
+    "name": "Phase Sidebar Real-Time Sync",
+    "description": "Task panel only updates on button clicks, not during natural conversation progress.",
+    "problem": "Users see stale spinning indicators or wrong phase numbers",
+    "value_potential": "high",
+    "domain": "UX",
+    "target_users": ["Workshop participants", "Students"],
+    "solution_direction": "Refresh task panel on every message for workshop bots",
+    "source_evidence": "Bug #6: Task Panel Not Synced",
+    "tags": ["phases", "sidebar", "sync"]
+  },
+  {
+    "name": "Framework Fit Detection",
+    "description": "JTBD doesn't fit macro policy analysis. Bots should suggest switching when topic mismatches.",
+    "problem": "Forcing JTBD on ill-fitting topics creates friction",
+    "value_potential": "medium",
+    "domain": "Methodology",
+    "target_users": ["Policy analysts", "Researchers"],
+    "solution_direction": "Add framework fit detection with switch suggestions",
+    "source_evidence": "Issue #7: JTBD Doesn't Fit Education Policy",
+    "tags": ["jtbd", "framework-fit", "routing"]
+  },
+  {
+    "name": "Bot Flexibility vs Identity",
+    "description": "Workshop bots deflect questions instead of demonstrating frameworks. Need mode for substantive content through framework lens.",
+    "problem": "Bots deflect when users want direct perspective",
+    "value_potential": "high",
+    "domain": "Methodology",
+    "target_users": ["Students", "Framework learners"],
+    "solution_direction": "Apply framework yourself as demonstration when asked",
+    "source_evidence": "Issue #8: JTBD Bot Too Rigid",
+    "tags": ["workshop-bots", "flexibility", "coaching"]
+  },
+  {
+    "name": "Multi-Agent Pipeline Orchestration",
+    "description": "Automated workflows chaining multiple bots together for guided experiences.",
+    "problem": "Users manually switch bots; orchestrated flows would provide guided experiences",
+    "value_potential": "transformative",
+    "domain": "AI",
+    "target_users": ["New users", "Complex problem solvers"],
+    "solution_direction": "LangGraph orchestration with preset pipelines (Startup Validation, Trend Analysis)",
+    "source_evidence": "R&D Priority #1: Multi-Agent Pipelines",
+    "tags": ["langgraph", "pipelines", "multi-agent", "orchestration"]
+  },
+  {
+    "name": "Cynefin Cognitive Router",
+    "description": "Problem complexity classification driving bot selection. 85% infrastructure exists but not exposed.",
+    "problem": "Users don't know which bot to choose; Cynefin could guide them",
+    "value_potential": "high",
+    "domain": "AI",
+    "target_users": ["New users", "Problem classifiers"],
+    "solution_direction": "Cynefin domain classification (Clear/Complicated/Complex/Chaotic) with bot boosting",
+    "source_evidence": "R&D Priority #2: Cynefin Router",
+    "tags": ["cynefin", "routing", "classification"]
+  },
+  {
+    "name": "Workshop Pipeline State Machine",
+    "description": "Formalized state machine for workshop phase progression with entry/exit criteria.",
+    "problem": "Current phase tracking is loose with no completion validation",
+    "value_potential": "high",
+    "domain": "Methodology",
+    "target_users": ["Students", "Educators"],
+    "solution_direction": "Entry/exit criteria per phase, required activities, structured data capture",
+    "source_evidence": "R&D Priority #3: Workshop Pipeline Engine",
+    "tags": ["workshops", "state-machine", "validation"]
+  },
+  {
+    "name": "Pipeline Adapters for Composable Methods",
+    "description": "Methodology-specific enhancements to base Larry without full bot switch.",
+    "problem": "Can't combine methodologies (TTA + Red Team) without switching bots",
+    "value_potential": "high",
+    "domain": "Methodology",
+    "target_users": ["Advanced users", "Method combiners"],
+    "solution_direction": "Adapter interface with prompt enhancement patterns",
+    "source_evidence": "R&D Priority #4: Pipeline Adapters",
+    "tags": ["adapters", "composable", "methodologies"]
+  },
+  {
+    "name": "Gemini Deep Research Integration",
+    "description": "5-20 minute autonomous research agent producing 30-50+ sources with comprehensive synthesis.",
+    "problem": "Current Tavily is surface-level; deep research provides comprehensive synthesis",
+    "value_potential": "high",
+    "domain": "Research",
+    "target_users": ["Researchers", "Analysts", "Students"],
+    "solution_direction": "Interactions API with LazyGraphRAG query enrichment",
+    "source_evidence": "R&D Priority #6: Gemini Deep Research",
+    "tags": ["deep-research", "gemini", "synthesis"]
+  },
+  {
+    "name": "Per-User Memory System",
+    "description": "Long-term user context beyond session. Returning users must re-explain context.",
+    "problem": "Each session starts fresh; no cross-session context",
+    "value_potential": "transformative",
+    "domain": "AI",
+    "target_users": ["Returning users", "Long-term students"],
+    "solution_direction": "User preference storage, problem history, assumption tracking",
+    "source_evidence": "R&D Priority #11: Memory Systems",
+    "tags": ["memory", "personalization", "context"]
+  },
+  {
+    "name": "Reverse Salient Cross-Domain Discovery",
+    "description": "Find innovation opportunities at concept intersections. 233 ReverseSalient nodes exist but not utilized.",
+    "problem": "Graph has reverse salients but no cross-domain bridging queries",
+    "value_potential": "high",
+    "domain": "Research",
+    "target_users": ["Innovators", "Researchers"],
+    "solution_direction": "Bottleneck/gap identification from graph with innovation scoring",
+    "source_evidence": "R&D Priority #9: Reverse Salient Discovery",
+    "tags": ["reverse-salient", "cross-domain", "innovation"]
+  },
+  {
+    "name": "Collaborative Multi-User Workspaces",
+    "description": "Multi-user workshop sessions since PWS methodology often involves teams.",
+    "problem": "PWS workshops are typically team activities but Mindrian is single-user",
+    "value_potential": "transformative",
+    "domain": "Infrastructure",
+    "target_users": ["Teams", "Educators", "Facilitators"],
+    "solution_direction": "Real-time collaboration in Chainlit with role-based contributions",
+    "source_evidence": "R&D Priority #12: Collaborative Workspaces",
+    "tags": ["collaboration", "teams", "real-time"]
+  },
+  {
+    "name": "Structured Output Validation",
+    "description": "Guaranteed schema compliance for LLM outputs. Grading needs reliable structured data.",
+    "problem": "LLM outputs may not match expected schema causing downstream errors",
+    "value_potential": "medium",
+    "domain": "AI",
+    "target_users": ["Developers", "Assessment systems"],
+    "solution_direction": "Pydantic models with retry and schema correction",
+    "source_evidence": "R&D Priority #13: Structured Output Validation",
+    "tags": ["validation", "pydantic", "structured-output"]
+  },
+  {
+    "name": "Export to External Tools",
+    "description": "Better output formats for Notion, Google Docs, Miro, PowerPoint.",
+    "problem": "Mindrian outputs are markdown-only; users need integration with other tools",
+    "value_potential": "medium",
+    "domain": "Integration",
+    "target_users": ["Business users", "Presenters"],
+    "solution_direction": "API integrations for popular productivity tools",
+    "source_evidence": "R&D Priority #17: Export and Integration",
+    "tags": ["export", "notion", "google-docs", "integration"]
+  },
+  {
+    "name": "ThinkingPanel Empty State Fix",
+    "description": "Thinking boxes appear showing '0/0 - Waiting for reasoning steps' throughout conversations.",
+    "problem": "Empty thinking panels confuse users",
+    "value_potential": "medium",
+    "domain": "UX",
+    "target_users": ["All users"],
+    "solution_direction": "Check if thinking_steps has content before displaying panel",
+    "source_evidence": "P2: Lawrence's Thinking Boxes Showing Empty",
+    "tags": ["thinking-panel", "ui", "empty-state"]
+  },
+  {
+    "name": "Sticky Top Roadmap",
+    "description": "Top roadmap disappears as conversation builds. Right-side remains but top roadmap could be useful.",
+    "problem": "Top roadmap scrolls out of view during long conversations",
+    "value_potential": "low",
+    "domain": "UX",
+    "target_users": ["Workshop participants"],
+    "solution_direction": "Make top roadmap sticky or auto-collapse to summary line",
+    "source_evidence": "P3: Top Roadmap Disappears",
+    "tags": ["roadmap", "sticky", "navigation"]
+  },
+  {
+    "name": "Educational Use Case Templates",
+    "description": "Nested Hierarchies worked excellently for lesson plan development with 6-level hierarchy mapping.",
+    "problem": "No pre-built templates for common educational use cases",
+    "value_potential": "medium",
+    "domain": "Methodology",
+    "target_users": ["Educators", "Curriculum designers"],
+    "solution_direction": "Create starter templates for lesson planning, curriculum design, assessment design",
+    "source_evidence": "Nested Hierarchies produced excellent 3-day lesson plan",
+    "tags": ["education", "templates", "lesson-planning"]
+  },
+  {
+    "name": "Admin Conversation Dashboard",
+    "description": "Build admin dashboard to easily review quality conversations for patterns and training data.",
+    "problem": "No easy way to sample and review conversation quality",
+    "value_potential": "medium",
+    "domain": "Infrastructure",
+    "target_users": ["Admins", "QA testers", "Developers"],
+    "solution_direction": "Dashboard with conversation sampling, quality scoring, pattern analysis",
+    "source_evidence": "R&D/12 recommendation from Nested Hierarchies session",
+    "tags": ["admin", "dashboard", "quality"]
+  },
+  {
+    "name": "Safe Space vs Critical Thinking Framework",
+    "description": "User identified tension between 'safe space' culture and critical thinking requirements. Systemic issue across 6 levels.",
+    "problem": "Educational systems conflate emotional safety with intellectual comfort",
+    "value_potential": "high",
+    "domain": "Methodology",
+    "target_users": ["Educators", "Policy makers"],
+    "solution_direction": "Redefine 'safe space' as safe for ideas to be challenged with Rules of Critical Inquiry",
+    "source_evidence": "Lawrence session: core tension identified through hierarchy mapping",
+    "tags": ["education", "critical-thinking", "safe-space", "systemic"]
+  }
+]

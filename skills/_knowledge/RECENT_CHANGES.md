@@ -1,10 +1,20 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-04 03:17*
+*Auto-generated: 2026-02-04 03:21*
 
 ---
 
 ## 2026-02-04
+
+### 🔧 build: Update render.yaml with poppler-utils in buildCommand
+
+- **Commit:** `e90230f5`
+- **Author:** jsagir
+- **Files changed:** 4
+  - render.yaml
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
 
 ### 🔧 build: Add poppler-utils for PDF-to-image conversion
 
@@ -523,13 +533,3 @@
   - scripts/setup_document_ai.sh
   - tools/document_ai.py
 - **Details:** - Handle GOOGLE_APPLICATION_CREDENTIALS_JSON for Render deployment
-
-### ✨ feat: Add Document AI smart fallback for difficult documents
-
-- **Commit:** `9076a7e8`
-- **Author:** jsagir
-- **Files changed:** 3
-  - docs/DOCUMENT_AI_IMPLEMENTATION_PLAN.md
-  - tools/document_ai.py
-  - utils/file_processor.py
-- **Details:** Automatic fallback to Google Document AI when standard extraction fails:

@@ -186,6 +186,25 @@ except ImportError as e:
     async def on_session_end(*args, **kwargs): pass
     async def on_significant_turn(*args, **kwargs): return None
 
+# === User LazyGraph + LightRAG Opportunity Bank - Per-user memory across sessions ===
+try:
+    from tools.session_memory import (
+        on_session_start as session_memory_start,
+        on_message_processed as session_memory_process,
+        get_user_context as get_session_user_context,
+        extract_opportunities_with_lightrag,
+    )
+    SESSION_MEMORY_ENABLED = True
+    print("Session Memory enabled (per-user LazyGraph + LightRAG)")
+except ImportError as e:
+    SESSION_MEMORY_ENABLED = False
+    print(f"Session Memory not available: {e}")
+    # Fallback stubs
+    async def session_memory_start(*args, **kwargs): return None
+    async def session_memory_process(*args, **kwargs): return None
+    async def get_session_user_context(*args, **kwargs): return ""
+    async def extract_opportunities_with_lightrag(*args, **kwargs): return {}
+
 # === Self-Describing Phases - Auto-discovery from prompt modules ===
 try:
     from utils.phase_discovery import get_phases_for_bot, get_tracker_criteria_for_bot, bot_has_phases
@@ -2985,6 +3004,30 @@ async def start():
     # === Recursive Intelligence: Track session start ===
     if SESSION_LOGGER_ENABLED and session_id:
         track_agent_start(session_id, chat_profile or "lawrence")
+
+    # === Per-User LazyGraph Memory: Track session + load context ===
+    if SESSION_MEMORY_ENABLED and session_id:
+        try:
+            # Get user ID from Chainlit auth or context key
+            user = cl.user_session.get("user")
+            user_id = user.identifier if user else get_context_key()
+
+            # Start session and get returning user context
+            user_context = await session_memory_start(
+                user_id=user_id,
+                session_id=session_id,
+                bot_id=chat_profile or "lawrence"
+            )
+
+            # Store for later use
+            cl.user_session.set("memory_user_id", user_id)
+
+            # If returning user, inject context hint
+            if user_context:
+                cl.user_session.set("user_memory_context", user_context)
+                print(f"[SESSION_MEMORY] Returning user: {user_context[:100]}...")
+        except Exception as e:
+            print(f"[SESSION_MEMORY] Start error: {e}")
 
     # Only set current_phase to 0 if not already restored
     if cl.user_session.get("current_phase") is None:
@@ -9521,6 +9564,23 @@ The user expects you to be responsive to what they JUST said, not to lecture fro
         history.append({"role": "user", "content": message.content})
         history.append({"role": "model", "content": full_response})
         cl.user_session.set("history", history)
+
+        # === Per-User LazyGraph Memory: Process turn and extract entities ===
+        if SESSION_MEMORY_ENABLED:
+            try:
+                user_id = cl.user_session.get("memory_user_id")
+                if user_id and session_id:
+                    phase_name = phases[current_phase]["name"] if phases and current_phase < len(phases) else ""
+                    # Run in background (don't block response)
+                    asyncio.create_task(session_memory_process(
+                        user_id=user_id,
+                        session_id=session_id,
+                        conversation=history,
+                        bot_id=bot_id,
+                        phase=phase_name,
+                    ))
+            except Exception as e:
+                print(f"[SESSION_MEMORY] Process error: {e}")
 
         # BUG FIX: Clear context_handoff after first response to prevent persistent context pollution
         # The handoff notice should only affect the FIRST message after a bot switch
