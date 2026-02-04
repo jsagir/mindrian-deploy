@@ -1,10 +1,21 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-04 02:26*
+*Auto-generated: 2026-02-04 02:27*
 
 ---
 
 ## 2026-02-04
+
+### 📝 docs: Add QA feedback from excellent Nested Hierarchies session
+
+- **Commit:** `23243f47`
+- **Author:** jsagir
+- **Files changed:** 4
+  - qa/2026-02-04/QA_FEEDBACK_NESTED_HIERARCHIES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Session highlights:
 
 ### 🐛 fix: Hide ThinkingPanel when no steps returned
 
@@ -425,11 +436,3 @@
   - docs/PWS_A2A_IMPLEMENTATION_PLAN.md
   - protocols/__init__.py
 - **Details:** Architecture decisions consolidated:
-
-### 📝 docs: Add comprehensive PWS A2A Implementation Plan
-
-- **Commit:** `ba5ffae9`
-- **Author:** jsagir
-- **Files changed:** 1
-  - docs/PWS_A2A_IMPLEMENTATION_PLAN.md
-- **Details:** Complete architecture for implementing PWS methodology as A2A workflows:
