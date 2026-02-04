@@ -35,7 +35,7 @@ Usage:
 # =============================================================================
 # TOOLS (LangChain @tool decorated)
 # =============================================================================
-from .tools import (
+from .research_tools import (
     # Research tools
     search_web_tavily,
     search_arxiv,

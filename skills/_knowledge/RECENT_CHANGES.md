@@ -1,10 +1,20 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-04 04:02*
+*Auto-generated: 2026-02-04 04:07*
 
 ---
 
 ## 2026-02-04
+
+### 🐛 fix: Revert try-except that broke indentation
+
+- **Commit:** `4e394e45`
+- **Author:** jsagir
+- **Files changed:** 4
+  - mindrian_chat.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
 
 ### 🐛 fix: Add file processing error handling and logging
 
@@ -527,15 +537,3 @@
   - data/course_extractions/BONO__BONO_Innovation_Framework_Complete_Workbook.md.json
   - data/course_extractions/BONO__BONO_Innovation_Framework_Materials_Guide.md.json
 - **Details:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-
-### ✨ feat: Add Claude Code skills and commands for Mindrian development
-
-- **Commit:** `fe7bfeda`
-- **Author:** jsagir
-- **Files changed:** 34
-  - skills/chainlit-consultant/SKILL.md
-  - skills/chainlit-consultant/references/chainlit-features.md
-  - skills/chainlit-consultant/references/mindrian-patterns.md
-  - skills/chainlit-consultant/templates/solution-patterns.md
-  - skills/mindrian-larry/SKILL.md
-- **Details:** Skills added:

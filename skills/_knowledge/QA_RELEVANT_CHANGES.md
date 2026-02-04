@@ -1,10 +1,20 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-04 04:02*
+*Auto-generated: 2026-02-04 04:07*
 
 ---
 
 ## 2026-02-04
+
+### 🐛 fix: Revert try-except that broke indentation
+
+- **Commit:** `4e394e45`
+- **Author:** jsagir
+- **Files changed:** 4
+  - mindrian_chat.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
 
 ### 🐛 fix: Add file processing error handling and logging
 

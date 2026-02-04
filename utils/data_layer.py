@@ -14,7 +14,20 @@ from pathlib import Path
 
 import chainlit as cl
 from chainlit.data.sql_alchemy import SQLAlchemyDataLayer
-from chainlit.data.base import BaseStorageClient
+
+# Chainlit 2.9+ removed BaseStorageClient - use Protocol instead
+try:
+    from chainlit.data.base import BaseStorageClient
+except ImportError:
+    # Define a compatible base class for Chainlit 2.9+
+    from typing import Protocol, runtime_checkable
+
+    @runtime_checkable
+    class BaseStorageClient(Protocol):
+        """Protocol for blob storage clients (Chainlit 2.9+ compatible)."""
+        async def upload_file(self, object_key: str, data: bytes, mime_type: str = None, overwrite: bool = True) -> dict: ...
+        async def get_file(self, object_key: str) -> bytes: ...
+        async def delete_file(self, object_key: str) -> bool: ...
 
 # Supabase configuration
 SUPABASE_URL = os.getenv("SUPABASE_URL")
