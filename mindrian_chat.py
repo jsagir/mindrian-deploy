@@ -8620,10 +8620,65 @@ Your insights help us improve Mindrian!"""
                             ).send()
                 else:
                     # Extract text from uploaded document file (PDF, DOCX, TXT, etc.)
+                    # Use Document AI as PRIMARY for PDFs (handwriting, equations, scanned docs)
                     async with cl.Step(name=f"Processing: {element.name}", type="tool") as file_step:
                         file_step.input = f"Extracting content from {element.name}"
 
-                        content, metadata = process_uploaded_file(element.path, element.name)
+                        content = ""
+                        metadata = {}
+
+                        # For PDFs: Try Document AI FIRST (enterprise OCR with handwriting + math)
+                        if file_ext == '.pdf':
+                            try:
+                                from tools.document_ai import is_document_ai_available, process_with_document_ai, format_equations_for_display, format_tables_as_markdown
+
+                                if is_document_ai_available():
+                                    file_step.input = f"Using Document AI (enterprise OCR) for {element.name}"
+                                    logger.info(f"[DOCUMENT AI] Processing PDF with enterprise OCR: {element.name}")
+
+                                    with open(element.path, 'rb') as f:
+                                        file_bytes = f.read()
+
+                                    # Process with Document AI - enable math + handwriting
+                                    docai_result = await process_with_document_ai(
+                                        file_content=file_bytes,
+                                        mime_type="application/pdf",
+                                        enable_math_ocr=True,
+                                        enable_handwriting=True
+                                    )
+
+                                    if docai_result.get("text") and not docai_result.get("error"):
+                                        content = docai_result["text"]
+
+                                        # Append equations in LaTeX format
+                                        if docai_result.get("equations"):
+                                            content += "\n\n" + format_equations_for_display(docai_result["equations"])
+
+                                        # Append tables as markdown
+                                        if docai_result.get("tables"):
+                                            content += "\n\n" + format_tables_as_markdown(docai_result["tables"])
+
+                                        metadata = {
+                                            "type": "pdf",
+                                            "method": "document_ai",
+                                            "char_count": len(content),
+                                            "confidence": docai_result.get("confidence", 0),
+                                            "equations": docai_result.get("equations", []),
+                                            "tables": docai_result.get("tables", []),
+                                            "handwritten_blocks": docai_result.get("handwritten_blocks", []),
+                                        }
+                                        logger.info(f"[DOCUMENT AI] Success: {len(content)} chars, confidence={metadata['confidence']:.2f}")
+                                    else:
+                                        logger.warning(f"[DOCUMENT AI] Failed or empty, falling back to PyPDF2: {docai_result.get('error', 'empty result')}")
+                                else:
+                                    logger.info(f"[DOCUMENT AI] Not configured, using PyPDF2 for {element.name}")
+
+                            except Exception as docai_err:
+                                logger.warning(f"[DOCUMENT AI] Error, falling back to PyPDF2: {docai_err}")
+
+                        # Fallback to standard extraction (PyPDF2 for PDF, python-docx for DOCX, etc.)
+                        if not content:
+                            content, metadata = process_uploaded_file(element.path, element.name)
 
                         if metadata.get("error"):
                             file_step.output = f"Error: {metadata['error']}"
@@ -8631,10 +8686,10 @@ Your insights help us improve Mindrian!"""
                         else:
                             file_type = metadata.get("type", "file")
                             char_count = metadata.get("char_count", 0)
+                            method = metadata.get("method", "standard")
 
-                            # BUG FIX: Check for empty extraction (Bug 11 - causes Chinese "can't see images" response)
-                            # DEBUG: Log extraction results for diagnosis
-                            logger.info(f"[PDF EXTRACT] file={element.name}, type={file_type}, chars={char_count}, content_preview={content[:100] if content else 'EMPTY'}...")
+                            # DEBUG: Log extraction results
+                            logger.info(f"[PDF EXTRACT] file={element.name}, type={file_type}, method={method}, chars={char_count}")
 
                             if char_count < 50 and file_type == "pdf":
                                 file_step.output = f"Warning: Only extracted {char_count} characters (may be scanned/image PDF)"
@@ -8647,17 +8702,29 @@ Your insights help us improve Mindrian!"""
                                             f"3. Using a PDF with selectable text"
                                 ).send()
                             else:
-                                file_step.output = f"Extracted {char_count:,} characters from {file_type}"
+                                method_label = "📄 Document AI" if method == "document_ai" else "📄 Standard"
+                                file_step.output = f"{method_label}: Extracted {char_count:,} characters from {file_type}"
 
                             # Add to context for LLM (even if small, include it)
                             file_context += format_file_context(element.name, content, metadata)
 
                             # Notify user with inline PDF display if applicable
                             info_msg = f"**{element.name}** processed"
+
+                            # Show method used
+                            if method == "document_ai":
+                                confidence = metadata.get("confidence", 0)
+                                info_msg += f" ✨ *Document AI ({confidence:.0%} confidence)*"
+                                if metadata.get("equations"):
+                                    info_msg += f" | {len(metadata['equations'])} equations"
+                                if metadata.get("handwritten_blocks"):
+                                    info_msg += f" | handwriting detected"
+
                             elements = []
 
                             if file_type == "pdf":
-                                info_msg += f" ({metadata.get('pages_extracted')}/{metadata.get('total_pages')} pages)"
+                                if not method == "document_ai":
+                                    info_msg += f" ({metadata.get('pages_extracted')}/{metadata.get('total_pages')} pages)"
                                 # Add inline PDF viewer
                                 elements.append(cl.Pdf(
                                     name=element.name,

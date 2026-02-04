@@ -6,6 +6,15 @@
 
 ## 2026-02-04
 
+### 📝 docs: Sync knowledge base (auto-generated)
+
+- **Commit:** `8d639c09`
+- **Author:** jsagir
+- **Files changed:** 3
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+
 ### 🐛 fix: P0 - File uploads blocked when message short (e.g., "review !")
 
 - **Commit:** `9920d572`
@@ -514,15 +523,3 @@
   - public/elements/MermaidDiagram.jsx
   - utils/diagrams.py
 - **Details:** - Support pre-rendered SVG via mermaid-cli (mmdc) if available
-
-### ✨ feat: Add Mermaid diagram system for idea visualization
-
-- **Commit:** `b9fa1b98`
-- **Author:** jsagir
-- **Files changed:** 5
-  - CLAUDE.md
-  - docs/GOOGLE_ECOSYSTEM_COMPLETE_GUIDE.md
-  - mindrian_chat.py
-  - public/elements/MermaidDiagram.jsx
-  - utils/diagrams.py
-- **Details:** - Add MermaidDiagram.jsx custom element for rendering mindmaps/flowcharts
