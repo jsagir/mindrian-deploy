@@ -8583,6 +8583,16 @@ Your insights help us improve Mindrian!"""
 
     # DEBUG: If elements exist, log each one's details
     if message.elements:
+        # IMMEDIATE USER FEEDBACK: Show file received confirmation
+        file_names = [getattr(e, 'name', 'file') for e in message.elements if hasattr(e, 'name')]
+        if file_names:
+            file_list = ", ".join(file_names[:3])
+            if len(file_names) > 3:
+                file_list += f" (+{len(file_names) - 3} more)"
+            await cl.Message(
+                content=f"📎 **File received:** {file_list}\n\n⏳ *Processing...*"
+            ).send()
+
         for idx, elem in enumerate(message.elements):
             elem_type = type(elem).__name__
             elem_name = getattr(elem, 'name', 'no-name')
@@ -8809,6 +8819,22 @@ Your insights help us improve Mindrian!"""
     file_context_len = len(file_context) if file_context else 0
     logger.info(f"[FILE PROCESSING DONE] file_context length: {file_context_len} chars, images: {len(image_parts)}")
     print(f"[FILE PROCESSING DONE] file_context={file_context_len} chars, images={len(image_parts)}")
+
+    # USER FEEDBACK: Confirm file processing complete (if we had files)
+    if element_count > 0 and (file_context_len > 0 or len(image_parts) > 0):
+        status_parts = []
+        if file_context_len > 0:
+            status_parts.append(f"{file_context_len:,} characters extracted")
+        if len(image_parts) > 0:
+            status_parts.append(f"{len(image_parts)} image(s) ready for analysis")
+        await cl.Message(
+            content=f"✅ **Processing complete:** {' | '.join(status_parts)}\n\n*Generating response...*"
+        ).send()
+    elif element_count > 0 and file_context_len == 0 and len(image_parts) == 0:
+        # Files were uploaded but nothing was extracted - warn user
+        await cl.Message(
+            content="⚠️ **File processing issue:** Could not extract content from the uploaded file(s). Please try a different file format or paste the content directly."
+        ).send()
 
     # === GRADING BOTS: ONE-SHOT AUTONOMOUS ASSESSMENT ===
     # When using grading or minto bot, automatically run the full modular assessment engine

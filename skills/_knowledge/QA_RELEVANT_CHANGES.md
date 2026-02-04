@@ -1,10 +1,21 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-04 04:25*
+*Auto-generated: 2026-02-04 08:37*
 
 ---
 
 ## 2026-02-04
+
+### 🔧 debug: Add detailed file upload logging to diagnose processing issue
+
+- **Commit:** `c320042e`
+- **Author:** jsagir
+- **Files changed:** 4
+  - mindrian_chat.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** - Log message.elements count at on_message entry
 
 ### 🐛 fix: Resolve Chainlit 2.9 compatibility + module naming conflict
 
@@ -185,14 +196,3 @@
   - qa/2026-02-03/QA_RELEASE_NOTES_FEB3.md
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
-
-### 📝 docs: Add corrected QA analysis for Lawrence Aronhime test sessions
-
-- **Commit:** `d579bb6a`
-- **Author:** jsagir
-- **Files changed:** 4
-  - qa/2026-02-03/QA_ANALYSIS_LAWRENCE_ARONHIME_CORRECTED.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** Key corrections from Mindrian Team review:
