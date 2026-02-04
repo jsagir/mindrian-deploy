@@ -12,17 +12,19 @@ A conversational AI platform for Problem Worth Solving (PWS) methodology, featur
 1. [Overview](#overview)
 2. [Available Bots](#available-bots)
 3. [Features](#features)
-4. [New in v3.0](#new-in-v30)
+4. [New in v3.1](#new-in-v31-february-2026)
 5. [Architecture](#architecture)
 6. [Gemini File Search / RAG](#gemini-file-search--rag)
-7. [Project Structure](#project-structure)
-8. [Quick Start](#quick-start)
-9. [Configuration](#configuration)
-10. [Environment Variables](#environment-variables)
-11. [Deployment](#deployment)
-12. [Workshop Details](#workshop-details)
-13. [Development Guide](#development-guide)
-14. [Project History](#project-history)
+7. [Intelligence Layer](#intelligence-layer-langgraph-pipelines)
+8. [Admin Tools](#admin-tools)
+9. [Project Structure](#project-structure)
+10. [Quick Start](#quick-start)
+11. [Configuration](#configuration)
+12. [Environment Variables](#environment-variables)
+13. [Deployment](#deployment)
+14. [Workshop Details](#workshop-details)
+15. [Development Guide](#development-guide)
+16. [Project History](#project-history)
 
 ---
 
@@ -108,11 +110,45 @@ The platform uses **Gemini 3 Flash** with **Gemini File Search** (RAG) to retrie
 
 ## New in v3.1 (February 2026)
 
-Major enhancements to intelligence, visualization, and user experience:
+Major enhancements to intelligence, visualization, operations, and user experience:
+
+### Admin Dashboard & Conversation Sampler (NEW)
+
+Complete admin tooling for operations and debugging:
+
+- **CLI Tool** (`scripts/conversation_sampler.py`) - Interactive conversation browser
+- **Streamlit Dashboard** (`scripts/admin_dashboard.py`) - Visual analytics
+- **Daily Summary** - AI-powered email reports with quality insights
+- **QA Reports** - Structured feedback storage by date
+
+### LangGraph Sequential Thinking (NEW)
+
+Real-time reasoning visualization powered by LangGraph:
+
+```
+┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐
+│UNDERSTAND│ -> │ASSUMPTIONS│ -> │SOLUTION  │ -> │FRAMEWORKS│ -> │SYNTHESIZE│
+│ Message  │    │ Detection │    │ Jumping  │    │ Identify │    │ Strategy │
+└──────────┘    └──────────┘    └──────────┘    └──────────┘    └──────────┘
+```
+
+- **5-step analysis pipeline** for every message
+- **PWS-aware** checks for assumptions and solution-jumping
+- **Framework identification** based on message content
+- **Graceful fallback** to pattern-based analysis
+
+### Conductor-Style Memory (NEW)
+
+Persistent user journey tracking across sessions:
+
+- **UserJourney** - Tracks problem, phases, insights, checkpoints
+- **JourneyStore** - Neo4j + Supabase + PostgreSQL persistence
+- **Phase Checkpoints** - Save/restore progress at any point
+- **Context survives deploys** - No more lost conversations
 
 ### Recursive Intelligence (Session Learning)
 
-Mindrian now learns from every session to improve coaching quality:
+Mindrian learns from every session to improve coaching quality:
 
 - **Session Logger** - Tracks patterns across conversations
 - **Reaction Classifier** - Detects user sentiment signals
@@ -144,6 +180,7 @@ New workshop bots added:
 ### Rich Thinking Visualization
 
 - **ThinkingPanel** - Custom React element showing AI reasoning in real-time
+- **LangGraph Pipeline** - 5-step analysis (understand → assumptions → solution-check → frameworks → synthesize)
 - **cl.Step** - Collapsible chain-of-thought steps
 - Transparent "thinking out loud" for educational value
 
@@ -167,6 +204,17 @@ Smart agent suggestions based on conversation context:
 - Neo4j-powered relevance scoring
 - Automatic "Switch to [Bot]" suggestions
 - Context-aware agent recommendations
+
+### QA Fixes (February 4, 2026)
+
+Critical fixes from user testing:
+- **P0** Research button error handling with graceful degradation
+- **P0** Persistent context storage (await instead of fire-and-forget)
+- **P1** Simplified Lawrence welcome (no triple welcome chaos)
+- **P1** Minto/Lawrence identity confusion (distinct voice sections)
+- **P1** Research synthesis fallback (shows sources when synthesis fails)
+- **P1** Honest context messages (verify before claiming preserved)
+- **P2** ThinkingPanel only shows when steps exist
 
 ---
 
@@ -562,6 +610,93 @@ result = await process_files(
 
 ---
 
+## Admin Tools
+
+Mindrian includes comprehensive admin tools for sampling conversations, analyzing usage, and debugging issues.
+
+### Conversation Sampler CLI
+
+Interactive command-line tool for browsing and analyzing conversations.
+
+```bash
+# Interactive menu
+python scripts/conversation_sampler.py
+
+# Quick commands
+python scripts/conversation_sampler.py --sessions       # List recent sessions
+python scripts/conversation_sampler.py --feedback       # Feedback analytics
+python scripts/conversation_sampler.py --search "keyword"  # Search conversations
+python scripts/conversation_sampler.py --export <thread_id>  # Export to markdown
+python scripts/conversation_sampler.py --audit 2026-02-04   # View audit trail
+python scripts/conversation_sampler.py --user user@email.com  # User's conversations
+```
+
+**Features:**
+- Browse recent conversations from PostgreSQL
+- Search across all messages by keyword
+- View feedback analytics (thumbs up/down rates)
+- Export conversations to markdown format
+- View audit trail entries by date
+- Filter conversations by user
+
+### Streamlit Admin Dashboard
+
+Visual dashboard for conversation analysis and monitoring.
+
+```bash
+streamlit run scripts/admin_dashboard.py
+```
+
+**Pages:**
+| Page | Features |
+|------|----------|
+| **Overview** | Total feedback, satisfaction rate, bot usage charts |
+| **Conversations** | Browse, search, view full transcripts, export |
+| **Feedback** | Filter by bot/date, satisfaction trends, comments |
+| **QA Reports** | Browse QA reports by date |
+
+### Data Sources
+
+The admin tools connect to multiple data sources:
+
+| Source | Data | Location |
+|--------|------|----------|
+| PostgreSQL | Conversation history | Chainlit native DB |
+| Supabase | Audit trail, metrics | `audit/`, `metrics/` |
+| CSV | Feedback analytics | `analytics/feedback_analytics.csv` |
+| Neo4j | User journeys | `UserJourney` nodes |
+
+### Daily Summary Email
+
+Automated daily report with AI-powered insights.
+
+```bash
+python scripts/daily_summary.py
+```
+
+**Includes:**
+- Session statistics (total, completed, avg messages)
+- Bot usage distribution
+- Feedback summary with satisfaction rate
+- AI-generated quality insights via Gemini
+- Operational recommendations
+
+### QA Reports
+
+QA feedback is stored in `qa/YYYY-MM-DD/` folders:
+
+```
+qa/
+├── 2026-02-03/
+│   ├── QA_ANALYSIS_LAWRENCE_ARONHIME_CORRECTED.md
+│   └── QA_RELEASE_NOTES_FEB3.md
+├── 2026-02-04/
+│   └── QA_FEEDBACK_NESTED_HIERARCHIES.md
+└── QA_ANALYZER_INSTRUCTIONS.md
+```
+
+---
+
 ## Project Structure
 
 ```
@@ -621,6 +756,22 @@ mindrian-deploy/
 ├── sql/                          # Database schemas
 │   └── oracle_schema.sql         # Supabase: markets, predictions, scores
 │
+├── memory/                       # Conductor-style persistent memory
+│   ├── __init__.py               # Memory exports
+│   ├── user_journey.py           # UserJourney + JourneyStore classes
+│   └── checkpointer.py           # PostgreSQL LangGraph checkpointer
+│
+├── callbacks/                    # Extracted action callbacks
+│   ├── __init__.py               # Callback exports
+│   ├── agent_switch.py           # Bot switching logic
+│   └── research.py               # Research workflow handlers
+│
+├── scripts/                      # Admin & utility scripts
+│   ├── conversation_sampler.py   # CLI conversation browser
+│   ├── admin_dashboard.py        # Streamlit admin dashboard
+│   ├── daily_summary.py          # Email reports with AI insights
+│   └── health_check.py           # System health verification
+│
 ├── skills/                       # Claude Code skills
 │   ├── langgraph/SKILL.md        # LangGraph patterns
 │   ├── mindrian-stack/           # Architecture reference
@@ -629,10 +780,20 @@ mindrian-deploy/
 ├── public/elements/              # Custom JSX components
 │   ├── MermaidDiagram.jsx        # Mermaid rendering
 │   ├── GradeReveal.jsx           # Assessment UI
-│   └── ThinkingPanel.jsx         # Reasoning display
+│   ├── ThinkingPanel.jsx         # Reasoning display
+│   └── WorkshopRoadmap.jsx       # Phase progress sidebar
+│
+├── qa/                           # QA feedback by date
+│   ├── 2026-02-03/               # Daily QA reports
+│   ├── 2026-02-04/               # Daily QA reports
+│   └── QA_ANALYZER_INSTRUCTIONS.md
+│
+├── analytics/                    # Usage analytics
+│   └── feedback_analytics.csv    # Feedback data export
 │
 └── docs/                         # Documentation
     ├── REFACTORING_ANALYSIS.md   # Architecture migration plan
+    ├── MINDRIAN_CHAT_STRUCTURE.md # Code structure guide
     └── A2A_PRACTICAL_ARCHITECTURE.md
 ```
 
