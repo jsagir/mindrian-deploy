@@ -514,8 +514,10 @@ async def create_quadrant_chart(
     Perfect for: Risk/Impact, Effort/Value, Urgency/Importance, Assumption mapping
 
     Args:
-        items: List of dicts with {name, x, y, color?, size?, description?}
+        items: List of dicts with {name, x, y, color?, size?, description?, contextHint?}
                x and y should be 0-100
+               contextHint: Optional string explaining relevance to user's context
+                           (shown on hover as "💡 Why this matters...")
         title: Chart title
         x_label: X-axis label (e.g., "Certainty", "Effort")
         y_label: Y-axis label (e.g., "Impact", "Value")
@@ -531,9 +533,18 @@ async def create_quadrant_chart(
             x_label="Certainty",
             y_label="Impact",
             items=[
-                {"name": "Market size", "x": 30, "y": 90, "color": "#ef4444"},
-                {"name": "Tech feasibility", "x": 80, "y": 70, "color": "#22c55e"},
-                {"name": "Team capability", "x": 60, "y": 50, "color": "#3b82f6"},
+                {
+                    "name": "Market size",
+                    "x": 30, "y": 90,
+                    "color": "#ef4444",
+                    "contextHint": "Your EdTech startup depends on this - validate first"
+                },
+                {
+                    "name": "Tech feasibility",
+                    "x": 80, "y": 70,
+                    "color": "#22c55e",
+                    "contextHint": "Your team has prior ML experience, reducing risk"
+                },
             ]
         )
     """
@@ -631,6 +642,61 @@ async def create_priority_matrix(
             "bottomRight": "👥 Delegate"
         }
     )
+
+
+def add_context_hints(
+    items: List[Dict[str, Any]],
+    user_context: str,
+    x_label: str = "X",
+    y_label: str = "Y"
+) -> List[Dict[str, Any]]:
+    """
+    Add contextual hints to quadrant items based on user's conversation context.
+
+    This generates "Why this matters to you" explanations shown on hover.
+
+    Args:
+        items: List of quadrant items (modified in place)
+        user_context: Summary of user's problem/project (from conversation)
+        x_label: X-axis meaning for context generation
+        y_label: Y-axis meaning for context generation
+
+    Returns:
+        Items with contextHint field added
+
+    Example:
+        items = [{"name": "Tech feasibility", "x": 80, "y": 70}]
+        items = add_context_hints(
+            items,
+            user_context="EdTech startup building AI tutoring system",
+            x_label="Certainty",
+            y_label="Impact"
+        )
+        # items[0]["contextHint"] = "High certainty given your AI focus..."
+    """
+    for item in items:
+        x, y = item.get("x", 50), item.get("y", 50)
+        name = item.get("name", "Item")
+
+        # Generate quadrant-based hint
+        if x < 50 and y > 50:
+            quadrant_msg = f"High {y_label}, low {x_label} - critical to validate"
+        elif x >= 50 and y > 50:
+            quadrant_msg = f"Strong foundation - high {y_label} and {x_label}"
+        elif x < 50 and y <= 50:
+            quadrant_msg = f"Lower priority given its position"
+        else:
+            quadrant_msg = f"Worth validating when resources allow"
+
+        # Combine with user context if provided
+        if user_context:
+            hint = f"{quadrant_msg}. For your {user_context[:50]}{'...' if len(user_context) > 50 else ''}, this suggests focusing on validation."
+        else:
+            hint = quadrant_msg
+
+        item["contextHint"] = hint
+
+    return items
 
 
 # =============================================================================

@@ -10,7 +10,11 @@ import json
 import asyncio
 import subprocess
 import sys
+import logging
 import chainlit as cl
+
+# Module logger for debugging
+logger = logging.getLogger("mindrian")
 from chainlit.input_widget import Select, Switch, Slider
 from chainlit.server import app as fastapi_app
 from fastapi.responses import JSONResponse, PlainTextResponse
@@ -1991,8 +1995,8 @@ async def update_sidebar_phase(current_phase: int):
 
     try:
         await cl.ElementSidebar.set_elements(elements)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Sidebar update failed (may be version incompatibility): %s", e)
 
 
 @cl.set_chat_profiles
@@ -2567,8 +2571,8 @@ async def suggest_agents_from_context(
     extraction = None
     try:
         extraction = cl.user_session.get("last_extraction")
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Could not get last_extraction from session: %s", e)
 
     if extraction and not extraction.get("empty"):
         content_type = extraction.get("content_type", "general")
@@ -2731,8 +2735,8 @@ async def suggest_research_tools(history: list, current_bot: str) -> list:
     try:
         extraction = cl.user_session.get("last_extraction")
         coherence = cl.user_session.get("extraction_coherence")
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Could not get extraction data from session: %s", e)
 
     if extraction and not extraction.get("empty"):
         counts = extraction.get("counts", {})
@@ -2958,8 +2962,8 @@ def get_context_key() -> str:
         user = cl.user_session.get("user")
         if user and hasattr(user, "identifier"):
             return f"user_{user.identifier}"
-    except:
-        pass
+    except Exception as e:
+        logger.debug("Could not get user identifier for context key: %s", e)
 
     # Fallback: Use a cookie/browser fingerprint approach via session
     # This preserves context within the same browser session
@@ -7314,13 +7318,27 @@ async def on_deep_research(action: cl.Action):
         print(f"[RESEARCH] Critical callback error: {e}")
         traceback.print_exc()
 
+        # Map technical errors to user-friendly messages
+        error_msg = str(e).lower()
+        if "timeout" in error_msg or "timed out" in error_msg:
+            user_message = "The search service took too long to respond. This usually resolves itself."
+        elif "api" in error_msg or "key" in error_msg or "401" in error_msg or "403" in error_msg:
+            user_message = "There's a temporary issue with the research service. Please try again in a moment."
+        elif "connection" in error_msg or "network" in error_msg:
+            user_message = "Network connection issue. Please check your connection and try again."
+        elif "rate" in error_msg or "limit" in error_msg or "429" in error_msg:
+            user_message = "The research service is busy. Please wait a moment and try again."
+        elif "none" in error_msg and "attribute" in error_msg:
+            user_message = "Received an unexpected response from the search service. Please try again."
+        else:
+            user_message = "An unexpected issue occurred. Your conversation is safe."
+
         # Send graceful error message with action buttons preserved
         try:
             await cl.Message(
                 content=f"""## ⚠️ Research Temporarily Unavailable
 
-I encountered an issue while running the research workflow:
-> {str(e)[:200]}
+{user_message}
 
 **Your conversation is preserved.** You can:
 - Try the Research button again

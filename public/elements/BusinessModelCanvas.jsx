@@ -142,7 +142,9 @@ export default function BusinessModelCanvas() {
     borderRadius: '6px',
     border: '1px solid #ddd',
     backgroundColor: '#f5f5f5',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    minHeight: '44px',  // Minimum touch target
+    minWidth: '44px'
   }
 
   // BMC Grid Layout
@@ -203,14 +205,19 @@ export default function BusinessModelCanvas() {
               {editable && (
                 <button
                   onClick={() => handleRemoveItem(sectionKey, index)}
+                  onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleRemoveItem(sectionKey, index)}
                   style={{
                     border: 'none',
                     background: 'none',
                     cursor: 'pointer',
                     color: '#999',
                     fontSize: '14px',
-                    padding: '0 4px'
+                    padding: '8px',
+                    minWidth: '32px',
+                    minHeight: '32px'
                   }}
+                  aria-label={`Remove ${item} from ${config.label}`}
+                  title={`Remove ${item}`}
                 >×</button>
               )}
             </div>
@@ -263,16 +270,20 @@ export default function BusinessModelCanvas() {
             ) : (
               <button
                 onClick={() => setEditingSection(sectionKey)}
+                onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setEditingSection(sectionKey)}
                 style={{
                   width: '100%',
-                  padding: '4px',
-                  fontSize: '10px',
+                  padding: '8px',
+                  fontSize: '11px',
                   border: '1px dashed #999',
                   borderRadius: '4px',
                   backgroundColor: 'transparent',
                   cursor: 'pointer',
-                  color: '#666'
+                  color: '#666',
+                  minHeight: '44px'
                 }}
+                aria-label={`Add item to ${config.label}`}
+                title={`Add item to ${config.label}`}
               >+ Add</button>
             )}
           </div>
@@ -282,17 +293,23 @@ export default function BusinessModelCanvas() {
   }
 
   return (
-    <div style={containerStyle}>
+    <div style={containerStyle} role="region" aria-labelledby="canvas-title">
       <div style={headerStyle}>
-        <div style={titleStyle}>{title}</div>
+        <h2 style={titleStyle} id="canvas-title">{title}</h2>
         <div style={{ display: 'flex', gap: '8px' }}>
-          <button style={buttonStyle} onClick={handleExport}>
+          <button
+            style={buttonStyle}
+            onClick={handleExport}
+            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleExport()}
+            aria-label="Copy canvas to clipboard"
+            title="Copy canvas contents to clipboard"
+          >
             📋 Copy
           </button>
         </div>
       </div>
 
-      <div style={gridStyle}>
+      <div style={gridStyle} role="grid" aria-label="Business Model Canvas sections">
         {/* Row 1 */}
         <Section sectionKey="keyPartners" gridArea="1 / 1 / 3 / 3" />
         <Section sectionKey="keyActivities" gridArea="1 / 3 / 2 / 5" />

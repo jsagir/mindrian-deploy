@@ -47,6 +47,8 @@ export default function QuadrantChart() {
   const scaleX = (val) => padding + (val / 100) * chartWidth
   const scaleY = (val) => height - padding - (val / 100) * chartHeight
 
+  const [focusedIndex, setFocusedIndex] = React.useState(null)
+
   // Handle item click
   const handleItemClick = (item) => {
     setSelectedItem(item)
@@ -57,6 +59,27 @@ export default function QuadrantChart() {
       })
     }
   }
+
+  // Handle keyboard navigation for data points
+  const handleKeyDown = (e, item, index) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      handleItemClick(item)
+    } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault()
+      const nextIndex = (index + 1) % items.length
+      setFocusedIndex(nextIndex)
+      document.getElementById(`quadrant-item-${nextIndex}`)?.focus()
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault()
+      const prevIndex = (index - 1 + items.length) % items.length
+      setFocusedIndex(prevIndex)
+      document.getElementById(`quadrant-item-${prevIndex}`)?.focus()
+    }
+  }
+
+  // Minimum touch target size (44px per WCAG 2.1)
+  const MIN_TOUCH_TARGET = 44
 
   // Styles
   const containerStyle = {
@@ -102,19 +125,68 @@ export default function QuadrantChart() {
 
   const tooltipStyle = {
     position: 'absolute',
-    backgroundColor: 'rgba(0,0,0,0.8)',
+    backgroundColor: 'rgba(0,0,0,0.9)',
     color: 'white',
-    padding: '8px 12px',
-    borderRadius: '6px',
-    fontSize: '12px',
+    padding: '12px 16px',
+    borderRadius: '8px',
+    fontSize: '13px',
     pointerEvents: 'none',
     zIndex: 1000,
-    maxWidth: '200px'
+    maxWidth: '280px',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+    lineHeight: '1.4'
   }
 
+  const tooltipTitleStyle = {
+    fontWeight: '600',
+    marginBottom: '6px',
+    fontSize: '14px'
+  }
+
+  const tooltipContextStyle = {
+    borderTop: '1px solid rgba(255,255,255,0.2)',
+    paddingTop: '8px',
+    marginTop: '8px',
+    fontStyle: 'italic',
+    opacity: 0.9
+  }
+
+  // Get hovered item for tooltip
+  const getHoveredItemData = () => {
+    if (hoveredItem === null) return null
+    return items[hoveredItem]
+  }
+
+  const hoveredData = getHoveredItemData()
+
   return (
-    <div style={containerStyle}>
+    <div style={{...containerStyle, position: 'relative'}}>
       <div style={titleStyle}>{title}</div>
+
+      {/* Contextual tooltip - shows item.contextHint for relevance explanation */}
+      {hoveredData && (
+        <div
+          style={{
+            ...tooltipStyle,
+            left: `${scaleX(hoveredData.x)}px`,
+            top: `${Math.max(20, scaleY(hoveredData.y) - 80)}px`,
+            transform: 'translateX(-50%)'
+          }}
+          role="tooltip"
+          aria-live="polite"
+        >
+          <div style={tooltipTitleStyle}>{hoveredData.name}</div>
+          <div>{xLabel}: {hoveredData.x} | {yLabel}: {hoveredData.y}</div>
+          {hoveredData.description && (
+            <div style={{marginTop: '4px', opacity: 0.9}}>{hoveredData.description}</div>
+          )}
+          {hoveredData.contextHint && (
+            <div style={tooltipContextStyle}>
+              💡 {hoveredData.contextHint}
+            </div>
+          )}
+        </div>
+      )}
 
       <svg width={width} height={height} style={svgStyle}>
         {/* Quadrant backgrounds */}
@@ -174,9 +246,37 @@ export default function QuadrantChart() {
           const color = item.color || '#6366f1'
           const isHovered = hoveredItem === index
           const isSelected = selectedItem?.name === item.name
+          const isFocused = focusedIndex === index
+          // Touch target must be at least 44px, but visual circle can be smaller
+          const touchRadius = Math.max(MIN_TOUCH_TARGET / 2, r)
 
           return (
-            <g key={index}>
+            <g
+              key={index}
+              id={`quadrant-item-${index}`}
+              role="button"
+              tabIndex={index === 0 ? 0 : -1}
+              aria-label={`${item.name}: ${xLabel} ${item.x}, ${yLabel} ${item.y}. ${item.description || ''}`}
+              onKeyDown={(e) => handleKeyDown(e, item, index)}
+              onFocus={() => setFocusedIndex(index)}
+              onBlur={() => setFocusedIndex(null)}
+              style={{ outline: 'none' }}
+            >
+              {/* Invisible larger touch target for mobile accessibility */}
+              <circle
+                cx={cx} cy={cy} r={touchRadius}
+                fill="transparent"
+                style={{ cursor: 'pointer' }}
+                onMouseEnter={() => setHoveredItem(index)}
+                onMouseLeave={() => setHoveredItem(null)}
+                onClick={() => handleItemClick(item)}
+              />
+              {/* Focus ring for keyboard navigation */}
+              {isFocused && (
+                <circle cx={cx} cy={cy} r={r + 6}
+                        fill="none" stroke="#2563eb" strokeWidth="2"
+                        strokeDasharray="4,2" />
+              )}
               {/* Shadow/glow effect */}
               {(isHovered || isSelected) && (
                 <circle cx={cx} cy={cy} r={r + 4}
@@ -188,10 +288,7 @@ export default function QuadrantChart() {
                 fill={color}
                 stroke={isSelected ? '#333' : 'white'}
                 strokeWidth={isSelected ? 3 : 2}
-                style={{ cursor: 'pointer', transition: 'all 0.2s' }}
-                onMouseEnter={() => setHoveredItem(index)}
-                onMouseLeave={() => setHoveredItem(null)}
-                onClick={() => handleItemClick(item)}
+                style={{ cursor: 'pointer', transition: 'all 0.2s', pointerEvents: 'none' }}
               />
               {/* Label */}
               <text
@@ -199,8 +296,9 @@ export default function QuadrantChart() {
                 y={cy + r + 14}
                 textAnchor="middle"
                 fontSize="11"
-                fontWeight={isHovered ? '600' : '400'}
+                fontWeight={isHovered || isFocused ? '600' : '400'}
                 fill="#333"
+                aria-hidden="true"
               >
                 {item.name?.substring(0, 15)}{item.name?.length > 15 ? '...' : ''}
               </text>
@@ -211,22 +309,33 @@ export default function QuadrantChart() {
 
       {/* Legend */}
       {items.length > 0 && (
-        <div style={legendStyle}>
+        <div style={legendStyle} role="list" aria-label="Chart items legend">
           {items.map((item, index) => (
             <div
               key={index}
+              role="listitem"
+              tabIndex={0}
               style={{
                 ...legendItemStyle,
-                backgroundColor: selectedItem?.name === item.name ? '#e0e0e0' : '#f5f5f5'
+                minHeight: '44px', // Minimum touch target
+                backgroundColor: selectedItem?.name === item.name ? '#e0e0e0' : '#f5f5f5',
+                outline: 'none'
               }}
               onClick={() => handleItemClick(item)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  handleItemClick(item)
+                }
+              }}
+              aria-label={`${item.name}: ${xLabel} ${item.x}, ${yLabel} ${item.y}`}
             >
               <span style={{
                 width: '10px',
                 height: '10px',
                 borderRadius: '50%',
                 backgroundColor: item.color || '#6366f1'
-              }} />
+              }} aria-hidden="true" />
               <span>{item.name}</span>
               <span style={{ color: '#999' }}>({item.x}, {item.y})</span>
             </div>

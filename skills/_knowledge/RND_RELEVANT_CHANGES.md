@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-04 08:41*
+*Auto-generated: 2026-02-04 09:47*
 
 ---
 
 ## 2026-02-04
+
+### ✨ feat: Security hardening and performance improvements
+
+- **Commit:** `a8f90512`
+- **Author:** jsagir
+- **Files changed:** 14
+  - mindrian_chat.py
+  - scripts/lightrag_gentle_upload.py
+  - scripts/lightrag_graph_push.py
+  - scripts/push_opportunities_to_lightrag.py
+  - scripts/push_qa_opportunities_to_lightrag.py
+- **Details:** - Remove hardcoded LightRAG password defaults (7 files)
 
 ### 🐛 fix: Reduce log noise from expected errors
 

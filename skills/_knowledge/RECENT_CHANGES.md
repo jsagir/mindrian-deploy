@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-04 08:41*
+*Auto-generated: 2026-02-04 09:47*
 
 ---
 
 ## 2026-02-04
+
+### ✨ feat: Security hardening and performance improvements
+
+- **Commit:** `a8f90512`
+- **Author:** jsagir
+- **Files changed:** 14
+  - mindrian_chat.py
+  - scripts/lightrag_gentle_upload.py
+  - scripts/lightrag_graph_push.py
+  - scripts/push_opportunities_to_lightrag.py
+  - scripts/push_qa_opportunities_to_lightrag.py
+- **Details:** - Remove hardcoded LightRAG password defaults (7 files)
 
 ### 🐛 fix: Reduce log noise from expected errors
 
@@ -528,12 +540,3 @@
   - governance/eval_suite.py
   - prompts/__init__.py
 - **Details:** Model Upgrades (gemini-2.0-flash → gemini-2.5-flash):
-
-### 📝 docs: Sync skills knowledge (auto-generated)
-
-- **Commit:** `1702d8a0`
-- **Author:** jsagir
-- **Files changed:** 3
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md

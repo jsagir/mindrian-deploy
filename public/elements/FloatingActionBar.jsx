@@ -117,8 +117,36 @@ export default function FloatingActionBar() {
     gray: { backgroundColor: '#f3f4f6', color: '#374151' },
   }
 
+  // Handle keyboard navigation within toolbar
+  const handleKeyDown = (e, index) => {
+    const buttons = e.currentTarget.parentElement.querySelectorAll('button')
+    let nextIndex = index
+
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault()
+      nextIndex = (index + 1) % buttons.length
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault()
+      nextIndex = (index - 1 + buttons.length) % buttons.length
+    } else if (e.key === 'Home') {
+      e.preventDefault()
+      nextIndex = 0
+    } else if (e.key === 'End') {
+      e.preventDefault()
+      nextIndex = buttons.length - 1
+    }
+
+    if (nextIndex !== index) {
+      buttons[nextIndex].focus()
+    }
+  }
+
   return (
-    <div style={styles.container}>
+    <div
+      style={styles.container}
+      role="toolbar"
+      aria-label={`${botName} quick actions`}
+    >
       {displayActions.map((action, index) => (
         <button
           key={action.name || index}
@@ -127,6 +155,7 @@ export default function FloatingActionBar() {
             ...(colorStyles[action.color] || colorStyles.gray),
           }}
           onClick={() => handleAction(action.name, action.payload || {})}
+          onKeyDown={(e) => handleKeyDown(e, index)}
           onMouseEnter={(e) => {
             e.target.style.transform = 'translateY(-2px)'
             e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)'
@@ -136,8 +165,10 @@ export default function FloatingActionBar() {
             e.target.style.boxShadow = 'none'
           }}
           title={action.tooltip || action.label}
+          aria-label={action.tooltip || `${action.label} - ${action.name.replace(/_/g, ' ')}`}
+          tabIndex={index === 0 ? 0 : -1}
         >
-          {icons[action.icon] || null}
+          <span aria-hidden="true">{icons[action.icon] || null}</span>
           {action.label}
         </button>
       ))}
