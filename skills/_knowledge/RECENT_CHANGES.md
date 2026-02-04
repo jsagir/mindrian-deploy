@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-04 09:55*
+*Auto-generated: 2026-02-04 10:05*
 
 ---
 
 ## 2026-02-04
+
+### ✨ feat: API health monitoring, daily digest email, and smart onboarding
+
+- **Commit:** `7c31f267`
+- **Author:** jsagir
+- **Files changed:** 8
+  - scripts/daily_cron.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+  - sql/api_health_log.sql
+- **Details:** New Systems:
 
 ### 🐛 fix: QA UI/UX improvements - accessibility and error handling
 
@@ -531,12 +543,3 @@
 - **Files changed:** 2
   - skills/_knowledge/QA_RELEVANT_CHANGES.md
   - skills/_knowledge/RECENT_CHANGES.md
-
-### 📝 docs: Sync skills knowledge base
-
-- **Commit:** `85f304ad`
-- **Author:** jsagir
-- **Files changed:** 3
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md

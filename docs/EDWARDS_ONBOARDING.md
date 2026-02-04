@@ -1,6 +1,6 @@
 # Edwards Onboarding Guide - Mindrian Codebase
 
-**Date:** February 4, 2026
+**Date:** February 4, 2026 (Updated)
 **Purpose:** Complete technical overview for Jonathan Edwards to understand and work on the Mindrian codebase
 
 ---
@@ -18,7 +18,8 @@
 9. [Protocol Governance](#protocol-governance)
 10. [Frontend vs Backend Challenge](#frontend-vs-backend-challenge)
 11. [Development Workflow](#development-workflow)
-12. [Recommended Approach](#recommended-approach)
+12. [New Systems (Feb 4, 2026)](#new-systems-feb-4-2026)
+13. [Recommended Approach](#recommended-approach)
 
 ---
 
@@ -113,7 +114,7 @@ API keys are managed in Render's environment variables (no local `.env` needed f
 - **URL:** https://supabase.com/dashboard
 - **Database:** PostgreSQL (conversation history, feedback, sessions)
 - **Storage:** Blob storage for files, exports, audit logs
-- **Tables:** threads, steps, feedback, session_events, etc.
+- **Tables:** threads, steps, feedback, session_events, api_health_log, etc.
 
 ### Neo4j (Graph)
 - **Purpose:** Relationship mapping (the "intelligent" layer)
@@ -131,6 +132,9 @@ NEO4J_URI               # Neo4j connection
 NEO4J_USER              # Neo4j auth
 NEO4J_PASSWORD          # Neo4j auth
 ELEVENLABS_API_KEY      # Voice (optional)
+SENDGRID_API_KEY        # Email delivery (for digests)
+DIGEST_RECIPIENTS       # Comma-separated emails for daily digest
+CRON_SECRET             # Secure cron endpoint access
 ```
 
 ---
@@ -166,7 +170,8 @@ mindrian-deploy/
 │   ├── tavily_search.py       # Web research
 │   ├── graphrag_lite.py       # Neo4j + vector hybrid
 │   ├── pws_brain.py           # Gemini File Search
-│   └── langextract.py         # Structured extraction
+│   ├── langextract.py         # Structured extraction
+│   └── opportunity_bank.py    # LightRAG opportunity storage
 │
 ├── memory/                    # 💾 Persistent user journeys
 │   ├── user_journey.py        # Journey tracking
@@ -178,25 +183,36 @@ mindrian-deploy/
 │
 ├── protocols/                 # 📋 Governance & quality gates
 │   ├── a2a_protocol.py        # Agent-to-agent handoffs
-│   └── triple_mode.py         # Entry point handling
+│   ├── triple_mode.py         # Entry point handling
+│   └── context_journal.py     # Living document tracking
 │
 ├── utils/                     # 🛠️ Utilities
 │   ├── charts.py              # Plotly visualizations
 │   ├── diagrams.py            # Mermaid diagram generation
 │   ├── file_processor.py      # PDF/DOCX extraction
 │   ├── data_layer.py          # Database + feedback
-│   └── session_logger.py      # Event tracking
+│   ├── session_logger.py      # Event tracking
+│   ├── api_health_monitor.py  # [NEW] API health checking + logging
+│   ├── opportunity_digest.py  # [NEW] 12-part email digest generator
+│   └── smart_onboarding.py    # [NEW] Progressive welcome + PWS tooltips
 │
 ├── public/elements/           # 🎨 Custom UI components (JSX)
 │   ├── ThinkingPanel.jsx      # AI reasoning display
 │   ├── MermaidDiagram.jsx     # Mind maps
-│   └── WorkshopRoadmap.jsx    # Phase sidebar
+│   ├── WorkshopRoadmap.jsx    # Phase sidebar
+│   ├── QuadrantChart.jsx      # 2x2 matrix charts
+│   ├── BusinessModelCanvas.jsx # BMC/Lean Canvas
+│   └── FloatingActionBar.jsx  # Sticky action buttons
 │
 ├── scripts/                   # 📊 Admin & utility scripts
 │   ├── conversation_sampler.py # CLI for browsing conversations
 │   ├── admin_dashboard.py     # Streamlit analytics dashboard
 │   ├── daily_summary.py       # Email reports
+│   ├── daily_cron.py          # [NEW] Health check + digest cron job
 │   └── health_check.py        # System verification
+│
+├── sql/                       # 📊 Database schemas
+│   └── api_health_log.sql     # [NEW] Health monitoring table + views
 │
 ├── governance/                # 🛡️ Safety & compliance
 │   ├── audit_trail.py         # Response logging
@@ -260,6 +276,8 @@ context_store = {}  # In-memory context
 # Lines 3000-8000: Action callbacks
 @cl.action_callback("next_phase")
 @cl.action_callback("deep_research")
+@cl.action_callback("start_onboarding")  # [NEW]
+@cl.action_callback("skip_onboarding")   # [NEW]
 # ... 70+ more callbacks
 
 # Lines 8000-10000: Main message handler
@@ -552,6 +570,187 @@ streamlit run scripts/admin_dashboard.py
 
 ---
 
+## New Systems (Feb 4, 2026)
+
+### 1. API Health Monitoring
+
+**File:** `utils/api_health_monitor.py`
+
+Monitors health of all external APIs with automatic Supabase logging.
+
+**APIs Monitored:**
+- Gemini (AI model)
+- FileSearch (RAG)
+- Tavily (web search)
+- Neo4j (graph database)
+- Supabase (storage)
+- ElevenLabs (voice)
+- FRED (economic data)
+- SerpAPI (search)
+
+**Key Functions:**
+```python
+from utils.api_health_monitor import (
+    run_startup_health_check,  # Random sample of APIs on startup
+    check_api_health,          # Check specific API
+    get_health_dashboard,      # Summary for admin dashboard
+)
+
+# Example: Run on startup (randomly samples 5 APIs)
+results = await run_startup_health_check(
+    sample_count=5,
+    include_critical=True,    # Always check Gemini, Supabase
+    log_to_supabase=True
+)
+```
+
+**Database Schema:** `sql/api_health_log.sql`
+```sql
+CREATE TABLE api_health_log (
+    id UUID PRIMARY KEY,
+    api_name TEXT NOT NULL,
+    status TEXT NOT NULL,  -- 'healthy', 'degraded', 'unhealthy', 'unknown'
+    response_time_ms INTEGER,
+    message TEXT,
+    details JSONB,
+    created_at TIMESTAMPTZ
+);
+```
+
+### 2. Daily Opportunity Digest
+
+**File:** `utils/opportunity_digest.py`
+
+Generates and sends a 12-part HTML email report of the Bank of Opportunities.
+
+**12 Sections:**
+1. Executive Summary - Key metrics
+2. New Opportunities - Last 24h discoveries
+3. High-Value Spotlight - Top-rated opportunities
+4. Domain Breakdown - By industry/area
+5. Validation Status - Needs validation vs. validated
+6. Framework Applications - Which PWS frameworks were used
+7. User Activity - Most active users
+8. Trend Analysis - Emerging patterns
+9. Action Required - Opportunities needing attention
+10. API Health Summary - System health overview
+11. Weekly Comparison - Week-over-week metrics
+12. Recommended Focus - AI-suggested priorities
+
+**Usage:**
+```python
+from utils.opportunity_digest import send_opportunity_digest
+
+# Send to specific email
+await send_opportunity_digest(to_email="user@example.com")
+
+# Send to all configured recipients (DIGEST_RECIPIENTS env var)
+await send_opportunity_digest()
+```
+
+**Environment Variables:**
+```bash
+SENDGRID_API_KEY=your_key
+DIGEST_RECIPIENTS=user1@example.com,user2@example.com
+```
+
+### 3. Smart Onboarding
+
+**File:** `utils/smart_onboarding.py`
+
+Intelligent PWS onboarding that adapts to user expertise level.
+
+**Features:**
+- **Expertise Detection** - Analyzes messages for confusion/expert signals
+- **Progressive Welcome** - First-time users get explanatory welcome
+- **PWS Glossary** - Plain English explanations of 12+ PWS terms
+- **Interactive Tour** - 3-step tour of key concepts (PWS, Reverse Salient, JTBD)
+- **Skip Button** - Users can skip if already familiar
+
+**Expertise Levels:**
+```python
+class ExpertiseLevel(Enum):
+    NEWCOMER = "newcomer"       # First time, needs everything explained
+    FAMILIAR = "familiar"       # Has used before, knows basics
+    PRACTITIONER = "practitioner"  # Uses regularly, knows frameworks
+    EXPERT = "expert"           # Deep knowledge, no help needed
+```
+
+**Key Functions:**
+```python
+from utils.smart_onboarding import (
+    get_progressive_welcome,    # Get welcome message for user level
+    get_onboarding_tour_steps,  # Get 3-step tour content
+    mark_onboarding_skipped,    # User chose to skip
+    mark_onboarding_completed,  # User finished tour
+    should_show_concept_help,   # Check if help is needed
+)
+
+# Get welcome for first-time user
+welcome_data = get_progressive_welcome(
+    user_id="user123",
+    bot_name="Lawrence",
+    show_onboarding_offer=True
+)
+# Returns: {'message': '...', 'show_onboarding_buttons': True, 'expertise_level': 'newcomer'}
+```
+
+**Integration in mindrian_chat.py:**
+- Lawrence bots show smart welcome on first visit
+- "Yes, show me around!" / "No thanks, let's dive in" buttons
+- 3-step interactive tour with Next/Skip buttons
+
+### 4. Daily Cron Job
+
+**File:** `scripts/daily_cron.py`
+
+Runs daily health checks and sends opportunity digest.
+
+**Usage:**
+```bash
+# Run with default recipients (from DIGEST_RECIPIENTS env var)
+python scripts/daily_cron.py
+
+# Override email
+python scripts/daily_cron.py --email user@example.com
+
+# Skip digest, only health check
+python scripts/daily_cron.py --skip-digest
+```
+
+**Render Cron Configuration:**
+```yaml
+cron:
+  - name: daily-summary
+    command: python scripts/daily_cron.py
+    schedule: "0 8 * * *"  # 8am UTC daily
+```
+
+### 5. QA UI/UX Improvements
+
+**Files Modified:**
+- `public/elements/FloatingActionBar.jsx`
+- `public/elements/QuadrantChart.jsx`
+- `public/elements/BusinessModelCanvas.jsx`
+- `mindrian_chat.py`
+
+**Accessibility Fixes (P1):**
+- ARIA labels and roles for screen readers
+- 44px minimum touch targets (WCAG 2.1)
+- Keyboard navigation with arrow keys
+- Focus rings for keyboard users
+
+**Error Handling (P1):**
+- User-friendly error messages (no raw exceptions)
+- Logging for silent exception handlers
+- Graceful fallbacks
+
+**Contextual Tooltips (P2):**
+- `contextHint` property on QuadrantChart items
+- Shows relevance explanations on hover
+
+---
+
 ## Recommended Approach
 
 ### Phase 1: Understanding (Week 1)
@@ -620,6 +819,10 @@ streamlit run scripts/admin_dashboard.py
 | **Architecture** | Solid (Lazy Graph is good) |
 | **Code quality** | Needs cleanup |
 | **Documentation** | Improving |
+| **API Monitoring** | [NEW] Health checks + Supabase logging |
+| **Daily Digest** | [NEW] 12-part email reports |
+| **Smart Onboarding** | [NEW] Progressive welcome + tour |
+| **Accessibility** | [NEW] ARIA labels, touch targets, keyboard nav |
 | **Near-term goal** | Separate UI from backend |
 | **Long-term goal** | Sellable product |
 

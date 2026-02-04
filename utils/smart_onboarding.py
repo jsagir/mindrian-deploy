@@ -415,53 +415,183 @@ def mark_concept_learned(user_id: str, concept: str):
 
 def get_progressive_welcome(
     user_id: str,
-    bot_name: str = "Lawrence"
-) -> str:
+    bot_name: str = "Lawrence",
+    show_onboarding_offer: bool = True
+) -> Dict[str, Any]:
     """
     Get a welcome message appropriate for the user's expertise level.
 
-    First-time users get a warm, jargon-free introduction.
+    First-time users get a warm, jargon-free introduction with onboarding offer.
     Returning users get a quick greeting.
     Experts get straight to business.
+
+    Returns:
+        Dict with 'message', 'show_onboarding_buttons', and 'expertise_level'
     """
     state = get_onboarding_state(user_id)
 
     if state.expertise_level == ExpertiseLevel.NEWCOMER and state.message_count == 0:
         # First-time user - warm, explanatory welcome
-        return f"""**Welcome to {bot_name}!** 👋
+        message = f"""🧠 **Welcome to {bot_name}!**
 
-I'm here to help you discover **problems worth solving** - the kind that make a real difference and are actually worth your time.
+I'm your thinking partner for discovering **problems worth solving** — the kind of challenges that, once solved, create real value for real people.
 
-**How this works:**
-- Tell me about a challenge, industry, or idea you're curious about
-- I'll help you explore it from different angles
-- Together, we'll find opportunities others miss
+---
 
-**No jargon required** - I'll explain any unfamiliar terms as we go.
+**What I help you do:**
 
-*What's on your mind today?*"""
+🔍 **Explore Ideas** — Tell me about an industry, technology, or challenge you're curious about. I'll help you dig deeper than surface-level thinking.
+
+💡 **Find Hidden Opportunities** — Most valuable problems are hiding in plain sight. I use proven frameworks to reveal what others miss.
+
+🎯 **Focus Your Energy** — Not every problem is worth your time. I'll help you identify which ones matter and why.
+
+---
+
+**How we'll work together:**
+
+1. **You share** what's on your mind — an idea, a frustration, a market you're curious about
+2. **I ask questions** to understand better and challenge assumptions
+3. **We explore together** — I'll introduce frameworks like "Jobs to Be Done" or "Reverse Salients" when they're useful (and explain them in plain English)
+4. **You leave with clarity** — knowing which problems are worth pursuing
+
+---
+
+*I noticed you're new here. Want a quick 2-minute tour of how this works?*"""
+
+        return {
+            "message": message,
+            "show_onboarding_buttons": show_onboarding_offer,
+            "expertise_level": state.expertise_level.value,
+            "is_first_time": True
+        }
 
     elif state.expertise_level == ExpertiseLevel.NEWCOMER:
         # Newcomer, but not first message
-        return f"""**Hey there!** 👋
+        return {
+            "message": f"""🧠 **{bot_name} here.**
 
-Ready to explore? Just tell me what you're thinking about.
+Ready to explore? Tell me what you're thinking about — an idea, a problem, or something you're curious about.
 
-*I'll explain any unfamiliar terms along the way.*"""
+*I'll explain any unfamiliar terms as we go.*""",
+            "show_onboarding_buttons": False,
+            "expertise_level": state.expertise_level.value,
+            "is_first_time": False
+        }
 
     elif state.expertise_level == ExpertiseLevel.FAMILIAR:
         # Knows the basics
-        return f"""**Welcome back!** 👋
+        return {
+            "message": f"""🧠 **Welcome back!**
 
-Ready to dive in? What problem space are you exploring today?"""
+What problem space are you exploring today?""",
+            "show_onboarding_buttons": False,
+            "expertise_level": state.expertise_level.value,
+            "is_first_time": False
+        }
 
     elif state.expertise_level == ExpertiseLevel.PRACTITIONER:
         # Regular user
-        return f"""**Good to see you!** What are we working on today?"""
+        return {
+            "message": f"""🧠 **Good to see you!** What are we working on today?""",
+            "show_onboarding_buttons": False,
+            "expertise_level": state.expertise_level.value,
+            "is_first_time": False
+        }
 
     else:
         # Expert - minimal
-        return f"""**{bot_name} ready.** What's the focus?"""
+        return {
+            "message": f"""🧠 **{bot_name} ready.** What's the focus?""",
+            "show_onboarding_buttons": False,
+            "expertise_level": state.expertise_level.value,
+            "is_first_time": False
+        }
+
+
+def get_onboarding_tour_steps() -> List[Dict[str, Any]]:
+    """
+    Get the interactive onboarding tour steps.
+
+    Each step explains a key concept with an example.
+    """
+    return [
+        {
+            "step": 1,
+            "title": "🎯 Finding Problems Worth Solving",
+            "content": """**Not all problems are created equal.**
+
+Some problems, when solved, unlock massive value. Others... not so much.
+
+**Example:**
+- ❌ "Make a faster spreadsheet" — incremental improvement
+- ✅ "Why do teams miscommunicate during handoffs?" — addressing root cause
+
+The second question might lead to a transformative solution. The first just makes a slightly better tool.
+
+**Key question to ask:** "If this problem disappeared tomorrow, how many people would notice? How much would their lives improve?"
+""",
+            "concept": "pws"
+        },
+        {
+            "step": 2,
+            "title": "🔓 The Bottleneck Principle",
+            "content": """**Every system has ONE constraint holding everything else back.**
+
+Find it, solve it, and everything improves. We call this a "reverse salient" — borrowed from military strategy.
+
+**Example:**
+For years, electric cars struggled. The reverse salient? **Battery technology.**
+- Motors? Fine.
+- Charging infrastructure? Could be built.
+- Batteries? Too heavy, too expensive, too slow to charge.
+
+Tesla bet everything on batteries. Once that constraint broke, the whole industry took off.
+
+**Ask yourself:** "What's the one thing that, if fixed, would unlock everything else?"
+""",
+            "concept": "reverse salient"
+        },
+        {
+            "step": 3,
+            "title": "💼 Jobs to Be Done",
+            "content": """**People don't buy products. They hire them to do a job.**
+
+Understanding the real "job" leads to better solutions.
+
+**Example:**
+People don't buy drills because they want drills.
+They don't even want holes.
+They want to **hang a picture** — to make their home feel personal.
+
+The "job" isn't drilling. It's creating a sense of home.
+
+**This changes everything:**
+- Maybe they don't need a drill at all
+- Maybe a better solution is command strips
+- Maybe the real opportunity is in the "decorating" journey
+
+**Ask:** "What progress is this person trying to make in their life?"
+""",
+            "concept": "jtbd"
+        }
+    ]
+
+
+def mark_onboarding_skipped(user_id: str):
+    """Mark that user chose to skip onboarding."""
+    state = get_onboarding_state(user_id)
+    state.expertise_level = ExpertiseLevel.FAMILIAR  # Assume some familiarity
+    state.concepts_understood.extend(["pws", "jtbd", "reverse salient"])  # Don't show basic tooltips
+    update_onboarding_state(user_id, state)
+
+
+def mark_onboarding_completed(user_id: str):
+    """Mark that user completed onboarding tour."""
+    state = get_onboarding_state(user_id)
+    state.concepts_understood.extend(["pws", "jtbd", "reverse salient"])
+    # Keep as newcomer until they show expertise
+    update_onboarding_state(user_id, state)
 
 # =============================================================================
 # SMART HELP TIMING
@@ -608,6 +738,9 @@ __all__ = [
     # Progressive onboarding
     "get_progressive_welcome",
     "get_onboarding_step",
+    "get_onboarding_tour_steps",
+    "mark_onboarding_skipped",
+    "mark_onboarding_completed",
     # Data
     "PWS_GLOSSARY",
 ]

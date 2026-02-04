@@ -244,6 +244,22 @@ except ImportError as e:
     UI_ELEMENTS_ENABLED = False
     print(f"UI Elements not available: {e}")
 
+# === Smart Onboarding - Intelligent PWS concept introduction ===
+try:
+    from utils.smart_onboarding import (
+        get_progressive_welcome,
+        get_onboarding_tour_steps,
+        mark_onboarding_skipped,
+        mark_onboarding_completed,
+        get_onboarding_state,
+        should_show_concept_help,
+    )
+    SMART_ONBOARDING_ENABLED = True
+    print("Smart Onboarding enabled (progressive welcome, tour)")
+except ImportError as e:
+    SMART_ONBOARDING_ENABLED = False
+    print(f"Smart Onboarding not available: {e}")
+
 # === Bounded History Manager - Prevent memory leaks ===
 try:
     from utils.history_manager import (
@@ -3369,7 +3385,51 @@ I'll continue our conversation with my perspective.
         elif bot.get("has_phases"):
             await cl.Message(content=bot["welcome"], actions=actions).send()
         else:
-            await cl.Message(content=bot["welcome"], actions=actions if actions else None).send()
+            # === Smart Onboarding for Lawrence bots ===
+            # Show progressive welcome with onboarding offer for first-time users
+            if SMART_ONBOARDING_ENABLED and chat_profile in ["lawrence", "larry_playground"]:
+                try:
+                    # Get user_id for onboarding state
+                    user = cl.user_session.get("user")
+                    user_id = user.identifier if user else session_id or "anonymous"
+
+                    # Get progressive welcome based on expertise
+                    welcome_data = get_progressive_welcome(
+                        user_id=user_id,
+                        bot_name=bot["name"],
+                        show_onboarding_offer=True
+                    )
+
+                    welcome_message = welcome_data["message"]
+                    show_buttons = welcome_data.get("show_onboarding_buttons", False)
+
+                    # Add onboarding buttons for first-time users
+                    if show_buttons:
+                        onboarding_actions = [
+                            cl.Action(
+                                name="start_onboarding",
+                                payload={"action": "start"},
+                                label="Yes, show me around!",
+                                description="Take a quick 2-minute tour of key concepts"
+                            ),
+                            cl.Action(
+                                name="skip_onboarding",
+                                payload={"action": "skip"},
+                                label="No thanks, let's dive in",
+                                description="Skip the tour and start exploring"
+                            ),
+                        ]
+                        # Combine with existing actions
+                        all_actions = (actions or []) + onboarding_actions
+                        await cl.Message(content=welcome_message, actions=all_actions).send()
+                    else:
+                        await cl.Message(content=welcome_message, actions=actions if actions else None).send()
+
+                except Exception as e:
+                    logger.warning(f"[SMART_ONBOARDING] Error: {e}, falling back to default welcome")
+                    await cl.Message(content=bot["welcome"], actions=actions if actions else None).send()
+            else:
+                await cl.Message(content=bot["welcome"], actions=actions if actions else None).send()
 
         # Mark welcome as sent for this session
         cl.user_session.set("welcome_sent", True)
@@ -4338,6 +4398,201 @@ async def on_switch_to_validation(action: cl.Action):
 @cl.action_callback("switch_to_beautiful_question")
 async def on_switch_to_beautiful_question(action: cl.Action):
     await handle_agent_switch("beautiful_question")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Smart Onboarding Callbacks
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@cl.action_callback("start_onboarding")
+async def on_start_onboarding(action: cl.Action):
+    """User chose to take the onboarding tour."""
+    if not SMART_ONBOARDING_ENABLED:
+        return
+
+    try:
+        # Get user_id
+        user = cl.user_session.get("user")
+        session_id = cl.user_session.get("id")
+        user_id = user.identifier if user else session_id or "anonymous"
+
+        # Get tour steps
+        tour_steps = get_onboarding_tour_steps()
+
+        # Store tour state
+        cl.user_session.set("onboarding_step", 0)
+        cl.user_session.set("onboarding_active", True)
+
+        # Show first step
+        if tour_steps:
+            step = tour_steps[0]
+            step_content = f"""### {step['title']}
+
+{step['content']}
+
+---
+*Step 1 of {len(tour_steps)}*"""
+
+            # Create next/skip buttons
+            step_actions = [
+                cl.Action(
+                    name="onboarding_next",
+                    payload={"step": 1},
+                    label="Next →",
+                    description="Continue to next concept"
+                ),
+                cl.Action(
+                    name="onboarding_skip_rest",
+                    payload={"action": "skip"},
+                    label="Got it, let's start!",
+                    description="Skip remaining steps and start exploring"
+                ),
+            ]
+
+            await cl.Message(content=step_content, actions=step_actions).send()
+
+    except Exception as e:
+        logger.warning(f"[ONBOARDING] Error starting tour: {e}")
+        await cl.Message(content="Let's get started! What would you like to explore today?").send()
+
+
+@cl.action_callback("skip_onboarding")
+async def on_skip_onboarding(action: cl.Action):
+    """User chose to skip the onboarding tour."""
+    if not SMART_ONBOARDING_ENABLED:
+        return
+
+    try:
+        # Get user_id
+        user = cl.user_session.get("user")
+        session_id = cl.user_session.get("id")
+        user_id = user.identifier if user else session_id or "anonymous"
+
+        # Mark as skipped (assumes some familiarity)
+        mark_onboarding_skipped(user_id)
+
+        # Send a quick acknowledgment
+        await cl.Message(
+            content="""No problem! I'll explain any unfamiliar terms as they come up.
+
+**What's on your mind?** Share an idea, a problem you're curious about, or an industry you want to explore."""
+        ).send()
+
+    except Exception as e:
+        logger.warning(f"[ONBOARDING] Error skipping: {e}")
+        await cl.Message(content="What would you like to explore today?").send()
+
+
+@cl.action_callback("onboarding_next")
+async def on_onboarding_next(action: cl.Action):
+    """User clicked next in the onboarding tour."""
+    if not SMART_ONBOARDING_ENABLED:
+        return
+
+    try:
+        # Get current step
+        current_step = action.payload.get("step", 0)
+        tour_steps = get_onboarding_tour_steps()
+
+        if current_step < len(tour_steps):
+            step = tour_steps[current_step]
+            step_content = f"""### {step['title']}
+
+{step['content']}
+
+---
+*Step {current_step + 1} of {len(tour_steps)}*"""
+
+            # Determine next action
+            if current_step + 1 < len(tour_steps):
+                step_actions = [
+                    cl.Action(
+                        name="onboarding_next",
+                        payload={"step": current_step + 1},
+                        label="Next →",
+                        description="Continue to next concept"
+                    ),
+                    cl.Action(
+                        name="onboarding_skip_rest",
+                        payload={"action": "skip"},
+                        label="Got it, let's start!",
+                        description="Skip remaining steps and start exploring"
+                    ),
+                ]
+            else:
+                # Last step
+                step_actions = [
+                    cl.Action(
+                        name="onboarding_complete",
+                        payload={"action": "complete"},
+                        label="Let's explore!",
+                        description="Start your first exploration"
+                    ),
+                ]
+
+            await cl.Message(content=step_content, actions=step_actions).send()
+            cl.user_session.set("onboarding_step", current_step)
+
+    except Exception as e:
+        logger.warning(f"[ONBOARDING] Error in next step: {e}")
+        await cl.Message(content="What would you like to explore today?").send()
+
+
+@cl.action_callback("onboarding_skip_rest")
+async def on_onboarding_skip_rest(action: cl.Action):
+    """User clicked to skip remaining onboarding steps."""
+    if not SMART_ONBOARDING_ENABLED:
+        return
+
+    try:
+        user = cl.user_session.get("user")
+        session_id = cl.user_session.get("id")
+        user_id = user.identifier if user else session_id or "anonymous"
+
+        mark_onboarding_completed(user_id)
+        cl.user_session.set("onboarding_active", False)
+
+        await cl.Message(
+            content="""**You're all set!**
+
+Now let's put these ideas to work. What problem or opportunity are you thinking about?
+
+*I'll introduce more frameworks as they become relevant.*"""
+        ).send()
+
+    except Exception as e:
+        logger.warning(f"[ONBOARDING] Error skipping rest: {e}")
+        await cl.Message(content="What would you like to explore?").send()
+
+
+@cl.action_callback("onboarding_complete")
+async def on_onboarding_complete(action: cl.Action):
+    """User completed the full onboarding tour."""
+    if not SMART_ONBOARDING_ENABLED:
+        return
+
+    try:
+        user = cl.user_session.get("user")
+        session_id = cl.user_session.get("id")
+        user_id = user.identifier if user else session_id or "anonymous"
+
+        mark_onboarding_completed(user_id)
+        cl.user_session.set("onboarding_active", False)
+
+        await cl.Message(
+            content="""**Excellent! You've got the fundamentals.**
+
+You now know about:
+- **Problems Worth Solving** — finding valuable challenges
+- **Reverse Salients** — identifying bottlenecks
+- **Jobs to Be Done** — understanding real customer needs
+
+Ready to apply these? Tell me about a problem, industry, or idea you're curious about."""
+        ).send()
+
+    except Exception as e:
+        logger.warning(f"[ONBOARDING] Error completing: {e}")
+        await cl.Message(content="What would you like to explore?").send()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -7771,7 +8026,7 @@ async def on_deep_research(action: cl.Action):
 
 @cl.action_callback("arxiv_search")
 async def on_arxiv_search(action: cl.Action):
-    """Search ArXiv for academic papers based on conversation context."""
+    """Search ArXiv for academic papers with humanized contextual analysis."""
     history = cl.user_session.get("history", [])
 
     # BUG FIX: Prioritize the LAST USER MESSAGE as the primary topic
@@ -7787,7 +8042,7 @@ async def on_arxiv_search(action: cl.Action):
 
     msg = cl.Message(content="")
     await msg.send()
-    await msg.stream_token(f"**📚 Finding Academic Evidence**\n*Why: {reason}*\n\n")
+    await msg.stream_token(f"**📚 Analyzing Academic Research**\n*Why: {reason}*\n\n")
 
     # Extract search query from context via Gemini
     qr = client.models.generate_content(
@@ -7795,21 +8050,36 @@ async def on_arxiv_search(action: cl.Action):
         contents=f"Extract a concise academic search query (max 8 words). IMPORTANT: Focus on the MOST RECENT USER TOPIC, not old context. Return ONLY the query:\n\n{context_for_query}",
     )
     search_query = qr.text.strip().strip('"')
+    await msg.stream_token(f"*Searching: {search_query}*\n\n")
 
-    from tools.arxiv_search import search_papers, format_papers_markdown
-    results = search_papers(search_query, max_results=5)
-    formatted = format_papers_markdown(results)
+    from tools.arxiv_search import search_papers
+    results = search_papers(search_query, max_results=7)
 
-    await msg.stream_token(f"**Query:** {search_query}\n\n{formatted}")
+    # Contextualize results - humanize and analyze relevance
+    try:
+        from utils.research_contextualizer import contextualize_research, format_contextualized_output
+        contextualized = await contextualize_research(
+            research_type="academic",
+            raw_results=results,
+            conversation_context=history[-6:],
+            search_query=search_query
+        )
+        formatted = format_contextualized_output(contextualized, "academic", search_query)
+    except Exception as e:
+        logger.warning(f"[ARXIV_SEARCH] Contextualization failed: {e}, using raw format")
+        from tools.arxiv_search import format_papers_markdown
+        formatted = format_papers_markdown(results)
+
+    await msg.stream_token(formatted)
     await msg.update()
 
-    history.append({"role": "model", "content": f"[ArXiv Search: {search_query}]\n{formatted}"})
+    history.append({"role": "model", "content": f"[Academic Analysis: {search_query}]\n{formatted}"})
     cl.user_session.set("history", history)
 
 
 @cl.action_callback("patent_search")
 async def on_patent_search(action: cl.Action):
-    """Search patents based on conversation context."""
+    """Search patents based on conversation context with humanized analysis."""
     history = cl.user_session.get("history", [])
 
     # BUG FIX: Prioritize the LAST USER MESSAGE as the primary topic
@@ -7825,7 +8095,7 @@ async def on_patent_search(action: cl.Action):
 
     msg = cl.Message(content="")
     await msg.send()
-    await msg.stream_token(f"**🔎 Checking Prior Art & Innovation Landscape**\n*Why: {reason}*\n\n")
+    await msg.stream_token(f"**🔎 Analyzing Innovation Landscape**\n*Why: {reason}*\n\n")
 
     # Extract search query from context via Gemini
     qr = client.models.generate_content(
@@ -7833,21 +8103,36 @@ async def on_patent_search(action: cl.Action):
         contents=f"Extract a concise patent search query (max 8 words). IMPORTANT: Focus on the MOST RECENT USER TOPIC, not old context. Return ONLY the query:\n\n{context_for_query}",
     )
     search_query = qr.text.strip().strip('"')
+    await msg.stream_token(f"*Searching: {search_query}*\n\n")
 
-    from tools.patent_search import search_patents, format_patents_markdown
-    results = search_patents(search_query, max_results=5)
-    formatted = format_patents_markdown(results)
+    from tools.patent_search import search_patents
+    results = search_patents(search_query, max_results=7)
 
-    await msg.stream_token(f"**Query:** {search_query}\n\n{formatted}")
+    # Contextualize results - humanize and analyze relevance
+    try:
+        from utils.research_contextualizer import contextualize_research, format_contextualized_output
+        contextualized = await contextualize_research(
+            research_type="patents",
+            raw_results=results,
+            conversation_context=history[-6:],
+            search_query=search_query
+        )
+        formatted = format_contextualized_output(contextualized, "patents", search_query)
+    except Exception as e:
+        logger.warning(f"[PATENT_SEARCH] Contextualization failed: {e}, using raw format")
+        from tools.patent_search import format_patents_markdown
+        formatted = format_patents_markdown(results)
+
+    await msg.stream_token(formatted)
     await msg.update()
 
-    history.append({"role": "model", "content": f"[Patent Search: {search_query}]\n{formatted}"})
+    history.append({"role": "model", "content": f"[Patent Analysis: {search_query}]\n{formatted}"})
     cl.user_session.set("history", history)
 
 
 @cl.action_callback("trends_search")
 async def on_trends_search(action: cl.Action):
-    """Search Google Trends based on conversation context (graph-driven)."""
+    """Search Google Trends with humanized contextual analysis."""
     history = cl.user_session.get("history", [])
 
     # BUG FIX: Prioritize the LAST USER MESSAGE as the primary topic
@@ -7863,7 +8148,7 @@ async def on_trends_search(action: cl.Action):
 
     msg = cl.Message(content="")
     await msg.send()
-    await msg.stream_token(f"**📈 Measuring Trend Momentum**\n*Why: {reason}*\n\n")
+    await msg.stream_token(f"**📈 Analyzing Market Trends**\n*Why: {reason}*\n\n")
 
     # Extract 1-3 trend search terms from context via Gemini
     qr = client.models.generate_content(
@@ -7875,49 +8160,66 @@ async def on_trends_search(action: cl.Action):
         ),
     )
     search_query = qr.text.strip().strip('"')
+    await msg.stream_token(f"*Searching: {search_query}*\n\n")
 
-    from tools.trends_search import search_trends, search_related_queries, format_trends_markdown
+    from tools.trends_search import search_trends, search_related_queries
 
     # Fetch both timeseries and related queries
     timeseries = search_trends(search_query, data_type="TIMESERIES", date="today 12-m")
     related = search_related_queries(search_query)
 
-    ts_formatted = format_trends_markdown(timeseries)
-    rq_formatted = format_trends_markdown(related)
+    # Combine results for contextualization
+    combined_results = {
+        "timeseries": timeseries,
+        "related_queries": related,
+        "search_terms": search_query
+    }
 
-    await msg.stream_token(f"**Terms:** {search_query}\n\n{ts_formatted}\n\n---\n\n{rq_formatted}")
+    # Contextualize results - humanize and analyze relevance
+    try:
+        from utils.research_contextualizer import contextualize_research, format_contextualized_output
+        contextualized = await contextualize_research(
+            research_type="trends",
+            raw_results=combined_results,
+            conversation_context=history[-6:],
+            search_query=search_query
+        )
+        formatted = format_contextualized_output(contextualized, "trends", search_query)
+    except Exception as e:
+        logger.warning(f"[TRENDS_SEARCH] Contextualization failed: {e}, using raw format")
+        from tools.trends_search import format_trends_markdown
+        ts_formatted = format_trends_markdown(timeseries)
+        rq_formatted = format_trends_markdown(related)
+        formatted = f"{ts_formatted}\n\n---\n\n{rq_formatted}"
+
+    await msg.stream_token(formatted)
     await msg.update()
 
-    combined = f"[Google Trends: {search_query}]\n{ts_formatted}\n\n{rq_formatted}"
-    history.append({"role": "model", "content": combined})
+    history.append({"role": "model", "content": f"[Trend Analysis: {search_query}]\n{formatted}"})
     cl.user_session.set("history", history)
 
 
 @cl.action_callback("govdata_search")
 async def on_govdata_search(action: cl.Action):
-    """Search US government data (BLS, FRED, Census) based on conversation context."""
+    """Search US government data with humanized contextual analysis."""
     history = cl.user_session.get("history", [])
 
     # BUG FIX: Prioritize the LAST USER MESSAGE as the primary topic
-    # Extract last user message (most recent topic)
     last_user_msg = ""
     for m in reversed(history):
         if m.get("role") == "user":
             last_user_msg = m.get("content", "")[:200]
             break
 
-    # Include recent context but prioritize current topic
     recent = " ".join([m.get("content", "") for m in history[-4:]])[-300:]
     context_for_query = f"MOST RECENT USER TOPIC: {last_user_msg}\n\nBACKGROUND CONTEXT: {recent}"
-
     reason = action.payload.get("reason", "Graph suggested public data grounding")
 
     msg = cl.Message(content="")
     await msg.send()
-    await msg.stream_token(f"**🏛️ Pulling Public Statistics**\n*Why: {reason}*\n\n")
+    await msg.stream_token(f"**🏛️ Analyzing Public Statistics**\n*Why: {reason}*\n\n")
 
     # Use Gemini to extract a data-oriented query and pick sources
-    # Emphasize that the query should focus on the MOST RECENT USER TOPIC
     qr = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=(
@@ -7936,22 +8238,38 @@ async def on_govdata_search(action: cl.Action):
         sources = parsed.get("sources", ["fred", "bls"])
     except Exception:
         search_query = qr.text.strip().strip('"')[:50]
-        sources = None  # auto-detect
+        sources = None
 
-    from tools.govdata_search import search_govdata, format_govdata_markdown
+    await msg.stream_token(f"*Searching: {search_query}*\n\n")
+
+    from tools.govdata_search import search_govdata
     results = search_govdata(search_query, sources=sources)
-    formatted = format_govdata_markdown(results)
 
-    await msg.stream_token(f"**Query:** {search_query}\n**Sources:** {', '.join(results.get('sources', []))}\n\n{formatted}")
+    # Contextualize results - humanize and analyze relevance
+    try:
+        from utils.research_contextualizer import contextualize_research, format_contextualized_output
+        contextualized = await contextualize_research(
+            research_type="govdata",
+            raw_results=results,
+            conversation_context=history[-6:],
+            search_query=search_query
+        )
+        formatted = format_contextualized_output(contextualized, "govdata", search_query)
+    except Exception as e:
+        logger.warning(f"[GOVDATA_SEARCH] Contextualization failed: {e}, using raw format")
+        from tools.govdata_search import format_govdata_markdown
+        formatted = format_govdata_markdown(results)
+
+    await msg.stream_token(formatted)
     await msg.update()
 
-    history.append({"role": "model", "content": f"[Gov Data: {search_query}]\n{formatted}"})
+    history.append({"role": "model", "content": f"[Data Analysis: {search_query}]\n{formatted}"})
     cl.user_session.set("history", history)
 
 
 @cl.action_callback("dataset_search")
 async def on_dataset_search(action: cl.Action):
-    """Search Kaggle + Socrata for datasets based on conversation context."""
+    """Search datasets with humanized contextual analysis."""
     history = cl.user_session.get("history", [])
 
     # BUG FIX: Prioritize the LAST USER MESSAGE as the primary topic
@@ -7967,7 +8285,7 @@ async def on_dataset_search(action: cl.Action):
 
     msg = cl.Message(content="")
     await msg.send()
-    await msg.stream_token(f"**📊 Finding Raw Data**\n*Why: {reason}*\n\n")
+    await msg.stream_token(f"**📊 Finding Useful Datasets**\n*Why: {reason}*\n\n")
 
     # Extract dataset search query from context via Gemini
     qr = client.models.generate_content(
@@ -7980,21 +8298,36 @@ async def on_dataset_search(action: cl.Action):
         ),
     )
     search_query = qr.text.strip().strip('"')
+    await msg.stream_token(f"*Searching: {search_query}*\n\n")
 
-    from tools.dataset_search import search_datasets, format_datasets_markdown
+    from tools.dataset_search import search_datasets
     results = search_datasets(search_query)
-    formatted = format_datasets_markdown(results)
 
-    await msg.stream_token(f"**Query:** {search_query}\n\n{formatted}")
+    # Contextualize results - humanize and analyze relevance
+    try:
+        from utils.research_contextualizer import contextualize_research, format_contextualized_output
+        contextualized = await contextualize_research(
+            research_type="datasets",
+            raw_results=results,
+            conversation_context=history[-6:],
+            search_query=search_query
+        )
+        formatted = format_contextualized_output(contextualized, "datasets", search_query)
+    except Exception as e:
+        logger.warning(f"[DATASET_SEARCH] Contextualization failed: {e}, using raw format")
+        from tools.dataset_search import format_datasets_markdown
+        formatted = format_datasets_markdown(results)
+
+    await msg.stream_token(formatted)
     await msg.update()
 
-    history.append({"role": "model", "content": f"[Dataset Search: {search_query}]\n{formatted}"})
+    history.append({"role": "model", "content": f"[Dataset Analysis: {search_query}]\n{formatted}"})
     cl.user_session.set("history", history)
 
 
 @cl.action_callback("news_search")
 async def on_news_search(action: cl.Action):
-    """Search NewsMesh for structured news based on conversation context."""
+    """Search news with humanized contextual analysis."""
     history = cl.user_session.get("history", [])
 
     # BUG FIX: Prioritize the LAST USER MESSAGE as the primary topic
@@ -8010,7 +8343,7 @@ async def on_news_search(action: cl.Action):
 
     msg = cl.Message(content="")
     await msg.send()
-    await msg.stream_token(f"**📰 Scanning Current Events**\n*Why: {reason}*\n\n")
+    await msg.stream_token(f"**📰 Analyzing Current Events**\n*Why: {reason}*\n\n")
 
     # Extract news search query + optional category from context via Gemini
     qr = client.models.generate_content(
@@ -8035,15 +8368,31 @@ async def on_news_search(action: cl.Action):
         search_query = qr.text.strip().strip('"')[:40]
         category = None
 
-    from tools.news_search import search_news, format_news_markdown
-    results = search_news(search_query, max_results=5, category=category)
-    formatted = format_news_markdown(results)
-
     cat_label = f" ({category})" if category else ""
-    await msg.stream_token(f"**Query:** {search_query}{cat_label}\n\n{formatted}")
+    await msg.stream_token(f"*Searching: {search_query}{cat_label}*\n\n")
+
+    from tools.news_search import search_news
+    results = search_news(search_query, max_results=7, category=category)
+
+    # Contextualize results - humanize and analyze relevance
+    try:
+        from utils.research_contextualizer import contextualize_research, format_contextualized_output
+        contextualized = await contextualize_research(
+            research_type="news",
+            raw_results=results,
+            conversation_context=history[-6:],
+            search_query=search_query
+        )
+        formatted = format_contextualized_output(contextualized, "news", search_query)
+    except Exception as e:
+        logger.warning(f"[NEWS_SEARCH] Contextualization failed: {e}, using raw format")
+        from tools.news_search import format_news_markdown
+        formatted = format_news_markdown(results)
+
+    await msg.stream_token(formatted)
     await msg.update()
 
-    history.append({"role": "model", "content": f"[News Search: {search_query}]\n{formatted}"})
+    history.append({"role": "model", "content": f"[News Analysis: {search_query}]\n{formatted}"})
     cl.user_session.set("history", history)
 
 
