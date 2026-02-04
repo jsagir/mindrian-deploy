@@ -1,15 +1,88 @@
-# Render Blueprint for Mindrian
-# https://render.com/docs/blueprint-spec
-
+# Exported from Render on 2026-02-04T01:18:46Z
+version: "1"
 services:
-  - type: web
-    name: mindrian
-    env: python
-    buildCommand: |
-      apt-get update && apt-get install -y poppler-utils
-      pip install -r requirements.txt
-    startCommand: chainlit run mindrian_chat.py --host 0.0.0.0 --port $PORT -h
-    envVars:
-      - key: PYTHON_VERSION
-        value: "3.11"
-    autoDeploy: true
+- type: web
+  name: mindrian
+  runtime: python
+  repo: https://github.com/jsagir/mindrian-deploy
+  branch: Triple-mode-v1---RENDER_DEPLOYMENT
+  plan: standard
+  envVars:
+  - key: SENDGRID_API_KEY
+    sync: false
+  - key: TwilloRecovery
+    sync: false
+  - key: DOCAI_PROCESSOR_ID
+    sync: false
+  - key: GOOGLE_APPLICATION_CREDENTIALS_JSON
+    sync: false
+  - key: TAVILY_API_KEY
+    sync: false
+  - key: SUPABASE_URL
+    sync: false
+  - key: SUPABASE_SERVICE_KEY
+    sync: false
+  - key: ACCESS_TOKEN
+    sync: false
+  - key: GCP_LOCATION
+    sync: false
+  - key: GCP_PROJECT_ID
+    sync: false
+  - key: CRON_SECRET
+    sync: false
+  - key: DEFAULT_FROM_EMAIL
+    sync: false
+  - key: SMTP_PASSWORD
+    sync: false
+  - key: SMTP_USER
+    sync: false
+  - key: SMTP_PORT
+    sync: false
+  - key: SMTP_HOST
+    sync: false
+  - key: CHAINLIT_AUTH_SECRET
+    sync: false
+  - key: OAUTH_GOOGLE_CLIENT_SECRET
+    sync: false
+  - key: OAUTH_GOOGLE_CLIENT_ID
+    sync: false
+  - key: CHAINLIT_URL
+    sync: false
+  - key: ANTHROPIC_API_KEY
+    sync: false
+  - key: GOOGLE_FILESEARCH_API_KEY
+    sync: false
+  - key: BLS_API_KEY
+    sync: false
+  - key: NEWSMESH_API_KEY
+    sync: false
+  - key: KAGGLE_API_TOKEN
+    sync: false
+  - key: FRED_API_KEY
+    sync: false
+  - key: SERPAPI_KEY
+    sync: false
+  - key: DEEPGRAM_API_KEY
+    sync: false
+  - key: ELEVENLABS_API_KEY
+    sync: false
+  - key: GOOGLE_API_KEY
+    sync: false
+  - key: CHAINLIT_DATABASE_URL
+    sync: false
+  - key: ELEVENLABS_VOICE_ID
+    sync: false
+  - key: NEO4J_USER
+    sync: false
+  - key: DATABASE_URL
+    sync: false
+  - key: SUPABASE_BUCKET
+    sync: false
+  - key: NEO4J_URI
+    sync: false
+  - key: NEO4J_PASSWORD
+    sync: false
+  region: oregon
+  buildCommand: apt-get update && apt-get install -y poppler-utils && pip install -r requirements.txt
+  startCommand: chainlit run mindrian_chat.py --host 0.0.0.0 --port $PORT
+  autoDeployTrigger: commit

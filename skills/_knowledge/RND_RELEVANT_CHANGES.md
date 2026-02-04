@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-04 03:15*
+*Auto-generated: 2026-02-04 03:17*
 
 ---
 
 ## 2026-02-04
+
+### 🔧 build: Add poppler-utils for PDF-to-image conversion
+
+- **Commit:** `e4da460a`
+- **Author:** jsagir
+- **Files changed:** 5
+  - build.sh
+  - render.yaml
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** - build.sh: Install script with poppler-utils
 
 ### ✨ feat: Smart multi-model document processing (Gemini FREE first)
 
@@ -371,11 +383,3 @@
   - tools/document_ai.py
   - utils/file_processor.py
 - **Details:** Automatic fallback to Google Document AI when standard extraction fails:
-
-### 📝 docs: Add Document AI implementation plan
-
-- **Commit:** `ca14ea4c`
-- **Author:** jsagir
-- **Files changed:** 1
-  - docs/DOCUMENT_AI_IMPLEMENTATION_PLAN.md
-- **Details:** Research and planning for Google Document AI integration:
