@@ -87,6 +87,21 @@ from .sequential_thinking import (
     get_thinking_steps_sync,
 )
 
+from .genesis import (
+    GenesisState,
+    create_genesis_graph,
+    run_genesis_pipeline,
+    format_genesis_report,
+    decompose_context,
+    identify_domains,
+    generate_personas,
+    enrich_with_bono_hats,
+    orchestrate_research,
+    run_expert_panel,
+    synthesize_breakthroughs,
+    DOMAIN_PATTERNS,
+)
+
 __all__ = [
     # Minto Pyramid (deep_research_full)
     "MintoPyramidState",
@@ -134,4 +149,17 @@ __all__ = [
     "create_thinking_pipeline",
     "run_thinking_pipeline",
     "get_thinking_steps_sync",
+    # Genesis Expert Breakdown + BONO
+    "GenesisState",
+    "create_genesis_graph",
+    "run_genesis_pipeline",
+    "format_genesis_report",
+    "decompose_context",
+    "identify_domains",
+    "generate_personas",
+    "enrich_with_bono_hats",
+    "orchestrate_research",
+    "run_expert_panel",
+    "synthesize_breakthroughs",
+    "DOMAIN_PATTERNS",
 ]

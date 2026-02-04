@@ -1,6 +1,6 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-04 14:28*
+*Auto-generated: 2026-02-04 14:38*
 
 ---
 
@@ -197,17 +197,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** PDFs were sometimes being misidentified as images due to Chainlit
-
-## 2026-02-03
-
-### 🐛 fix: Add missing pws_brain search functions for assessment engine
-
-- **Commit:** `76efb851`
-- **Author:** jsagir
-- **Files changed:** 5
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-  - tools/graphrag_lite.py
-  - tools/pws_brain.py
-- **Details:** The assessment_engine.py was importing semantic_search and

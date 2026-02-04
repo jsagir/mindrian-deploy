@@ -9,14 +9,14 @@
 
 import { useState } from "react"
 
-// PWS Tools configuration
+// PWS Tools configuration - Core methodology tools
 const PWS_TOOLS = [
   {
     id: "reverse_salient",
     name: "Reverse Salient",
     icon: "🔓",
     shortDesc: "Find the bottleneck",
-    fullDesc: "Identify the ONE constraint holding everything else back.",
+    whyHelps: "Use when you're stuck. Finds the ONE constraint holding everything back.",
     contextTriggers: ["stuck", "bottleneck", "constraint", "blocking", "infrastructure", "scaling"],
     action: "switch_to_tta",
     color: "#d97706",
@@ -26,7 +26,7 @@ const PWS_TOOLS = [
     name: "Jobs to Be Done",
     icon: "🎯",
     shortDesc: "What job are they hiring?",
-    fullDesc: "People don't buy products — they hire them to make progress.",
+    whyHelps: "Use when exploring customer needs. People hire products to make progress.",
     contextTriggers: ["customer", "user", "buying", "product", "feature", "want", "need"],
     action: "switch_to_jtbd",
     color: "#2563eb",
@@ -36,7 +36,7 @@ const PWS_TOOLS = [
     name: "Trending to Absurd",
     icon: "📈",
     shortDesc: "Take it to extremes",
-    fullDesc: "Extrapolate trends to their logical extreme. What breaks first?",
+    whyHelps: "Use when exploring trends. What happens if this continues? What breaks first?",
     contextTriggers: ["trend", "future", "growing", "changing", "emerging", "AI", "technology"],
     action: "switch_to_tta",
     color: "#7c3aed",
@@ -46,7 +46,7 @@ const PWS_TOOLS = [
     name: "Red Team",
     icon: "💀",
     shortDesc: "Attack your assumptions",
-    fullDesc: "Be your own devil's advocate. Find the flaws before the market does.",
+    whyHelps: "Use when you feel confident. Find the flaws before the market does.",
     contextTriggers: ["assumption", "believe", "think", "confident", "sure", "risk", "compete"],
     action: "switch_to_redteam",
     color: "#dc2626",
@@ -56,7 +56,7 @@ const PWS_TOOLS = [
     name: "S-Curve",
     icon: "📊",
     shortDesc: "Where on the curve?",
-    fullDesc: "Every technology follows slow → rapid → plateau. Timing is everything.",
+    whyHelps: "Use for timing decisions. Is this technology early, rapid growth, or plateauing?",
     contextTriggers: ["timing", "market", "adoption", "mature", "early", "late", "invest"],
     action: "switch_to_scurve",
     color: "#16a34a",
@@ -66,7 +66,7 @@ const PWS_TOOLS = [
     name: "DIKW Pyramid",
     icon: "🔺",
     shortDesc: "Validate understanding",
-    fullDesc: "Data → Information → Knowledge → Wisdom. Don't act on incomplete understanding.",
+    whyHelps: "Use when making decisions. Do you have data, info, knowledge, or wisdom?",
     contextTriggers: ["data", "information", "understand", "decision", "evidence", "know"],
     action: "switch_to_ackoff",
     color: "#4f46e5",
@@ -76,7 +76,7 @@ const PWS_TOOLS = [
     name: "Scenario Analysis",
     icon: "🌐",
     shortDesc: "Multiple futures",
-    fullDesc: "The future is uncertain. Explore multiple plausible paths.",
+    whyHelps: "Use when facing uncertainty. Explore multiple plausible paths forward.",
     contextTriggers: ["future", "uncertain", "might", "could", "planning", "strategy"],
     action: "switch_to_scenario",
     color: "#0891b2",
@@ -86,21 +86,21 @@ const PWS_TOOLS = [
     name: "Beautiful Question",
     icon: "❓",
     shortDesc: "WHY → WHAT IF → HOW",
-    fullDesc: "The quality of your solution depends on the quality of your question.",
+    whyHelps: "Use when stuck on framing. Better questions lead to better solutions.",
     contextTriggers: ["why", "question", "curious", "wonder", "how might"],
     action: "switch_to_beautiful_question",
     color: "#db2777",
   },
 ]
 
-// Advanced LangGraph Pipelines
+// Advanced LangGraph Pipelines - Multi-step analysis tools
 const ADVANCED_TOOLS = [
   {
     id: "minto",
     name: "Minto Pyramid",
     icon: "📋",
     shortDesc: "SCQA structured analysis",
-    fullDesc: "Situation → Complication → Question → Answer.",
+    whyHelps: "Use for complex problems. Situation → Complication → Question → Answer.",
     action: "run_minto_analysis",
     color: "#ea580c",
   },
@@ -109,7 +109,7 @@ const ADVANCED_TOOLS = [
     name: "Multi-Validation",
     icon: "✅",
     shortDesc: "6-perspective stress test",
-    fullDesc: "Six Thinking Hats + research. Test your idea from every angle.",
+    whyHelps: "Use before big decisions. Tests your idea from six thinking hat perspectives.",
     action: "switch_to_validation",
     color: "#059669",
   },
@@ -118,7 +118,7 @@ const ADVANCED_TOOLS = [
     name: "Domain Discovery",
     icon: "🧭",
     shortDesc: "Find your territory",
-    fullDesc: "Analyze your background to find where you can uniquely contribute.",
+    whyHelps: "Use when exploring opportunities. Maps where you can uniquely contribute.",
     action: "switch_to_domain",
     color: "#0d9488",
   },
@@ -127,9 +127,18 @@ const ADVANCED_TOOLS = [
     name: "Oracle Foresight",
     icon: "🔮",
     shortDesc: "Prediction thinking",
-    fullDesc: "Structure predictions with confidence levels.",
+    whyHelps: "Use for forecasting. Structure predictions with confidence and resolution criteria.",
     action: "run_oracle_prediction",
     color: "#8b5cf6",
+  },
+  {
+    id: "genesis",
+    name: "Genesis Expert",
+    icon: "🧠",
+    shortDesc: "Multi-domain expert panel",
+    whyHelps: "Use for breakthrough ideas. Simulates expert panel with Six Hats perspectives.",
+    action: "run_genesis_analysis",
+    color: "#4338ca",
   },
 ]
 
@@ -163,7 +172,7 @@ const styles = {
     bottom: '16px',
     right: '16px',
     zIndex: 9999,
-    width: '280px',
+    width: '300px',
     backgroundColor: 'white',
     borderRadius: '12px',
     boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
@@ -193,17 +202,27 @@ const styles = {
     padding: '4px',
     borderRadius: '4px',
     color: '#6b7280',
+    fontSize: '16px',
   },
   content: {
     padding: '12px',
-    maxHeight: '400px',
+    maxHeight: '500px',
     overflowY: 'auto',
+  },
+  sectionLabel: {
+    fontSize: '11px',
+    fontWeight: '600',
+    color: '#6b7280',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+    marginBottom: '8px',
+    marginTop: '4px',
   },
   toolsGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(4, 1fr)',
     gap: '8px',
-    marginBottom: '12px',
+    marginBottom: '16px',
   },
   toolButton: {
     display: 'flex',
@@ -227,28 +246,10 @@ const styles = {
     marginBottom: '4px',
   },
   toolName: {
-    fontSize: '10px',
+    fontSize: '9px',
     textAlign: 'center',
     color: '#374151',
     lineHeight: '1.2',
-  },
-  advancedToggle: {
-    width: '100%',
-    padding: '8px',
-    backgroundColor: 'transparent',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '12px',
-    color: '#6b7280',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '4px',
-  },
-  advancedSection: {
-    borderTop: '1px solid #e5e7eb',
-    paddingTop: '12px',
-    marginTop: '8px',
   },
   tooltip: {
     position: 'absolute',
@@ -258,28 +259,39 @@ const styles = {
     marginRight: '8px',
     backgroundColor: '#1f2937',
     color: 'white',
-    padding: '8px 12px',
-    borderRadius: '6px',
+    padding: '10px 14px',
+    borderRadius: '8px',
     fontSize: '12px',
-    width: '200px',
+    width: '220px',
     zIndex: 10000,
-    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
   },
   tooltipTitle: {
     fontWeight: '600',
-    marginBottom: '4px',
+    marginBottom: '6px',
+    fontSize: '13px',
   },
-  tooltipDesc: {
-    color: '#d1d5db',
+  tooltipShort: {
+    color: '#a5b4fc',
     fontSize: '11px',
+    marginBottom: '6px',
+  },
+  tooltipWhy: {
+    color: '#fcd34d',
+    fontSize: '11px',
+    fontStyle: 'italic',
+    lineHeight: '1.4',
   },
   contextHint: {
     textAlign: 'center',
     fontSize: '10px',
     color: '#9ca3af',
-    marginTop: '12px',
     padding: '8px',
     borderTop: '1px solid #e5e7eb',
+  },
+  divider: {
+    borderTop: '1px solid #e5e7eb',
+    margin: '8px 0',
   },
 }
 
@@ -292,7 +304,6 @@ export default function ToolsPanel() {
   } = props || {}
 
   const [isExpanded, setIsExpanded] = useState(initialExpanded)
-  const [showAdvanced, setShowAdvanced] = useState(false)
   const [hoveredTool, setHoveredTool] = useState(null)
 
   // Check if tool is relevant to current conversation
@@ -320,6 +331,55 @@ export default function ToolsPanel() {
     return 0
   })
 
+  // Render tool button with tooltip
+  const renderToolButton = (tool, isAdvanced = false) => {
+    const isRelevant = !isAdvanced && getRelevance(tool)
+    const isHovered = hoveredTool === tool.id
+
+    return (
+      <div key={tool.id} style={{ position: 'relative' }}>
+        <button
+          style={{
+            ...styles.toolButton,
+            ...(isRelevant ? styles.toolButtonRelevant : {}),
+            backgroundColor: isHovered ? '#f3f4f6' : (isRelevant ? '#eff6ff' : 'white'),
+            borderColor: isHovered ? tool.color : (isRelevant ? '#3b82f6' : '#e5e7eb'),
+          }}
+          onClick={() => handleToolClick(tool)}
+          onMouseEnter={() => setHoveredTool(tool.id)}
+          onMouseLeave={() => setHoveredTool(null)}
+        >
+          <span style={{ ...styles.toolIcon, color: tool.color }}>
+            {tool.icon}
+          </span>
+          <span style={styles.toolName}>
+            {tool.name.split(" ")[0]}
+          </span>
+          {isRelevant && (
+            <span style={{
+              position: 'absolute',
+              top: '-4px',
+              right: '-4px',
+              width: '8px',
+              height: '8px',
+              backgroundColor: '#3b82f6',
+              borderRadius: '50%',
+            }} />
+          )}
+        </button>
+
+        {/* Tooltip on hover */}
+        {isHovered && (
+          <div style={styles.tooltip}>
+            <div style={styles.tooltipTitle}>{tool.name}</div>
+            <div style={styles.tooltipShort}>{tool.shortDesc}</div>
+            <div style={styles.tooltipWhy}>{tool.whyHelps}</div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
   // Collapsed state
   if (!isExpanded) {
     return (
@@ -343,7 +403,7 @@ export default function ToolsPanel() {
     )
   }
 
-  // Expanded state
+  // Expanded state - all tools visible
   return (
     <div style={styles.expandedContainer}>
       {/* Header */}
@@ -362,108 +422,20 @@ export default function ToolsPanel() {
 
       {/* Content */}
       <div style={styles.content}>
-        {/* Main Tools Grid */}
+        {/* Core PWS Tools */}
+        <div style={styles.sectionLabel}>Core Frameworks</div>
         <div style={styles.toolsGrid}>
-          {sortedTools.map((tool) => {
-            const isRelevant = getRelevance(tool)
-            const isHovered = hoveredTool === tool.id
-
-            return (
-              <div key={tool.id} style={{ position: 'relative' }}>
-                <button
-                  style={{
-                    ...styles.toolButton,
-                    ...(isRelevant ? styles.toolButtonRelevant : {}),
-                    backgroundColor: isHovered ? '#f3f4f6' : (isRelevant ? '#eff6ff' : 'white'),
-                  }}
-                  onClick={() => handleToolClick(tool)}
-                  onMouseEnter={() => setHoveredTool(tool.id)}
-                  onMouseLeave={() => setHoveredTool(null)}
-                >
-                  <span style={{ ...styles.toolIcon, color: tool.color }}>
-                    {tool.icon}
-                  </span>
-                  <span style={styles.toolName}>
-                    {tool.name.split(" ")[0]}
-                  </span>
-                  {isRelevant && (
-                    <span style={{
-                      position: 'absolute',
-                      top: '-4px',
-                      right: '-4px',
-                      width: '8px',
-                      height: '8px',
-                      backgroundColor: '#3b82f6',
-                      borderRadius: '50%',
-                    }} />
-                  )}
-                </button>
-
-                {/* Tooltip on hover */}
-                {isHovered && (
-                  <div style={styles.tooltip}>
-                    <div style={styles.tooltipTitle}>{tool.name}</div>
-                    <div style={styles.tooltipDesc}>{tool.shortDesc}</div>
-                    <div style={{ ...styles.tooltipDesc, marginTop: '4px', fontStyle: 'italic' }}>
-                      {tool.fullDesc}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )
-          })}
+          {sortedTools.map((tool) => renderToolButton(tool, false))}
         </div>
 
-        {/* Advanced Tools Toggle */}
-        <button
-          style={styles.advancedToggle}
-          onClick={() => setShowAdvanced(!showAdvanced)}
-        >
-          {showAdvanced ? "▲" : "▼"} {showAdvanced ? "Hide" : "Show"} Advanced Pipelines
-        </button>
+        {/* Divider */}
+        <div style={styles.divider} />
 
-        {/* Advanced Tools */}
-        {showAdvanced && (
-          <div style={styles.advancedSection}>
-            <div style={styles.toolsGrid}>
-              {ADVANCED_TOOLS.map((tool) => {
-                const isHovered = hoveredTool === tool.id
-
-                return (
-                  <div key={tool.id} style={{ position: 'relative' }}>
-                    <button
-                      style={{
-                        ...styles.toolButton,
-                        backgroundColor: isHovered ? '#f3f4f6' : 'white',
-                      }}
-                      onClick={() => handleToolClick(tool)}
-                      onMouseEnter={() => setHoveredTool(tool.id)}
-                      onMouseLeave={() => setHoveredTool(null)}
-                    >
-                      <span style={{ ...styles.toolIcon, color: tool.color }}>
-                        {tool.icon}
-                      </span>
-                      <span style={styles.toolName}>
-                        {tool.name.split(" ")[0]}
-                      </span>
-                    </button>
-
-                    {/* Tooltip */}
-                    {isHovered && (
-                      <div style={styles.tooltip}>
-                        <div style={styles.tooltipTitle}>{tool.name}</div>
-                        <div style={styles.tooltipDesc}>{tool.shortDesc}</div>
-                        <div style={{ ...styles.tooltipDesc, marginTop: '4px', fontStyle: 'italic' }}>
-                          {tool.fullDesc}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        )}
+        {/* Advanced Pipelines - Always visible */}
+        <div style={styles.sectionLabel}>Advanced Pipelines</div>
+        <div style={styles.toolsGrid}>
+          {ADVANCED_TOOLS.map((tool) => renderToolButton(tool, true))}
+        </div>
 
         {/* Context indicator */}
         {conversationContext && (

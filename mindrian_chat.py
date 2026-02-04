@@ -78,15 +78,22 @@ class CronEndpointMiddleware(BaseHTTPMiddleware):
                     })
                 else:
                     # Combine stderr and stdout for better error reporting
-                    error_msg = result.stderr[-500:] if result.stderr else ""
-                    if not error_msg and result.stdout:
-                        # Fallback to stdout if stderr is empty (legacy error messages)
-                        error_msg = result.stdout[-500:]
+                    error_msg = result.stderr.strip() if result.stderr else ""
+                    stdout_msg = result.stdout.strip() if result.stdout else ""
+
+                    # Check for common config issues
+                    if "Email not configured" in error_msg or "Email not configured" in stdout_msg:
+                        return JSONResponse(status_code=503, content={
+                            "success": False,
+                            "error": "Email not configured. Set SMTP_USER/SMTP_PASSWORD or SENDGRID_API_KEY in Render environment.",
+                            "hint": "Add email credentials to Render > Environment"
+                        })
+
                     return JSONResponse(status_code=500, content={
                         "success": False,
-                        "error": error_msg or "Unknown error",
-                        "stdout": result.stdout[-200:] if result.stdout else "",
-                        "stderr": result.stderr[-200:] if result.stderr else ""
+                        "error": error_msg[-500:] if error_msg else stdout_msg[-500:] or "Unknown error",
+                        "stdout": stdout_msg[-200:],
+                        "stderr": error_msg[-200:]
                     })
             except subprocess.TimeoutExpired:
                 return JSONResponse(status_code=500, content={"success": False, "error": "Timeout after 5 minutes"})
@@ -310,6 +317,9 @@ try:
         # Minto Pyramid (already used)
         run_minto_pipeline,
         format_minto_result,
+        # Genesis Expert Breakdown (multi-agent + BONO)
+        run_genesis_pipeline,
+        format_genesis_report,
     )
     LANGGRAPH_PIPELINES_ENABLED = True
     print("LangGraph Pipelines enabled (BONO, RS, Domain, Oracle, Router)")
@@ -322,8 +332,10 @@ except ImportError as e:
     async def run_domain_discovery(*args, **kwargs): return {"error": "Pipeline not available"}
     async def run_oracle_formulation(*args, **kwargs): return {"error": "Pipeline not available"}
     async def run_grading_pipeline(*args, **kwargs): return {"error": "Pipeline not available"}
+    async def run_genesis_pipeline(*args, **kwargs): return {"error": "Pipeline not available"}
     def format_bono_report(*args, **kwargs): return "Pipeline not available"
     def format_reverse_salient_result(*args, **kwargs): return "Pipeline not available"
+    def format_genesis_report(*args, **kwargs): return "Pipeline not available"
     HAT_SEQUENCES = {}
     HAT_ICONS = {}
 
@@ -12180,3 +12192,66 @@ async def on_run_minto_analysis(action: cl.Action):
         await msg.stream_token(f"\n\n❌ Error: {str(e)[:200]}")
         await msg.update()
         print(f"[Minto] Pipeline error: {e}")
+
+
+@cl.action_callback("run_genesis_analysis")
+async def on_run_genesis_analysis(action: cl.Action):
+    """Run Genesis Expert Breakdown pipeline (multi-domain + BONO Six Hats)."""
+    if not LANGGRAPH_PIPELINES_ENABLED:
+        await cl.Message(content="Genesis pipeline not available. Please check system configuration.").send()
+        return
+
+    history = cl.user_session.get("history", [])
+    session_id = str(cl.user_session.get("id", "default"))
+
+    # Extract challenge from recent conversation - Genesis needs 50+ chars
+    recent_context = " ".join([m.get("content", "") for m in history[-6:]])[-3000:]
+
+    if len(recent_context.strip()) < 50:
+        await cl.Message(content="Please describe a multi-domain challenge first (at least 50 characters), then run Genesis analysis.").send()
+        return
+
+    # Show progress
+    msg = cl.Message(content="")
+    await msg.send()
+    await msg.stream_token("## 🧠 Genesis Expert Breakdown\n\n")
+    await msg.stream_token("Building cross-domain expert panel with Six Thinking Hats...\n\n")
+
+    # Progress phases (6 stages of Genesis)
+    phases = [
+        "🔍 Stage 1: Decomposing challenge context",
+        "🌐 Stage 2: Identifying relevant domains (24 patterns)",
+        "👥 Stage 3: Generating expert personas + Six Hats",
+        "📋 Stage 4: Orchestrating research collaboration",
+        "🎭 Stage 5: Running expert panel discussion (4 rounds)",
+        "💡 Stage 6: Synthesizing breakthroughs & roadmaps"
+    ]
+    for phase in phases:
+        await msg.stream_token(f"- {phase}...\n")
+
+    try:
+        # Run the Genesis pipeline
+        result = await run_genesis_pipeline(
+            challenge=recent_context,
+            session_id=session_id
+        )
+
+        if result.get("error"):
+            await msg.stream_token(f"\n\n⚠️ Pipeline error: {result['error']}")
+            await msg.update()
+            return
+
+        # Format and display results
+        await msg.stream_token("\n\n---\n\n")
+        report = format_genesis_report(result)
+        await msg.stream_token(report)
+        await msg.update()
+
+        # Add to history
+        history.append({"role": "model", "content": f"[Genesis Expert Breakdown]\n{report[:2000]}"})
+        cl.user_session.set("history", history)
+
+    except Exception as e:
+        await msg.stream_token(f"\n\n❌ Error: {str(e)[:200]}")
+        await msg.update()
+        print(f"[Genesis] Pipeline error: {e}")

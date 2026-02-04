@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-04 14:28*
+*Auto-generated: 2026-02-04 14:38*
 
 ---
 
 ## 2026-02-04
+
+### 📝 docs: Add R&D/21_genesis_expert_breakdown for Swarm+LangGraph integration
+
+- **Commit:** `376c18d8`
+- **Author:** jsagir
+- **Files changed:** 11
+  - R&D/21_genesis_expert_breakdown/README.md
+  - R&D/21_genesis_expert_breakdown/SKILL.md
+  - R&D/21_genesis_expert_breakdown/agent_config.py
+  - R&D/21_genesis_expert_breakdown/decompose_context.py
+  - R&D/21_genesis_expert_breakdown/generate_personas.py
+- **Details:** Genesis Engine multi-agent system from agents-midrian:
 
 ### 📝 docs: Add R&D/20_pws_thinking_streamer for future reference
 
@@ -554,15 +566,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** README updates:
-
-### 🐛 fix: Add missing pws_brain search functions for assessment engine
-
-- **Commit:** `76efb851`
-- **Author:** jsagir
-- **Files changed:** 5
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-  - tools/graphrag_lite.py
-  - tools/pws_brain.py
-- **Details:** The assessment_engine.py was importing semantic_search and

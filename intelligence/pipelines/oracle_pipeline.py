@@ -29,8 +29,18 @@ from langgraph.graph import StateGraph, END
 from google import genai
 from google.genai import types
 
-# Initialize client
-_client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
+# Lazy client initialization
+_client = None
+
+def _get_client():
+    """Lazily initialize Gemini client."""
+    global _client
+    if _client is None:
+        api_key = os.getenv("GOOGLE_API_KEY")
+        if not api_key:
+            raise ValueError("GOOGLE_API_KEY environment variable is required")
+        _client = genai.Client(api_key=api_key)
+    return _client
 
 
 # =============================================================================
@@ -214,7 +224,7 @@ Respond in JSON format matching this schema:
 }}"""
 
     try:
-        response = _client.models.generate_content(
+        response = _get_client().models.generate_content(
             model="gemini-2.5-flash",
             contents=prompt,
             config=types.GenerateContentConfig(
@@ -452,7 +462,7 @@ Format as JSON array:
 ]"""
 
     try:
-        response = _client.models.generate_content(
+        response = _get_client().models.generate_content(
             model="gemini-2.5-flash",
             contents=prompt,
             config=types.GenerateContentConfig(
@@ -527,7 +537,7 @@ Output as JSON:
 }}"""
 
     try:
-        response = _client.models.generate_content(
+        response = _get_client().models.generate_content(
             model="gemini-2.5-flash",
             contents=prompt,
             config=types.GenerateContentConfig(
@@ -636,7 +646,7 @@ Output as JSON:
 }}"""
 
     try:
-        response = _client.models.generate_content(
+        response = _get_client().models.generate_content(
             model="gemini-2.5-flash",
             contents=prompt,
             config=types.GenerateContentConfig(
