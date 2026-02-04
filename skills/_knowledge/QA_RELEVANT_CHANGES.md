@@ -1,10 +1,21 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-04 15:21*
+*Auto-generated: 2026-02-04 15:23*
 
 ---
 
 ## 2026-02-04
+
+### 🐛 fix: Configure Gemini API key in Genesis panel.py
+
+- **Commit:** `e2b79845`
+- **Author:** jsagir
+- **Files changed:** 4
+  - intelligence/pipelines/genesis/panel.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Genesis expert panel was missing genai.configure() call,
 
 ### 🐛 fix: Rewrite ToolsPanel with inline styles for Chainlit compatibility
 

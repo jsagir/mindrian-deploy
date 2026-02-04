@@ -1,10 +1,21 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-04 15:21*
+*Auto-generated: 2026-02-04 15:23*
 
 ---
 
 ## 2026-02-04
+
+### 🐛 fix: Configure Gemini API key in Genesis panel.py
+
+- **Commit:** `e2b79845`
+- **Author:** jsagir
+- **Files changed:** 4
+  - intelligence/pipelines/genesis/panel.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Genesis expert panel was missing genai.configure() call,
 
 ### ✨ feat: Add Genesis Expert Breakdown pipeline + UI improvements
 
@@ -555,14 +566,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** Replaced simple mindmap-only "Map Ideas" with intelligent visualization that
-
-### ✨ feat: Complete Opportunity Bank UI integration
-
-- **Commit:** `0a564a26`
-- **Author:** jsagir
-- **Files changed:** 4
-  - mindrian_chat.py
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** Added missing UI integration for Opportunity Bank feature:
