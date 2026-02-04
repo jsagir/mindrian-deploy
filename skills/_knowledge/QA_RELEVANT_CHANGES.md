@@ -1,6 +1,6 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-04 02:30*
+*Auto-generated: 2026-02-04 02:33*
 
 ---
 
@@ -176,15 +176,3 @@
 - **Files changed:** 1
   - docs/QA_TESTING_GUIDE.md
 - **Details:** Comprehensive testing guide covering:
-
-### ✨ feat: Add A2A orchestration with smart routing and Red Team middleware
-
-- **Commit:** `44fecb44`
-- **Author:** jsagir
-- **Files changed:** 5
-  - protocols/__init__.py
-  - protocols/chat_integration.py
-  - protocols/orchestrator.py
-  - tests/__init__.py
-  - tests/test_classifier.py
-- **Details:** What this adds:

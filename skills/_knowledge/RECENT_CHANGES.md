@@ -1,10 +1,28 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-04 02:30*
+*Auto-generated: 2026-02-04 02:33*
 
 ---
 
 ## 2026-02-04
+
+### 📝 docs: Update README with Admin Tools, Memory, and v3.1 features
+
+- **Commit:** `5b0c474d`
+- **Author:** jsagir
+- **Files changed:** 1
+  - README.md
+- **Details:** Added:
+
+### 📝 docs: Update knowledge base (auto-generated)
+
+- **Commit:** `cb280d80`
+- **Author:** jsagir
+- **Files changed:** 3
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 
 ### ✨ feat: Add conversation sampler CLI + Streamlit admin dashboard
 
@@ -503,26 +521,3 @@
 - **Files changed:** 1
   - docs/QA_TESTING_GUIDE.md
 - **Details:** Comprehensive testing guide covering:
-
-### ✨ feat: Enable A2A orchestration + Supabase storage
-
-- **Commit:** `fa4e286f`
-- **Author:** jsagir
-- **Files changed:** 4
-  - protocols/__init__.py
-  - protocols/chat_integration.py
-  - protocols/orchestrator.py
-  - protocols/supabase_storage.py
-- **Details:** Changes:
-
-### ✨ feat: Add A2A orchestration with smart routing and Red Team middleware
-
-- **Commit:** `44fecb44`
-- **Author:** jsagir
-- **Files changed:** 5
-  - protocols/__init__.py
-  - protocols/chat_integration.py
-  - protocols/orchestrator.py
-  - tests/__init__.py
-  - tests/test_classifier.py
-- **Details:** What this adds:
