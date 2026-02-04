@@ -240,6 +240,29 @@ except ImportError as e:
     UI_ELEMENTS_ENABLED = False
     print(f"UI Elements not available: {e}")
 
+# === Bounded History Manager - Prevent memory leaks ===
+try:
+    from utils.history_manager import (
+        add_to_history,
+        get_bounded_history,
+        compact_history_if_needed,
+        MAX_HISTORY_LENGTH,
+    )
+    HISTORY_MANAGER_ENABLED = True
+    print(f"History Manager enabled (max {MAX_HISTORY_LENGTH} messages)")
+except ImportError as e:
+    HISTORY_MANAGER_ENABLED = False
+    print(f"History Manager not available: {e}")
+    # Fallback stubs
+    MAX_HISTORY_LENGTH = 50
+    def add_to_history(history, role, content, **kwargs):
+        history.append({"role": role, "content": content})
+        return history[-MAX_HISTORY_LENGTH:]
+    def get_bounded_history(history, **kwargs):
+        return history[-MAX_HISTORY_LENGTH:]
+    def compact_history_if_needed(history, **kwargs):
+        return history
+
 # === LangGraph Pipelines - Advanced multi-step workflows ===
 try:
     from intelligence.pipelines import (
@@ -9293,9 +9316,9 @@ Your insights help us improve Mindrian!"""
                     report_md = format_validation_report(state)
                     await cl.Message(content=report_md).send()
 
-                    # Update history with the report
-                    history.append({"role": "user", "content": message.content})
-                    history.append({"role": "model", "content": report_md})
+                    # Update history with bounded sliding window
+                    history = add_to_history(history, "user", message.content)
+                    history = add_to_history(history, "model", report_md)
                     cl.user_session.set("history", history)
 
                     # Store validation summary for potential follow-up (avoid storing complex dataclass)
@@ -9612,9 +9635,9 @@ The user expects you to be responsive to what they JUST said, not to lecture fro
 
         await msg.update()
 
-        # Update history
-        history.append({"role": "user", "content": message.content})
-        history.append({"role": "model", "content": full_response})
+        # Update history with bounded sliding window (prevents memory leaks)
+        history = add_to_history(history, "user", message.content)
+        history = add_to_history(history, "model", full_response)
         cl.user_session.set("history", history)
 
         # === Per-User LazyGraph Memory: Process turn and extract entities ===

@@ -56,7 +56,7 @@ except ImportError:
 # LightRAG for document-based knowledge graph
 LIGHTRAG_URL = os.getenv("LIGHTRAG_URL", "https://mondrian-ts.onrender.com")
 LIGHTRAG_USERNAME = os.getenv("LIGHTRAG_USERNAME", "jsagir")
-LIGHTRAG_PASSWORD = os.getenv("LIGHTRAG_PASSWORD", "12345678")
+LIGHTRAG_PASSWORD = os.getenv("LIGHTRAG_PASSWORD")  # Required - no default
 LIGHTRAG_AVAILABLE = bool(LIGHTRAG_URL)
 
 # Supabase for persistence

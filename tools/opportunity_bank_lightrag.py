@@ -33,7 +33,7 @@ logger = logging.getLogger("opportunity_bank_lightrag")
 # === Configuration ===
 LIGHTRAG_URL = os.getenv("LIGHTRAG_URL", "https://mondrian-ts.onrender.com")
 LIGHTRAG_USERNAME = os.getenv("LIGHTRAG_USERNAME", "jsagir")
-LIGHTRAG_PASSWORD = os.getenv("LIGHTRAG_PASSWORD", "12345678")
+LIGHTRAG_PASSWORD = os.getenv("LIGHTRAG_PASSWORD")  # Required - no default
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 # Import existing opportunity bank

@@ -25,7 +25,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # === Configuration ===
 LIGHTRAG_URL = os.getenv("LIGHTRAG_URL", "https://mondrian-ts.onrender.com")
 LIGHTRAG_USERNAME = os.getenv("LIGHTRAG_USERNAME", "jsagir")
-LIGHTRAG_PASSWORD = os.getenv("LIGHTRAG_PASSWORD", "12345678")
+LIGHTRAG_PASSWORD = os.getenv("LIGHTRAG_PASSWORD")  # Required - no default
 OPPORTUNITIES_FILE = Path(__file__).parent.parent / "qa" / "extracted_opportunities.json"
 
 

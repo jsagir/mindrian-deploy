@@ -252,35 +252,61 @@ def _get_params_for_purpose(purpose: str) -> Dict[str, Any]:
 async def discovery_search(queries: List[AtomicQuery]) -> List[Dict]:
     """
     Execute discovery searches to map the research landscape.
+    Uses asyncio.gather() for parallel execution.
     """
     from tools.tavily_search import search_web
 
-    results = []
-
     # Sort by priority
-    sorted_queries = sorted(queries, key=lambda q: q.priority)
+    sorted_queries = sorted(queries, key=lambda q: q.priority)[:5]  # Max 5 discovery queries
 
-    for query in sorted_queries[:5]:  # Max 5 discovery queries
+    async def execute_single_search(query: AtomicQuery) -> Dict:
+        """Execute a single search (wrapped for async)."""
         try:
-            result = search_web(
-                query=query.query,
-                search_depth=query.params.get("search_depth", "basic"),
-                max_results=query.params.get("max_results", 8),
+            # Run sync search_web in executor to not block
+            loop = asyncio.get_event_loop()
+            result = await loop.run_in_executor(
+                None,  # Use default executor
+                lambda: search_web(
+                    query=query.query,
+                    search_depth=query.params.get("search_depth", "basic"),
+                    max_results=query.params.get("max_results", 8),
+                )
             )
 
-            results.append({
+            logger.info("Discovery: '%s' → %d results", query.query[:50], len(result.get("results", [])))
+
+            return {
                 "query": query.query,
                 "purpose": query.purpose,
                 "results": result.get("results", []),
                 "answer": result.get("answer", ""),
-            })
-
-            logger.info("Discovery: '%s' → %d results", query.query[:50], len(result.get("results", [])))
+            }
 
         except Exception as e:
             logger.error("Discovery search failed for '%s': %s", query.query[:50], e)
+            return {
+                "query": query.query,
+                "purpose": query.purpose,
+                "results": [],
+                "answer": "",
+                "error": str(e),
+            }
 
-    return results
+    # Execute ALL searches in parallel using asyncio.gather()
+    results = await asyncio.gather(
+        *[execute_single_search(q) for q in sorted_queries],
+        return_exceptions=True
+    )
+
+    # Filter out exceptions and return valid results
+    valid_results = []
+    for r in results:
+        if isinstance(r, Exception):
+            logger.error("Discovery search exception: %s", r)
+        elif isinstance(r, dict):
+            valid_results.append(r)
+
+    return valid_results
 
 
 # ============================================================================
@@ -440,36 +466,54 @@ async def deep_extract(
 ) -> List[Dict]:
     """
     Extract full content from high-priority sources.
+    Uses asyncio.gather() for parallel extraction.
     """
     from tools.tavily_search import get_search_context
-
-    extractions = []
 
     # Get top priority sources
     priority_sources = [s for s in sources if s.extract_priority <= 2][:max_extractions]
 
-    for source in priority_sources:
+    async def extract_single_source(source: SourceEvaluation) -> Optional[Dict]:
+        """Extract content from a single source (wrapped for async)."""
         try:
-            # Use Tavily to get content
-            # FIX: Add source.title to query - site: operator alone fails
-            context = get_search_context(
-                query=f"{source.title} site:{source.url}",
-                max_results=1,
-                max_tokens=3000,
+            # Run sync get_search_context in executor to not block
+            loop = asyncio.get_event_loop()
+            context = await loop.run_in_executor(
+                None,  # Use default executor
+                lambda: get_search_context(
+                    query=f"{source.title} site:{source.url}",
+                    max_results=1,
+                    max_tokens=3000,
+                )
             )
 
-            extractions.append({
+            logger.info("Extracted: %s (authority: %.2f)", source.url[:50], source.authority_score)
+
+            return {
                 "url": source.url,
                 "title": source.title,
                 "category": source.category,
                 "authority": source.authority_score,
                 "content": context if isinstance(context, str) else str(context),
-            })
-
-            logger.info("Extracted: %s (authority: %.2f)", source.url[:50], source.authority_score)
+            }
 
         except Exception as e:
             logger.warning("Extraction failed for %s: %s", source.url[:50], e)
+            return None
+
+    # Execute ALL extractions in parallel using asyncio.gather()
+    results = await asyncio.gather(
+        *[extract_single_source(s) for s in priority_sources],
+        return_exceptions=True
+    )
+
+    # Filter out None values and exceptions
+    extractions = []
+    for r in results:
+        if isinstance(r, Exception):
+            logger.error("Extraction exception: %s", r)
+        elif r is not None:
+            extractions.append(r)
 
     return extractions
 

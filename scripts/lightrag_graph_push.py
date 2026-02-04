@@ -32,7 +32,7 @@ from datetime import datetime
 # === Configuration ===
 LIGHTRAG_URL = "https://mondrian-ts.onrender.com"
 LIGHTRAG_USERNAME = "jsagir"
-LIGHTRAG_PASSWORD = "12345678"
+LIGHTRAG_PASSWORD = os.getenv("LIGHTRAG_PASSWORD")  # Required - no default
 CHUNK_FILE = "/home/jsagi/pws_chunks_filtered.json"
 PROGRESS_FILE = "/home/jsagi/Mindrian/mindrian-deploy/scripts/lightrag_graph_progress.json"
 

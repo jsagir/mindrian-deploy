@@ -15,6 +15,7 @@ Usage:
   python lightrag_gentle_upload.py --resume      # Continue from last progress
 """
 
+import os
 import json
 import time
 import argparse
@@ -25,7 +26,7 @@ from datetime import datetime
 # Configuration
 LIGHTRAG_URL = "https://mondrian-ts.onrender.com"
 LIGHTRAG_USERNAME = "jsagir"
-LIGHTRAG_PASSWORD = "12345678"
+LIGHTRAG_PASSWORD = os.getenv("LIGHTRAG_PASSWORD")  # Required - no default
 CHUNK_FILES = [
     "/home/jsagi/pws_chunks_filtered.json",  # Filtered: 100+ chars only (756 chunks)
     # "/home/jsagi/pws_chunks.json",  # Original 1136 (includes garbage <100 char chunks)
