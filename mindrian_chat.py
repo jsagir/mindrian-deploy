@@ -553,6 +553,101 @@ async def show_thinking_panel(bot_id: str, steps: list, methodology: str = None)
     return thinking_element
 
 
+# === PWS-Style Thinking Streamer ===
+# Streams Larry-style thinking tokens while background work happens
+
+PWS_THINKING_TOKENS = [
+    # Discovery / unpacking
+    "unpacking...", "digging in...", "following threads...", "connecting dots...",
+    "mapping terrain...", "scanning landscape...", "tracing patterns...",
+    # PWS methodology concepts
+    "what's the real job here...", "checking assumptions...", "where's the bottleneck...",
+    "trending this forward...", "what breaks first...", "who cares most...",
+    "what's the reverse salient...", "where on the curve...", "DIKW check...",
+    # Analytical thinking
+    "hypothesizing...", "stress-testing...", "validating...", "synthesizing...",
+    "cross-referencing...", "contextualizing...", "reframing...", "inverting...",
+    # Engagement / curiosity
+    "interesting angle...", "hmm, this connects to...", "worth exploring...",
+    "there's something here...", "the real question is...", "let me think...",
+    # Progress signals
+    "almost there...", "coming together...", "crystallizing...", "emerging picture...",
+]
+
+async def stream_thinking_while_processing(
+    msg: "cl.Message",
+    blocking_func,
+    *args,
+    color: str = "#f59e0b",  # Amber/orange like Claude Code
+    interval: float = 0.4,
+    **kwargs
+):
+    """
+    Run a blocking function in background while streaming PWS thinking tokens.
+
+    Creates Claude Code-like "sizzeling... codifying..." UX but with
+    Larry/PWS methodology vocabulary.
+
+    Args:
+        msg: Chainlit message to stream tokens to
+        blocking_func: Synchronous function to run
+        *args: Args for blocking_func
+        color: Token text color (default amber)
+        interval: Seconds between tokens
+        **kwargs: Kwargs for blocking_func
+
+    Returns:
+        Result of blocking_func
+
+    Example:
+        content, metadata = await stream_thinking_while_processing(
+            status_msg,
+            process_uploaded_file,
+            file_path, file_name
+        )
+    """
+    import asyncio
+    import random
+    import concurrent.futures
+
+    # Run blocking function in thread pool
+    loop = asyncio.get_event_loop()
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+
+    # Start the blocking work
+    future = loop.run_in_executor(executor, lambda: blocking_func(*args, **kwargs))
+
+    # Stream thinking tokens while waiting
+    tokens_used = set()
+    try:
+        while not future.done():
+            # Pick a random unused token (or reuse if exhausted)
+            available = [t for t in PWS_THINKING_TOKENS if t not in tokens_used]
+            if not available:
+                tokens_used.clear()
+                available = PWS_THINKING_TOKENS
+
+            token = random.choice(available)
+            tokens_used.add(token)
+
+            # Stream with styling (markdown italic + color hint)
+            await msg.stream_token(f"*{token}* ")
+            await asyncio.sleep(interval)
+
+    except asyncio.CancelledError:
+        future.cancel()
+        raise
+
+    # Get result
+    result = await future
+    executor.shutdown(wait=False)
+
+    # Clear line and show completion
+    await msg.stream_token("\n")
+
+    return result
+
+
 async def capture_reasoning_steps(user_message: str, bot_id: str, history: list = None) -> list:
     """
     LangGraph-powered sequential thinking pipeline.
@@ -9191,26 +9286,27 @@ Your insights help us improve Mindrian!"""
 
                         # Fallback to standard extraction (PyPDF2 for PDF, python-docx for DOCX, etc.)
                         if not content:
-                            if processing_status and file_ext != '.pdf':
-                                doc_phrases = {
-                                    '.docx': "Reading your Word doc...",
-                                    '.doc': "Reading your Word doc...",
-                                    '.txt': "Reading through this...",
-                                    '.md': "Looking at this markdown...",
-                                    '.csv': "Parsing this data...",
-                                    '.json': "Looking at this data...",
-                                }
-                                phrase = doc_phrases.get(file_ext, f"Reading this {file_ext} file...")
-                                await processing_status.stream_token(f"*{phrase}*")
-                            content, metadata = process_uploaded_file(element.path, element.name)
                             if processing_status:
+                                # Stream PWS-style thinking tokens while extracting
+                                # Creates Claude Code-like "sizzeling..." UX with Larry vocabulary
+                                await processing_status.stream_token("\n")
+                                content, metadata = await stream_thinking_while_processing(
+                                    processing_status,
+                                    process_uploaded_file,
+                                    element.path, element.name,
+                                    interval=0.35  # Slightly faster for responsiveness
+                                )
+                                # Show completion with human-friendly size description
                                 char_count = metadata.get("char_count", len(content) if content else 0)
                                 if char_count > 5000:
-                                    await processing_status.stream_token(" — lots to work with!\n")
+                                    await processing_status.stream_token("✅ *Finished!* Lots to work with.\n")
                                 elif char_count > 1000:
-                                    await processing_status.stream_token(" — got it!\n")
+                                    await processing_status.stream_token("✅ *Done!* Got it.\n")
                                 else:
-                                    await processing_status.stream_token(" — okay!\n")
+                                    await processing_status.stream_token("✅ *Complete!*\n")
+                            else:
+                                # No status message, just extract
+                                content, metadata = process_uploaded_file(element.path, element.name)
 
                         if metadata.get("error"):
                             file_step.output = f"Error: {metadata['error']}"

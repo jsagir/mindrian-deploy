@@ -1,6 +1,6 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-04 13:46*
+*Auto-generated: 2026-02-04 13:59*
 
 ---
 
@@ -418,12 +418,3 @@
   - mindrian_chat.py
   - public/elements/ThinkingPanel.jsx
 - **Details:** Enhancement: Replace cl.Step with ThinkingPanel custom element for
-
-### 🐛 fix: Enforce English responses and improve PDF error handling (Bug 11)
-
-- **Commit:** `0b36fb38`
-- **Author:** Claude
-- **Files changed:** 2
-  - mindrian_chat.py
-  - prompts/multi_perspective_validation.py
-- **Details:** Root cause: When PDF extraction returned empty/minimal content, Gemini
