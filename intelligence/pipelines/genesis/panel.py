@@ -10,9 +10,15 @@ Multi-agent panel discussion using Gemini for persona simulation.
 4. Implementation Planning (concrete next steps)
 """
 
+import os
 import asyncio
 from typing import Dict, List, Any, Optional
 import google.generativeai as genai
+
+# Configure Gemini API
+_api_key = os.getenv("GOOGLE_API_KEY")
+if _api_key:
+    genai.configure(api_key=_api_key)
 
 
 async def simulate_expert_response(

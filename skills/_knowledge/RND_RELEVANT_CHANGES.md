@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-04 14:38*
+*Auto-generated: 2026-02-04 15:21*
 
 ---
 
 ## 2026-02-04
+
+### ✨ feat: Add Genesis Expert Breakdown pipeline + UI improvements
+
+- **Commit:** `1500522c`
+- **Author:** jsagir
+- **Files changed:** 15
+  - intelligence/pipelines/__init__.py
+  - intelligence/pipelines/genesis/__init__.py
+  - intelligence/pipelines/genesis/decompose.py
+  - intelligence/pipelines/genesis/domains.py
+  - intelligence/pipelines/genesis/orchestrate.py
+- **Details:** Genesis Pipeline (NEW):
 
 ### 📝 docs: Add R&D/21_genesis_expert_breakdown for Swarm+LangGraph integration
 
@@ -410,15 +422,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** Added missing UI integration for Opportunity Bank feature:
-
-### 📝 docs: Update README with v3.1 features + improve agent welcome messages
-
-- **Commit:** `c1ed47c9`
-- **Author:** jsagir
-- **Files changed:** 5
-  - README.md
-  - mindrian_chat.py
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** README updates:
