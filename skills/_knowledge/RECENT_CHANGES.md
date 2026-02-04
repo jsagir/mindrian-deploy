@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-04 02:22*
+*Auto-generated: 2026-02-04 02:26*
 
 ---
 
 ## 2026-02-04
+
+### 🐛 fix: Hide ThinkingPanel when no steps returned
+
+- **Commit:** `94e0af20`
+- **Author:** jsagir
+- **Files changed:** 5
+  - R&D/12_conversation_sampler_dashboard/README.md
+  - mindrian_chat.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** QA feedback: Lawrence's Thinking boxes showing 0/0 - Waiting for
 
 ### 🐛 fix: Address all QA issues + add LangGraph sequential thinking
 
@@ -511,11 +523,3 @@
 - **Files changed:** 1
   - docs/PWS_A2A_IMPLEMENTATION_PLAN.md
 - **Details:** Complete architecture for implementing PWS methodology as A2A workflows:
-
-### 📝 docs: Enhance A2A architecture with complete PWS methodology taxonomy
-
-- **Commit:** `50e84b4e`
-- **Author:** jsagir
-- **Files changed:** 1
-  - docs/A2A_WORKFLOW_ARCHITECTURE.md
-- **Details:** - Add Problem Classification Taxonomy (Un-Defined vs Ill-Defined)
