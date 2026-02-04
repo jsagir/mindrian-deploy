@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-04 03:21*
+*Auto-generated: 2026-02-04 03:56*
 
 ---
 
 ## 2026-02-04
+
+### ✨ feat: Add LightRAG Bank of Opportunities + Per-User Memory
+
+- **Commit:** `3b107f94`
+- **Author:** jsagir
+- **Files changed:** 12
+  - mindrian_chat.py
+  - qa/extracted_opportunities.json
+  - scripts/populate_lightrag_from_qa.py
+  - scripts/push_opportunities_to_lightrag.py
+  - scripts/push_qa_opportunities_to_lightrag.py
+- **Details:** LightRAG Integration:
 
 ### 🔧 build: Add poppler-utils for PDF-to-image conversion
 
@@ -364,12 +376,3 @@
 - **Files changed:** 1
   - requirements.txt
 - **Details:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-
-### ✨ feat: Add Document AI credentials from JSON env var
-
-- **Commit:** `615603cf`
-- **Author:** jsagir
-- **Files changed:** 2
-  - scripts/setup_document_ai.sh
-  - tools/document_ai.py
-- **Details:** - Handle GOOGLE_APPLICATION_CREDENTIALS_JSON for Render deployment

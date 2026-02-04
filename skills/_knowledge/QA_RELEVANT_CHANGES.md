@@ -1,10 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-04 03:21*
+*Auto-generated: 2026-02-04 03:56*
 
 ---
 
 ## 2026-02-04
+
+### ✨ feat: Add LightRAG Bank of Opportunities + Per-User Memory
+
+- **Commit:** `3b107f94`
+- **Author:** jsagir
+- **Files changed:** 12
+  - mindrian_chat.py
+  - qa/extracted_opportunities.json
+  - scripts/populate_lightrag_from_qa.py
+  - scripts/push_opportunities_to_lightrag.py
+  - scripts/push_qa_opportunities_to_lightrag.py
+- **Details:** LightRAG Integration:
 
 ### 🐛 fix: P0 - File uploads blocked when message short (e.g., "review !")
 
