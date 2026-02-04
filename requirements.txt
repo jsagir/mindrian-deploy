@@ -20,10 +20,12 @@ Pillow>=10.0.0  # Image processing for Gemini multimodal
 # Data Display
 pandas>=2.0.0
 
-# Voice (ElevenLabs TTS + Deepgram STT)
+# Voice (ElevenLabs TTS + Google STT)
 elevenlabs>=1.0.0
 websockets>=12.0  # WebSocket streaming for real-time TTS/STT
-deepgram-sdk>=3.0.0  # Real-time speech-to-text streaming
+deepgram-sdk>=3.0.0  # Real-time speech-to-text streaming (backup)
+google-cloud-speech>=2.0.0  # Google Cloud STT for real-time voice
+pyaudio>=0.2.14  # Audio I/O for real-time voice
 
 # Supabase Storage
 supabase>=2.0.0
@@ -38,11 +40,11 @@ tavily-python>=0.5.0
 arxiv>=2.1.0
 google-search-results>=2.4.2  # SerpApi for Google Patents (optional, falls back to Tavily)
 
-# Multi-Agent Orchestration (optional - for advanced workflows)
-# Uncomment to enable LangGraph features:
-# langgraph>=0.0.40
-# langchain>=0.1.0
-# langchain-google-genai>=1.0.0
+# Multi-Agent Orchestration - LangGraph with Persistent Memory
+langgraph>=0.2.0
+langgraph-checkpoint-postgres>=0.1.0
+langchain>=0.3.0
+langchain-google-genai>=2.0.0
 
 # Data Persistence (PostgreSQL with async support)
 sqlalchemy[asyncio]>=2.0.0

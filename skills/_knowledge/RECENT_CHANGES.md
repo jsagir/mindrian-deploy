@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-04 01:19*
+*Auto-generated: 2026-02-04 01:24*
 
 ---
 
 ## 2026-02-04
+
+### ✨ feat: Integrate ALL LangGraph pipelines into chat flow
+
+- **Commit:** `355bcde1`
+- **Author:** jsagir
+- **Files changed:** 26
+  - mindrian_chat.py
+  - prompts/agent_generator_meta.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Pipeline Integrations:
 
 ### 🐛 fix: Critical context management and research query bugs
 
@@ -503,15 +515,3 @@
 - **Files changed:** 1
   - docs/A2A_WORKFLOW_ARCHITECTURE.md
 - **Details:** Research-based design for multi-agent orchestration using:
-
-### ✨ feat: Add Nested Hierarchies agent (15th agent)
-
-- **Commit:** `1b779664`
-- **Author:** jsagir
-- **Files changed:** 5
-  - mindrian_chat.py
-  - prompts/__init__.py
-  - prompts/nested_hierarchies.py
-  - protocols/agent_registry.py
-  - scripts/neo4j_triple_mode_migration.py
-- **Details:** Multi-level systems analysis workshop for finding leverage points.

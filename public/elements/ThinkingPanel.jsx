@@ -155,15 +155,39 @@ function ThinkingStep({ step, index, isLast }) {
   );
 }
 
+// Bot display names for dynamic title
+const botNames = {
+  lawrence: 'Lawrence',
+  larry_playground: 'Larry Playground',
+  tta: 'TTA',
+  jtbd: 'JTBD',
+  scurve: 'S-Curve',
+  redteam: 'Red Team',
+  ackoff: 'Ackoff',
+  scenario: 'Scenario',
+  beautiful_question: 'Beautiful Question',
+  nested_hierarchies: 'Nested Hierarchies',
+  validation: 'Validation',
+  bono: 'BONO',
+  knowns: 'Known-Unknowns',
+  domain: 'Domain',
+  investment: 'Investment',
+  grading: 'Minto Grading',
+};
+
 export default function ThinkingPanel({
   steps = [],
-  title = "Lawrence's Thinking",
+  title = null, // Now optional - will use bot name if not provided
   collapsed = false,
   botId = 'lawrence',
   methodology = null,
+  showWhenEmpty = false, // QA fix: Don't show when empty by default
 }) {
   const [isCollapsed, setIsCollapsed] = useState(collapsed);
   const accentColor = botColors[botId] || botColors.lawrence;
+
+  // Dynamic title: use provided title, or generate from bot name
+  const displayTitle = title || `${botNames[botId] || 'AI'}'s Thinking`;
 
   // Auto-expand when new active step appears
   useEffect(() => {
@@ -176,6 +200,11 @@ export default function ThinkingPanel({
   const completedCount = steps.filter(s => s.status === 'complete').length;
   const totalCount = steps.length;
   const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+
+  // QA P2 UPDATE: Still show panel when empty but with a different message
+  // The user wants thinking to WORK, not be hidden
+  // Show a helpful "initializing" state instead of confusing "0/0"
+  const isInitializing = totalCount === 0;
 
   return (
     <div
@@ -203,7 +232,7 @@ export default function ThinkingPanel({
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '18px' }}>🧠</span>
-          <span style={{ fontWeight: '600' }}>{title}</span>
+          <span style={{ fontWeight: '600' }}>{displayTitle}</span>
           {methodology && (
             <span
               style={{
@@ -218,9 +247,9 @@ export default function ThinkingPanel({
           )}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {/* Progress indicator */}
+          {/* Progress indicator - show helpful text when initializing */}
           <span style={{ fontSize: '12px', opacity: 0.9 }}>
-            {completedCount}/{totalCount}
+            {isInitializing ? 'Analyzing...' : `${completedCount}/${totalCount}`}
           </span>
           {/* Collapse icon */}
           <span style={{ fontSize: '12px' }}>
@@ -245,8 +274,12 @@ export default function ThinkingPanel({
       {!isCollapsed && (
         <div style={{ padding: '16px' }}>
           {steps.length === 0 ? (
-            <div style={{ color: '#9ca3af', textAlign: 'center', padding: '20px' }}>
-              Waiting for reasoning steps...
+            <div style={{ color: '#6b7280', textAlign: 'center', padding: '20px' }}>
+              <div style={{ fontSize: '24px', marginBottom: '8px' }}>🔄</div>
+              <div style={{ fontWeight: '500' }}>Analyzing your message...</div>
+              <div style={{ fontSize: '12px', marginTop: '4px', color: '#9ca3af' }}>
+                Checking assumptions, patterns, and PWS methodology fit
+              </div>
             </div>
           ) : (
             steps.map((step, index) => (

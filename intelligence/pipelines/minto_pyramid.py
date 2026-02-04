@@ -611,6 +611,146 @@ async def run_minto_pipeline(
         }
 
 
+async def run_minto_pipeline_with_journey(
+    query: str,
+    user_id: str,
+    journey_id: str = None,
+    session_id: str = None,
+) -> Dict[str, Any]:
+    """
+    Run Minto pipeline with journey-aware persistent memory.
+
+    This version integrates with the Conductor-style memory system:
+    - Loads user's journey context for continuity
+    - Uses shared PostgreSQL checkpointer
+    - Updates journey with extracted insights after completion
+
+    Args:
+        query: Research query.
+        user_id: User identifier.
+        journey_id: Optional journey ID (creates new if not provided).
+        session_id: Optional session ID for thread scoping.
+
+    Returns:
+        Dict with synthesis and all intermediate results.
+    """
+    from memory import JourneyStore, get_shared_checkpointer, create_thread_id
+    from memory.user_journey import create_journey_context_injection
+
+    # Initialize journey store
+    store = JourneyStore(user_id)
+
+    # Get or create journey
+    if journey_id:
+        journey = await store.get_journey(journey_id)
+        if journey:
+            store._current_journey = journey
+    else:
+        # Create new journey for this research
+        journey = await store.get_or_create_journey(
+            problem=query,
+            title=f"Research: {query[:50]}"
+        )
+
+    # Get journey context for injection
+    journey_context = await store.get_journey_context()
+    context_injection = create_journey_context_injection(journey_context)
+
+    # Get shared checkpointer
+    checkpointer = await get_shared_checkpointer()
+    if checkpointer is None:
+        checkpointer = MemorySaver()
+        print("[MINTO] Using in-memory checkpointer")
+
+    # Create pipeline with checkpointer
+    pipeline = create_minto_pipeline(checkpointer)
+
+    # Create thread ID for persistence
+    thread_id = create_thread_id(
+        user_id=user_id,
+        pipeline="minto",
+        journey_id=journey_id or (journey.id if journey else None),
+        session_id=session_id
+    )
+
+    # Initial state with journey context
+    initial_state = {
+        "query": query,
+        "context": context_injection,  # Journey context injected here!
+        "frameworks": [],
+        "scqa_analysis": {},
+        "beautiful_questions": [],
+        "sequential_thinking": [],
+        "research_results": {},
+        "synthesis": "",
+        "started_at": datetime.now().isoformat(),
+        "completed_steps": [],
+        "errors": [],
+    }
+
+    config = {"configurable": {"thread_id": thread_id}}
+
+    # Run pipeline
+    try:
+        result = await pipeline.ainvoke(initial_state, config)
+
+        # Update journey with insights from research
+        insights = extract_insights_from_minto_result(result)
+        if insights:
+            await store.update_phase(
+                new_phase="research",
+                insights=insights,
+                checkpoint_step="minto_research"
+            )
+
+        return result
+
+    except Exception as e:
+        return {
+            **initial_state,
+            "errors": [f"Pipeline error: {str(e)}"],
+            "synthesis": f"Pipeline failed: {str(e)}"
+        }
+
+
+def extract_insights_from_minto_result(result: Dict) -> List[Dict]:
+    """Extract insights from Minto pipeline result for journey storage."""
+    insights = []
+
+    # Extract from SCQA
+    scqa = result.get("scqa_analysis", {})
+    if scqa:
+        if scqa.get("answer_hypothesis"):
+            insights.append({
+                "type": "assumption",
+                "content": scqa.get("answer_hypothesis", "")[:200],
+                "confidence": scqa.get("confidence", 0.5),
+            })
+
+    # Extract from beautiful questions
+    questions = result.get("beautiful_questions", [])
+    for q in questions[:3]:
+        if isinstance(q, str):
+            insights.append({
+                "type": "question",
+                "content": q[:200],
+                "confidence": 0.5,
+            })
+
+    # Extract from synthesis (key findings)
+    synthesis = result.get("synthesis", "")
+    if synthesis and len(synthesis) > 100:
+        # Extract first paragraph as main insight
+        first_para = synthesis.split("\n\n")[0][:300]
+        insights.append({
+            "type": "fact",
+            "content": first_para,
+            "confidence": 0.7,
+        })
+
+    return insights
+
+
 def format_minto_result(result: Dict[str, Any]) -> str:
     """
     Format Minto pipeline result as markdown for display.

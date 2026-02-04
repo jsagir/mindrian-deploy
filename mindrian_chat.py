@@ -493,67 +493,90 @@ async def show_thinking_panel(bot_id: str, steps: list, methodology: str = None)
 
 async def capture_reasoning_steps(user_message: str, bot_id: str, history: list = None) -> list:
     """
-    Quick reasoning extraction to show what the bot is thinking about.
-    Returns list of thinking steps.
+    LangGraph-powered sequential thinking pipeline.
+
+    Uses real AI analysis to:
+    1. Understand message type (question/statement/request/emotion)
+    2. Detect hidden assumptions in the user's thinking
+    3. Check for premature solution-jumping
+    4. Identify relevant PWS frameworks
+    5. Synthesize an analysis strategy
+
+    Returns list of thinking steps for the ThinkingPanel.
     """
-    steps = []
+    try:
+        # Use LangGraph sequential thinking pipeline
+        from intelligence.pipelines.sequential_thinking import get_thinking_steps_sync
 
-    # Step 1: Understand the question
-    steps.append({
-        "name": "Understanding the question",
-        "status": "complete",
-        "icon": "🔍",
-        "output": f"User is asking about: {user_message[:100]}..."
-    })
+        steps = await get_thinking_steps_sync(
+            message=user_message,
+            bot_id=bot_id,
+            history=history or [],
+        )
+        return steps
 
-    # Step 2: Check for assumptions (quick pattern match)
-    assumption_patterns = ["assume", "think", "believe", "should", "must", "obviously", "clearly"]
-    has_assumptions = any(p in user_message.lower() for p in assumption_patterns)
-    if has_assumptions:
+    except Exception as e:
+        # Fallback to simple pattern-based analysis if pipeline fails
+        logger.warning(f"Sequential thinking pipeline failed, using fallback: {e}")
+
+        steps = []
+
+        # Step 1: Understand the question
         steps.append({
-            "name": "Detecting assumptions",
+            "name": "Understanding the question",
             "status": "complete",
-            "icon": "⚠️",
-            "output": "Found assumption language - will probe for validation"
+            "icon": "🔍",
+            "output": f"User is asking about: {user_message[:100]}..."
         })
 
-    # Step 3: Check for solution-jumping
-    solution_patterns = ["we should", "let's build", "the solution is", "i want to create", "my idea is"]
-    has_solution_jump = any(p in user_message.lower() for p in solution_patterns)
-    if has_solution_jump:
-        steps.append({
-            "name": "Checking problem definition",
-            "status": "complete",
-            "icon": "🎯",
-            "output": "Solution language detected - will redirect to problem first"
-        })
+        # Step 2: Check for assumptions (quick pattern match)
+        assumption_patterns = ["assume", "think", "believe", "should", "must", "obviously", "clearly"]
+        has_assumptions = any(p in user_message.lower() for p in assumption_patterns)
+        if has_assumptions:
+            steps.append({
+                "name": "Detecting assumptions",
+                "status": "complete",
+                "icon": "⚠️",
+                "output": "Found assumption language - will probe for validation"
+            })
 
-    # Step 4: Select methodology
-    methodology_map = {
-        "tta": "Trending to the Absurd",
-        "jtbd": "Jobs to Be Done",
-        "scurve": "S-Curve Analysis",
-        "redteam": "Red Team Challenge",
-        "ackoff": "DIKW Pyramid",
-        "scenario": "Scenario Planning",
-        "beautiful_question": "Beautiful Questions",
-    }
-    if bot_id in methodology_map:
-        steps.append({
-            "name": f"Applying {methodology_map[bot_id]}",
-            "status": "active",
-            "icon": "📚",
-            "output": None
-        })
-    else:
-        steps.append({
-            "name": "Formulating PWS response",
-            "status": "active",
-            "icon": "💭",
-            "output": None
-        })
+        # Step 3: Check for solution-jumping
+        solution_patterns = ["we should", "let's build", "the solution is", "i want to create", "my idea is"]
+        has_solution_jump = any(p in user_message.lower() for p in solution_patterns)
+        if has_solution_jump:
+            steps.append({
+                "name": "Checking problem definition",
+                "status": "complete",
+                "icon": "🎯",
+                "output": "Solution language detected - will redirect to problem first"
+            })
 
-    return steps
+        # Step 4: Select methodology
+        methodology_map = {
+            "tta": "Trending to the Absurd",
+            "jtbd": "Jobs to Be Done",
+            "scurve": "S-Curve Analysis",
+            "redteam": "Red Team Challenge",
+            "ackoff": "DIKW Pyramid",
+            "scenario": "Scenario Planning",
+            "beautiful_question": "Beautiful Questions",
+        }
+        if bot_id in methodology_map:
+            steps.append({
+                "name": f"Applying {methodology_map[bot_id]}",
+                "status": "active",
+                "icon": "📚",
+                "output": None
+            })
+        else:
+            steps.append({
+                "name": "Formulating PWS response",
+                "status": "active",
+                "icon": "💭",
+                "output": None
+            })
+
+        return steps
 
 
 # === Context Preservation for Profile Switching ===
@@ -847,11 +870,7 @@ BOTS = {
         "system_prompt": LARRY_RAG_SYSTEM_PROMPT,
         "has_phases": False,
         "simple_mode": True,
-        "welcome": """🧠 **Welcome to Mindrian!**
-
-I'm Lawrence, your thinking partner. I help you identify problems worth solving before chasing solutions.
-
-**What are you working on?**"""
+        "welcome": """🧠 **What are you working on?**"""
     },
     "larry_playground": {
         "name": "Larry Playground",
@@ -1295,6 +1314,12 @@ def get_core_action_buttons(include_example: bool = True) -> list:
             label="🏦 Opportunities",
             tooltip="View your saved opportunities bank",
         ),
+        cl.Action(
+            name="journey_status",
+            payload={"action": "journey"},
+            label="🧭 My Journey",
+            tooltip="View your PWS learning journey: phases, insights, and progress",
+        ),
     ]
 
     if include_example:
@@ -1352,6 +1377,14 @@ def get_pipeline_buttons(bot_id: str) -> list:
                 payload={"action": "bono"},
                 label="🎭 Multi-Perspective Hats",
                 tooltip="Run Six Hats analysis for multi-perspective validation",
+            ),
+        ],
+        "tta": [
+            cl.Action(
+                name="run_oracle_prediction",
+                payload={"action": "oracle"},
+                label="🔮 Oracle Prediction",
+                tooltip="Generate prediction market for trend scenarios",
             ),
         ],
     }
@@ -3136,6 +3169,16 @@ async def start():
             ),
         ]
 
+        # Voice Chat button for Lawrence bots only
+        if chat_profile in ["lawrence", "larry_playground"]:
+            actions.append(cl.Action(
+                name="start_voice_chat",
+                payload={"action": "voice"},
+                label="🎙️ Voice Chat",
+                description="Talk to Lawrence in real-time with your voice",
+                tooltip="🎙️ Start a real-time voice conversation with Lawrence using your custom voice"
+            ))
+
         # Full-mode-only buttons (Playground, not Lawrence)
         if not is_simple:
             actions.append(cl.Action(
@@ -3229,12 +3272,26 @@ async def start():
     if not welcome_already_sent:
         if is_bot_switch:
             previous_bot_name = BOTS.get(previous_bot, {}).get("name", previous_bot)
-            switch_message = f"""**{bot.get('emoji', '')} {bot['name']}** is now active.
 
-**Context preserved from {previous_bot_name}** ({len(preserved_history)} messages)
-I'll continue our conversation with my perspective. Your previous discussion has been handed off to me.
+            # HONEST CONTEXT MESSAGE (QA P1 fix): Verify context is actually present
+            # Only claim context is preserved if we actually have meaningful history
+            actual_history = cl.user_session.get("history", [])
+            context_actually_preserved = len(actual_history) >= len(preserved_history) and len(actual_history) > 0
+
+            if context_actually_preserved:
+                switch_message = f"""**{bot.get('emoji', '')} {bot['name']}** is now active.
+
+**Context preserved from {previous_bot_name}** ({len(actual_history)} messages)
+I'll continue our conversation with my perspective.
 
 ---
+
+{bot.get('welcome', 'How can I help?')}"""
+            else:
+                # Context was lost (server restart, deploy, etc.) - be honest
+                switch_message = f"""**{bot.get('emoji', '')} {bot['name']}** is now active.
+
+*Session was refreshed. Starting fresh with {bot['name']}.*
 
 {bot.get('welcome', 'How can I help?')}"""
 
@@ -4336,6 +4393,21 @@ async def handle_agent_switch(new_agent_id: str):
         "phases": [p.copy() for p in stored_phases] if stored_phases else [],
         "current_phase": cl.user_session.get("current_phase", 0),
     }
+
+    # CRITICAL: Persist to Supabase on bot switch to survive server restarts
+    # This fixes P0 bug where context was lost on Render deploys
+    try:
+        from utils.context_persistence import save_cross_bot_context
+        await save_cross_bot_context(
+            user_key=context_key,
+            history=history.copy(),
+            bot_id=new_agent_id,
+            bot_name=new_bot.get("name", new_agent_id),
+            phases=[p.copy() for p in stored_phases] if stored_phases else None,
+            current_phase=cl.user_session.get("current_phase", 0)
+        )
+    except Exception as e:
+        logger.warning(f"Context persistence failed on bot switch: {e}")
 
     # === Thread System: Save to topic-aware thread ===
     # This fixes the context-mixing bug by tracking conversations by topic
@@ -6030,6 +6102,411 @@ Now synthesize this conversation in Larry's voice. Create a document titled "Con
         await cl.Message(content=f"Synthesis error: {str(e)}").send()
 
 
+@cl.action_callback("start_voice_chat")
+async def on_start_voice_chat(action: cl.Action):
+    """
+    Launch real-time voice chat with Lawrence.
+    Uses: Google STT → Gemini → ElevenLabs (your custom voice)
+    """
+    import os
+
+    # Check if voice server is configured
+    voice_server_url = os.getenv("VOICE_SERVER_URL", "ws://localhost:8765")
+
+    # Create the VoiceChat custom element
+    voice_chat_element = cl.CustomElement(
+        name="VoiceChat",
+        props={
+            "serverUrl": voice_server_url,
+            "showTranscript": True,
+        },
+        display="inline"
+    )
+
+    await cl.Message(
+        content="""## 🎙️ Voice Chat with Lawrence
+
+Talk to Lawrence in **real-time** using your voice!
+
+**How it works:**
+1. Click **Connect** to start
+2. Click **Start Listening** and speak naturally
+3. Lawrence responds with your custom ElevenLabs voice
+4. Say "goodbye" to end the conversation
+
+**Pipeline:** 🎤 Google STT → 🧠 Gemini → 🔊 Your Custom Voice
+
+---
+
+⚠️ **Make sure the voice server is running:** `python -m voice.realtime_server`
+""",
+        elements=[voice_chat_element],
+    ).send()
+
+
+# === Journey Memory Callbacks (Conductor-style Persistent Context) ===
+
+@cl.action_callback("journey_status")
+async def on_journey_status(action: cl.Action):
+    """
+    Show user's PWS learning journey: phases, insights, progress.
+    Conductor-style persistent memory across sessions.
+    """
+    try:
+        from memory import JourneyStore
+        from memory.user_journey import create_journey_context_injection
+
+        user_id = cl.user_session.get("user_id") or cl.user_session.get("id", "anonymous")
+        journey_id = cl.user_session.get("journey_id")
+
+        journey_store = JourneyStore(user_id)
+        journey = await journey_store.get_journey(journey_id) if journey_id else None
+
+        if not journey:
+            # Check if there's any journey for this user
+            recent_journey = await journey_store.get_recent_journey()
+            if recent_journey:
+                journey = recent_journey
+                cl.user_session.set("journey_id", journey.id)
+
+        if not journey:
+            await cl.Message(
+                content="""## 🧭 No Active Journey
+
+You haven't started a PWS journey yet. Begin by:
+1. **Describing a problem** you want to explore
+2. **Sharing a challenge** from your work or research
+3. **Asking a question** about innovation methodology
+
+Once you start, I'll track your progress across sessions!""",
+                actions=get_core_action_buttons(include_example=True)
+            ).send()
+            return
+
+        # Format journey status
+        phase_emoji = {"discovery": "🔍", "framing": "🎯", "validation": "✅", "synthesis": "📝", "domain": "🌐", "problem": "🎯", "tta": "📈", "jtbd": "💼", "complete": "✅"}
+
+        # Handle phase as string or enum
+        current_phase_str = journey.current_phase.value if hasattr(journey.current_phase, 'value') else str(journey.current_phase)
+        current_phase_icon = phase_emoji.get(current_phase_str, "📍")
+
+        # Build insights summary - handle Insight objects
+        insights_text = ""
+        if journey.insights:
+            insight_lines = []
+            for i in journey.insights[:5]:
+                # Handle both Insight objects and simple strings
+                content = i.content if hasattr(i, 'content') else str(i)
+                insight_type = f"({i.type.value})" if hasattr(i, 'type') and hasattr(i.type, 'value') else ""
+                insight_lines.append(f"- {insight_type} {content[:80]}{'...' if len(content) > 80 else ''}")
+            insights_text = "\n".join(insight_lines)
+            if len(journey.insights) > 5:
+                insights_text += f"\n- *...and {len(journey.insights) - 5} more*"
+
+        # Build checkpoints timeline - handle PhaseCheckpoint objects
+        checkpoints_text = ""
+        if journey.checkpoints:
+            completed_checkpoints = [cp for cp in journey.checkpoints if (cp.status == "completed" if hasattr(cp, 'status') else cp.get("status") == "completed")]
+            for cp in completed_checkpoints[-3:]:  # Show last 3 completed
+                # Handle both PhaseCheckpoint objects and dicts
+                phase = cp.phase if hasattr(cp, 'phase') else cp.get("phase", "")
+                summary = cp.output_summary if hasattr(cp, 'output_summary') else cp.get("summary", "Checkpoint saved")
+                summary = summary or "Completed"
+                cp_icon = phase_emoji.get(phase, "📌")
+                checkpoints_text += f"- {cp_icon} **{phase.title() if phase else 'Unknown'}**: {summary[:60]}...\n"
+
+        # Count completed checkpoints
+        total_checkpoints = len(journey.checkpoints)
+        completed_count = len([cp for cp in journey.checkpoints if (cp.status == "completed" if hasattr(cp, 'status') else cp.get("status") == "completed")])
+
+        status_message = f"""## 🧭 Your PWS Journey
+
+**Problem:** {journey.problem[:100]}{'...' if len(journey.problem) > 100 else ''}
+
+### {current_phase_icon} Current Phase: {current_phase_str.replace('_', ' ').title()}
+
+**Progress:** {completed_count}/{total_checkpoints} checkpoints completed
+
+---
+
+### 💡 Key Insights
+{insights_text if insights_text else "*No insights extracted yet. Keep exploring!*"}
+
+### 📍 Recent Checkpoints
+{checkpoints_text if checkpoints_text else "*No checkpoints yet. Your progress will be saved automatically.*"}
+
+---
+
+**Journey ID:** `{journey.id[:12]}...`
+**Started:** {journey.created_at[:10] if journey.created_at else 'Unknown'}
+
+*Your journey persists across sessions. Pick up right where you left off!*"""
+
+        # Journey action buttons
+        journey_actions = [
+            cl.Action(
+                name="journey_checkpoint",
+                payload={"action": "checkpoint"},
+                label="💾 Save Checkpoint",
+                tooltip="Save your current progress as a checkpoint",
+            ),
+            cl.Action(
+                name="journey_revert",
+                payload={"action": "revert"},
+                label="⏪ Revert Phase",
+                tooltip="Go back to a previous phase",
+            ),
+            cl.Action(
+                name="journey_export",
+                payload={"action": "export"},
+                label="📤 Export Journey",
+                tooltip="Download your journey as markdown",
+            ),
+        ]
+
+        await cl.Message(
+            content=status_message,
+            actions=journey_actions + get_core_action_buttons(include_example=False)
+        ).send()
+
+    except ImportError as e:
+        await cl.Message(
+            content=f"Journey memory module not available: {e}\n\nMake sure `memory/` module is installed.",
+        ).send()
+    except Exception as e:
+        await cl.Message(
+            content=f"Error loading journey: {str(e)}",
+            actions=get_core_action_buttons(include_example=True)
+        ).send()
+
+
+@cl.action_callback("journey_checkpoint")
+async def on_journey_checkpoint(action: cl.Action):
+    """Manually save a checkpoint of current progress."""
+    try:
+        from memory import JourneyStore
+
+        user_id = cl.user_session.get("user_id") or cl.user_session.get("id", "anonymous")
+        journey_id = cl.user_session.get("journey_id")
+        history = cl.user_session.get("history", [])
+
+        if not journey_id:
+            await cl.Message(content="No active journey to checkpoint. Start exploring a problem first!").send()
+            return
+
+        journey_store = JourneyStore(user_id)
+        journey = await journey_store.get_journey(journey_id)
+
+        if not journey:
+            await cl.Message(content="Journey not found.").send()
+            return
+
+        # Create checkpoint from recent conversation
+        from memory.user_journey import PhaseCheckpoint
+
+        recent_messages = history[-6:] if len(history) > 6 else history
+        summary = ""
+        for msg in recent_messages:
+            if msg.get("role") == "user":
+                summary += msg.get("content", "")[:100] + " "
+
+        # Get phase as string
+        phase_str = journey.current_phase.value if hasattr(journey.current_phase, 'value') else str(journey.current_phase)
+
+        checkpoint = PhaseCheckpoint(
+            phase=phase_str,
+            step="manual_checkpoint",
+            status="completed",
+            output_summary=summary[:200] or "Manual checkpoint",
+        )
+
+        journey.checkpoints.append(checkpoint)
+        await journey_store.save_journey(journey)
+
+        await cl.Message(
+            content=f"✅ **Checkpoint Saved**\n\nPhase: {phase_str.replace('_', ' ').title()}\nSummary: {checkpoint.output_summary[:60]}...",
+            actions=get_core_action_buttons(include_example=False)
+        ).send()
+
+    except Exception as e:
+        await cl.Message(content=f"Error saving checkpoint: {str(e)}").send()
+
+
+@cl.action_callback("journey_revert")
+async def on_journey_revert(action: cl.Action):
+    """Revert to a previous phase in the journey."""
+    try:
+        from memory import JourneyStore
+
+        user_id = cl.user_session.get("user_id") or cl.user_session.get("id", "anonymous")
+        journey_id = cl.user_session.get("journey_id")
+
+        if not journey_id:
+            await cl.Message(content="No active journey to revert.").send()
+            return
+
+        journey_store = JourneyStore(user_id)
+        journey = await journey_store.get_journey(journey_id)
+
+        if not journey:
+            await cl.Message(content="Journey not found.").send()
+            return
+
+        # Show phase options
+        phases = ["discovery", "domain", "problem", "tta", "jtbd", "validation", "synthesis"]
+        phase_icons = {"discovery": "🔍", "domain": "🌐", "problem": "🎯", "tta": "📈", "jtbd": "💼", "validation": "✅", "synthesis": "📝"}
+
+        # Get current phase as string
+        current_phase_str = journey.current_phase.value if hasattr(journey.current_phase, 'value') else str(journey.current_phase)
+        current_idx = phases.index(current_phase_str) if current_phase_str in phases else 0
+
+        phase_actions = []
+        for i, phase in enumerate(phases):
+            if i <= current_idx:  # Can only revert to current or earlier phases
+                icon = phase_icons.get(phase, "📌")
+                phase_actions.append(cl.Action(
+                    name="set_journey_phase",
+                    payload={"phase": phase},
+                    label=f"{icon} {phase.replace('_', ' ').title()}",
+                    tooltip=f"Revert to {phase} phase",
+                ))
+
+        await cl.Message(
+            content=f"""## ⏪ Revert Journey Phase
+
+**Current Phase:** {current_phase_str.replace('_', ' ').title()}
+
+Select a phase to revert to:""",
+            actions=phase_actions
+        ).send()
+
+    except Exception as e:
+        await cl.Message(content=f"Error: {str(e)}").send()
+
+
+@cl.action_callback("set_journey_phase")
+async def on_set_journey_phase(action: cl.Action):
+    """Set journey to a specific phase."""
+    try:
+        from memory import JourneyStore
+
+        phase = action.payload.get("phase", "discovery")
+        user_id = cl.user_session.get("user_id") or cl.user_session.get("id", "anonymous")
+        journey_id = cl.user_session.get("journey_id")
+
+        if not journey_id:
+            await cl.Message(content="No active journey.").send()
+            return
+
+        journey_store = JourneyStore(user_id)
+        journey = await journey_store.get_journey(journey_id)
+
+        if journey:
+            # Handle phase as string or enum
+            old_phase_str = journey.current_phase.value if hasattr(journey.current_phase, 'value') else str(journey.current_phase)
+
+            # Import JourneyPhase enum for type-safe update
+            from memory.user_journey import JourneyPhase, PhaseCheckpoint
+            try:
+                journey.current_phase = JourneyPhase(phase)
+            except ValueError:
+                journey.current_phase = phase  # Fallback to string
+
+            # Add checkpoint for the revert (using proper PhaseCheckpoint object)
+            revert_checkpoint = PhaseCheckpoint(
+                phase=phase,
+                step="revert",
+                status="completed",
+                output_summary=f"Reverted from {old_phase_str} to {phase}",
+            )
+            journey.checkpoints.append(revert_checkpoint)
+
+            await journey_store.save_journey(journey)
+
+            await cl.Message(
+                content=f"✅ **Phase Updated**\n\nReverted from **{old_phase_str.replace('_', ' ').title()}** → **{phase.replace('_', ' ').title()}**\n\nContinue exploring!",
+                actions=get_core_action_buttons(include_example=True)
+            ).send()
+
+    except Exception as e:
+        await cl.Message(content=f"Error setting phase: {str(e)}").send()
+
+
+@cl.action_callback("journey_export")
+async def on_journey_export(action: cl.Action):
+    """Export the journey as a downloadable markdown file."""
+    try:
+        from memory import JourneyStore
+        from utils.media import create_file_download
+        import datetime
+
+        user_id = cl.user_session.get("user_id") or cl.user_session.get("id", "anonymous")
+        journey_id = cl.user_session.get("journey_id")
+
+        if not journey_id:
+            await cl.Message(content="No active journey to export.").send()
+            return
+
+        journey_store = JourneyStore(user_id)
+        journey = await journey_store.get_journey(journey_id)
+
+        if not journey:
+            await cl.Message(content="Journey not found.").send()
+            return
+
+        # Build markdown export - handle objects properly
+        phase_str = journey.current_phase.value if hasattr(journey.current_phase, 'value') else str(journey.current_phase)
+
+        export_md = f"""# PWS Learning Journey Export
+
+**Problem:** {journey.problem}
+**Current Phase:** {phase_str.replace('_', ' ').title()}
+**Created:** {journey.created_at or 'Unknown'}
+**Exported:** {datetime.datetime.now().isoformat()[:19]}
+
+---
+
+## 💡 Key Insights
+
+"""
+        for insight in journey.insights:
+            # Handle both Insight objects and simple strings
+            if hasattr(insight, 'content'):
+                insight_type = f"[{insight.type.value}]" if hasattr(insight, 'type') and hasattr(insight.type, 'value') else ""
+                export_md += f"- {insight_type} {insight.content}\n"
+            else:
+                export_md += f"- {insight}\n"
+
+        export_md += "\n---\n\n## 📍 Journey Checkpoints\n\n"
+        for i, cp in enumerate(journey.checkpoints):
+            # Handle both PhaseCheckpoint objects and dicts
+            phase = cp.phase if hasattr(cp, 'phase') else cp.get('phase', 'Unknown')
+            summary = cp.output_summary if hasattr(cp, 'output_summary') else cp.get('summary', 'No summary')
+            export_md += f"### Checkpoint {i + 1}: {phase.replace('_', ' ').title()}\n"
+            export_md += f"{summary or 'Completed'}\n\n"
+
+        export_md += """
+---
+
+*Exported from Mindrian PWS Platform*
+*Journey memory powered by Conductor-style persistent context*
+"""
+
+        # Create downloadable file
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"pws_journey_{timestamp}.md"
+        file_element = await create_file_download(export_md, filename, "text/markdown")
+
+        await cl.Message(
+            content="## 📤 Journey Exported\n\nDownload your PWS journey below:",
+            elements=[file_element],
+            actions=get_core_action_buttons(include_example=False)
+        ).send()
+
+    except Exception as e:
+        await cl.Message(content=f"Error exporting journey: {str(e)}").send()
+
+
 @cl.action_callback("extract_insights")
 async def on_extract_insights(action: cl.Action):
     """Extract structured insights from the conversation - stored in Supabase."""
@@ -6735,31 +7212,61 @@ async def on_deep_research(action: cl.Action):
 
     For simple_mode (Lawrence): Show sources with links, offer deep analysis as optional.
     For playground: Full Minto Pyramid pipeline.
+
+    CRITICAL: This callback must NEVER crash and destroy the session.
+    All errors are caught and displayed gracefully with action buttons preserved.
     """
-    import uuid
-    from tools.tavily_search import search_web
+    try:
+        import uuid
+        from tools.tavily_search import search_web
 
-    # Get context
-    history = cl.user_session.get("history", [])
-    bot = cl.user_session.get("bot", BOTS["lawrence"])
-    bot_name = bot.get("name", "Larry")
-    chat_profile = cl.user_session.get("chat_profile", "lawrence")
-    settings = cl.user_session.get("settings", {})
-    search_depth = settings.get("research_depth", "basic")
-    is_simple = bot.get("simple_mode", False)
+        # Get context
+        history = cl.user_session.get("history", [])
+        bot = cl.user_session.get("bot", BOTS["lawrence"])
+        bot_name = bot.get("name", "Larry")
+        chat_profile = cl.user_session.get("chat_profile", "lawrence")
+        settings = cl.user_session.get("settings", {})
+        search_depth = settings.get("research_depth", "basic")
+        is_simple = bot.get("simple_mode", False)
 
-    # Build context from recent conversation
-    recent_context = ""
-    for msg in history[-8:]:
-        role = msg.get("role", "user")
-        content = msg.get("content", "")[:600]
-        recent_context += f"{role}: {content}\n"
+        # Build context from recent conversation
+        recent_context = ""
+        for msg in history[-8:]:
+            role = msg.get("role", "user")
+            content = msg.get("content", "")[:600]
+            recent_context += f"{role}: {content}\n"
 
-    # ─── Sources-First Mode (ALL bots) ───
-    # Always show sources first. Users can click "Deep Analyze" for Minto Pyramid.
-    # This fixes the UX mismatch where users expect sources but get Minto analysis.
-    await _research_sources_first(recent_context, bot_name, search_depth, history)
-    return
+        # ─── Sources-First Mode (ALL bots) ───
+        # Always show sources first. Users can click "Deep Analyze" for Minto Pyramid.
+        # This fixes the UX mismatch where users expect sources but get Minto analysis.
+        await _research_sources_first(recent_context, bot_name, search_depth, history)
+        return
+
+    except Exception as e:
+        # CRITICAL: Never let research errors destroy the session
+        import traceback
+        print(f"[RESEARCH] Critical callback error: {e}")
+        traceback.print_exc()
+
+        # Send graceful error message with action buttons preserved
+        try:
+            await cl.Message(
+                content=f"""## ⚠️ Research Temporarily Unavailable
+
+I encountered an issue while running the research workflow:
+> {str(e)[:200]}
+
+**Your conversation is preserved.** You can:
+- Try the Research button again
+- Continue our conversation
+- Use other tools
+
+*If this persists, try refreshing the page.*""",
+                actions=get_core_action_buttons(include_example=True)
+            ).send()
+        except Exception:
+            # Last resort: even message send failed, just log
+            print(f"[RESEARCH] Failed to send error message: {e}")
 
     # ─── Full Minto Pyramid Mode (only via "Deep Analyze" button) ───
     from utils.minto_research import (
@@ -8538,6 +9045,49 @@ Your insights help us improve Mindrian!"""
         except Exception:
             pass
 
+    # === JOURNEY MEMORY: Conductor-style persistent context ===
+    # Loads user's PWS journey for cross-session continuity
+    try:
+        from memory import JourneyStore
+        from memory.user_journey import create_journey_context_injection
+
+        # Get user ID from session
+        user_id = cl.user_session.get("user_id") or cl.user_session.get("id", "anonymous")
+        journey_id = cl.user_session.get("journey_id")
+
+        # Initialize journey store
+        journey_store = JourneyStore(user_id)
+
+        # Get or create journey on first substantial message
+        if len(history) <= 2 and len(message.content) > 50:
+            # First real message - create journey
+            journey = await journey_store.get_or_create_journey(
+                problem=message.content[:200],
+                journey_id=journey_id
+            )
+            cl.user_session.set("journey_id", journey.id)
+            cl.user_session.set("journey_store", journey_store)
+            print(f"[JOURNEY] Created/loaded journey {journey.id}")
+        elif journey_id:
+            # Existing journey - load context
+            journey = await journey_store.get_journey(journey_id)
+            if journey:
+                journey_store._current_journey = journey
+                cl.user_session.set("journey_store", journey_store)
+
+        # Inject journey context if available
+        if journey_store._current_journey:
+            journey_context = await journey_store.get_journey_context()
+            if journey_context:
+                context_injection = create_journey_context_injection(journey_context)
+                full_user_message += f"\n\n{context_injection}"
+                print(f"[JOURNEY] Injected context from journey {journey_store._current_journey.id}")
+
+    except ImportError:
+        pass  # Memory module not available
+    except Exception as e:
+        print(f"[JOURNEY] Error (non-fatal): {e}")
+
     # === AGENTIC VALIDATION WORKFLOW ===
     # When validation bot receives a substantive request, run the full workflow automatically
     bot_id = cl.user_session.get("bot_id", "lawrence")
@@ -8630,7 +9180,10 @@ Your insights help us improve Mindrian!"""
     # BUG FIX: Use chat_profile as source of truth (Chainlit sets this), then fall back to bot_id
     bot_id = cl.user_session.get("chat_profile") or cl.user_session.get("bot_id", "lawrence")
 
-    if show_thinking and not bot.get("simple_mode", False):
+    # QA FIX: Show thinking panel for ALL bots (including simple_mode Lawrence)
+    # User feedback: "LETS MAKE IT WORK INSTEAD OF HIDING IT"
+    # The thinking panel helps users understand the AI's reasoning process
+    if show_thinking:
         # Capture reasoning steps before generating response
         thinking_steps = await capture_reasoning_steps(message.content, bot_id, history)
 
@@ -9018,16 +9571,22 @@ The user expects you to be responsive to what they JUST said, not to lecture fro
             except Exception as e:
                 logger.debug(f"Thread save error: {e}")
 
-        # Persist to Supabase for cross-session survival (fire-and-forget)
+        # Persist to Supabase for cross-session survival
+        # CRITICAL: Await the save to ensure context survives server restarts/deploys
+        # Previously fire-and-forget caused P0 data loss on Render deploys
         from utils.context_persistence import save_cross_bot_context
-        asyncio.create_task(save_cross_bot_context(
-            user_key=context_key,
-            history=history.copy(),
-            bot_id=bot_id,
-            bot_name=BOTS.get(bot_id, {}).get("name", bot_id),
-            phases=[p.copy() for p in phases] if phases else None,
-            current_phase=current_phase
-        ))
+        try:
+            await save_cross_bot_context(
+                user_key=context_key,
+                history=history.copy(),
+                bot_id=bot_id,
+                bot_name=BOTS.get(bot_id, {}).get("name", bot_id),
+                phases=[p.copy() for p in phases] if phases else None,
+                current_phase=current_phase
+            )
+        except Exception as e:
+            # Log but don't fail the response
+            logger.warning(f"Context persistence failed: {e}")
 
         # Background intelligence: deep extraction + coherence tracking
         if len(history) >= 4 and len(history) % 5 < 2:

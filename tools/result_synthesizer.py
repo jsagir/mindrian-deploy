@@ -555,6 +555,31 @@ async def quick_synthesize(
     )
 
     if not synthesis.get("success"):
+        # QA FIX: Graceful degradation - show source titles/URLs instead of error
+        # When synthesis fails, users still want to see what sources were found
+        fallback_parts = ["**Sources Found** *(AI synthesis unavailable)*\n"]
+
+        # Try to extract raw sources from input
+        raw_sources = []
+        if isinstance(raw_results, dict):
+            raw_sources = raw_results.get("results", []) or raw_results.get("sources", [])
+        elif isinstance(raw_results, list):
+            raw_sources = raw_results
+
+        if raw_sources:
+            for i, src in enumerate(raw_sources[:8], 1):
+                title = src.get("title", src.get("name", "Untitled"))
+                url = src.get("url", src.get("link", ""))
+                content = src.get("content", src.get("snippet", ""))[:150]
+
+                fallback_parts.append(f"**{i}. [{title}]({url})**" if url else f"**{i}. {title}**")
+                if content:
+                    fallback_parts.append(f"   {content}...")
+                fallback_parts.append("")
+
+            fallback_parts.append(f"\n*{len(raw_sources)} sources found. Manual review recommended.*")
+            return "\n".join(fallback_parts)
+
         return f"*Research synthesis unavailable: {synthesis.get('error', 'Unknown error')}*"
 
     parts = []

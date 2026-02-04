@@ -14,6 +14,7 @@ from .minto_pyramid import (
     MintoPyramidState,
     create_minto_pipeline,
     run_minto_pipeline,
+    run_minto_pipeline_with_journey,
     format_minto_result,
 )
 
@@ -78,6 +79,14 @@ from .bono_innovation import (
     HAT_FOCUS,
 )
 
+from .sequential_thinking import (
+    ThinkingStep,
+    ThinkingState,
+    create_thinking_pipeline,
+    run_thinking_pipeline,
+    get_thinking_steps_sync,
+)
+
 __all__ = [
     # Minto Pyramid (deep_research_full)
     "MintoPyramidState",
@@ -119,4 +128,10 @@ __all__ = [
     "route_message",
     "GRADING_BOTS",
     "DOCUMENT_EXTENSIONS",
+    # Sequential Thinking (ThinkingPanel)
+    "ThinkingStep",
+    "ThinkingState",
+    "create_thinking_pipeline",
+    "run_thinking_pipeline",
+    "get_thinking_steps_sync",
 ]

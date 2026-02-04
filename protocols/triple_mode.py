@@ -549,10 +549,15 @@ async def show_entry_point_selector():
         await cl.Message(content=get_clarification_prompt()).send()
 
 
-async def handle_entry_point_selection(entry_point: str):
+async def handle_entry_point_selection(entry_point: str, show_welcome: bool = True):
     """
     CONSOLIDATED HANDLER for select_entry_point callback.
     Sets session vars and shows appropriate UI.
+
+    Args:
+        entry_point: The detected/selected entry point
+        show_welcome: If False, skip verbose welcome (user already typed their topic)
+                      This fixes the "triple welcome" onboarding chaos (QA P1 issue)
     """
     cl.user_session.set("entry_point", entry_point)
 
@@ -570,17 +575,19 @@ async def handle_entry_point_selection(entry_point: str):
     cl.user_session.set("grounding_score", 0.0)
     cl.user_session.set("last_grounding_reason", None)
 
-    # Show welcome message
-    welcome = get_entry_point_welcome(entry_point)
-    await cl.Message(content=welcome).send()
+    # Only show welcome if user manually selected entry point from selector
+    # Skip if auto-detected from their topic (they already know what they want)
+    if show_welcome:
+        welcome = get_entry_point_welcome(entry_point)
+        await cl.Message(content=welcome).send()
 
-    # Show mode toggle for applicable entry points
-    if entry_point in ["brainstorming", "document_review"]:
-        await show_mode_toggle()
+        # Show mode toggle for applicable entry points
+        if entry_point in ["brainstorming", "document_review"]:
+            await show_mode_toggle()
 
-    # Show venture stage selector for build venture
-    if entry_point == "build_venture":
-        await show_venture_stage_selector()
+        # Show venture stage selector for build venture
+        if entry_point == "build_venture":
+            await show_venture_stage_selector()
 
     # Show exploration progress sidebar for brainstorming
     if entry_point == "brainstorming":

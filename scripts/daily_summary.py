@@ -362,6 +362,102 @@ def get_session_summary(client, last_24h: bool = False) -> Dict[str, Any]:
     }
 
 
+def generate_ai_insights(opportunities: Dict, feedback: Dict, sessions: Dict) -> Dict[str, Any]:
+    """
+    Generate AI-powered quality insights and operational recommendations.
+
+    Uses Gemini to analyze the data and provide actionable insights.
+    """
+    try:
+        import google.generativeai as genai
+
+        api_key = os.getenv("GOOGLE_API_KEY")
+        if not api_key:
+            return {"error": "No AI API key", "insights": [], "recommendations": []}
+
+        genai.configure(api_key=api_key)
+
+        # Build context for analysis
+        today_opps = opportunities.get('today_opportunities', [])
+        opp_summaries = []
+        for opp in today_opps[:10]:
+            content = opp.get('content') or {}
+            opp_summaries.append({
+                "title": content.get('name', content.get('title', 'Untitled')),
+                "problem": content.get('problem', ''),
+                "type": content.get('opportunity_type', 'unknown'),
+                "value": content.get('value_potential', 'medium'),
+                "confidence": content.get('extraction_confidence', 0.5),
+            })
+
+        negative_comments = feedback.get('negative_comments', [])
+        satisfaction = feedback.get('satisfaction_rate', 0)
+        by_bot = feedback.get('by_bot', {})
+
+        analysis_prompt = f"""You are an AI operations analyst for Mindrian, a PWS (Problems Worth Solving) innovation platform.
+
+Analyze this daily data and provide operational insights:
+
+## TODAY'S OPPORTUNITIES ({len(today_opps)} discovered)
+{json.dumps(opp_summaries, indent=2)}
+
+## USER SATISFACTION
+- Overall: {satisfaction}%
+- By Bot: {json.dumps(by_bot, indent=2)}
+- Negative Comments: {json.dumps(negative_comments, indent=2)}
+
+## TASK
+Provide EXACTLY this JSON structure (no markdown, just JSON):
+{{
+    "quality_score": <0-100 overall quality of opportunities discovered>,
+    "key_insights": [
+        "Insight 1 about patterns in opportunities",
+        "Insight 2 about user engagement",
+        "Insight 3 about platform health"
+    ],
+    "operational_recommendations": [
+        "Specific action to improve X",
+        "Specific action to address Y"
+    ],
+    "highlight_opportunity": "<title of most promising opportunity and why>",
+    "concern_flag": "<any urgent concern to address or null>"
+}}"""
+
+        model = genai.GenerativeModel("gemini-2.0-flash")
+        response = model.generate_content(analysis_prompt)
+
+        # Parse JSON from response
+        response_text = response.text.strip()
+        # Remove markdown code blocks if present
+        if response_text.startswith("```"):
+            response_text = response_text.split("```")[1]
+            if response_text.startswith("json"):
+                response_text = response_text[4:]
+            response_text = response_text.strip()
+
+        insights_data = json.loads(response_text)
+        return {
+            "success": True,
+            "quality_score": insights_data.get("quality_score", 50),
+            "insights": insights_data.get("key_insights", []),
+            "recommendations": insights_data.get("operational_recommendations", []),
+            "highlight": insights_data.get("highlight_opportunity", ""),
+            "concern": insights_data.get("concern_flag"),
+        }
+
+    except Exception as e:
+        log_error(f"AI insights generation failed: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "quality_score": 0,
+            "insights": [],
+            "recommendations": [],
+            "highlight": "",
+            "concern": None,
+        }
+
+
 def build_opportunities_html(opportunities_list: List[Dict], label: str = "Today") -> str:
     """Build HTML for a list of opportunities with their content (PWS-compliant)."""
     if not opportunities_list:
@@ -468,9 +564,11 @@ def generate_html_report(
     opportunities: Dict,
     feedback: Dict,
     sessions: Dict,
-    date_str: str
+    date_str: str,
+    ai_insights: Dict = None
 ) -> str:
-    """Generate HTML email report."""
+    """Generate HTML email report with AI-powered insights."""
+    ai_insights = ai_insights or {}
 
     # Color coding
     opp_change = opportunities.get('change', 0)
@@ -506,6 +604,40 @@ def generate_html_report(
     today_opps_html = build_opportunities_html(opportunities.get('today_opportunities', []), "Today")
     yesterday_opps_html = build_opportunities_html(opportunities.get('yesterday_opportunities', []), "Yesterday")
 
+    # Build AI insights section
+    ai_quality_score = ai_insights.get('quality_score', 0)
+    ai_quality_color = "#22c55e" if ai_quality_score >= 70 else "#eab308" if ai_quality_score >= 40 else "#ef4444"
+
+    ai_insights_html = ""
+    if ai_insights.get('success') and (ai_insights.get('insights') or ai_insights.get('recommendations')):
+        insights_list = "".join([f'<li style="margin-bottom: 8px; color: #374151;">{insight}</li>' for insight in ai_insights.get('insights', [])])
+        recs_list = "".join([f'<li style="margin-bottom: 8px; color: #374151;">{rec}</li>' for rec in ai_insights.get('recommendations', [])])
+
+        highlight = ai_insights.get('highlight', '')
+        highlight_html = f'<div style="background: #ecfdf5; padding: 12px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #22c55e;"><strong>Highlight:</strong> {highlight}</div>' if highlight else ''
+
+        concern = ai_insights.get('concern')
+        concern_html = f'<div style="background: #fef2f2; padding: 12px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #ef4444;"><strong>Concern:</strong> {concern}</div>' if concern else ''
+
+        ai_insights_html = f'''
+        <div style="margin-bottom: 24px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: 16px; border-radius: 8px;">
+            <h2 style="font-size: 18px; color: #0369a1; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+                AI Quality Insights
+                <span style="background: {ai_quality_color}; color: white; padding: 4px 10px; border-radius: 12px; font-size: 14px;">{ai_quality_score}/100</span>
+            </h2>
+            {highlight_html}
+            {concern_html}
+            <div style="margin-bottom: 12px;">
+                <strong style="color: #0369a1;">Key Insights:</strong>
+                <ul style="margin: 8px 0 0 0; padding-left: 20px;">{insights_list or '<li style="color: #6b7280;">No insights available</li>'}</ul>
+            </div>
+            <div>
+                <strong style="color: #0369a1;">Operational Recommendations:</strong>
+                <ul style="margin: 8px 0 0 0; padding-left: 20px;">{recs_list or '<li style="color: #6b7280;">No recommendations</li>'}</ul>
+            </div>
+        </div>
+        '''
+
     html = f"""
 <!DOCTYPE html>
 <html>
@@ -539,6 +671,9 @@ def generate_html_report(
                 </div>
             </div>
         </div>
+
+        <!-- AI Quality Insights -->
+        {ai_insights_html}
 
         <!-- Bank of Opportunities -->
         <div style="margin-bottom: 24px;">
@@ -635,15 +770,49 @@ def generate_text_report(
     opportunities: Dict,
     feedback: Dict,
     sessions: Dict,
-    date_str: str
+    date_str: str,
+    ai_insights: Dict = None
 ) -> str:
-    """Generate plain text version of report."""
+    """Generate plain text version of report with AI insights."""
+    ai_insights = ai_insights or {}
 
     lines = [
         "=" * 50,
         f"MINDRIAN DAILY SUMMARY - {date_str}",
         "=" * 50,
         "",
+    ]
+
+    # Add AI insights section if available
+    if ai_insights.get('success') and (ai_insights.get('insights') or ai_insights.get('recommendations')):
+        lines.extend([
+            "AI QUALITY INSIGHTS",
+            "-" * 30,
+            f"Quality Score: {ai_insights.get('quality_score', 0)}/100",
+            "",
+        ])
+
+        if ai_insights.get('highlight'):
+            lines.append(f"HIGHLIGHT: {ai_insights.get('highlight')}")
+            lines.append("")
+
+        if ai_insights.get('concern'):
+            lines.append(f"CONCERN: {ai_insights.get('concern')}")
+            lines.append("")
+
+        if ai_insights.get('insights'):
+            lines.append("Key Insights:")
+            for insight in ai_insights.get('insights', []):
+                lines.append(f"  - {insight}")
+            lines.append("")
+
+        if ai_insights.get('recommendations'):
+            lines.append("Operational Recommendations:")
+            for rec in ai_insights.get('recommendations', []):
+                lines.append(f"  - {rec}")
+            lines.append("")
+
+    lines.extend([
         "BANK OF OPPORTUNITIES",
         "-" * 30,
         f"Total Accumulated: {opportunities.get('total_count', 0)}",
@@ -651,7 +820,7 @@ def generate_text_report(
         f"Yesterday: {opportunities.get('yesterday_count', 0)}",
         f"Change: {'+' if opportunities.get('change', 0) > 0 else ''}{opportunities.get('change', 0)}",
         "",
-    ]
+    ])
 
     # Add today's opportunities details (PWS-compliant)
     today_opps = opportunities.get('today_opportunities', [])
@@ -786,10 +955,18 @@ def send_daily_summary(
     print(f"  - Opportunities: {opportunities.get('period_count', 0)} in period, {opportunities.get('total_count', 0)} total")
     print(f"  - Feedback: {feedback.get('period_count', 0)} ratings, {feedback.get('satisfaction_rate', 0)}% satisfaction")
 
+    # Generate AI insights
+    print("  - Generating AI quality insights...")
+    ai_insights = generate_ai_insights(opportunities, feedback, sessions)
+    if ai_insights.get('success'):
+        print(f"  - AI Quality Score: {ai_insights.get('quality_score', 'N/A')}/100")
+    else:
+        print(f"  - AI insights skipped: {ai_insights.get('error', 'Unknown error')}")
+
     # Generate reports
     report_title = f"Last 24 Hours ({date_str})" if last_24h else date_str
-    html_report = generate_html_report(opportunities, feedback, sessions, report_title)
-    text_report = generate_text_report(opportunities, feedback, sessions, report_title)
+    html_report = generate_html_report(opportunities, feedback, sessions, report_title, ai_insights)
+    text_report = generate_text_report(opportunities, feedback, sessions, report_title, ai_insights)
 
     # Send email
     subject = f"Mindrian Summary - {period_label}"
@@ -849,8 +1026,13 @@ def main():
         feedback = get_feedback_summary(client, date_str, last_24h=last_24h)
         sessions = get_session_summary(client, last_24h=last_24h)
 
+        print("Generating AI quality insights...")
+        ai_insights = generate_ai_insights(opportunities, feedback, sessions)
+        if ai_insights.get('success'):
+            print(f"AI Quality Score: {ai_insights.get('quality_score', 'N/A')}/100")
+
         report_title = f"Last 24 Hours ({date_str})" if last_24h else date_str
-        print("\n" + generate_text_report(opportunities, feedback, sessions, report_title))
+        print("\n" + generate_text_report(opportunities, feedback, sessions, report_title, ai_insights))
         return
 
     success = send_daily_summary(
