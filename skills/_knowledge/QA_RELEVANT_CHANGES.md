@@ -1,10 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-04 01:24*
+*Auto-generated: 2026-02-04 02:22*
 
 ---
 
 ## 2026-02-04
+
+### 🐛 fix: Address all QA issues + add LangGraph sequential thinking
+
+- **Commit:** `cb013db9`
+- **Author:** jsagir
+- **Files changed:** 19
+  - callbacks/__init__.py
+  - callbacks/agent_switch.py
+  - callbacks/research.py
+  - intelligence/pipelines/__init__.py
+  - intelligence/pipelines/minto_pyramid.py
+- **Details:** QA Fixes (Feb 3 report):
 
 ### 🐛 fix: Critical context management and research query bugs
 

@@ -9207,18 +9207,21 @@ Your insights help us improve Mindrian!"""
         }
         methodology = methodology_map.get(bot_id)
 
-        # Use the helper function to create the thinking panel element
-        thinking_element = await show_thinking_panel(
-            bot_id=bot_id,
-            steps=thinking_steps,
-            methodology=methodology
-        )
+        # Only show thinking panel if we actually have steps to display
+        # QA FIX: Don't show empty "0/0 - Waiting for reasoning steps" panels
+        if thinking_steps and len(thinking_steps) > 0:
+            # Use the helper function to create the thinking panel element
+            thinking_element = await show_thinking_panel(
+                bot_id=bot_id,
+                steps=thinking_steps,
+                methodology=methodology
+            )
 
-        # Send thinking panel before the response
-        await cl.Message(
-            content="",
-            elements=[thinking_element]
-        ).send()
+            # Send thinking panel before the response
+            await cl.Message(
+                content="",
+                elements=[thinking_element]
+            ).send()
 
     # Create streaming message
     msg = cl.Message(content="")

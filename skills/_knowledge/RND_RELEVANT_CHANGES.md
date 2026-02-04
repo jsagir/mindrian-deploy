@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-04 01:24*
+*Auto-generated: 2026-02-04 02:22*
 
 ---
 
 ## 2026-02-04
+
+### 🐛 fix: Address all QA issues + add LangGraph sequential thinking
+
+- **Commit:** `cb013db9`
+- **Author:** jsagir
+- **Files changed:** 19
+  - callbacks/__init__.py
+  - callbacks/agent_switch.py
+  - callbacks/research.py
+  - intelligence/pipelines/__init__.py
+  - intelligence/pipelines/minto_pyramid.py
+- **Details:** QA Fixes (Feb 3 report):
 
 ### ✨ feat: Integrate ALL LangGraph pipelines into chat flow
 
@@ -409,11 +421,3 @@
 - **Files changed:** 1
   - docs/PWS_A2A_IMPLEMENTATION_PLAN.md
 - **Details:** Complete architecture for implementing PWS methodology as A2A workflows:
-
-### 📝 docs: Add A2A Workflow Architecture for PWS methodologies
-
-- **Commit:** `8a879350`
-- **Author:** jsagir
-- **Files changed:** 1
-  - docs/A2A_WORKFLOW_ARCHITECTURE.md
-- **Details:** Research-based design for multi-agent orchestration using:
