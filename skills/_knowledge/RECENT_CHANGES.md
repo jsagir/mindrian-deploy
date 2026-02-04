@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-04 02:27*
+*Auto-generated: 2026-02-04 02:30*
 
 ---
 
 ## 2026-02-04
+
+### ✨ feat: Add conversation sampler CLI + Streamlit admin dashboard
+
+- **Commit:** `7e4fbee4`
+- **Author:** jsagir
+- **Files changed:** 5
+  - scripts/admin_dashboard.py
+  - scripts/conversation_sampler.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** New admin tools:
 
 ### 📝 docs: Add QA feedback from excellent Nested Hierarchies session
 
@@ -514,15 +526,3 @@
   - tests/__init__.py
   - tests/test_classifier.py
 - **Details:** What this adds:
-
-### ✨ feat: Implement A2A Practical Architecture with core protocols
-
-- **Commit:** `5ec09e8b`
-- **Author:** jsagir
-- **Files changed:** 8
-  - CLAUDE.md
-  - docs/A2A_PRACTICAL_ARCHITECTURE.md
-  - docs/A2A_WORKFLOW_ARCHITECTURE.md
-  - docs/PWS_A2A_IMPLEMENTATION_PLAN.md
-  - protocols/__init__.py
-- **Details:** Architecture decisions consolidated:
