@@ -1,10 +1,21 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-04 04:19*
+*Auto-generated: 2026-02-04 04:25*
 
 ---
 
 ## 2026-02-04
+
+### ✨ feat: Auto-push opportunities to LightRAG on every registration
+
+- **Commit:** `3c31ad65`
+- **Author:** jsagir
+- **Files changed:** 4
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+  - tools/opportunity_bank.py
+- **Details:** - Add store_opportunity_lightrag() using document ingestion API
 
 ### 🐛 fix: Resolve Chainlit 2.9 compatibility + module naming conflict
 
@@ -355,15 +366,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** Key corrections from Mindrian Team review:
-
-### ✨ feat: Rename all skills to Mindrian-Team-X convention + auto-update knowledge base
-
-- **Commit:** `b268be7c`
-- **Author:** jsagir
-- **Files changed:** 19
-  - scripts/update_consultant_knowledge.py
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-  - skills/chainlit-consultant/SKILL.md
-- **Details:** - Renamed all skills to Mindrian-Team-{Function} naming convention:

@@ -8349,6 +8349,12 @@ Suggest 2-3 concrete, actionable next steps to move forward. Be specific."""
 async def main(message: cl.Message):
     """Handle user messages with streaming and stop event support."""
 
+    # DEBUG: Log incoming message details including file attachments
+    _elem_count = len(message.elements) if message.elements else 0
+    _elem_names = [e.name for e in message.elements] if message.elements else []
+    logger.info(f"[ON_MESSAGE] content='{message.content[:50] if message.content else 'empty'}', elements={_elem_count}, names={_elem_names}")
+    print(f"[ON_MESSAGE] Received: {_elem_count} elements, content={len(message.content or '')} chars")
+
     # Check if we're expecting a feedback comment
     if cl.user_session.get("expecting_feedback_comment"):
         from utils.feedback import store_feedback, get_feedback_confirmation_message
@@ -8575,6 +8581,16 @@ Your insights help us improve Mindrian!"""
     logger.info(f"[FILE PROCESSING] Starting with {element_count} elements, content='{message.content[:50] if message.content else 'empty'}'")
     print(f"[FILE PROCESSING] {element_count} elements to process")
 
+    # DEBUG: If elements exist, log each one's details
+    if message.elements:
+        for idx, elem in enumerate(message.elements):
+            elem_type = type(elem).__name__
+            elem_name = getattr(elem, 'name', 'no-name')
+            elem_path = getattr(elem, 'path', 'no-path')
+            elem_mime = getattr(elem, 'mime', None) or getattr(elem, 'type', 'no-mime')
+            print(f"[FILE PROCESSING] Element {idx}: type={elem_type}, name={elem_name}, path={elem_path}, mime={elem_mime}")
+            logger.info(f"[FILE PROCESSING] Element {idx}: type={elem_type}, name={elem_name}, path={elem_path}, mime={elem_mime}")
+
     if message.elements:
         from utils.file_processor import process_uploaded_file, format_file_context, is_image_file, get_image_mime_type
         import os
@@ -8788,6 +8804,11 @@ Your insights help us improve Mindrian!"""
                 content=f"**{len(image_elements)} image(s) uploaded** - analyzing...",
                 elements=image_elements
             ).send()
+
+    # DEBUG: Log file context after processing
+    file_context_len = len(file_context) if file_context else 0
+    logger.info(f"[FILE PROCESSING DONE] file_context length: {file_context_len} chars, images: {len(image_parts)}")
+    print(f"[FILE PROCESSING DONE] file_context={file_context_len} chars, images={len(image_parts)}")
 
     # === GRADING BOTS: ONE-SHOT AUTONOMOUS ASSESSMENT ===
     # When using grading or minto bot, automatically run the full modular assessment engine
