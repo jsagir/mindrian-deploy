@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-04 10:05*
+*Auto-generated: 2026-02-04 13:17*
 
 ---
 
 ## 2026-02-04
+
+### ✨ feat: Smart onboarding + humanized research contextualization
+
+- **Commit:** `2d0b0fbc`
+- **Author:** jsagir
+- **Files changed:** 7
+  - docs/EDWARDS_ONBOARDING.md
+  - mindrian_chat.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Smart Onboarding (utils/smart_onboarding.py):
 
 ### ✨ feat: API health monitoring, daily digest email, and smart onboarding
 
@@ -535,11 +547,3 @@
   - qa/2026-02-03/QA_RELEASE_NOTES_FEB3.md
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
-
-### 📝 docs: Final skills sync
-
-- **Commit:** `142b73ab`
-- **Author:** jsagir
-- **Files changed:** 2
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md

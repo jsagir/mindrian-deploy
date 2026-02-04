@@ -8973,15 +8973,22 @@ Your insights help us improve Mindrian!"""
 
     # DEBUG: If elements exist, log each one's details
     if message.elements:
-        # IMMEDIATE USER FEEDBACK: Show file received confirmation
+        # IMMEDIATE USER FEEDBACK: Show file received with STREAMING status updates
         file_names = [getattr(e, 'name', 'file') for e in message.elements if hasattr(e, 'name')]
         if file_names:
             file_list = ", ".join(file_names[:3])
             if len(file_names) > 3:
                 file_list += f" (+{len(file_names) - 3} more)"
-            await cl.Message(
-                content=f"📎 **File received:** {file_list}\n\n⏳ *Processing...*"
-            ).send()
+
+            # Create streaming status message for real-time feedback
+            processing_status = cl.Message(content=f"📎 **File received:** {file_list}\n\n")
+            await processing_status.send()
+            await processing_status.stream_token("⏳ **Processing...**\n")
+            await processing_status.stream_token("```\n")
+            await processing_status.stream_token("├─ Detecting file type...")
+
+            # Store reference for updates during processing
+            cl.user_session.set("file_processing_status", processing_status)
 
         for idx, elem in enumerate(message.elements):
             elem_type = type(elem).__name__
@@ -9019,12 +9026,19 @@ Your insights help us improve Mindrian!"""
 
                 # BUG FIX: Explicitly check for documents first, then images
                 # This prevents PDFs from being misidentified as images
+                # Get streaming status message for real-time feedback
+                processing_status = cl.user_session.get("file_processing_status")
+
                 if is_document:
                     logger.info(f"[FILE UPLOAD] Detected as DOCUMENT: ext={file_ext}, mime={elem_mime}")
                     is_image = False
+                    if processing_status:
+                        await processing_status.stream_token(f" ✓ Document ({file_ext})\n")
                 else:
                     is_image = is_image_file(elem_name) or is_image_file(elem_path)
                     logger.info(f"[FILE UPLOAD] Detected as {'IMAGE' if is_image else 'UNKNOWN'}: ext={file_ext}, mime={elem_mime}")
+                    if processing_status:
+                        await processing_status.stream_token(f" ✓ {'Image' if is_image else 'File'}\n")
 
                 # Check if it's an image file (by extension, not mime type)
                 if is_image:
@@ -9093,12 +9107,17 @@ Your insights help us improve Mindrian!"""
 
                         # For PDFs: Smart multi-model extraction (Gemini Flash → Pro → Claude → PyPDF2)
                         if file_ext == '.pdf':
+                            if processing_status:
+                                await processing_status.stream_token("├─ Extracting PDF text...")
+
                             try:
                                 from tools.smart_document import is_smart_doc_available, process_document_smart
 
                                 if is_smart_doc_available():
                                     file_step.input = f"Smart document processing for {element.name}"
                                     logger.info(f"[SMART DOC] Processing PDF: {element.name}")
+                                    if processing_status:
+                                        await processing_status.stream_token(" (using AI extraction)")
 
                                     # Process with smart multi-model fallback
                                     smart_result = await process_document_smart(
@@ -9122,8 +9141,12 @@ Your insights help us improve Mindrian!"""
                                             "pages_processed": smart_result.get("pages_processed", 0),
                                         }
                                         logger.info(f"[SMART DOC] Success via {method}: {len(content)} chars, {len(metadata.get('equations', []))} equations")
+                                        if processing_status:
+                                            await processing_status.stream_token(f" ✓ {len(content):,} chars\n")
                                     else:
                                         logger.warning(f"[SMART DOC] All methods failed, using PyPDF2: {smart_result.get('error', 'empty result')}")
+                                        if processing_status:
+                                            await processing_status.stream_token(" → fallback\n")
                                 else:
                                     logger.info(f"[SMART DOC] Not configured, using PyPDF2 for {element.name}")
 
@@ -9132,10 +9155,17 @@ Your insights help us improve Mindrian!"""
 
                         # Fallback to standard extraction (PyPDF2 for PDF, python-docx for DOCX, etc.)
                         if not content:
+                            if processing_status and file_ext != '.pdf':
+                                await processing_status.stream_token(f"├─ Extracting {file_ext} content...")
                             content, metadata = process_uploaded_file(element.path, element.name)
+                            if processing_status:
+                                char_count = metadata.get("char_count", len(content) if content else 0)
+                                await processing_status.stream_token(f" ✓ {char_count:,} chars\n")
 
                         if metadata.get("error"):
                             file_step.output = f"Error: {metadata['error']}"
+                            if processing_status:
+                                await processing_status.stream_token(f"├─ ❌ Error: {metadata['error'][:50]}\n")
                             await cl.Message(content=f"Could not process **{element.name}**: {metadata['error']}").send()
                         else:
                             file_type = metadata.get("type", "file")
@@ -9210,21 +9240,38 @@ Your insights help us improve Mindrian!"""
     logger.info(f"[FILE PROCESSING DONE] file_context length: {file_context_len} chars, images: {len(image_parts)}")
     print(f"[FILE PROCESSING DONE] file_context={file_context_len} chars, images={len(image_parts)}")
 
-    # USER FEEDBACK: Confirm file processing complete (if we had files)
+    # USER FEEDBACK: Complete the streaming status message and confirm results
+    processing_status = cl.user_session.get("file_processing_status")
     if element_count > 0 and (file_context_len > 0 or len(image_parts) > 0):
-        status_parts = []
-        if file_context_len > 0:
-            status_parts.append(f"{file_context_len:,} characters extracted")
-        if len(image_parts) > 0:
-            status_parts.append(f"{len(image_parts)} image(s) ready for analysis")
-        await cl.Message(
-            content=f"✅ **Processing complete:** {' | '.join(status_parts)}\n\n*Generating response...*"
-        ).send()
+        # Success - update streaming status and show summary
+        if processing_status:
+            await processing_status.stream_token("└─ ✅ Complete!\n")
+            await processing_status.stream_token("```\n\n")
+            status_parts = []
+            if file_context_len > 0:
+                status_parts.append(f"📄 **{file_context_len:,} characters** extracted")
+            if len(image_parts) > 0:
+                status_parts.append(f"🖼️ **{len(image_parts)} image(s)** ready for analysis")
+            await processing_status.stream_token(f"**Result:** {' | '.join(status_parts)}\n\n")
+            await processing_status.stream_token("*🤖 Generating response...*")
+            await processing_status.update()
+        else:
+            # Fallback if no streaming status (shouldn't happen)
+            await cl.Message(
+                content=f"✅ **Processing complete:** {file_context_len:,} characters extracted\n\n*Generating response...*"
+            ).send()
     elif element_count > 0 and file_context_len == 0 and len(image_parts) == 0:
         # Files were uploaded but nothing was extracted - warn user
-        await cl.Message(
-            content="⚠️ **File processing issue:** Could not extract content from the uploaded file(s). Please try a different file format or paste the content directly."
-        ).send()
+        if processing_status:
+            await processing_status.stream_token("└─ ⚠️ No content extracted\n")
+            await processing_status.stream_token("```\n\n")
+            await processing_status.stream_token("**Issue:** Could not extract content from the uploaded file(s).\n")
+            await processing_status.stream_token("*Please try a different file format or paste the content directly.*")
+            await processing_status.update()
+        else:
+            await cl.Message(
+                content="⚠️ **File processing issue:** Could not extract content from the uploaded file(s). Please try a different file format or paste the content directly."
+            ).send()
 
     # === GRADING BOTS: ONE-SHOT AUTONOMOUS ASSESSMENT ===
     # When using grading or minto bot, automatically run the full modular assessment engine
@@ -9720,8 +9767,21 @@ Your insights help us improve Mindrian!"""
     if image_parts:
         # Add image parts first for Gemini multimodal
         user_parts.extend(image_parts)
-    # Add text part (or default prompt if only images provided)
-    text_content = full_user_message if message.content.strip() else "Please analyze this image and describe what you see."
+
+    # Add text part (or default prompt if only images/files provided)
+    # BUG FIX: Check full_user_message (which includes file_context) not just message.content
+    # This ensures extracted PDF/document text is passed to the LLM even when user doesn't type anything
+    if full_user_message.strip():
+        text_content = full_user_message
+    elif image_parts:
+        # Only fall back to image prompt if there are actual images
+        text_content = "Please analyze this image and describe what you see."
+    elif file_context:
+        # Document was uploaded - use document analysis prompt
+        text_content = f"Please analyze this document and provide your thoughts.\n\n{file_context}"
+    else:
+        text_content = "Hello, how can I help you today?"
+
     user_parts.append(types.Part(text=text_content))
 
     contents.append(types.Content(
