@@ -1,6 +1,6 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-04 13:39*
+*Auto-generated: 2026-02-04 13:46*
 
 ---
 
@@ -209,11 +209,3 @@
   - mindrian_chat.py
   - prompts/multi_perspective_validation.py
 - **Details:** Root cause: When PDF extraction returned empty/minimal content, Gemini
-
-### 🐛 fix: Replace HTML <details> with cl.Step for thinking display
-
-- **Commit:** `3d867db6`
-- **Author:** Claude
-- **Files changed:** 1
-  - mindrian_chat.py
-- **Details:** Bug 10: The thinking stream was showing as raw markdown instead of

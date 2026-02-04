@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-04 13:39*
+*Auto-generated: 2026-02-04 13:46*
 
 ---
 
 ## 2026-02-04
+
+### ✨ feat: Add floating PWS Tools Panel with contextual tooltips
+
+- **Commit:** `e897e3ec`
+- **Author:** jsagir
+- **Files changed:** 5
+  - mindrian_chat.py
+  - public/elements/ToolsPanel.jsx
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** - Add ToolsPanel.jsx floating component (bottom-right) showing PWS methodology tools
 
 ### ✨ feat: Humanize file upload feedback with PWS/Lawrence-style language
 
@@ -548,11 +560,3 @@
   - mindrian_chat.py
   - prompts/multi_perspective_validation.py
 - **Details:** Root cause: When PDF extraction returned empty/minimal content, Gemini
-
-### 🐛 fix: Replace HTML <details> with cl.Step for thinking display
-
-- **Commit:** `3d867db6`
-- **Author:** Claude
-- **Files changed:** 1
-  - mindrian_chat.py
-- **Details:** Bug 10: The thinking stream was showing as raw markdown instead of
