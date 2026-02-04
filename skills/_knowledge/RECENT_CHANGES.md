@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-04 13:35*
+*Auto-generated: 2026-02-04 13:37*
 
 ---
 
 ## 2026-02-04
+
+### 📝 docs: User-friendly README + legal disclaimers
+
+- **Commit:** `593f3685`
+- **Author:** jsagir
+- **Files changed:** 6
+  - README.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+  - utils/research_contextualizer.py
+- **Details:** README Update:
 
 ### 🐛 fix: Critical PDF processing bug + streaming file upload feedback
 
@@ -541,11 +553,3 @@
 - **Files changed:** 1
   - mindrian_chat.py
 - **Details:** Bug fixes from second session analysis (Nested Hierarchies → MOTJ):
-
-### 🐛 fix: Resolve critical session and truncation bugs from BONO Master analysis
-
-- **Commit:** `fa1038a8`
-- **Author:** Claude
-- **Files changed:** 1
-  - mindrian_chat.py
-- **Details:** Bug fixes from session analysis (Larry Playground → BONO Master):

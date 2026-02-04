@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-04 13:35*
+*Auto-generated: 2026-02-04 13:37*
 
 ---
 
 ## 2026-02-04
+
+### 📝 docs: User-friendly README + legal disclaimers
+
+- **Commit:** `593f3685`
+- **Author:** jsagir
+- **Files changed:** 6
+  - README.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+  - utils/research_contextualizer.py
+- **Details:** README Update:
 
 ### ✨ feat: Smart onboarding + humanized research contextualization
 

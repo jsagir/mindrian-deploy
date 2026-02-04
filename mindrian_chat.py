@@ -8980,12 +8980,19 @@ Your insights help us improve Mindrian!"""
             if len(file_names) > 3:
                 file_list += f" (+{len(file_names) - 3} more)"
 
-            # Create streaming status message for real-time feedback
-            processing_status = cl.Message(content=f"📎 **File received:** {file_list}\n\n")
+            # Create streaming status message with PWS/Lawrence-style conversational language
+            # Not robotic "processing..." but human thinking-out-loud
+            import random
+            opening_phrases = [
+                "Interesting, let me take a look at this...",
+                "Got it — reading through now...",
+                "Okay, let me dig into this...",
+                "Thanks! Opening this up...",
+                "Perfect, let me see what we have here...",
+            ]
+            processing_status = cl.Message(content=f"📎 **{file_list}**\n\n")
             await processing_status.send()
-            await processing_status.stream_token("⏳ **Processing...**\n")
-            await processing_status.stream_token("```\n")
-            await processing_status.stream_token("├─ Detecting file type...")
+            await processing_status.stream_token(f"*{random.choice(opening_phrases)}*\n\n")
 
             # Store reference for updates during processing
             cl.user_session.set("file_processing_status", processing_status)
@@ -9032,13 +9039,12 @@ Your insights help us improve Mindrian!"""
                 if is_document:
                     logger.info(f"[FILE UPLOAD] Detected as DOCUMENT: ext={file_ext}, mime={elem_mime}")
                     is_image = False
-                    if processing_status:
-                        await processing_status.stream_token(f" ✓ Document ({file_ext})\n")
+                    # No status update here - we'll show progress during extraction
                 else:
                     is_image = is_image_file(elem_name) or is_image_file(elem_path)
                     logger.info(f"[FILE UPLOAD] Detected as {'IMAGE' if is_image else 'UNKNOWN'}: ext={file_ext}, mime={elem_mime}")
-                    if processing_status:
-                        await processing_status.stream_token(f" ✓ {'Image' if is_image else 'File'}\n")
+                    if processing_status and is_image:
+                        await processing_status.stream_token("*Looking at your image...*\n")
 
                 # Check if it's an image file (by extension, not mime type)
                 if is_image:
@@ -9108,7 +9114,14 @@ Your insights help us improve Mindrian!"""
                         # For PDFs: Smart multi-model extraction (Gemini Flash → Pro → Claude → PyPDF2)
                         if file_ext == '.pdf':
                             if processing_status:
-                                await processing_status.stream_token("├─ Extracting PDF text...")
+                                reading_phrases = [
+                                    "Reading through this PDF...",
+                                    "Scanning through the pages...",
+                                    "Working through the document...",
+                                    "Going through this...",
+                                ]
+                                import random
+                                await processing_status.stream_token(f"*{random.choice(reading_phrases)}*")
 
                             try:
                                 from tools.smart_document import is_smart_doc_available, process_document_smart
@@ -9116,8 +9129,6 @@ Your insights help us improve Mindrian!"""
                                 if is_smart_doc_available():
                                     file_step.input = f"Smart document processing for {element.name}"
                                     logger.info(f"[SMART DOC] Processing PDF: {element.name}")
-                                    if processing_status:
-                                        await processing_status.stream_token(" (using AI extraction)")
 
                                     # Process with smart multi-model fallback
                                     smart_result = await process_document_smart(
@@ -9142,11 +9153,18 @@ Your insights help us improve Mindrian!"""
                                         }
                                         logger.info(f"[SMART DOC] Success via {method}: {len(content)} chars, {len(metadata.get('equations', []))} equations")
                                         if processing_status:
-                                            await processing_status.stream_token(f" ✓ {len(content):,} chars\n")
+                                            # Human-friendly size description
+                                            if len(content) > 10000:
+                                                size_desc = "quite a bit here"
+                                            elif len(content) > 3000:
+                                                size_desc = "good amount of content"
+                                            else:
+                                                size_desc = "got it"
+                                            await processing_status.stream_token(f" — {size_desc}!\n")
                                     else:
                                         logger.warning(f"[SMART DOC] All methods failed, using PyPDF2: {smart_result.get('error', 'empty result')}")
                                         if processing_status:
-                                            await processing_status.stream_token(" → fallback\n")
+                                            await processing_status.stream_token(" — trying another approach...\n")
                                 else:
                                     logger.info(f"[SMART DOC] Not configured, using PyPDF2 for {element.name}")
 
@@ -9156,16 +9174,30 @@ Your insights help us improve Mindrian!"""
                         # Fallback to standard extraction (PyPDF2 for PDF, python-docx for DOCX, etc.)
                         if not content:
                             if processing_status and file_ext != '.pdf':
-                                await processing_status.stream_token(f"├─ Extracting {file_ext} content...")
+                                doc_phrases = {
+                                    '.docx': "Reading your Word doc...",
+                                    '.doc': "Reading your Word doc...",
+                                    '.txt': "Reading through this...",
+                                    '.md': "Looking at this markdown...",
+                                    '.csv': "Parsing this data...",
+                                    '.json': "Looking at this data...",
+                                }
+                                phrase = doc_phrases.get(file_ext, f"Reading this {file_ext} file...")
+                                await processing_status.stream_token(f"*{phrase}*")
                             content, metadata = process_uploaded_file(element.path, element.name)
                             if processing_status:
                                 char_count = metadata.get("char_count", len(content) if content else 0)
-                                await processing_status.stream_token(f" ✓ {char_count:,} chars\n")
+                                if char_count > 5000:
+                                    await processing_status.stream_token(" — lots to work with!\n")
+                                elif char_count > 1000:
+                                    await processing_status.stream_token(" — got it!\n")
+                                else:
+                                    await processing_status.stream_token(" — okay!\n")
 
                         if metadata.get("error"):
                             file_step.output = f"Error: {metadata['error']}"
                             if processing_status:
-                                await processing_status.stream_token(f"├─ ❌ Error: {metadata['error'][:50]}\n")
+                                await processing_status.stream_token(f"\n*Hmm, ran into an issue: {metadata['error'][:40]}...*\n")
                             await cl.Message(content=f"Could not process **{element.name}**: {metadata['error']}").send()
                         else:
                             file_type = metadata.get("type", "file")
@@ -9240,37 +9272,46 @@ Your insights help us improve Mindrian!"""
     logger.info(f"[FILE PROCESSING DONE] file_context length: {file_context_len} chars, images: {len(image_parts)}")
     print(f"[FILE PROCESSING DONE] file_context={file_context_len} chars, images={len(image_parts)}")
 
-    # USER FEEDBACK: Complete the streaming status message and confirm results
+    # USER FEEDBACK: Complete the streaming status message with conversational wrap-up
     processing_status = cl.user_session.get("file_processing_status")
     if element_count > 0 and (file_context_len > 0 or len(image_parts) > 0):
-        # Success - update streaming status and show summary
+        # Success - conversational completion
         if processing_status:
-            await processing_status.stream_token("└─ ✅ Complete!\n")
-            await processing_status.stream_token("```\n\n")
-            status_parts = []
-            if file_context_len > 0:
-                status_parts.append(f"📄 **{file_context_len:,} characters** extracted")
-            if len(image_parts) > 0:
-                status_parts.append(f"🖼️ **{len(image_parts)} image(s)** ready for analysis")
-            await processing_status.stream_token(f"**Result:** {' | '.join(status_parts)}\n\n")
-            await processing_status.stream_token("*🤖 Generating response...*")
+            import random
+            if file_context_len > 10000:
+                completion_phrases = [
+                    "Okay, there's a lot here — let me think about this...",
+                    "Got it all. This is substantial — thinking through it now...",
+                    "Finished reading. Quite comprehensive — processing my thoughts...",
+                ]
+            elif file_context_len > 3000:
+                completion_phrases = [
+                    "All done reading. Let me gather my thoughts...",
+                    "Got it! Thinking through what I've read...",
+                    "Finished! Let me put together a response...",
+                ]
+            else:
+                completion_phrases = [
+                    "Got it! Let me think about this...",
+                    "Okay, I see. Putting together my thoughts...",
+                    "All set. Let me respond to this...",
+                ]
+            await processing_status.stream_token(f"\n✅ *{random.choice(completion_phrases)}*")
             await processing_status.update()
         else:
             # Fallback if no streaming status (shouldn't happen)
             await cl.Message(
-                content=f"✅ **Processing complete:** {file_context_len:,} characters extracted\n\n*Generating response...*"
+                content=f"✅ *Got it! Thinking through this now...*"
             ).send()
     elif element_count > 0 and file_context_len == 0 and len(image_parts) == 0:
-        # Files were uploaded but nothing was extracted - warn user
+        # Files were uploaded but nothing was extracted - conversational warning
         if processing_status:
-            await processing_status.stream_token("└─ ⚠️ No content extracted\n")
-            await processing_status.stream_token("```\n\n")
-            await processing_status.stream_token("**Issue:** Could not extract content from the uploaded file(s).\n")
-            await processing_status.stream_token("*Please try a different file format or paste the content directly.*")
+            await processing_status.stream_token("\n\n⚠️ *Hmm, I couldn't read the content from this file. ")
+            await processing_status.stream_token("Could you try a different format, or paste the text directly?*")
             await processing_status.update()
         else:
             await cl.Message(
-                content="⚠️ **File processing issue:** Could not extract content from the uploaded file(s). Please try a different file format or paste the content directly."
+                content="⚠️ *Hmm, I couldn't read the content from this file. Could you try a different format, or paste the text directly?*"
             ).send()
 
     # === GRADING BOTS: ONE-SHOT AUTONOMOUS ASSESSMENT ===
