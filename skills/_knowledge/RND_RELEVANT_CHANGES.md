@@ -1,10 +1,21 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-04 14:07*
+*Auto-generated: 2026-02-04 14:28*
 
 ---
 
 ## 2026-02-04
+
+### 📝 docs: Add R&D/20_pws_thinking_streamer for future reference
+
+- **Commit:** `0ef80191`
+- **Author:** jsagir
+- **Files changed:** 4
+  - R&D/20_pws_thinking_streamer/README.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Documents the PWS-style thinking streamer pipeline:
 
 ### ✨ feat: Add Claude Code-style thinking streamer for file processing
 
@@ -411,12 +422,3 @@
   - tools/graphrag_lite.py
   - tools/pws_brain.py
 - **Details:** The assessment_engine.py was importing semantic_search and
-
-### ✨ feat: Add comprehensive AGENT_GENERATOR_META_PROMPT v2.0
-
-- **Commit:** `80824830`
-- **Author:** Claude
-- **Files changed:** 2
-  - prompts/__init__.py
-  - prompts/agent_generator_meta.py
-- **Details:** - Complete meta-prompt for generating Mindrian agent configurations
