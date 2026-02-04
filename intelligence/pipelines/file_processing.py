@@ -5,7 +5,7 @@ Multi-step file upload → extraction → embedding workflow.
 
 Pipeline Stages:
 1. Upload Detection - Identify file type (PDF, DOCX, image, etc.)
-2. Content Extraction - Route to appropriate extractor (PyPDF2, DocAI, OCR)
+2. Content Extraction - Route to appropriate extractor (Claude Vision, PyPDF2 fallback)
 3. Quality Check - Validate extraction quality, retry if needed
 4. Chunking - Split content into semantic chunks
 5. Embedding - Store in Neo4j and/or FileSearch
@@ -232,7 +232,7 @@ async def _extract_single_file(file_state: FileState, pipeline_state: FilePipeli
         if file_type == "pdf":
             if file_state.get("is_scanned"):
                 # Try Document AI or OCR for scanned PDFs
-                content, metadata = await _extract_with_docai(file_path)
+                content, metadata = await _extract_with_claude(file_path)
                 file_state["extraction_method"] = "docai"
             else:
                 # Use PyPDF2 for text PDFs
@@ -242,7 +242,7 @@ async def _extract_single_file(file_state: FileState, pipeline_state: FilePipeli
                 # Fallback to Document AI if extraction is poor
                 if len(content.strip()) < 100 and file_state["retry_count"] < 2:
                     file_state["retry_count"] += 1
-                    content, metadata = await _extract_with_docai(file_path)
+                    content, metadata = await _extract_with_claude(file_path)
                     file_state["extraction_method"] = "docai_fallback"
 
         elif file_type == "docx":
@@ -322,35 +322,41 @@ def _extract_pdf_pypdf2(file_path: str) -> tuple[str, dict]:
     }
 
 
-async def _extract_with_docai(file_path: str) -> tuple[str, dict]:
-    """Extract text using Document AI (with OCR for scanned docs)."""
+async def _extract_with_claude(file_path: str) -> tuple[str, dict]:
+    """Extract text using Claude Vision (200K context, handwriting + equations)."""
     try:
-        from tools.document_ai import smart_process_document, is_document_ai_available
+        from tools.claude_document import is_claude_doc_available, process_document_with_claude
 
-        if not is_document_ai_available():
+        if not is_claude_doc_available():
             # Fallback to PyPDF2
+            print("[FILE_PIPELINE] Claude not configured, falling back to PyPDF2")
             return _extract_pdf_pypdf2(file_path)
 
-        with open(file_path, 'rb') as f:
-            file_content = f.read()
-
-        result = await smart_process_document(
-            file_content=file_content,
+        result = await process_document_with_claude(
+            file_path=file_path,
             file_name=Path(file_path).name,
-            force_docai=True
+            extract_equations=True,
+            extract_handwriting=True,
+            max_pages=20
         )
 
+        if result.get("error"):
+            print(f"[FILE_PIPELINE] Claude extraction error: {result['error']}")
+            return _extract_pdf_pypdf2(file_path)
+
         return result.get("text", ""), {
-            "page_count": result.get("page_count"),
-            "has_tables": bool(result.get("tables")),
+            "page_count": result.get("pages_processed"),
+            "has_tables": True,  # Claude extracts tables inline as markdown
             "has_equations": bool(result.get("equations")),
-            "confidence": result.get("confidence", 0.9),
+            "confidence": 0.95 if result.get("confidence") == "high" else 0.8,
+            "method": "claude",
         }
     except ImportError:
-        # Document AI not available, fallback
+        # Claude not available, fallback
+        print("[FILE_PIPELINE] Claude module not found, falling back to PyPDF2")
         return _extract_pdf_pypdf2(file_path)
     except Exception as e:
-        print(f"[FILE_PIPELINE] Document AI failed: {e}")
+        print(f"[FILE_PIPELINE] Claude failed: {e}")
         return _extract_pdf_pypdf2(file_path)
 
 
@@ -431,27 +437,27 @@ def _extract_text(file_path: str) -> tuple[str, dict]:
 
 
 async def _extract_image_ocr(file_path: str) -> tuple[str, dict]:
-    """Extract text from images using OCR."""
+    """Extract text from images using Claude Vision."""
     try:
-        from tools.document_ai import smart_process_document, is_document_ai_available
+        from tools.claude_document import is_claude_doc_available, process_document_with_claude
 
-        if is_document_ai_available():
-            with open(file_path, 'rb') as f:
-                file_content = f.read()
-
-            result = await smart_process_document(
-                file_content=file_content,
+        if is_claude_doc_available():
+            result = await process_document_with_claude(
+                file_path=file_path,
                 file_name=Path(file_path).name,
-                force_docai=True
+                extract_equations=True,
+                extract_handwriting=True,
             )
 
-            return result.get("text", ""), {
-                "confidence": result.get("confidence", 0.7),
-            }
+            if not result.get("error"):
+                return result.get("text", ""), {
+                    "confidence": 0.95 if result.get("confidence") == "high" else 0.8,
+                    "method": "claude",
+                }
     except Exception as e:
-        print(f"[FILE_PIPELINE] Image OCR failed: {e}")
+        print(f"[FILE_PIPELINE] Claude Image OCR failed: {e}")
 
-    return "[Image content - OCR not available]", {"confidence": 0.0}
+    return "[Image content - OCR not available. Set ANTHROPIC_API_KEY]", {"confidence": 0.0}
 
 
 def _extract_spreadsheet(file_path: str) -> tuple[str, dict]:

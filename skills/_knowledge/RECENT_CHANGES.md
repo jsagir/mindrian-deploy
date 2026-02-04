@@ -1,10 +1,21 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-04 02:54*
+*Auto-generated: 2026-02-04 03:06*
 
 ---
 
 ## 2026-02-04
+
+### ✨ feat: Document AI as PRIMARY PDF processor (handwriting + equations)
+
+- **Commit:** `3b3c3f88`
+- **Author:** jsagir
+- **Files changed:** 4
+  - mindrian_chat.py
+  - requirements.txt
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** - Added google-cloud-documentai to requirements.txt
 
 ### 📝 docs: Sync knowledge base (auto-generated)
 
@@ -514,12 +525,3 @@
   - public/elements/MermaidDiagram.jsx
   - utils/diagrams.py
 - **Details:** Client-side rendering via jsDelivr CDN is sufficient:
-
-### ✨ feat: Add server-side Mermaid rendering option
-
-- **Commit:** `9d60c1ab`
-- **Author:** jsagir
-- **Files changed:** 2
-  - public/elements/MermaidDiagram.jsx
-  - utils/diagrams.py
-- **Details:** - Support pre-rendered SVG via mermaid-cli (mmdc) if available
