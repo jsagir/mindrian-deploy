@@ -1,10 +1,21 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-04 02:40*
+*Auto-generated: 2026-02-04 02:54*
 
 ---
 
 ## 2026-02-04
+
+### 🐛 fix: P0 - File uploads blocked when message short (e.g., "review !")
+
+- **Commit:** `9920d572`
+- **Author:** jsagir
+- **Files changed:** 4
+  - mindrian_chat.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Root cause: auto_detect_entry_point returned should_show_selector=True
 
 ### 🐛 fix: Disable pyaudio (requires system portaudio not available on Render)
 
@@ -160,13 +171,3 @@
 - **Files changed:** 1
   - requirements.txt
 - **Details:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-
-## 2026-02-02
-
-### 🐛 fix: Add Supabase blob storage and disable telemetry
-
-- **Commit:** `96d3cb12`
-- **Author:** jsagir
-- **Files changed:** 2
-  - utils/data_layer.py
-- **Details:** - Add SupabaseBlobStorage class implementing Chainlit BaseStorageClient
