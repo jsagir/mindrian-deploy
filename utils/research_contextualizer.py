@@ -427,6 +427,9 @@ def format_contextualized_output(
     if recommendation:
         output.append(f"\n### What This Means For You\n{recommendation}")
 
+    # Legal disclaimer (always at end)
+    output.append("\n---\n*📋 Disclaimer: Research results are for informational purposes only. Verify important findings from primary sources before making decisions.*")
+
     return "\n".join(output)
 
 

@@ -457,7 +457,10 @@ I'm your thinking partner for discovering **problems worth solving** — the kin
 
 ---
 
-*I noticed you're new here. Want a quick 2-minute tour of how this works?*"""
+*I noticed you're new here. Want a quick 2-minute tour of how this works?*
+
+---
+*📋 This is an educational tool to support innovation thinking. Not professional advice.*"""
 
         return {
             "message": message,

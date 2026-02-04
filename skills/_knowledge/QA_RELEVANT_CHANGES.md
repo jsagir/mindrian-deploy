@@ -1,10 +1,21 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-04 13:17*
+*Auto-generated: 2026-02-04 13:35*
 
 ---
 
 ## 2026-02-04
+
+### 🐛 fix: Critical PDF processing bug + streaming file upload feedback
+
+- **Commit:** `7a3b7310`
+- **Author:** jsagir
+- **Files changed:** 4
+  - mindrian_chat.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Bug Fixes:
 
 ### 🐛 fix: QA UI/UX improvements - accessibility and error handling
 
@@ -222,12 +233,3 @@
 - **Files changed:** 1
   - mindrian_chat.py
 - **Details:** Bug fixes from session analysis (Larry Playground → BONO Master):
-
-### 📝 docs: Add QA release notes for Feb 3 - Recursive Intelligence + Gemini 2.5
-
-- **Commit:** `2895440b`
-- **Author:** jsagir
-- **Files changed:** 3
-  - qa/2026-02-03/QA_RELEASE_NOTES_FEB3.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md

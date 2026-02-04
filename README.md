@@ -1,1285 +1,186 @@
-# Mindrian - Multi-Bot PWS Platform
+# Welcome to Mindrian
 
-A conversational AI platform for Problem Worth Solving (PWS) methodology, featuring Lawrence (the focused thinking partner) and Larry Playground (the full-featured lab), plus specialized workshop bots powered by Google Gemini with RAG-based knowledge retrieval.
+**Your AI-Powered Innovation Workshop Platform**
+
+Mindrian helps you discover problems worth solving through structured thinking frameworks. Whether you're an entrepreneur, researcher, or student exploring innovation, Mindrian guides you through proven methodologies.
 
 **Live Demo:** https://mindrian.onrender.com
-**Repository:** https://github.com/jsagir/mindrian-deploy
 **Course:** EN.663.635 Problems Worth Solving - Johns Hopkins University
 
 ---
 
-## Table of Contents
-1. [Overview](#overview)
-2. [Available Bots](#available-bots)
-3. [Features](#features)
-4. [New in v3.1](#new-in-v31-february-2026)
-5. [Architecture](#architecture)
-6. [Gemini File Search / RAG](#gemini-file-search--rag)
-7. [Intelligence Layer](#intelligence-layer-langgraph-pipelines)
-8. [Admin Tools](#admin-tools)
-9. [Project Structure](#project-structure)
-10. [Quick Start](#quick-start)
-11. [Configuration](#configuration)
-12. [Environment Variables](#environment-variables)
-13. [Deployment](#deployment)
-14. [Workshop Details](#workshop-details)
-15. [Development Guide](#development-guide)
-16. [Project History](#project-history)
+## Available Workshops
+
+| Workshop | What It Does | Best For |
+|----------|-------------|----------|
+| **Lawrence** | Your thinking partner for discovering valuable problems | Starting exploration, general guidance |
+| **Larry Playground** | Full-featured lab with research tools + multi-agent analysis | Deep research, complex problems |
+| **Trending to the Absurd (TTA)** | Take trends to extremes to find future problems | Spotting emerging opportunities |
+| **Jobs to Be Done (JTBD)** | Discover what customers actually hire products for | Customer research, product design |
+| **S-Curve Analysis** | Analyze technology timing and disruption | Market timing, investment decisions |
+| **Red Teaming** | Stress-test your assumptions as devil's advocate | Validating ideas, finding weaknesses |
+| **Ackoff's Pyramid** | Validate understanding before taking action (DIKW) | Decision-making, avoiding blind spots |
+| **Scenario Analysis** | Explore multiple plausible futures | Strategic planning |
+| **Beautiful Question** | WHY → WHAT IF → HOW methodology | Breaking assumptions |
+| **Nested Hierarchies** | Systems analysis for leverage points | Complex problems |
 
 ---
 
-## Overview
+## How to Use Mindrian
 
-Mindrian is a Chainlit-based multi-bot platform that guides users through structured innovation workshops using the PWS (Problems Worth Solving) methodology. Each bot specializes in a different PWS tool:
+### Getting Started
 
-- **Lawrence** - The focused PWS thinking partner (default)
-- **Larry Playground** - Full-featured PWS lab with all tools
-- **Trending to the Absurd (TTA)** - Escape presentism, find future problems
-- **Jobs to Be Done (JTBD)** - Discover what customers hire products for
-- **S-Curve Analysis** - Analyze technology timing and disruption
-- **Red Teaming** - Stress-test assumptions as devil's advocate
-- **Ackoff's Pyramid (DIKW)** - Validate understanding before action
+1. **Visit** https://mindrian.onrender.com
+2. **Choose a workshop** from the dropdown (top-left)
+3. **Click a starter prompt** or type your own question
+4. **Follow the conversation** - the AI will guide you through the methodology
 
-The platform uses **Gemini 3 Flash** with **Gemini File Search** (RAG) to retrieve context from the complete PWS course library.
+### Tips for Best Results
 
----
+- **Upload documents** - PDFs, Word docs, and images are supported. Just drag and drop.
+- **Be specific** - The more context you provide, the better the guidance.
+- **Use the buttons** - Action buttons (Research, Synthesize, etc.) trigger specialized workflows.
+- **Adjust detail level** - Use the Settings gear (top-right) to control response length.
+- **Ask for examples** - Request real-world examples to understand frameworks better.
 
-## Available Bots (17 Agents)
+### Features
 
-### Core Thinking Partners
-| Bot ID | Name | Icon | Purpose |
-|--------|------|------|---------|
-| `lawrence` | Lawrence | 🧠 | Focused PWS thinking partner (default) |
-| `larry_playground` | Larry Playground | 🔬 | Full-featured PWS lab — all tools, research, multi-agent |
-
-### PWS Workshop Bots
-| Bot ID | Name | Icon | Phases | Purpose |
-|--------|------|------|--------|---------|
-| `tta` | Trending to the Absurd | 🔮 | 8 | Escape presentism, find future problems |
-| `jtbd` | Jobs to Be Done | 🎯 | 7 | Discover what customers hire products for |
-| `scurve` | S-Curve Analysis | 📈 | 6 | Technology timing and disruption |
-| `redteam` | Red Teaming | 😈 | 7 | Stress-test assumptions as devil's advocate |
-| `ackoff` | Ackoff's Pyramid | 🔺 | 8 | DIKW validation methodology |
-| `bono` | BONO Master | 🎭 | 6 | Six Thinking Hats + expert panels |
-| `knowns` | Known-Unknowns | ❓ | 4 | Rumsfeld Matrix blind spot discovery |
-| `nested_hierarchies` | Nested Hierarchies | 🏛️ | 4 | Systems analysis for leverage points |
-| `domain` | Domain Selection | 🧭 | 4 | Choose your innovation territory |
-| `investment` | PWS Investment | 💰 | 5 | Ten Questions + Investment Thesis |
-| `scenario` | Scenario Analysis | 🌐 | 5 | Multiple plausible futures |
-| `validation` | Validation Workshop | 🎯 | 5 | Multi-perspective stress testing |
-| `beautiful_question` | Beautiful Question | ❓ | 3 | WHY → WHAT IF → HOW methodology |
-
-### Assessment Bots
-| Bot ID | Name | Icon | Purpose |
-|--------|------|------|---------|
-| `grading` | Problem Discovery Grading | 🎓 | Evaluate problem discovery work |
-| `minto` | Minto Grading | 📊 | Autonomous assessment pipeline |
+- **Voice input** - Click the microphone to speak your thoughts
+- **Document analysis** - Upload PDFs, Word docs, presentations
+- **Research tools** - One-click access to patents, news, academic papers, trends
+- **Progress tracking** - See where you are in multi-phase workshops
+- **Export** - Download conversation summaries as markdown
 
 ---
 
-## Features
+## Research Tools
 
-### Core Platform Features
-- **Real-time streaming** - Token-by-token response display via Chainlit
-- **Chat profiles** - Switch between 6 specialized bots
-- **Workshop phases** - Structured progress tracking with task lists
-- **Action buttons** - Quick actions (Next Phase, Show Example, Show Progress)
-- **RAG Knowledge Base** - Gemini File Search with PWS course materials
+Mindrian includes powerful research capabilities that analyze results in context of YOUR problem:
 
-### Interactive Elements
-- **Conversation Starters** - 4 clickable starter prompts per bot
-- **Chat Settings** - Configurable research depth, examples, verbosity
-- **Task Lists** - Track workshop progress through phases
-- **Action Buttons** - Navigate workshops without typing
-- **File Upload** - PDF, DOCX, TXT, Markdown, Code files (max 10 files, 50MB each)
-- **Voice Input** - Real-time audio streaming with Gemini transcription
-- **Voice Output** - ElevenLabs text-to-speech with custom voice
-- **Charts & Visualizations** - DIKW Pyramid, S-Curve, DataFrames via Plotly
+| Tool | What It Searches | Use For |
+|------|-----------------|---------|
+| **Deep Research** | Web (Tavily), PWS knowledge base | General exploration |
+| **Patent Search** | Google Patents | Innovation landscape, prior art |
+| **News Search** | NewsMesh, Tavily | Current events, market signals |
+| **Academic Search** | arXiv | Research papers, scientific findings |
+| **Trends Search** | SerpAPI Google Trends | Market interest, timing |
+| **Government Data** | FRED, World Bank | Economic indicators, statistics |
+| **Dataset Search** | Kaggle, Socrata | Data for analysis |
 
-### Research Tools
-- **Tavily Search** - Web research for trend validation
-- **Gemini File Search** - RAG retrieval from PWS knowledge base
-- **GraphRAG Lite** - Neo4j graph + vector hybrid for relationship-aware context
+### Smart Research Contextualization
 
-### Data Persistence
-- **PostgreSQL Database** - Supabase-powered conversation history
-- **Session Resume** - Continue conversations across devices and sessions
-- **Supabase Storage** - Persistent file uploads
+Research results aren't just dumped - they're analyzed for relevance to YOUR current exploration. You'll see:
+- Which results actually matter to your problem
+- Why each result is relevant
+- Actionable recommendations based on findings
 
 ---
 
-## New in v3.1 (February 2026)
+## Frequently Asked Questions
 
-Major enhancements to intelligence, visualization, operations, and user experience:
+**Q: What is PWS?**
+A: Problems Worth Solving - a framework for finding problems valuable enough to actually solve. Instead of building solutions for problems nobody cares about, PWS helps you identify high-value opportunities.
 
-### Admin Dashboard & Conversation Sampler (NEW)
+**Q: What's the difference between Lawrence and Larry Playground?**
+A: Lawrence is the focused thinking partner - concise, conversational. Larry Playground has all the tools enabled: research, multi-agent analysis, visualizations. Use Lawrence for quick guidance, Larry Playground for deep exploration.
 
-Complete admin tooling for operations and debugging:
+**Q: Can I upload files?**
+A: Yes! PDFs, Word documents, PowerPoint, images, text files, and code files are all supported. Just drag and drop or use the paperclip icon.
 
-- **CLI Tool** (`scripts/conversation_sampler.py`) - Interactive conversation browser
-- **Streamlit Dashboard** (`scripts/admin_dashboard.py`) - Visual analytics
-- **Daily Summary** - AI-powered email reports with quality insights
-- **QA Reports** - Structured feedback storage by date
+**Q: Is my conversation saved?**
+A: Yes, conversations persist across sessions. You can close your browser and return later to continue.
 
-### LangGraph Sequential Thinking (NEW)
+**Q: How do I get more detailed responses?**
+A: Use the Settings gear (top-right) and increase the "Response Detail" slider.
 
-Real-time reasoning visualization powered by LangGraph:
-
-```
-┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐
-│UNDERSTAND│ -> │ASSUMPTIONS│ -> │SOLUTION  │ -> │FRAMEWORKS│ -> │SYNTHESIZE│
-│ Message  │    │ Detection │    │ Jumping  │    │ Identify │    │ Strategy │
-└──────────┘    └──────────┘    └──────────┘    └──────────┘    └──────────┘
-```
-
-- **5-step analysis pipeline** for every message
-- **PWS-aware** checks for assumptions and solution-jumping
-- **Framework identification** based on message content
-- **Graceful fallback** to pattern-based analysis
-
-### Conductor-Style Memory (NEW)
-
-Persistent user journey tracking across sessions:
-
-- **UserJourney** - Tracks problem, phases, insights, checkpoints
-- **JourneyStore** - Neo4j + Supabase + PostgreSQL persistence
-- **Phase Checkpoints** - Save/restore progress at any point
-- **Context survives deploys** - No more lost conversations
-
-### Recursive Intelligence (Session Learning)
-
-Mindrian learns from every session to improve coaching quality:
-
-- **Session Logger** - Tracks patterns across conversations
-- **Reaction Classifier** - Detects user sentiment signals
-- **Session Distiller** - Extracts insights at session end
-
-This enables smarter coaching hints and continuous improvement.
-
-### Gemini 2.5-flash Upgrade
-
-Upgraded from Gemini 3 to **Gemini 2.5-flash** for:
-- Faster response times
-- Better reasoning quality
-- More natural conversation flow
-
-### 17 Specialized Agents (up from 7)
-
-New workshop bots added:
-- **BONO Master** - Six Thinking Hats + expert panels
-- **Known-Unknowns** - Rumsfeld Matrix blind spot discovery
-- **Nested Hierarchies** - Systems analysis for leverage points
-- **Domain Selection** - Choose your innovation territory
-- **Investment Analysis** - Ten Questions evaluation
-- **Scenario Analysis** - Multiple plausible futures
-- **Validation Workshop** - Multi-perspective stress testing
-- **Beautiful Question** - WHY → WHAT IF → HOW methodology
-- **Grading Agent** - Problem discovery assessment
-- **Minto Grading** - Autonomous grading pipeline
-
-### Rich Thinking Visualization
-
-- **ThinkingPanel** - Custom React element showing AI reasoning in real-time
-- **LangGraph Pipeline** - 5-step analysis (understand → assumptions → solution-check → frameworks → synthesize)
-- **cl.Step** - Collapsible chain-of-thought steps
-- Transparent "thinking out loud" for educational value
-
-### Mermaid Diagrams & Visualizations
-
-- **Mindmaps** - Auto-generate idea maps from conversation
-- **QuadrantChart** - 2x2 matrix (risk, priority, etc.)
-- **BusinessModelCanvas** - Interactive 9-box canvas
-- **Flowcharts** - Process visualization
-
-### Document AI Smart Fallback
-
-Enhanced document processing:
-- Google Document AI for difficult PDFs
-- Automatic fallback from PyPDF2 to Document AI
-- Better handling of scanned documents
-
-### Graph-Driven Bot Routing
-
-Smart agent suggestions based on conversation context:
-- Neo4j-powered relevance scoring
-- Automatic "Switch to [Bot]" suggestions
-- Context-aware agent recommendations
-
-### QA Fixes (February 4, 2026)
-
-Critical fixes from user testing:
-- **P0** Research button error handling with graceful degradation
-- **P0** Persistent context storage (await instead of fire-and-forget)
-- **P1** Simplified Lawrence welcome (no triple welcome chaos)
-- **P1** Minto/Lawrence identity confusion (distinct voice sections)
-- **P1** Research synthesis fallback (shows sources when synthesis fails)
-- **P1** Honest context messages (verify before claiming preserved)
-- **P2** ThinkingPanel only shows when steps exist
+**Q: Can I use voice input?**
+A: Yes! Click the microphone icon to speak instead of type.
 
 ---
 
-## New in v3.0
+## New Features (v3.1)
 
-This version introduces significant enhancements to the Chainlit experience:
+### Smart Onboarding
+First-time users get a guided introduction to PWS concepts with the option to take a 2-minute tour or dive right in.
 
-### Chain of Thought Visualization (`@cl.step`)
+### Research Contextualization
+All research results (patents, news, papers, trends) are now analyzed for relevance to YOUR specific problem, not just returned as raw data.
 
-See HOW Larry thinks, not just what. Collapsible nested steps show intermediate reasoning in real-time:
+### API Health Monitoring
+Automated daily health checks ensure all integrations are working properly.
 
+### Streaming File Processing
+When you upload documents, you now see real-time progress:
 ```
-▼ Planning Research [2.3s]
-  ├── Analyzing query context [0.8s]
-  ├── Formulating search strategies [1.1s]
-  └── Prioritizing sources [0.4s]
-▼ Executing Searches [5.2s]
-  ├── Search: healthcare AI trends [2.1s]
-  ├── Search: preventive care innovation [1.8s]
-  └── Synthesizing results [1.3s]
-Response generated ✓
+├─ Detecting file type... ✓ Document (.pdf)
+├─ Extracting PDF text... ✓ 6,824 chars
+└─ ✅ Complete!
 ```
 
-**Why this matters:**
-- **Transparency** - Shows the reasoning process
-- **Educational** - Students learn PWS methodology by observing
-- **Debugging** - When errors occur, see where reasoning failed
-
-### Conversation Starters
-
-Each bot now shows 4 clickable starter prompts on empty chat:
-
-**Larry:**
-- "Help me find a problem worth solving"
-- "I have a solution - help me validate it"
-- "Explain the PWS methodology"
-- "Help me think through a decision"
-
-**Ackoff's Pyramid:**
-- "I have a solution to validate"
-- "I'm exploring a problem"
-- "Show me the DIKW pyramid"
-- "Give me an example"
-
-**Why this matters:**
-- Eliminates blank-page syndrome for new users
-- Guides users to valid workshop starting points
-- One-click engagement
-
-### Chat Settings Panel
-
-Gear icon reveals configurable options:
-
-| Setting | Type | Purpose |
-|---------|------|---------|
-| Research Depth | Select | Basic/Standard/Deep web research |
-| Show Examples | Toggle | Auto-show phase examples |
-| Response Detail | Slider | 1-10 verbosity level |
-| Workshop Mode | Select | Guided (strict phases) vs Freeform |
-
-### Session Persistence
-
-- **PostgreSQL via Supabase** - Conversations saved automatically
-- **Resume Handler** - Close browser, return later, continue where you left off
-- **Phase Progress** - Workshop progress persists across sessions
-
-### ElevenLabs Voice Integration
-
-- **Text-to-Speech** - Click speaker button for voice responses
-- **Custom Voice** - Configurable voice ID for brand consistency
-- **Audio Streaming** - Real-time voice input transcription
-
-### Document Processing
-
-Upload and analyze documents directly:
-
-| Format | Processing |
-|--------|------------|
-| PDF | Full text extraction via PyPDF2 |
-| DOCX | Word document parsing via python-docx |
-| TXT/MD | Plain text reading |
-| CSV/JSON | Data file handling |
-| Code files | .py, .js syntax preserved |
-
-### Supabase Storage
-
-Persistent file storage for:
-- Uploaded documents
-- Exported workshop summaries
-- Generated reports and assets
-
-### Stop Handler
-
-Click STOP button during generation:
-- Graceful stream termination
-- "[Response stopped]" indicator
-- Continue or ask something else
-
-### DIKW Pyramid Visualization
-
-Interactive Plotly chart of Ackoff's DIKW pyramid with:
-- Color-coded levels (Data → Wisdom)
-- Clickable for explanation
-- Inline display in chat
+### LangGraph Intelligence Layer
+Behind the scenes, complex multi-step workflows use LangGraph for reliable execution with automatic retry and fallback handling.
 
 ---
 
-## Architecture
+## Legal Disclaimers
 
-```
-┌──────────────────────────────────────────────────────────────────────────┐
-│                          MINDRIAN PLATFORM v3.0                           │
-├──────────────────────────────────────────────────────────────────────────┤
-│                                                                           │
-│  ┌─────────────────┐    ┌─────────────────────────────────────────────┐  │
-│  │    Chainlit     │    │              Google Gemini                   │  │
-│  │       UI        │───▶│  Model: gemini-3-flash-preview              │  │
-│  │                 │    │                                              │  │
-│  │ - Chat Profiles │    │  ┌─────────────────────────────────────────┐│  │
-│  │ - @cl.step      │    │  │        Gemini File Search               ││  │
-│  │ - Starters      │    │  │   fileSearchStores/pwsknowledge...      ││  │
-│  │ - Settings      │    │  │                                         ││  │
-│  │ - Audio Stream  │    │  │  T1_Knowledge/  Core PWS Library        ││  │
-│  │ - TaskLists     │    │  │  T2_Tools/      Workshop Materials      ││  │
-│  │ - Actions       │    │  │  T3_Cases/      Case Studies            ││  │
-│  │ - File Upload   │    │  └─────────────────────────────────────────┘│  │
-│  └─────────────────┘    └─────────────────────────────────────────────┘  │
-│           │                                                               │
-│           ▼                                                               │
-│  ┌─────────────────┐    ┌─────────────────────────────────────────────┐  │
-│  │    Supabase     │    │              ElevenLabs                      │  │
-│  │                 │    │                                              │  │
-│  │ - PostgreSQL DB │    │  - Text-to-Speech API                       │  │
-│  │ - Storage Bucket│    │  - Custom Voice ID                          │  │
-│  │ - Session Data  │    │  - Audio Streaming                          │  │
-│  └─────────────────┘    └─────────────────────────────────────────────┘  │
-│                                                                           │
-│  ┌─────────────────────────────────────────────────────────────────────┐ │
-│  │                       SYSTEM PROMPTS                                 │ │
-│  │  prompts/                                                            │ │
-│  │  ├── larry_core.py        General thinking partner                  │ │
-│  │  ├── tta_workshop.py      Trending to the Absurd                    │ │
-│  │  ├── jtbd_workshop.py     Jobs to Be Done                           │ │
-│  │  ├── scurve_workshop.py   S-Curve Analysis                          │ │
-│  │  ├── redteam.py           Red Teaming                               │ │
-│  │  └── ackoff_workshop.py   Ackoff's Pyramid (650+ lines)            │ │
-│  └─────────────────────────────────────────────────────────────────────┘ │
-│                                                                           │
-│  ┌─────────────────────────────────────────────────────────────────────┐ │
-│  │                      TOOLS & UTILS                                   │ │
-│  │  tools/tavily_search.py     Web research                            │ │
-│  │  tools/graphrag_lite.py     Neo4j + vector hybrid context           │ │
-│  │  tools/pws_brain.py         Gemini File Search                      │ │
-│  │  utils/charts.py            Plotly visualizations + DataFrames      │ │
-│  │  utils/gemini_rag.py        File Search cache utilities             │ │
-│  │  utils/file_processor.py    PDF/DOCX/TXT extraction                 │ │
-│  │  utils/media.py             ElevenLabs TTS, exports                 │ │
-│  │  utils/storage.py           Supabase Storage integration            │ │
-│  └─────────────────────────────────────────────────────────────────────┘ │
-│                                                                           │
-└──────────────────────────────────────────────────────────────────────────┘
-```
+### Research Results Disclaimer
+
+Research results provided by Mindrian (including patent searches, news articles, academic papers, government data, and trend analysis) are:
+
+- **For informational purposes only** - Not legal, financial, or professional advice
+- **Potentially incomplete** - Results depend on third-party APIs and may not include all relevant sources
+- **Time-sensitive** - Information may become outdated; verify current status for important decisions
+- **AI-analyzed** - Relevance assessments are generated by AI and may contain errors
+
+**Always verify important information** from primary sources before making decisions.
+
+### General Platform Disclaimer
+
+Mindrian is an educational tool designed to support innovation thinking. The platform:
+
+- Does not guarantee the accuracy, completeness, or timeliness of any information
+- Is not a substitute for professional advice (legal, financial, business, medical, etc.)
+- May experience service interruptions or data loss
+- Stores conversation data for session persistence and quality improvement
+
+Use of this platform constitutes acceptance of these terms.
+
+### Intellectual Property
+
+- User-uploaded content remains the property of the user
+- AI-generated content is provided as-is without warranty
+- PWS methodology is based on coursework from Johns Hopkins University
 
 ---
 
-## Gemini File Search / RAG
+## Technical Details
 
-The platform uses **Gemini File Search** for retrieval-augmented generation (RAG), enabling bots to access the complete PWS course library.
+For developers and those interested in the technical implementation:
 
-### File Search Store
+### Stack
+- **Frontend:** Chainlit 2.9+
+- **AI Model:** Google Gemini 2.5-flash / 3-flash-preview
+- **Knowledge Base:** Gemini File Search (RAG) + Neo4j GraphRAG
+- **Database:** PostgreSQL (Supabase)
+- **Deployment:** Render
 
-```
-Store ID: fileSearchStores/pwsknowledgebase-a4rnz3u41lsn
-```
+### Documentation
+- [CLAUDE.md](./CLAUDE.md) - Technical reference for developers
+- [docs/EDWARDS_ONBOARDING.md](./docs/EDWARDS_ONBOARDING.md) - System architecture overview
 
-### Knowledge Base Structure
-
-```
-pwsknowledgebase-a4rnz3u41lsn/
-│
-├── T1_Knowledge/                    (Tier 1: Core PWS Library)
-│   ├── PWS_MasterIndex              Master index of all materials
-│   ├── PWS_Book_Complete            Full PWS innovation book
-│   ├── Lecture_Notes                Course lecture notes
-│   └── Extended_Research            Research foundations
-│
-├── T2_Tools/                        (Tier 2: Workshop-Specific Materials)
-│   │
-│   ├── TrendingToAbsurd_*           (TTA Workshop)
-│   │   ├── TrendingToAbsurd_Lecture_Complete
-│   │   ├── TrendingToAbsurd_Workbook_Exercises
-│   │   └── TrendingToAbsurd_SystemPrompt_Complete
-│   │
-│   ├── AckoffPyramid_*              (DIKW Workshop)
-│   │   ├── AckoffPyramid_Lecture_DIKWValidation
-│   │   ├── AckoffPyramid_Workbook_Exercises
-│   │   ├── AckoffPyramid_SystemPrompt_Complete
-│   │   └── AckoffPyramid_MaterialsGuide_CaseStudies (158K chars)
-│   │
-│   ├── ScenarioAnalysis_*           (Scenario Workshop)
-│   │   ├── ScenarioAnalysis_Lecture
-│   │   ├── ScenarioAnalysis_Workbook
-│   │   └── ScenarioAnalysis_SystemPrompt
-│   │
-│   └── [Additional workshops to be added...]
-│
-└── T3_Cases/                        (Tier 3: Case Studies)
-    ├── TargetCanada_$7B_Failure
-    ├── Boeing737MAX_ValidationFailure
-    ├── KaiserPermanente_$4B_Success
-    └── SharpGrossmont_ED_52%Improvement
-```
-
-### Tier Configuration
-
-| Tier | Content | Chunking | Purpose |
-|------|---------|----------|---------|
-| **T1_Knowledge** | Core PWS book, lectures, research | 800 tok / 200 overlap | General knowledge for all bots |
-| **T2_Tools** | Workshop-specific materials | 500 tok / 100 overlap | Precise retrieval for each workshop |
-| **T3_Cases** | Detailed case studies | 500 tok / 100 overlap | Real-world examples and evidence |
+### Repository
+- **GitHub:** https://github.com/jsagir/mindrian-deploy
+- **Issues:** https://github.com/jsagir/mindrian-deploy/issues
 
 ---
 
-## GraphRAG Lite (Neo4j + Vector Hybrid)
+## About
 
-GraphRAG Lite combines **Gemini File Search** (semantic/vector) with **Neo4j** (graph/structural) for relationship-aware context enrichment.
+Mindrian was developed to support the **Problems Worth Solving** methodology created by Professor Lawrence Aronhime at Johns Hopkins University. The platform applies 30+ years of innovation teaching to help users discover valuable problems.
 
-### Design Philosophy
-
-For conversational coaching, **less is more**. GraphRAG returns hints, not lectures.
-
-| Heavy RAG | GraphRAG Lite |
-|-----------|---------------|
-| Always retrieves | Retrieves conditionally |
-| Returns paragraphs | Returns hints |
-| Dumps frameworks | Suggests connections |
-| Makes Larry verbose | Keeps Larry conversational |
-
-**Graph's real value:** Understanding relationships between concepts so Larry can ask better questions.
-
-### When It Retrieves
-
-| Trigger | Example | Action |
-|---------|---------|--------|
-| Explicit knowledge request | "What is JTBD?" | Concept lookup |
-| Framework mention (turn 2+) | "Which framework?" | Framework suggestions |
-| Problem description | "I'm stuck on validation" | Problem context |
-| Action request | "Give me homework" | Related exercises |
-
-### Neo4j Knowledge Graph
-
-```
-Nodes: ~5,700 entities
-- Framework (150)
-- Concept (140)
-- Problem (222)
-- Tool, Technique, ProcessStep...
-
-Relationships:
-- HAS_COMPONENT, PART_OF
-- REQUIRES, SUPPORTS
-- HAS_TOOL, HAS_METHOD
-```
-
-### Example Flow
-
-```
-Turn 1:
-  User: "I'm working on a healthcare startup"
-  GraphRAG: (no retrieval - first turn, vague)
-  Larry: "What's the problem you're solving?"
-
-Turn 3:
-  User: "What framework for understanding customers?"
-  GraphRAG: "Relevant: Jobs to Be Done, Customer Discovery"
-  Larry: "There's JTBD - asking what progress they're making. Talked to any doctors yet?"
-```
-
-### Configuration
-
-Requires Neo4j environment variables:
-```bash
-NEO4J_URI=neo4j+s://your-instance.databases.neo4j.io
-NEO4J_USER=neo4j
-NEO4J_PASSWORD=your-password
-```
-
-If not configured, GraphRAG gracefully disables itself.
-
-See `R&D/09_graphrag_lite/README.md` for full documentation.
+**Core Insight:** Most innovation fails not because of bad solutions, but because people solve the wrong problems.
 
 ---
 
-## Intelligence Layer (LangGraph Pipelines)
-
-Mindrian uses **LangGraph** for complex multi-step workflows in `intelligence/pipelines/`. This provides:
-
-- **Explicit state management** - TypedDict states track each step
-- **Conditional routing** - Route to different handlers based on intent
-- **Automatic parallelization** - Independent operations run concurrently
-- **Retry logic** - Failed steps can retry with fallbacks
-- **Debuggability** - Graph visualization shows execution flow
-
-### Available Pipelines
-
-| Pipeline | Purpose | File |
-|----------|---------|------|
-| **Message Router** | Route messages by intent (feedback, image, files, grading, research, conversation) | `message_router.py` |
-| **File Processing** | Upload → Detect → Extract → Chunk → Embed to Neo4j | `file_processing.py` |
-| **Oracle** | Prediction markets: Formulate → Research → Predict → Resolve → Learn | `oracle_pipeline.py` |
-| **Minto Pyramid** | SCQA analysis with deep research | `minto_pyramid.py` |
-| **Grading** | Multi-phase assessment with Neo4j evidence | `grading.py` |
-| **Domain Discovery** | CV/research analysis for domain selection | `domain_discovery.py` |
-| **Reverse Salient** | Cross-domain discovery (10 stages) | `reverse_salient.py` |
-
-### File Processing Pipeline
-
-```
-┌──────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐
-│  DETECT  │ ──▶ │ EXTRACT  │ ──▶ │  CHUNK   │ ──▶ │  EMBED   │
-│ File Type│     │ Content  │     │ Semantic │     │ LazyGraph│
-└──────────┘     └──────────┘     └──────────┘     └──────────┘
-     │                │                │                │
- PDF/DOCX/        PyPDF2/DocAI/    Recursive       Neo4j nodes +
- Image detect     OCR routing      splitter        LangExtract
-                  + auto-retry                     relationships
-```
-
-Features:
-- **Multi-extractor routing**: PDF → PyPDF2 (fallback to DocAI), DOCX → python-docx, Images → OCR
-- **LazyGraph integration**: Creates Document/Chunk nodes + relationships via LangExtract
-- **Entity extraction**: Concepts, Problems, Frameworks, Assumptions → Neo4j relationships
-
-### Message Router Pipeline
-
-```
-┌──────────┐     ┌──────────┐     ┌──────────────────────────────┐
-│ CLASSIFY │ ──▶ │ VALIDATE │ ──▶ │ Route to appropriate handler │
-│  Intent  │     │  Route   │     └──────────────────────────────┘
-└──────────┘     └──────────┘              │
-                                           ▼
-                      ┌────────────────────┼────────────────────┐
-                      │                    │                    │
-                      ▼                    ▼                    ▼
-               ┌──────────┐         ┌──────────┐         ┌──────────┐
-               │ Feedback │         │  Image   │         │  Grading │
-               │  Flow    │         │   Gen    │         │   Flow   │
-               └──────────┘         └──────────┘         └──────────┘
-```
-
-### Oracle Prediction Pipeline
-
-```
-Market Idea ──▶ FORMULATE ──▶ RESEARCH (parallel) ──▶ PREDICT ──▶ RESOLVE ──▶ RETROSPECTIVE
-                    │              │
-                    │    ┌─────────┼─────────┐
-                    │    ▼         ▼         ▼
-                    │  Tavily   Neo4j    FileSearch
-                    │  Search   Context     RAG
-                    │    │         │         │
-                    │    └─────────┴─────────┘
-                    │              │
-                    ▼              ▼
-              Research Brief + HSI Surprise ──▶ Neo4j Learning Loop
-```
-
-### Usage
-
-```python
-from intelligence.pipelines import (
-    route_message,           # Message routing
-    process_files,           # File processing
-    run_oracle_formulation,  # Prediction markets
-    run_minto_pipeline,      # SCQA analysis
-    run_grading_pipeline,    # Assessment
-)
-
-# Route a message
-result = await route_message(
-    user_message="Analyze this PDF",
-    session_id="session_123",
-    bot_id="lawrence",
-    attachments=message.elements,
-)
-# result.route = "file_process"
-
-# Process files with Neo4j embedding
-result = await process_files(
-    files=[{"path": "/path/to/doc.pdf", "name": "doc.pdf"}],
-    embed_to_neo4j=True,
-)
-```
-
----
-
-## Admin Tools
-
-Mindrian includes comprehensive admin tools for sampling conversations, analyzing usage, and debugging issues.
-
-### Conversation Sampler CLI
-
-Interactive command-line tool for browsing and analyzing conversations.
-
-```bash
-# Interactive menu
-python scripts/conversation_sampler.py
-
-# Quick commands
-python scripts/conversation_sampler.py --sessions       # List recent sessions
-python scripts/conversation_sampler.py --feedback       # Feedback analytics
-python scripts/conversation_sampler.py --search "keyword"  # Search conversations
-python scripts/conversation_sampler.py --export <thread_id>  # Export to markdown
-python scripts/conversation_sampler.py --audit 2026-02-04   # View audit trail
-python scripts/conversation_sampler.py --user user@email.com  # User's conversations
-```
-
-**Features:**
-- Browse recent conversations from PostgreSQL
-- Search across all messages by keyword
-- View feedback analytics (thumbs up/down rates)
-- Export conversations to markdown format
-- View audit trail entries by date
-- Filter conversations by user
-
-### Streamlit Admin Dashboard
-
-Visual dashboard for conversation analysis and monitoring.
-
-```bash
-streamlit run scripts/admin_dashboard.py
-```
-
-**Pages:**
-| Page | Features |
-|------|----------|
-| **Overview** | Total feedback, satisfaction rate, bot usage charts |
-| **Conversations** | Browse, search, view full transcripts, export |
-| **Feedback** | Filter by bot/date, satisfaction trends, comments |
-| **QA Reports** | Browse QA reports by date |
-
-### Data Sources
-
-The admin tools connect to multiple data sources:
-
-| Source | Data | Location |
-|--------|------|----------|
-| PostgreSQL | Conversation history | Chainlit native DB |
-| Supabase | Audit trail, metrics | `audit/`, `metrics/` |
-| CSV | Feedback analytics | `analytics/feedback_analytics.csv` |
-| Neo4j | User journeys | `UserJourney` nodes |
-
-### Daily Summary Email
-
-Automated daily report with AI-powered insights.
-
-```bash
-python scripts/daily_summary.py
-```
-
-**Includes:**
-- Session statistics (total, completed, avg messages)
-- Bot usage distribution
-- Feedback summary with satisfaction rate
-- AI-generated quality insights via Gemini
-- Operational recommendations
-
-### QA Reports
-
-QA feedback is stored in `qa/YYYY-MM-DD/` folders:
-
-```
-qa/
-├── 2026-02-03/
-│   ├── QA_ANALYSIS_LAWRENCE_ARONHIME_CORRECTED.md
-│   └── QA_RELEASE_NOTES_FEB3.md
-├── 2026-02-04/
-│   └── QA_FEEDBACK_NESTED_HIERARCHIES.md
-└── QA_ANALYZER_INSTRUCTIONS.md
-```
-
----
-
-## Project Structure
-
-```
-mindrian-deploy/
-├── mindrian_chat.py              # Main Chainlit application (10K+ lines)
-│   ├── BOTS dict                 # Bot configurations (17 agents)
-│   ├── STARTERS dict             # Conversation starters per bot
-│   ├── WORKSHOP_PHASES dict      # Phase definitions per bot
-│   ├── @cl.on_chat_start         # Session initialization
-│   ├── @cl.on_message            # Message handling (routes to pipelines)
-│   └── Action handlers           # 70+ button callbacks
-│
-├── intelligence/                 # LangGraph pipelines & tools
-│   ├── __init__.py               # Exports all pipelines and tools
-│   ├── schemas.py                # Pydantic models for structured outputs
-│   ├── tools.py                  # LangChain @tool decorated functions
-│   │
-│   ├── pipelines/                # LangGraph StateGraph workflows
-│   │   ├── message_router.py     # Route by intent (feedback/image/file/grading)
-│   │   ├── file_processing.py    # Upload → Extract → Chunk → Embed
-│   │   ├── oracle_pipeline.py    # Prediction market workflow
-│   │   ├── minto_pyramid.py      # SCQA deep research
-│   │   ├── grading.py            # Assessment with evidence
-│   │   ├── domain_discovery.py   # CV → research domain
-│   │   └── reverse_salient.py    # Cross-domain discovery
-│   │
-│   ├── tools/                    # Specialized LangChain tools
-│   │   ├── oracle_tools.py       # Prediction market operations
-│   │   └── text2cypher.py        # Natural language → Cypher
-│   │
-│   └── agents/                   # Multi-agent orchestration
-│       ├── research_agent.py     # Research coordination
-│       └── multi_agent.py        # Multi-perspective analysis
-│
-├── prompts/                      # System prompts (17 bots)
-│   ├── larry_core.py             # Larry's conversational prompt
-│   ├── oracle_agent.py           # Prediction market prompt
-│   ├── tta_workshop.py           # Trending to the Absurd
-│   ├── jtbd_workshop.py          # Jobs to Be Done
-│   ├── ackoff_workshop.py        # Ackoff's Pyramid DIKW
-│   └── [12 more workshop prompts...]
-│
-├── tools/                        # External integrations
-│   ├── tavily_search.py          # Web research
-│   ├── pws_brain.py              # Gemini File Search
-│   ├── graphrag_lite.py          # Neo4j + vector hybrid RAG
-│   ├── langextract.py            # Semantic extraction
-│   └── document_ai.py            # Google Document AI OCR
-│
-├── utils/                        # Utility functions
-│   ├── charts.py                 # Plotly visualizations
-│   ├── diagrams.py               # Mermaid diagram generation
-│   ├── file_processor.py         # PDF/DOCX extraction
-│   ├── media.py                  # TTS, video, audio
-│   └── ui_elements.py            # Custom Chainlit elements
-│
-├── sql/                          # Database schemas
-│   └── oracle_schema.sql         # Supabase: markets, predictions, scores
-│
-├── memory/                       # Conductor-style persistent memory
-│   ├── __init__.py               # Memory exports
-│   ├── user_journey.py           # UserJourney + JourneyStore classes
-│   └── checkpointer.py           # PostgreSQL LangGraph checkpointer
-│
-├── callbacks/                    # Extracted action callbacks
-│   ├── __init__.py               # Callback exports
-│   ├── agent_switch.py           # Bot switching logic
-│   └── research.py               # Research workflow handlers
-│
-├── scripts/                      # Admin & utility scripts
-│   ├── conversation_sampler.py   # CLI conversation browser
-│   ├── admin_dashboard.py        # Streamlit admin dashboard
-│   ├── daily_summary.py          # Email reports with AI insights
-│   └── health_check.py           # System health verification
-│
-├── skills/                       # Claude Code skills
-│   ├── langgraph/SKILL.md        # LangGraph patterns
-│   ├── mindrian-stack/           # Architecture reference
-│   └── _knowledge/               # Auto-updated change logs
-│
-├── public/elements/              # Custom JSX components
-│   ├── MermaidDiagram.jsx        # Mermaid rendering
-│   ├── GradeReveal.jsx           # Assessment UI
-│   ├── ThinkingPanel.jsx         # Reasoning display
-│   └── WorkshopRoadmap.jsx       # Phase progress sidebar
-│
-├── qa/                           # QA feedback by date
-│   ├── 2026-02-03/               # Daily QA reports
-│   ├── 2026-02-04/               # Daily QA reports
-│   └── QA_ANALYZER_INSTRUCTIONS.md
-│
-├── analytics/                    # Usage analytics
-│   └── feedback_analytics.csv    # Feedback data export
-│
-└── docs/                         # Documentation
-    ├── REFACTORING_ANALYSIS.md   # Architecture migration plan
-    ├── MINDRIAN_CHAT_STRUCTURE.md # Code structure guide
-    └── A2A_PRACTICAL_ARCHITECTURE.md
-```
-
----
-
-## Quick Start
-
-### 1. Clone and Setup
-
-```bash
-git clone https://github.com/jsagir/mindrian-deploy
-cd mindrian-deploy
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-```
-
-### 2. Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Configure Environment
-
-```bash
-cp .env.example .env
-# Edit .env with your API keys
-```
-
-### 4. Run Locally
-
-```bash
-chainlit run mindrian_chat.py
-```
-
-Open http://localhost:8000
-
----
-
-## Environment Variables
-
-### Required
-
-| Variable | Description | Get it at |
-|----------|-------------|-----------|
-| `GOOGLE_API_KEY` | Google AI API key | https://aistudio.google.com/apikey |
-
-### Recommended
-
-| Variable | Description | Get it at |
-|----------|-------------|-----------|
-| `TAVILY_API_KEY` | Web research API | https://tavily.com |
-| `CHAINLIT_DATABASE_URL` | PostgreSQL connection | See Supabase setup |
-
-### Voice (Optional)
-
-| Variable | Description | Get it at |
-|----------|-------------|-----------|
-| `ELEVENLABS_API_KEY` | Text-to-speech API | https://elevenlabs.io |
-| `ELEVENLABS_VOICE_ID` | Custom voice ID | ElevenLabs voice library |
-
-### Storage (Optional)
-
-| Variable | Description | Get it at |
-|----------|-------------|-----------|
-| `SUPABASE_URL` | Project URL | Supabase Dashboard > Settings > API |
-| `SUPABASE_SERVICE_KEY` | Service role key | Supabase Dashboard > Settings > API |
-| `SUPABASE_BUCKET` | Storage bucket name | Default: `mindrian-files` |
-
-### Example .env
-
-```bash
-# Required
-GOOGLE_API_KEY=AIzaSy...
-
-# Web Research
-TAVILY_API_KEY=tvly-...
-
-# Database (Supabase PostgreSQL)
-CHAINLIT_DATABASE_URL=postgresql://postgres:password@db.xxxx.supabase.co:5432/postgres
-
-# Voice
-ELEVENLABS_API_KEY=sk_...
-ELEVENLABS_VOICE_ID=SGh5MKvZcSYNF0SZXlAg
-
-# Storage
-SUPABASE_URL=https://xxxx.supabase.co
-SUPABASE_SERVICE_KEY=eyJ...
-SUPABASE_BUCKET=mindrian-files
-```
-
----
-
-## Configuration
-
-### .chainlit/config.toml (v2.9.5 format)
-
-```toml
-[project]
-enable_telemetry = true
-session_timeout = 3600
-allow_origins = ["*"]
-
-[features]
-edit_message = true
-multi_modal = true
-
-[features.spontaneous_file_upload]
-enabled = true
-accept = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "text/*", "image/*", "application/json", ".md", ".csv", ".py", ".js"]
-max_files = 10
-max_size_mb = 50
-
-[features.audio]
-enabled = true
-min_decibels = -45
-initial_silence_timeout = 3000
-silence_timeout = 1500
-max_duration = 15000
-chunk_duration = 1000
-sample_rate = 24000
-
-[features.mcp]
-enabled = true
-
-[features.speech_to_text]
-enabled = true
-provider = "browser"
-
-[features.text_to_speech]
-enabled = true
-provider = "browser"
-
-[UI]
-name = "Mindrian"
-description = "Multi-Bot PWS Platform - Larry Core + Specialized Workshop Bots"
-github = "https://github.com/jsagir/mindrian-deploy"
-hide_cot = false
-cot = "full"
-
-[UI.theme.light]
-background = "#fafafa"
-paper = "#ffffff"
-
-[UI.theme.dark]
-background = "#1a1a2e"
-paper = "#16213e"
-```
-
----
-
-## Deployment
-
-### Render (Current Production)
-
-**Service:** https://dashboard.render.com/web/srv-d5ni8v24d50c73fqdpug
-**URL:** https://mindrian.onrender.com
-
-**Configuration:**
-- Runtime: Python
-- Build: `pip install -r requirements.txt`
-- Start: `chainlit run mindrian_chat.py --host 0.0.0.0 --port $PORT -h`
-- Auto-deploy: Yes (on push to main)
-
-**Environment Variables in Render Dashboard:**
-
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `GOOGLE_API_KEY` | Yes | Google AI API key |
-| `TAVILY_API_KEY` | Recommended | Web research |
-| `CHAINLIT_DATABASE_URL` | Recommended | PostgreSQL for persistence |
-| `ELEVENLABS_API_KEY` | Optional | Voice responses |
-| `ELEVENLABS_VOICE_ID` | Optional | Custom voice |
-| `SUPABASE_URL` | Optional | File storage |
-| `SUPABASE_SERVICE_KEY` | Optional | File storage |
-| `SUPABASE_BUCKET` | Optional | Storage bucket name |
-
-### Supabase Setup
-
-1. Create project at https://supabase.com
-2. Go to **Project Settings > Database**
-3. Copy connection string (URI format)
-4. Set `CHAINLIT_DATABASE_URL` in Render
-5. (Optional) Create storage bucket `mindrian-files`
-6. (Optional) Copy service_role key for file storage
-
-### Local Development
-
-```bash
-chainlit run mindrian_chat.py --watch
-```
-
-The `--watch` flag enables hot reloading.
-
----
-
-## Workshop Details
-
-### Ackoff's Pyramid (DIKW)
-
-**Purpose:** Validate understanding before taking action
-
-**DIKW Pyramid:**
-```
-                    ╱╲
-                   ╱  ╲
-                  ╱ W  ╲         WISDOM
-                 ╱──────╲        "What should we do?"
-                ╱   U    ╲       UNDERSTANDING
-               ╱──────────╲      "Why does it work this way?"
-              ╱     K      ╲     KNOWLEDGE
-             ╱──────────────╲    "How do these patterns connect?"
-            ╱       I        ╲   INFORMATION
-           ╱──────────────────╲  "What patterns emerge?"
-          ╱         D          ╲ DATA
-         ╱______________________╲"What do we actually observe?"
-```
-
-**Two-Directional Validation:**
-
-```
-CLIMB UP (Build Understanding):
-Data → Information → Knowledge → Understanding → Wisdom
-  ↑         ↑            ↑             ↑            ↑
-Observe  Patterns    Connect      Causation     Decide
-
-CLIMB DOWN (Validate Decisions):
-Wisdom → Understanding → Knowledge → Information → Data
-   ↓          ↓             ↓            ↓          ↓
-Decision  Causation     Expertise     Patterns   Ground
-```
-
-**Phases:**
-1. Team Onboarding - Set context and problem
-2. Direction Choice - Climb Up or Climb Down?
-3. Data Level - Raw observations (Camera Test)
-4. Information Level - Pattern recognition
-5. Knowledge Level - Expert connections
-6. Understanding Level - Causal mechanisms (5 Whys)
-7. Wisdom Level - Actionable decisions
-8. Validation & Action - Final climb-down verification
-
-**Case Studies in Materials:**
-
-| Case | Industry | Outcome | Key Lesson |
-|------|----------|---------|------------|
-| Target Canada | Retail | $7B loss | Data quality (30% vs 98%) |
-| Boeing 737 MAX | Aerospace | 346 deaths | Single sensor validation failure |
-| Kodak | Technology | Bankruptcy | Wisdom paralysis despite data |
-| Kaiser Permanente | Healthcare | $500M savings | Full pyramid validation |
-| Sharp Grossmont ED | Healthcare | 52% improvement | DIKW process optimization |
-| Walmart RFID | Retail | Transformation | 20-year phased validation |
-
-### Other Workshops
-
-**Trending to the Absurd (8 phases):**
-1. Introduction → 2. Domain & Trends → 3. Deep Research → 4. Absurd Extrapolation → 5. Problem Hunting → 6. Opportunity Validation → 7. Action Planning → 8. Reflection
-
-**Jobs to Be Done (7 phases):**
-1. Introduction → 2. Struggling Moment → 3. Functional Job → 4. Emotional Job → 5. Social Job → 6. Competing Solutions → 7. Job Statement
-
-**S-Curve Analysis (6 phases):**
-1. Introduction → 2. Tech Identification → 3. Era Assessment → 4. Evidence → 5. Ecosystem Readiness → 6. Timing Decision
-
-**Red Teaming (7 phases):**
-1. Introduction → 2. Assumption Extraction → 3. Ranking → 4. Attack Mode → 5. Competition → 6. Failure Modes → 7. Strengthening
-
----
-
-## Development Guide
-
-### Adding a New Workshop Bot
-
-1. **Create prompt file** in `prompts/`:
-```python
-# prompts/new_workshop.py
-NEW_WORKSHOP_PROMPT = """
-# Your comprehensive system prompt here
-...
-"""
-```
-
-2. **Add to prompts/__init__.py**:
-```python
-from .new_workshop import NEW_WORKSHOP_PROMPT
-```
-
-3. **Add bot config** to `mindrian_chat.py`:
-```python
-BOTS["new_bot"] = {
-    "name": "New Workshop",
-    "icon": "icon_name",
-    "model": "gemini-3-flash-preview",
-    "prompt": NEW_WORKSHOP_PROMPT,
-    "greeting": "Welcome to the new workshop...",
-    "examples": ["Example 1", "Example 2", "Example 3"]
-}
-```
-
-4. **Add starters** to `STARTERS` dict:
-```python
-STARTERS["new_bot"] = [
-    cl.Starter(label="Option 1", message="...", icon="/public/icons/icon1.svg"),
-    cl.Starter(label="Option 2", message="...", icon="/public/icons/icon2.svg"),
-    cl.Starter(label="Option 3", message="...", icon="/public/icons/icon3.svg"),
-    cl.Starter(label="Option 4", message="...", icon="/public/icons/icon4.svg"),
-]
-```
-
-5. **Add phases** to `WORKSHOP_PHASES`:
-```python
-WORKSHOP_PHASES["new_bot"] = [
-    {"name": "Phase 1", "status": "ready"},
-    {"name": "Phase 2", "status": "pending"},
-    ...
-]
-```
-
-6. **Add chat profile** in `chat_profiles()` function
-
-7. **Upload materials** to Gemini File Search
-
-### Modifying Existing Bots
-
-- Edit system prompts in `prompts/` directory
-- Phases are in `WORKSHOP_PHASES` dict
-- Starters are in `STARTERS` dict
-- Bot metadata in `BOTS` dict
-- Re-upload materials to File Search if content changes
-
----
-
-## Project History
-
-### v1.0 - Initial Build
-- Larry core thinking partner
-- Basic chat profiles
-- Simple system prompts
-
-### v1.5 - Workshop Features
-- Added TTA, JTBD, S-Curve, Red Team workshops
-- Task lists for phase tracking
-- Action buttons
-- File upload, voice I/O
-
-### v2.0 - RAG Integration
-- Gemini File Search integration
-- T1/T2/T3 tier knowledge base structure
-- Workshop materials upload scripts
-- Ackoff's Pyramid (DIKW) workshop with 650+ line prompt
-
-### v3.0 - Chainlit Enhanced Experience (Current)
-
-**Chain of Thought Visualization:**
-- `@cl.step` decorator for nested collapsible steps
-- Real-time timing display
-- Transparent reasoning process
-
-**Conversation Starters:**
-- `@cl.set_starters` with 4 prompts per bot (24 total)
-- Custom SVG icons in `public/icons/`
-- One-click engagement
-
-**Chat Settings:**
-- Research depth (Basic/Standard/Deep)
-- Show examples toggle
-- Response detail slider (1-10)
-- Workshop mode (Guided/Freeform)
-
-**Session Persistence:**
-- PostgreSQL via Supabase
-- `@cl.on_chat_resume` handler
-- Phase progress restoration
-- `@cl.on_stop` for graceful interruption
-
-**Voice Integration:**
-- ElevenLabs text-to-speech
-- Real-time audio streaming handlers
-- Gemini transcription for voice input
-
-**Document Processing:**
-- `utils/file_processor.py` for PDF/DOCX/TXT
-- PyPDF2 and python-docx integration
-- Automatic context injection
-
-**Rich Media:**
-- DIKW pyramid visualization (Plotly)
-- DataFrame display as Plotly tables
-- Image and file exports
-
-**Supabase Storage:**
-- `utils/storage.py` for persistent uploads
-- Unique filename generation
-- MIME type detection
-
-### Remaining Workshops to Add
-From PWS curriculum:
-- Scenario Analysis
-- Minto Pyramid
-- Reverse Salient
-- Market Timing
-- [Others from course materials]
-
----
-
-## Dependencies
-
-```
-# Core
-chainlit>=2.9.0
-google-genai>=1.0.0
-python-dotenv>=1.0.0
-
-# Document Processing
-PyPDF2>=3.0.0
-python-docx>=1.1.0
-
-# Data & Visualization
-pandas>=2.0.0
-numpy>=1.24.0
-plotly>=5.18.0
-
-# Voice
-elevenlabs>=1.0.0
-
-# Database
-sqlalchemy[asyncio]>=2.0.0
-psycopg2-binary>=2.9.0
-asyncpg>=0.29.0
-
-# Storage
-supabase>=2.0.0
-
-# Research
-tavily-python>=0.5.0
-```
-
----
-
-## Related Repositories
-
-- **mindrian-langgraph**: Upload scripts for Gemini File Search
-- **mindrian-agno-ui**: Agno-based alternative UI (experimental)
-- **mindrian-platform**: Previous iteration
-
----
-
-## About PWS
-
-The **Problem Worth Solving** methodology was developed by Professor Lawrence Aronhime over 30+ years of teaching innovation at Johns Hopkins University.
-
-**Core insight:** Most innovation fails not because of bad solutions, but because people solve the wrong problems.
-
----
-
-## Support
-
-- **Course:** EN.663.635 Problems Worth Solving
-- **Institution:** Johns Hopkins University
-- **GitHub Issues:** https://github.com/jsagir/mindrian-deploy/issues
-
----
-
----
-
-## Developer Documentation
-
-- **[CLAUDE.md](./CLAUDE.md)** - Quick reference for AI assistants (Claude Code, etc.)
-- **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Comprehensive development guide
-
-### Adding New Agents Checklist
-
-When adding a new bot, follow ALL these steps:
-
-1. Create system prompt in `prompts/`
-2. Export in `prompts/__init__.py`
-3. Add to `BOTS` dict
-4. Add to `WORKSHOP_PHASES` (if applicable)
-5. Add to `STARTERS` dict
-6. Add to `chat_profiles()`
-7. **Add to `AGENT_TRIGGERS`** (enables dynamic switching)
-8. **Add switch callback** (`switch_to_newbot`)
-9. Create SVG icons (optional)
-
-**Missing steps 7-8 = Dynamic agent switching won't work!**
-
----
-
-Built with Chainlit + Google Gemini + Gemini File Search RAG + Supabase + ElevenLabs
+Built with Chainlit + Google Gemini + Neo4j + Supabase
