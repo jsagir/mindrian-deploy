@@ -8579,8 +8579,7 @@ Your insights help us improve Mindrian!"""
         from utils.file_processor import process_uploaded_file, format_file_context, is_image_file, get_image_mime_type
         import os
 
-        try:
-            for element in message.elements:
+        for element in message.elements:
             if hasattr(element, 'path') and element.path:
                 # DEBUG: Log element details for file type diagnosis
                 elem_mime = getattr(element, 'mime', None) or getattr(element, 'type', None)
@@ -8782,13 +8781,6 @@ Your insights help us improve Mindrian!"""
                                 info_msg += " *(truncated for length)*"
 
                             await cl.Message(content=info_msg, elements=elements).send()
-
-        except Exception as file_err:
-            # Catch any unhandled errors in file processing to prevent silent failures
-            logger.error(f"[FILE PROCESSING ERROR] Unhandled exception: {type(file_err).__name__}: {file_err}")
-            import traceback
-            traceback.print_exc()
-            await cl.Message(content=f"**File processing error:** {str(file_err)[:200]}\n\nPlease try re-uploading or contact support.").send()
 
         # Display uploaded images together
         if image_elements:

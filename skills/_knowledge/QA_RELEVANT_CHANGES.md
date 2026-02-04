@@ -1,10 +1,21 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-04 03:56*
+*Auto-generated: 2026-02-04 04:02*
 
 ---
 
 ## 2026-02-04
+
+### 🐛 fix: Add file processing error handling and logging
+
+- **Commit:** `0c461a2c`
+- **Author:** jsagir
+- **Files changed:** 4
+  - mindrian_chat.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** - Add [FILE PROCESSING] log at start showing element count
 
 ### ✨ feat: Add LightRAG Bank of Opportunities + Per-User Memory
 
@@ -174,12 +185,4 @@
   - data/course_extractions/BONO__BONO_Innovation_Framework_Case_Studies_Reference_Library.md.json
   - data/course_extractions/BONO__BONO_Innovation_Framework_Complete_Workbook.md.json
   - data/course_extractions/BONO__BONO_Innovation_Framework_Materials_Guide.md.json
-- **Details:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-
-### 🐛 fix: Add sendgrid package for daily summary emails
-
-- **Commit:** `182162ae`
-- **Author:** jsagir
-- **Files changed:** 1
-  - requirements.txt
 - **Details:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
