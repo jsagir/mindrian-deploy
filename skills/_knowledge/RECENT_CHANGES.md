@@ -6,6 +6,15 @@
 
 ## 2026-02-04
 
+### 📝 docs: Sync knowledge base
+
+- **Commit:** `646d47f5`
+- **Author:** jsagir
+- **Files changed:** 3
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+
 ### 📝 docs: Update README with Admin Tools, Memory, and v3.1 features
 
 - **Commit:** `5b0c474d`
@@ -513,11 +522,3 @@
   - docs/PRODUCT_ROADMAP.md
   - docs/QA_ISSUES_TRACKER.md
 - **Details:** - Meeting insights with architecture decisions and action items
-
-### 📝 docs: Add QA Testing Guide for triple-mode-v1 release
-
-- **Commit:** `430649a6`
-- **Author:** jsagir
-- **Files changed:** 1
-  - docs/QA_TESTING_GUIDE.md
-- **Details:** Comprehensive testing guide covering:
