@@ -8433,12 +8433,21 @@ Your insights help us improve Mindrian!"""
             else:
                 # True first message - auto-detect entry point
                 has_attachment = bool(message.elements)
+                logger.info(f"[TRIPLE_MODE] First message: has_attachment={has_attachment}, elements={len(message.elements) if message.elements else 0}, content='{message.content[:50]}'")
                 detection = await auto_detect_entry_point(message.content, has_attachment)
 
-                if detection["should_show_selector"]:
-                    # Low confidence - show selector and wait
+                # BUG FIX: If there's an attachment, ALWAYS process it - never show selector
+                # The selector was blocking file uploads when message was short (e.g., "review !")
+                if detection["should_show_selector"] and not has_attachment:
+                    # Low confidence AND no attachment - show selector and wait
                     await show_entry_point_selector()
                     return  # Don't process message yet
+
+                # If attachment present but selector was suggested, force document_review mode
+                if has_attachment and detection["should_show_selector"]:
+                    detection["entry_point"] = "document_review"
+                    detection["mode"] = "workshop"
+                    logger.info(f"[TRIPLE_MODE] Forced document_review due to attachment (was: should_show_selector=True)")
 
                 # High confidence - set entry point and continue
                 cl.user_session.set("entry_point", detection["entry_point"])

@@ -1,6 +1,6 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-04 02:37*
+*Auto-generated: 2026-02-04 02:40*
 
 ---
 
@@ -170,11 +170,3 @@
 - **Files changed:** 2
   - utils/data_layer.py
 - **Details:** - Add SupabaseBlobStorage class implementing Chainlit BaseStorageClient
-
-### 🐛 fix: Resolve Neo4j driver 5.x parameter naming conflict
-
-- **Commit:** `e0ea7f10`
-- **Author:** jsagir
-- **Files changed:** 1
-  - tools/graphrag_lite.py
-- **Details:** Renamed Cypher parameter from $query to $q to avoid conflict with

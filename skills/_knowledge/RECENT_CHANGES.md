@@ -1,10 +1,20 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-04 02:37*
+*Auto-generated: 2026-02-04 02:40*
 
 ---
 
 ## 2026-02-04
+
+### 📝 docs: Add comprehensive Edwards onboarding guide
+
+- **Commit:** `fc9b592a`
+- **Author:** jsagir
+- **Files changed:** 3
+  - docs/EDWARDS_ONBOARDING.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Complete technical overview covering:
 
 ### 📝 docs: Sync knowledge base
 
@@ -515,11 +525,3 @@
 - **Files changed:** 2
   - utils/data_layer.py
 - **Details:** - Add SupabaseBlobStorage class implementing Chainlit BaseStorageClient
-
-### 🐛 fix: Resolve Neo4j driver 5.x parameter naming conflict
-
-- **Commit:** `e0ea7f10`
-- **Author:** jsagir
-- **Files changed:** 1
-  - tools/graphrag_lite.py
-- **Details:** Renamed Cypher parameter from $query to $q to avoid conflict with
