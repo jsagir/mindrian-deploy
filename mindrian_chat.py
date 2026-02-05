@@ -3463,6 +3463,24 @@ async def start():
     welcome_already_sent = cl.user_session.get("welcome_sent", False)
 
     if not welcome_already_sent:
+        # === PWS Tools Panel: Floating toolbar for methodology tools ===
+        # Create element BEFORE welcome so it can be attached to welcome message
+        tools_panel_elements = []
+        try:
+            tools_panel = cl.CustomElement(
+                name="ToolsPanel",
+                props={
+                    "conversationContext": "",
+                    "currentBot": chat_profile or "lawrence",
+                    "expanded": False,
+                },
+                display="inline"
+            )
+            tools_panel_elements = [tools_panel]
+            cl.user_session.set("tools_panel_id", tools_panel.id if hasattr(tools_panel, 'id') else None)
+        except Exception as e:
+            print(f"[TOOLS_PANEL] Not available: {e}")
+
         if is_bot_switch:
             previous_bot_name = BOTS.get(previous_bot, {}).get("name", previous_bot)
 
@@ -3488,9 +3506,9 @@ I'll continue our conversation with my perspective.
 
 {bot.get('welcome', 'How can I help?')}"""
 
-            await cl.Message(content=switch_message, actions=actions if actions else None).send()
+            await cl.Message(content=switch_message, actions=actions if actions else None, elements=tools_panel_elements or None).send()
         elif bot.get("has_phases"):
-            await cl.Message(content=bot["welcome"], actions=actions).send()
+            await cl.Message(content=bot["welcome"], actions=actions, elements=tools_panel_elements or None).send()
         else:
             # === Smart Onboarding for Lawrence bots ===
             # Show progressive welcome with onboarding offer for first-time users
@@ -3528,36 +3546,18 @@ I'll continue our conversation with my perspective.
                         ]
                         # Combine with existing actions
                         all_actions = (actions or []) + onboarding_actions
-                        await cl.Message(content=welcome_message, actions=all_actions).send()
+                        await cl.Message(content=welcome_message, actions=all_actions, elements=tools_panel_elements or None).send()
                     else:
-                        await cl.Message(content=welcome_message, actions=actions if actions else None).send()
+                        await cl.Message(content=welcome_message, actions=actions if actions else None, elements=tools_panel_elements or None).send()
 
                 except Exception as e:
                     logger.warning(f"[SMART_ONBOARDING] Error: {e}, falling back to default welcome")
-                    await cl.Message(content=bot["welcome"], actions=actions if actions else None).send()
+                    await cl.Message(content=bot["welcome"], actions=actions if actions else None, elements=tools_panel_elements or None).send()
             else:
-                await cl.Message(content=bot["welcome"], actions=actions if actions else None).send()
+                await cl.Message(content=bot["welcome"], actions=actions if actions else None, elements=tools_panel_elements or None).send()
 
         # Mark welcome as sent for this session
         cl.user_session.set("welcome_sent", True)
-
-        # === PWS Tools Panel: Floating toolbar for methodology tools ===
-        # Shows in bottom-right corner with contextual tooltips
-        try:
-            tools_panel = cl.CustomElement(
-                name="ToolsPanel",
-                props={
-                    "conversationContext": "",  # Will be updated as conversation progresses
-                    "currentBot": chat_profile or "lawrence",
-                    "expanded": False,  # Start collapsed
-                },
-                display="inline"  # Renders as fixed position via CSS
-            )
-            # Send in empty message (panel positions itself)
-            await cl.Message(content="", elements=[tools_panel]).send()
-            cl.user_session.set("tools_panel_id", tools_panel.id if hasattr(tools_panel, 'id') else None)
-        except Exception as e:
-            print(f"[TOOLS_PANEL] Not available: {e}")
     else:
         # Reconnection case - just log, don't re-send welcome
         print(f"[WELCOME] Skipping duplicate welcome (session already active with history={len(preserved_history)})")

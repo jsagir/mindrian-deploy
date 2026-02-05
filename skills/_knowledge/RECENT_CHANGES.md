@@ -1,8 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-04 15:24*
+*Auto-generated: 2026-02-05 08:59*
 
 ---
+
+## 2026-02-05
+
+### 🐛 fix: Migrate to google-genai SDK + fix SendGrid sender email
+
+- **Commit:** `db5a3b25`
+- **Author:** jsagir
+- **Files changed:** 6
+  - intelligence/pipelines/genesis/panel.py
+  - scripts/daily_summary.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** - panel.py: Replace old google.generativeai with google-genai SDK (lazy client init)
 
 ## 2026-02-04
 
@@ -554,15 +568,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** Skills verified in sync with source:
-
-### ✨ feat: Add sticky action buttons above chat input
-
-- **Commit:** `725babf7`
-- **Author:** jsagir
-- **Files changed:** 7
-  - mindrian_chat.py
-  - public/custom.css
-  - public/elements/FloatingActionBar.jsx
-  - public/elements/StickyActionsInjector.jsx
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-- **Details:** Created StickyActionsInjector custom element that injects CSS to make
