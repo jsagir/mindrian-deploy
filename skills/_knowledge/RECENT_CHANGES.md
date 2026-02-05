@@ -1,10 +1,21 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-05 09:02*
+*Auto-generated: 2026-02-05 09:07*
 
 ---
 
 ## 2026-02-05
+
+### 🐛 fix: Rename Tools Panel to Agentic Actions with robot icon
+
+- **Commit:** `0984b021`
+- **Author:** jsagir
+- **Files changed:** 4
+  - public/elements/ToolsPanel.jsx
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** - Panel title: "PWS Tools" -> "Agentic Actions"
 
 ### 🐛 fix: Attach ToolsPanel to welcome message instead of empty message
 
@@ -555,15 +566,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** PDFs were sometimes being misidentified as images due to Chainlit
-
-### ✨ feat: Add Oracle Foresight Engine + Intelligence Layer
-
-- **Commit:** `fcc9613d`
-- **Author:** jsagir
-- **Files changed:** 22
-  - intelligence/__init__.py
-  - intelligence/agents/__init__.py
-  - intelligence/agents/multi_agent.py
-  - intelligence/agents/research_agent.py
-  - intelligence/pipelines/__init__.py
-- **Details:** Complete Oracle prediction market system with:

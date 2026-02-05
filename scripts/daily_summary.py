@@ -42,8 +42,187 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
 SUPABASE_BUCKET = os.getenv("SUPABASE_BUCKET", "mindrian-files")
 
+# LightRAG configuration
+LIGHTRAG_URL = os.getenv("LIGHTRAG_URL", "https://mondrian-ts.onrender.com")
+LIGHTRAG_USERNAME = os.getenv("LIGHTRAG_USERNAME", "jsagir")
+LIGHTRAG_PASSWORD = os.getenv("LIGHTRAG_PASSWORD")
+
 # Default recipient
 DEFAULT_RECIPIENT = "jsagir@gmail.com"
+
+# LightRAG session cache
+_lightrag_token = None
+
+
+def get_lightrag_session():
+    """Get authenticated LightRAG session."""
+    global _lightrag_token
+    import requests
+
+    if not LIGHTRAG_PASSWORD:
+        return None
+
+    if _lightrag_token is None:
+        try:
+            resp = requests.post(
+                f"{LIGHTRAG_URL}/login",
+                data={"username": LIGHTRAG_USERNAME, "password": LIGHTRAG_PASSWORD},
+                timeout=30
+            )
+            if resp.status_code == 200:
+                _lightrag_token = resp.json().get("access_token")
+            else:
+                log_error(f"LightRAG login failed: {resp.status_code}")
+                return None
+        except Exception as e:
+            log_error(f"LightRAG login error: {e}")
+            return None
+
+    session = requests.Session()
+    session.headers.update({"Authorization": f"Bearer {_lightrag_token}"})
+    return session
+
+
+def get_lightrag_opportunities() -> Dict[str, Any]:
+    """
+    Query LightRAG knowledge graph for all Bank of Opportunities.
+
+    Returns organized opportunity data from the graph.
+    """
+    import requests
+
+    session = get_lightrag_session()
+    if not session:
+        return {"error": "LightRAG not configured", "opportunities": []}
+
+    try:
+        # Hybrid query for all opportunities in the knowledge graph
+        resp = session.post(
+            f"{LIGHTRAG_URL}/query",
+            json={
+                "query": "List ALL opportunities in the Bank of Opportunities. Include their domain, value potential, problem statement, and any cross-domain connections or reverse salients identified.",
+                "mode": "hybrid",
+            },
+            timeout=30
+        )
+
+        if resp.status_code == 200:
+            result = resp.json()
+            # The response text contains the LLM-synthesized answer from the graph
+            response_text = ""
+            if isinstance(result, dict):
+                response_text = result.get("response", result.get("text", str(result)))
+            elif isinstance(result, str):
+                response_text = result
+
+            return {
+                "success": True,
+                "response": response_text,
+                "raw": result,
+            }
+        else:
+            log_error(f"LightRAG query failed: {resp.status_code} - {resp.text[:200]}")
+            return {"error": f"Query failed: {resp.status_code}", "opportunities": []}
+
+    except Exception as e:
+        log_error(f"LightRAG query error: {e}")
+        return {"error": str(e), "opportunities": []}
+
+
+def generate_lightrag_review(lightrag_data: Dict, opportunities: Dict) -> Dict[str, Any]:
+    """
+    Have Gemini review and organize all opportunities from LightRAG + Supabase.
+
+    Returns structured review with themes, clusters, and strategic recommendations.
+    """
+    try:
+        api_key = os.getenv("GOOGLE_API_KEY")
+        if not api_key:
+            return {"error": "No AI API key", "review": ""}
+
+        from google import genai as genai_client
+        client = genai_client.Client(api_key=api_key)
+
+        # Build context from LightRAG graph response
+        lightrag_text = lightrag_data.get("response", "No LightRAG data available.")
+        if len(lightrag_text) > 6000:
+            lightrag_text = lightrag_text[:6000] + "..."
+
+        # Build context from Supabase opportunities
+        supabase_opps = []
+        for opp in opportunities.get('today_opportunities', []) + opportunities.get('yesterday_opportunities', []):
+            content = opp.get('content') or {}
+            supabase_opps.append({
+                "name": content.get('name', content.get('title', 'Untitled')),
+                "problem": content.get('problem', '')[:150],
+                "domain": content.get('domain', ''),
+                "value": content.get('value_potential', 'medium'),
+                "type": content.get('opportunity_type', ''),
+                "job_to_be_done": content.get('job_to_be_done', '')[:100],
+            })
+
+        total_in_bank = opportunities.get('total_count', 0)
+
+        review_prompt = f"""You are a PWS (Problems Worth Solving) strategic analyst for Mindrian.
+
+Review and organize the FULL Bank of Opportunities below. This is data from our knowledge graph (LightRAG) combined with recent Supabase records.
+
+## KNOWLEDGE GRAPH DATA (LightRAG - All Accumulated Opportunities)
+{lightrag_text}
+
+## RECENT OPPORTUNITIES (Supabase - Last 24-48h)
+{json.dumps(supabase_opps, indent=2) if supabase_opps else "No recent opportunities."}
+
+## BANK STATS
+- Total accumulated: {total_in_bank}
+- Recent (24-48h): {len(supabase_opps)}
+
+## YOUR TASK
+Provide a strategic review in this EXACT format (markdown):
+
+### Opportunity Themes
+Group opportunities into 3-5 major themes. For each theme:
+- **Theme Name** (X opportunities)
+  - Key opportunities in this theme
+  - Why this theme matters
+
+### Top 5 Opportunities (Ranked by Impact)
+For each:
+1. **Name** | Domain | Value: HIGH/TRANSFORMATIVE
+   - Problem it addresses
+   - Why it's high-impact
+
+### Cross-Domain Connections
+- What connections exist between different domains?
+- What reverse salients (bottlenecks) cut across multiple opportunities?
+
+### Strategic Recommendations
+- What domains should get more exploration?
+- What patterns suggest emerging trends?
+- What gaps exist in the current opportunity bank?
+
+Keep it concise and actionable. Use PWS terminology (reverse salients, jobs-to-be-done, problems worth solving)."""
+
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=review_prompt,
+        )
+
+        review_text = response.text if response.text else "Review generation failed."
+
+        return {
+            "success": True,
+            "review": review_text,
+            "lightrag_available": bool(lightrag_data.get("success")),
+        }
+
+    except Exception as e:
+        log_error(f"LightRAG review generation failed: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "review": "",
+        }
 
 
 def get_supabase_client():
@@ -567,10 +746,12 @@ def generate_html_report(
     feedback: Dict,
     sessions: Dict,
     date_str: str,
-    ai_insights: Dict = None
+    ai_insights: Dict = None,
+    lightrag_review: Dict = None
 ) -> str:
-    """Generate HTML email report with AI-powered insights."""
+    """Generate HTML email report with AI-powered insights and LightRAG review."""
     ai_insights = ai_insights or {}
+    lightrag_review = lightrag_review or {}
 
     # Color coding
     opp_change = opportunities.get('change', 0)
@@ -640,6 +821,40 @@ def generate_html_report(
         </div>
         '''
 
+    # Build LightRAG review section
+    lightrag_review_html = ""
+    if lightrag_review.get('success') and lightrag_review.get('review'):
+        # Convert markdown to simple HTML (bold, headers, lists)
+        import re
+        review_text = lightrag_review['review']
+        # Convert ### headers
+        review_text = re.sub(r'^### (.+)$', r'<h3 style="font-size: 15px; color: #4338ca; margin: 16px 0 8px 0;">\1</h3>', review_text, flags=re.MULTILINE)
+        # Convert **bold**
+        review_text = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', review_text)
+        # Convert bullet points
+        review_text = re.sub(r'^- (.+)$', r'<li style="margin-bottom: 4px; color: #374151;">\1</li>', review_text, flags=re.MULTILINE)
+        # Convert numbered lists
+        review_text = re.sub(r'^\d+\. (.+)$', r'<li style="margin-bottom: 6px; color: #374151;">\1</li>', review_text, flags=re.MULTILINE)
+        # Wrap consecutive <li> in <ul>
+        review_text = re.sub(r'((?:<li[^>]*>.*?</li>\n?)+)', r'<ul style="margin: 4px 0 12px 0; padding-left: 20px;">\1</ul>', review_text)
+        # Convert remaining newlines to <br>
+        review_text = review_text.replace('\n', '<br>')
+        # Clean up double <br>
+        review_text = re.sub(r'(<br>){3,}', '<br><br>', review_text)
+
+        source_label = "LightRAG + Supabase" if lightrag_review.get('lightrag_available') else "Supabase only"
+        lightrag_review_html = f'''
+        <div style="margin-bottom: 24px; background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%); padding: 16px; border-radius: 8px; border: 1px solid #e9d5ff;">
+            <h2 style="font-size: 18px; color: #6b21a8; margin: 0 0 12px 0;">
+                🤖 LLM-Organized Opportunity Bank Review
+            </h2>
+            <div style="font-size: 11px; color: #7c3aed; margin-bottom: 12px;">Source: {source_label}</div>
+            <div style="font-size: 13px; line-height: 1.6; color: #374151;">
+                {review_text}
+            </div>
+        </div>
+        '''
+
     html = f"""
 <!DOCTYPE html>
 <html>
@@ -676,6 +891,9 @@ def generate_html_report(
 
         <!-- AI Quality Insights -->
         {ai_insights_html}
+
+        <!-- LightRAG Opportunity Bank Review -->
+        {lightrag_review_html}
 
         <!-- Bank of Opportunities -->
         <div style="margin-bottom: 24px;">
@@ -773,10 +991,12 @@ def generate_text_report(
     feedback: Dict,
     sessions: Dict,
     date_str: str,
-    ai_insights: Dict = None
+    ai_insights: Dict = None,
+    lightrag_review: Dict = None
 ) -> str:
-    """Generate plain text version of report with AI insights."""
+    """Generate plain text version of report with AI insights and LightRAG review."""
     ai_insights = ai_insights or {}
+    lightrag_review = lightrag_review or {}
 
     lines = [
         "=" * 50,
@@ -813,6 +1033,18 @@ def generate_text_report(
             for rec in ai_insights.get('recommendations', []):
                 lines.append(f"  - {rec}")
             lines.append("")
+
+    # Add LightRAG review section
+    if lightrag_review.get('success') and lightrag_review.get('review'):
+        source_label = "LightRAG + Supabase" if lightrag_review.get('lightrag_available') else "Supabase only"
+        lines.extend([
+            "LLM-ORGANIZED OPPORTUNITY BANK REVIEW",
+            "-" * 30,
+            f"Source: {source_label}",
+            "",
+            lightrag_review['review'],
+            "",
+        ])
 
     lines.extend([
         "BANK OF OPPORTUNITIES",
@@ -957,6 +1189,22 @@ def send_daily_summary(
     print(f"  - Opportunities: {opportunities.get('period_count', 0)} in period, {opportunities.get('total_count', 0)} total")
     print(f"  - Feedback: {feedback.get('period_count', 0)} ratings, {feedback.get('satisfaction_rate', 0)}% satisfaction")
 
+    # Fetch from LightRAG knowledge graph
+    print("  - Querying LightRAG knowledge graph...")
+    lightrag_data = get_lightrag_opportunities()
+    if lightrag_data.get('success'):
+        print("  - LightRAG data retrieved successfully")
+    else:
+        print(f"  - LightRAG skipped: {lightrag_data.get('error', 'Not available')}")
+
+    # Generate LLM-organized review of full opportunity bank
+    print("  - Generating LLM-organized opportunity review...")
+    lightrag_review = generate_lightrag_review(lightrag_data, opportunities)
+    if lightrag_review.get('success'):
+        print("  - Opportunity bank review generated")
+    else:
+        print(f"  - Review skipped: {lightrag_review.get('error', 'Unknown error')}")
+
     # Generate AI insights
     print("  - Generating AI quality insights...")
     ai_insights = generate_ai_insights(opportunities, feedback, sessions)
@@ -967,8 +1215,8 @@ def send_daily_summary(
 
     # Generate reports
     report_title = f"Last 24 Hours ({date_str})" if last_24h else date_str
-    html_report = generate_html_report(opportunities, feedback, sessions, report_title, ai_insights)
-    text_report = generate_text_report(opportunities, feedback, sessions, report_title, ai_insights)
+    html_report = generate_html_report(opportunities, feedback, sessions, report_title, ai_insights, lightrag_review)
+    text_report = generate_text_report(opportunities, feedback, sessions, report_title, ai_insights, lightrag_review)
 
     # Send email
     subject = f"Mindrian Summary - {period_label}"
@@ -1028,13 +1276,18 @@ def main():
         feedback = get_feedback_summary(client, date_str, last_24h=last_24h)
         sessions = get_session_summary(client, last_24h=last_24h)
 
+        print("Querying LightRAG knowledge graph...")
+        lightrag_data = get_lightrag_opportunities()
+        print("Generating LLM-organized opportunity review...")
+        lightrag_review = generate_lightrag_review(lightrag_data, opportunities)
+
         print("Generating AI quality insights...")
         ai_insights = generate_ai_insights(opportunities, feedback, sessions)
         if ai_insights.get('success'):
             print(f"AI Quality Score: {ai_insights.get('quality_score', 'N/A')}/100")
 
         report_title = f"Last 24 Hours ({date_str})" if last_24h else date_str
-        print("\n" + generate_text_report(opportunities, feedback, sessions, report_title, ai_insights))
+        print("\n" + generate_text_report(opportunities, feedback, sessions, report_title, ai_insights, lightrag_review))
         return
 
     success = send_daily_summary(
