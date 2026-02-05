@@ -1,7 +1,7 @@
 /**
- * ToolsPanel - Floating PWS Tools Repository
+ * ToolsPanel - Floating Agentic Actions Panel
  *
- * A floating panel (bottom-right) showing available PWS methodology tools
+ * A floating panel (bottom-right) showing available agentic actions
  * with contextual tooltips that explain WHY each tool might help.
  *
  * Uses inline styles (not shadcn) for Chainlit compatibility.
@@ -395,9 +395,9 @@ export default function ToolsPanel() {
             e.target.style.transform = 'scale(1)'
             e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
           }}
-          title="Open PWS Tools"
+          title="Agentic Actions"
         >
-          🛠️
+          🤖
         </button>
       </div>
     )
@@ -409,8 +409,8 @@ export default function ToolsPanel() {
       {/* Header */}
       <div style={styles.header}>
         <div style={styles.headerTitle}>
-          <span>🛠️</span>
-          <span>PWS Tools</span>
+          <span>🤖</span>
+          <span>Agentic Actions</span>
         </div>
         <button
           style={styles.closeButton}

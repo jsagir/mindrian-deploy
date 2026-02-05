@@ -1,10 +1,21 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-05 08:59*
+*Auto-generated: 2026-02-05 09:02*
 
 ---
 
 ## 2026-02-05
+
+### 🐛 fix: Attach ToolsPanel to welcome message instead of empty message
+
+- **Commit:** `072993dc`
+- **Author:** jsagir
+- **Files changed:** 4
+  - mindrian_chat.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** ToolsPanel was sent in cl.Message(content="") which Chainlit skips rendering.
 
 ### 🐛 fix: Migrate to google-genai SDK + fix SendGrid sender email
 
@@ -556,15 +567,3 @@
   - intelligence/agents/research_agent.py
   - intelligence/pipelines/__init__.py
 - **Details:** Complete Oracle prediction market system with:
-
-## 2026-02-03
-
-### 📝 docs: Sync skills and update knowledge base
-
-- **Commit:** `7454e857`
-- **Author:** jsagir
-- **Files changed:** 3
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** Skills verified in sync with source:

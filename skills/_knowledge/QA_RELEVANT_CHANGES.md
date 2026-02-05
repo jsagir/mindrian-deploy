@@ -1,10 +1,21 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-05 08:59*
+*Auto-generated: 2026-02-05 09:02*
 
 ---
 
 ## 2026-02-05
+
+### 🐛 fix: Attach ToolsPanel to welcome message instead of empty message
+
+- **Commit:** `072993dc`
+- **Author:** jsagir
+- **Files changed:** 4
+  - mindrian_chat.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** ToolsPanel was sent in cl.Message(content="") which Chainlit skips rendering.
 
 ### 🐛 fix: Migrate to google-genai SDK + fix SendGrid sender email
 
