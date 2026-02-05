@@ -1,6 +1,6 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-05 09:07*
+*Auto-generated: 2026-02-05 09:14*
 
 ---
 
@@ -244,14 +244,3 @@
   - skills/_knowledge/QA_RELEVANT_CHANGES.md
   - skills/_knowledge/RECENT_CHANGES.md
 - **Details:** Bug fixes:
-
-### 🐛 fix: Robust PDF detection to prevent image misidentification
-
-- **Commit:** `578b1adf`
-- **Author:** jsagir
-- **Files changed:** 4
-  - mindrian_chat.py
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** PDFs were sometimes being misidentified as images due to Chainlit

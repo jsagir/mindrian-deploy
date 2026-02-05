@@ -1,8 +1,21 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-05 09:07*
+*Auto-generated: 2026-02-05 09:14*
 
 ---
+
+## 2026-02-05
+
+### ✨ feat: Add LightRAG opportunity bank review to daily summary email
+
+- **Commit:** `5cbb0576`
+- **Author:** jsagir
+- **Files changed:** 4
+  - scripts/daily_summary.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** - Query LightRAG knowledge graph for full Bank of Opportunities
 
 ## 2026-02-04
 

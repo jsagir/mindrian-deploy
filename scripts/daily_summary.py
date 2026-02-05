@@ -47,6 +47,11 @@ LIGHTRAG_URL = os.getenv("LIGHTRAG_URL", "https://mondrian-ts.onrender.com")
 LIGHTRAG_USERNAME = os.getenv("LIGHTRAG_USERNAME", "jsagir")
 LIGHTRAG_PASSWORD = os.getenv("LIGHTRAG_PASSWORD")
 
+# Neo4j configuration (PWS methodology consultant)
+NEO4J_URI = os.getenv("NEO4J_URI", "")
+NEO4J_USERNAME = os.getenv("NEO4J_USERNAME", "neo4j")
+NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "")
+
 # Default recipient
 DEFAULT_RECIPIENT = "jsagir@gmail.com"
 
@@ -129,9 +134,125 @@ def get_lightrag_opportunities() -> Dict[str, Any]:
         return {"error": str(e), "opportunities": []}
 
 
+def get_pws_methodology_context() -> str:
+    """
+    Query Neo4j for PWS methodology knowledge to use as consultant context.
+
+    Returns structured methodology guidance for the Gemini review prompt.
+    """
+    if not NEO4J_URI or not NEO4J_PASSWORD:
+        # Return hardcoded PWS essentials as fallback (sourced from Neo4j knowledge graph)
+        return _get_fallback_pws_context()
+
+    try:
+        from neo4j import GraphDatabase
+        driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
+
+        methodology_parts = []
+
+        with driver.session() as session:
+            # 1. Get Opportunity Discovery steps
+            result = session.run("""
+                MATCH (n)-[r:HAS_STEP]->(m)
+                WHERE n.name = 'Opportunity Discovery'
+                RETURN m.name AS step, m.description AS desc
+            """)
+            steps = [{"step": r["step"], "desc": r["desc"]} for r in result]
+            if steps:
+                methodology_parts.append("## Opportunity Discovery Process")
+                for s in steps:
+                    methodology_parts.append(f"- **{s['step']}**: {s['desc']}")
+
+            # 2. Get PWS Methodology core
+            result = session.run("""
+                MATCH (n)-[r]->(m)
+                WHERE n.name = 'PWS Methodology' AND m.description IS NOT NULL
+                RETURN type(r) AS rel, m.name AS name, m.description AS desc
+            """)
+            pws_rels = [{"rel": r["rel"], "name": r["name"], "desc": r["desc"]} for r in result]
+            if pws_rels:
+                methodology_parts.append("\n## PWS Core Principles")
+                for p in pws_rels:
+                    methodology_parts.append(f"- **{p['name']}** ({p['rel']}): {p['desc']}")
+
+            # 3. Get available frameworks
+            result = session.run("""
+                MATCH (n)
+                WHERE n.name IN [
+                    'Trending to the Absurd', 'Jobs to Be Done',
+                    'Ackoff DIKW Pyramid', 'S-Curve Analysis',
+                    'Beautiful Question', 'Scenario Analysis Framework',
+                    'Reverse Salient Analysis'
+                ] AND n.description IS NOT NULL
+                RETURN DISTINCT n.name AS name, n.description AS desc
+            """)
+            frameworks = [{"name": r["name"], "desc": r["desc"]} for r in result]
+            if frameworks:
+                methodology_parts.append("\n## Available Analytical Frameworks")
+                for f in frameworks:
+                    methodology_parts.append(f"- **{f['name']}**: {f['desc']}")
+
+            # 4. Get real Reverse Salient examples from the graph
+            result = session.run("""
+                MATCH (n:ReverseSalient)
+                WHERE n.description IS NOT NULL AND size(n.description) > 20
+                RETURN DISTINCT n.name AS name, n.description AS desc
+                LIMIT 8
+            """)
+            rs_examples = [{"name": r["name"], "desc": r["desc"]} for r in result]
+            if rs_examples:
+                methodology_parts.append("\n## Known Reverse Salients in Graph")
+                for rs in rs_examples:
+                    methodology_parts.append(f"- **{rs['name']}**: {rs['desc']}")
+
+        driver.close()
+
+        if methodology_parts:
+            return "\n".join(methodology_parts)
+        else:
+            return _get_fallback_pws_context()
+
+    except Exception as e:
+        log_error(f"Neo4j PWS context query failed: {e}")
+        return _get_fallback_pws_context()
+
+
+def _get_fallback_pws_context() -> str:
+    """Hardcoded PWS methodology essentials (from Neo4j knowledge graph snapshot)."""
+    return """## PWS Methodology (Problems Worth Solving)
+Innovation begins with identifying problems worth solving, NOT solutions.
+Problems must be well-defined before they can be addressed.
+The most common failure mode is Premature Solutioning: jumping to solutions before properly defining problems.
+
+## Opportunity Discovery Process
+1. **Define Domain and Sub-Domain**: Identify primary domain, why it matters now, and expertise needed
+2. **Identify Trends to Exploit**: Document relevant trends with time horizons and implications
+3. **Identify Reverse Salients**: Find lagging elements that hold back system progress
+4. **Craft Well-Defined Problem Statement**: Create clear, falsifiable problem statement
+→ Leads to Problem Validation
+
+## Analytical Lenses (Apply to Each Opportunity)
+- **Reverse Salient Analysis**: What systemic bottleneck does this address? Components that have fallen behind and retard advancement
+- **Trending to the Absurd**: What happens if the underlying trend continues? What breaks first?
+- **Jobs to Be Done**: What progress is the customer/user trying to make? What job are they hiring a solution for?
+- **S-Curve Position**: Is this early-stage (high risk, high reward), rapid growth, or plateau?
+- **DIKW Level**: Is this grounded in Data, Information, Knowledge, or Wisdom?
+- **Beautiful Question**: Can we frame this as WHY → WHAT IF → HOW?
+
+## Problem Classification
+- **Un-defined**: Vague, needs exploration (use Scenario Analysis)
+- **Ill-defined**: Partially clear goals, hidden constraints (use TTA, Red Team)
+- **Well-defined**: Clear problem, clear constraints (ready for solution design)
+
+## Opportunity Recognition = Pattern Recognition
+Entrepreneurs identify opportunities by perceiving connections between seemingly unrelated events or trends.
+White Space Analysis reveals unoccupied territory. Opportunity Windows are timing-sensitive."""
+
+
 def generate_lightrag_review(lightrag_data: Dict, opportunities: Dict) -> Dict[str, Any]:
     """
-    Have Gemini review and organize all opportunities from LightRAG + Supabase.
+    Have Gemini review and organize all opportunities from LightRAG + Supabase,
+    using Neo4j PWS methodology as the analytical framework.
 
     Returns structured review with themes, clusters, and strategic recommendations.
     """
@@ -142,6 +263,9 @@ def generate_lightrag_review(lightrag_data: Dict, opportunities: Dict) -> Dict[s
 
         from google import genai as genai_client
         client = genai_client.Client(api_key=api_key)
+
+        # Get PWS methodology context from Neo4j (consultant brain)
+        pws_context = get_pws_methodology_context()
 
         # Build context from LightRAG graph response
         lightrag_text = lightrag_data.get("response", "No LightRAG data available.")
@@ -163,45 +287,63 @@ def generate_lightrag_review(lightrag_data: Dict, opportunities: Dict) -> Dict[s
 
         total_in_bank = opportunities.get('total_count', 0)
 
-        review_prompt = f"""You are a PWS (Problems Worth Solving) strategic analyst for Mindrian.
+        review_prompt = f"""You are Lawrence, a PWS (Problems Worth Solving) methodology expert and strategic analyst.
+You think like an innovation professor — never jumping to solutions, always asking "is this problem well-defined?"
 
-Review and organize the FULL Bank of Opportunities below. This is data from our knowledge graph (LightRAG) combined with recent Supabase records.
+## YOUR METHODOLOGY (from the PWS Knowledge Graph)
+{pws_context}
 
-## KNOWLEDGE GRAPH DATA (LightRAG - All Accumulated Opportunities)
+---
+
+## OPPORTUNITY DATA
+
+### Knowledge Graph (LightRAG - All Accumulated Opportunities)
 {lightrag_text}
 
-## RECENT OPPORTUNITIES (Supabase - Last 24-48h)
+### Recent Opportunities (Supabase - Last 24-48h)
 {json.dumps(supabase_opps, indent=2) if supabase_opps else "No recent opportunities."}
 
-## BANK STATS
+### Bank Stats
 - Total accumulated: {total_in_bank}
 - Recent (24-48h): {len(supabase_opps)}
 
+---
+
 ## YOUR TASK
-Provide a strategic review in this EXACT format (markdown):
+Apply the PWS methodology to review the Bank of Opportunities. Think like Lawrence — probe, question, classify.
 
-### Opportunity Themes
-Group opportunities into 3-5 major themes. For each theme:
-- **Theme Name** (X opportunities)
-  - Key opportunities in this theme
-  - Why this theme matters
+### 1. Opportunity Themes
+Group into 3-5 themes. For each:
+- **Theme Name** (count)
+  - Key opportunities
+  - The underlying REVERSE SALIENT driving this theme (what bottleneck makes these problems worth solving?)
 
-### Top 5 Opportunities (Ranked by Impact)
+### 2. Top 5 Opportunities (Ranked by PWS Criteria)
+Rank using these lenses:
+- Is the PROBLEM well-defined? (Un-defined / Ill-defined / Well-defined)
+- What REVERSE SALIENT does it address?
+- What JOB TO BE DONE does it serve?
+- Where on the S-CURVE is the relevant technology/market?
+- Value potential (LOW / MEDIUM / HIGH / TRANSFORMATIVE)
+
 For each:
-1. **Name** | Domain | Value: HIGH/TRANSFORMATIVE
-   - Problem it addresses
-   - Why it's high-impact
+1. **Name** | Domain | Problem Definition Level | Value
+   - Reverse salient it addresses
+   - The job being done
+   - Why it matters NOW (timing/S-curve position)
 
-### Cross-Domain Connections
-- What connections exist between different domains?
-- What reverse salients (bottlenecks) cut across multiple opportunities?
+### 3. Cross-Domain Connections & Reverse Salients
+- What reverse salients cut across multiple domains?
+- What connections exist between seemingly unrelated opportunities? (Pattern Recognition)
+- Any White Space gaps — domains with no opportunities yet?
 
-### Strategic Recommendations
-- What domains should get more exploration?
-- What patterns suggest emerging trends?
-- What gaps exist in the current opportunity bank?
+### 4. Strategic Recommendations (Lawrence's Perspective)
+- Which opportunities suffer from PREMATURE SOLUTIONING? (solution stated before problem is validated)
+- What domains need deeper PROBLEM DISCOVERY?
+- What TRENDS should we push to the absurd to find new opportunities?
+- What BEAUTIFUL QUESTIONS emerge from the bank? (frame as WHY → WHAT IF → HOW)
 
-Keep it concise and actionable. Use PWS terminology (reverse salients, jobs-to-be-done, problems worth solving)."""
+Be concise, specific, and grounded in the methodology. No generic advice."""
 
         response = client.models.generate_content(
             model="gemini-2.0-flash",
@@ -214,6 +356,7 @@ Keep it concise and actionable. Use PWS terminology (reverse salients, jobs-to-b
             "success": True,
             "review": review_text,
             "lightrag_available": bool(lightrag_data.get("success")),
+            "neo4j_consulted": bool(NEO4J_URI and NEO4J_PASSWORD),
         }
 
     except Exception as e:
@@ -842,13 +985,20 @@ def generate_html_report(
         # Clean up double <br>
         review_text = re.sub(r'(<br>){3,}', '<br><br>', review_text)
 
-        source_label = "LightRAG + Supabase" if lightrag_review.get('lightrag_available') else "Supabase only"
+        source_parts = []
+        if lightrag_review.get('lightrag_available'):
+            source_parts.append("LightRAG")
+        if lightrag_review.get('neo4j_consulted'):
+            source_parts.append("Neo4j PWS Methodology")
+        source_parts.append("Supabase")
+        source_label = " + ".join(source_parts)
+
         lightrag_review_html = f'''
         <div style="margin-bottom: 24px; background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%); padding: 16px; border-radius: 8px; border: 1px solid #e9d5ff;">
             <h2 style="font-size: 18px; color: #6b21a8; margin: 0 0 12px 0;">
-                🤖 LLM-Organized Opportunity Bank Review
+                🤖 Lawrence's PWS Review — Bank of Opportunities
             </h2>
-            <div style="font-size: 11px; color: #7c3aed; margin-bottom: 12px;">Source: {source_label}</div>
+            <div style="font-size: 11px; color: #7c3aed; margin-bottom: 12px;">Methodology: PWS | Sources: {source_label}</div>
             <div style="font-size: 13px; line-height: 1.6; color: #374151;">
                 {review_text}
             </div>
