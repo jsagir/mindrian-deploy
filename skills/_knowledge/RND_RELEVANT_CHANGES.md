@@ -1,10 +1,21 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-04 15:23*
+*Auto-generated: 2026-02-04 15:24*
 
 ---
 
 ## 2026-02-04
+
+### 📝 docs: Add QA Testing Memo for Feb 4, 2026 release
+
+- **Commit:** `b7a74bbf`
+- **Author:** jsagir
+- **Files changed:** 4
+  - docs/QA_TESTING_MEMO_FEB4.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Covers all changes from last 18 hours including Genesis pipeline,
 
 ### ✨ feat: Add Genesis Expert Breakdown pipeline + UI improvements
 
@@ -400,14 +411,3 @@
   - public/elements/StickyActionsInjector.jsx
   - skills/_knowledge/QA_RELEVANT_CHANGES.md
 - **Details:** Created StickyActionsInjector custom element that injects CSS to make
-
-### ✨ feat: Intelligent diagram type selection for Visualize button
-
-- **Commit:** `96515813`
-- **Author:** jsagir
-- **Files changed:** 4
-  - mindrian_chat.py
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** Replaced simple mindmap-only "Map Ideas" with intelligent visualization that

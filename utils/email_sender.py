@@ -27,7 +27,7 @@ SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
 SMTP_USER = os.getenv("SMTP_USER", "")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")  # Use app password for Gmail
 SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY", "")
-DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "noreply@mindrian.ai")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "jsagir@gmail.com")
 
 
 def send_email_smtp(

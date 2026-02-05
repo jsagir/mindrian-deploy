@@ -13,12 +13,21 @@ Multi-agent panel discussion using Gemini for persona simulation.
 import os
 import asyncio
 from typing import Dict, List, Any, Optional
-import google.generativeai as genai
+from google import genai
 
-# Configure Gemini API
-_api_key = os.getenv("GOOGLE_API_KEY")
-if _api_key:
-    genai.configure(api_key=_api_key)
+# Lazy Gemini client initialization (google-genai SDK)
+_client = None
+
+
+def _get_client():
+    """Get or create Gemini client (lazy init)."""
+    global _client
+    if _client is None:
+        api_key = os.getenv("GOOGLE_API_KEY")
+        if not api_key:
+            raise ValueError("GOOGLE_API_KEY environment variable is required for Genesis Expert Panel")
+        _client = genai.Client(api_key=api_key)
+    return _client
 
 
 async def simulate_expert_response(
@@ -63,16 +72,14 @@ Never use real human names - you are an expertise-based persona.
 """
 
     try:
-        model = genai.GenerativeModel(model_name)
+        client = _get_client()
         full_prompt = f"{context}\n\n{prompt}" if context else prompt
+        combined_prompt = f"{system_prompt}\n\n---\n\n{full_prompt}"
 
         response = await asyncio.to_thread(
-            model.generate_content,
-            [
-                {"role": "user", "parts": [{"text": system_prompt}]},
-                {"role": "model", "parts": [{"text": "I understand my role and will respond from this expert perspective."}]},
-                {"role": "user", "parts": [{"text": full_prompt}]},
-            ]
+            client.models.generate_content,
+            model=model_name,
+            contents=combined_prompt,
         )
 
         return response.text if response.text else "[No response generated]"

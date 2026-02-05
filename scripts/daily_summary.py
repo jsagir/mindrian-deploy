@@ -369,13 +369,13 @@ def generate_ai_insights(opportunities: Dict, feedback: Dict, sessions: Dict) ->
     Uses Gemini to analyze the data and provide actionable insights.
     """
     try:
-        import google.generativeai as genai
-
         api_key = os.getenv("GOOGLE_API_KEY")
         if not api_key:
             return {"error": "No AI API key", "insights": [], "recommendations": []}
 
-        genai.configure(api_key=api_key)
+        # Use new google-genai SDK (matches requirements.txt)
+        from google import genai as genai_client
+        client = genai_client.Client(api_key=api_key)
 
         # Build context for analysis
         today_opps = opportunities.get('today_opportunities', [])
@@ -423,8 +423,10 @@ Provide EXACTLY this JSON structure (no markdown, just JSON):
     "concern_flag": "<any urgent concern to address or null>"
 }}"""
 
-        model = genai.GenerativeModel("gemini-2.0-flash")
-        response = model.generate_content(analysis_prompt)
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=analysis_prompt,
+        )
 
         # Parse JSON from response
         response_text = response.text.strip()
