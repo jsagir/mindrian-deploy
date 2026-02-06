@@ -63,6 +63,44 @@ class ExpertPanel(TypedDict):
     trace: Dict[str, Any]
 
 
+# ============================================
+# Artifacts vs Frames (AGENTS.md Pattern)
+# ============================================
+# Artifacts: Validated evidence that persists across all agents/modes
+# Frames: Agent-specific interpretations that don't leak
+
+class Artifact(TypedDict):
+    """
+    Validated evidence that all agents can see.
+
+    Artifacts persist across the entire session and represent
+    confirmed facts, decisions, or validated insights.
+    """
+    id: str
+    type: Literal["user_input", "challenge", "diagnosis", "validated_insight", "decision"]
+    content: str
+    source: str  # Which agent or "user" created it
+    created_at: str
+    validation_source: Optional[str]  # How it was validated (e.g., "diagnostic", "red_team")
+
+
+class Frame(TypedDict):
+    """
+    Interpretation that only the creating agent/mode sees.
+
+    Frames are scoped to specific contexts (e.g., expert mode)
+    and should NOT leak into other contexts. They represent
+    speculation, hypotheses, or working models.
+    """
+    id: str
+    agent: str  # Which agent/expert created this frame
+    type: Literal["hypothesis", "assumption", "speculation", "working_model", "expert_opinion"]
+    content: str
+    confidence: float
+    created_at: str
+    promoted_to_artifact: Optional[str]  # Artifact ID if promoted
+
+
 class PWSConsultantState(TypedDict, total=False):
     """
     Formal state schema for PWS Consultant.
@@ -93,6 +131,11 @@ class PWSConsultantState(TypedDict, total=False):
     # === Background Task Results ===
     expert_panel: Optional[ExpertPanel]
     domain_discovery: Optional[Dict[str, Any]]
+
+    # === Artifacts vs Frames (AGENTS.md Pattern) ===
+    # Artifacts persist across all modes, Frames are scoped
+    artifacts: List[Artifact]
+    frames: Dict[str, List[Frame]]  # agent_id -> list of frames
 
     # === Session Metadata ===
     user_id: str
@@ -135,6 +178,10 @@ def init_pws_state(user_id: str = "", session_id: str = "", context_key: str = "
         # Background results
         expert_panel=None,
         domain_discovery=None,
+
+        # Artifacts vs Frames (AGENTS.md pattern)
+        artifacts=[],
+        frames={},
 
         # Metadata
         user_id=user_id,
@@ -575,3 +622,176 @@ def increment_turn_count(stage: str = None) -> int:
         new_count = 0
 
     return new_count
+
+
+# ============================================
+# Artifacts vs Frames (AGENTS.md Pattern)
+# ============================================
+
+def add_artifact(
+    content: str,
+    artifact_type: str,
+    source: str,
+    validation_source: Optional[str] = None
+) -> str:
+    """
+    Add a new artifact to the PWS state.
+
+    Artifacts are validated evidence that persists across all modes.
+    Call this when:
+    - User provides validated information
+    - Diagnosis is completed
+    - An insight has been validated by Red Team
+    - A decision has been made
+
+    Returns:
+        The artifact ID
+    """
+    import uuid
+
+    artifact_id = str(uuid.uuid4())[:8]
+    artifact = Artifact(
+        id=artifact_id,
+        type=artifact_type,
+        content=content,
+        source=source,
+        created_at=datetime.utcnow().isoformat(),
+        validation_source=validation_source,
+    )
+
+    # Get current artifacts from session
+    artifacts = cl.user_session.get("pws_artifacts", [])
+    artifacts.append(artifact)
+    cl.user_session.set("pws_artifacts", artifacts)
+
+    logger.debug(f"[PWS_STATE] Added artifact: {artifact_type} from {source}")
+    return artifact_id
+
+
+def add_frame(
+    agent: str,
+    content: str,
+    frame_type: str,
+    confidence: float = 0.5
+) -> str:
+    """
+    Add a frame (scoped interpretation) for an agent.
+
+    Frames are agent-specific interpretations that don't leak to other contexts.
+    Call this when:
+    - An expert provides an opinion
+    - A hypothesis is formed
+    - An assumption is made
+    - A working model is proposed
+
+    Returns:
+        The frame ID
+    """
+    import uuid
+
+    frame_id = str(uuid.uuid4())[:8]
+    frame = Frame(
+        id=frame_id,
+        agent=agent,
+        type=frame_type,
+        content=content,
+        confidence=confidence,
+        created_at=datetime.utcnow().isoformat(),
+        promoted_to_artifact=None,
+    )
+
+    # Get current frames from session
+    frames = cl.user_session.get("pws_frames", {})
+    if agent not in frames:
+        frames[agent] = []
+    frames[agent].append(frame)
+    cl.user_session.set("pws_frames", frames)
+
+    logger.debug(f"[PWS_STATE] Added frame: {frame_type} from {agent} (confidence: {confidence})")
+    return frame_id
+
+
+def promote_frame_to_artifact(
+    agent: str,
+    frame_id: str,
+    validation_source: str = "user_confirmed"
+) -> Optional[str]:
+    """
+    Promote a frame to an artifact after validation.
+
+    This is the key transition in AGENTS.md pattern:
+    Speculation (Frame) -> Validated Evidence (Artifact)
+
+    Call this when:
+    - User confirms an expert's hypothesis
+    - Red Team validation passes
+    - Evidence supports a working model
+
+    Returns:
+        The new artifact ID, or None if frame not found
+    """
+    frames = cl.user_session.get("pws_frames", {})
+    agent_frames = frames.get(agent, [])
+
+    # Find the frame
+    frame_to_promote = None
+    for i, f in enumerate(agent_frames):
+        if f.get("id") == frame_id:
+            frame_to_promote = f
+            break
+
+    if not frame_to_promote:
+        logger.warning(f"[PWS_STATE] Frame {frame_id} not found for agent {agent}")
+        return None
+
+    # Create artifact from frame
+    artifact_id = add_artifact(
+        content=frame_to_promote["content"],
+        artifact_type="validated_insight",
+        source=agent,
+        validation_source=validation_source,
+    )
+
+    # Mark frame as promoted
+    frame_to_promote["promoted_to_artifact"] = artifact_id
+    cl.user_session.set("pws_frames", frames)
+
+    logger.info(f"[PWS_STATE] Promoted frame {frame_id} to artifact {artifact_id}")
+    return artifact_id
+
+
+def get_artifacts(artifact_type: Optional[str] = None) -> List[Artifact]:
+    """Get all artifacts, optionally filtered by type."""
+    artifacts = cl.user_session.get("pws_artifacts", [])
+    if artifact_type:
+        return [a for a in artifacts if a.get("type") == artifact_type]
+    return artifacts
+
+
+def get_frames(agent: Optional[str] = None) -> Dict[str, List[Frame]]:
+    """Get all frames, optionally filtered by agent."""
+    frames = cl.user_session.get("pws_frames", {})
+    if agent:
+        return {agent: frames.get(agent, [])}
+    return frames
+
+
+def get_unpromoted_frames(agent: str) -> List[Frame]:
+    """Get frames for an agent that haven't been promoted to artifacts."""
+    frames = cl.user_session.get("pws_frames", {})
+    agent_frames = frames.get(agent, [])
+    return [f for f in agent_frames if not f.get("promoted_to_artifact")]
+
+
+def clear_agent_frames(agent: str) -> int:
+    """
+    Clear all frames for an agent (e.g., after leaving expert mode).
+
+    Returns the number of frames cleared.
+    """
+    frames = cl.user_session.get("pws_frames", {})
+    count = len(frames.get(agent, []))
+    frames[agent] = []
+    cl.user_session.set("pws_frames", frames)
+    logger.debug(f"[PWS_STATE] Cleared {count} frames for agent {agent}")
+    return count

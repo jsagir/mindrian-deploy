@@ -925,6 +925,21 @@ except ImportError as e:
     PWS_STATE_ENABLED = False
     print(f"[PWS_STATE] State management not available: {e}")
 
+# === PWS Validation Middleware (Red Team Pattern) ===
+# AGENTS.md pattern: Cross-cutting validation at key transitions
+try:
+    from utils.pws_validation import (
+        PWSValidationMiddleware,
+        validate_pws_response,
+        should_validate,
+        format_validation_message,
+    )
+    PWS_VALIDATION_ENABLED = True
+    print("[PWS_VALIDATION] Red Team middleware enabled")
+except ImportError as e:
+    PWS_VALIDATION_ENABLED = False
+    print(f"[PWS_VALIDATION] Validation middleware not available: {e}")
+
 # === Two-Stage Classifier (Cynefin + PWS) ===
 # Quick win from AGENTS.md architecture analysis
 try:
@@ -3515,6 +3530,11 @@ async def start():
             cl.user_session.set("pws_consulting_turn_count", 0)
             cl.user_session.set("pws_expert_consult_count", 0)
             cl.user_session.set("pws_active_expert_context", "")
+            cl.user_session.set("pws_last_validation_turn", 0)
+
+            # Initialize Red Team validation middleware (AGENTS.md pattern)
+            if PWS_VALIDATION_ENABLED:
+                cl.user_session.set("pws_validation_middleware", PWSValidationMiddleware())
 
     # Initialize settings
     settings = await cl.ChatSettings(await get_settings_widgets()).send()
@@ -5309,6 +5329,41 @@ End by asking what the user wants to explore next."""
             history.append({"role": "user", "content": f"[Consulted {role} ({subdomain})]"})
             history.append({"role": "assistant", "content": full_response})
             cl.user_session.set("history", history)
+
+            # === AGENTS.md Pattern: Store expert response as Frame (not Artifact) ===
+            # Expert opinions are scoped interpretations, not validated evidence yet
+            frame_id = None
+            if PWS_STATE_ENABLED:
+                try:
+                    from utils.pws_state import add_frame
+                    frame_id = add_frame(
+                        agent=f"expert_{expert_id}",
+                        content=full_response[:500],  # Truncate for storage
+                        frame_type="expert_opinion",
+                        confidence=0.6  # Expert opinions start at moderate confidence
+                    )
+                    cl.user_session.set("pws_last_expert_frame_id", frame_id)
+                    cl.user_session.set("pws_last_expert_agent", f"expert_{expert_id}")
+                except Exception as e:
+                    logger.debug(f"[PWS] Frame storage error: {e}")
+
+            # Show action buttons for accepting or challenging the expert insight
+            expert_actions = [
+                cl.Action(
+                    name="accept_expert_insight",
+                    payload={"expert_id": expert_id, "frame_id": frame_id, "role": role},
+                    label="✅ Accept this insight",
+                    description="Promote this to validated evidence"
+                ),
+                cl.Action(
+                    name="challenge_expert_insight",
+                    payload={"expert_id": expert_id, "frame_id": frame_id, "role": role},
+                    label="🤔 Challenge this",
+                    description="Apply Red Team validation"
+                ),
+            ]
+            await cl.Message(content="", actions=expert_actions).send()
+
         except Exception as e:
             await msg.stream_token(f"Let me bring in that perspective... {e}")
             await msg.update()
@@ -5316,6 +5371,180 @@ End by asking what the user wants to explore next."""
     except Exception as e:
         logger.warning("Expert consultation callback error: %s", e)
         await cl.Message(content="Let me try bringing in that perspective differently.").send()
+
+
+@cl.action_callback("accept_expert_insight")
+async def on_accept_expert_insight(action: cl.Action):
+    """
+    Accept an expert's insight and promote it to a validated artifact.
+
+    AGENTS.md pattern: Frame -> Artifact promotion after user confirmation.
+    """
+    try:
+        payload = action.payload or {}
+        frame_id = payload.get("frame_id")
+        expert_id = payload.get("expert_id")
+        role = payload.get("role", "Expert")
+
+        if PWS_STATE_ENABLED and frame_id:
+            try:
+                from utils.pws_state import promote_frame_to_artifact
+                artifact_id = promote_frame_to_artifact(
+                    agent=f"expert_{expert_id}",
+                    frame_id=frame_id,
+                    validation_source="user_confirmed"
+                )
+                if artifact_id:
+                    await cl.Message(
+                        content=f"Got it — I've noted that insight from the {role} as validated evidence. "
+                                "We can build on this as we continue."
+                    ).send()
+                else:
+                    await cl.Message(content="Thanks, I'll keep that in mind.").send()
+            except Exception as e:
+                logger.debug(f"[PWS] Promotion error: {e}")
+                await cl.Message(content="Thanks, I'll keep that in mind.").send()
+        else:
+            await cl.Message(content="Thanks, I'll factor that perspective into our discussion.").send()
+
+    except Exception as e:
+        logger.warning(f"Accept expert insight error: {e}")
+
+
+@cl.action_callback("challenge_expert_insight")
+async def on_challenge_expert_insight(action: cl.Action):
+    """
+    Challenge an expert's insight using Red Team validation.
+
+    AGENTS.md pattern: Apply cross-cutting validation to any output.
+    """
+    try:
+        payload = action.payload or {}
+        frame_id = payload.get("frame_id")
+        expert_id = payload.get("expert_id")
+        role = payload.get("role", "Expert")
+
+        # Get the expert's response from history
+        history = cl.user_session.get("history", [])
+        expert_response = ""
+        for h in reversed(history):
+            if "[Consulted" in h.get("content", ""):
+                # Next one is the expert response
+                idx = history.index(h)
+                if idx + 1 < len(history):
+                    expert_response = history[idx + 1].get("content", "")
+                break
+
+        if not expert_response:
+            await cl.Message(content="Let me re-examine that perspective...").send()
+            return
+
+        # Apply Red Team validation
+        if PWS_VALIDATION_ENABLED:
+            diagnosis = cl.user_session.get("pws_diagnosis", {})
+            problem_type = diagnosis.get("primary", "ill_defined")
+
+            validation_result = await validate_pws_response(
+                user_message=f"The {role} said: {expert_response[:200]}...",
+                assistant_response=expert_response,
+                problem_type=problem_type,
+                turn_count=cl.user_session.get("pws_consulting_turn_count", 0),
+                context={"source": "expert_challenge", "expert": role}
+            )
+
+            # Format the challenge as a response
+            challenge_intro = f"Let me put on my Red Team hat and challenge the {role}'s perspective:\n\n"
+
+            if validation_result.challenges:
+                questions = [c.get("question", "") for c in validation_result.challenges[:3] if c.get("question")]
+                challenge_points = "\n".join([f"• {q}" for q in questions])
+                challenge_msg = f"{challenge_intro}**Questions to consider:**\n{challenge_points}"
+            else:
+                challenge_msg = f"{challenge_intro}The perspective seems well-grounded, but consider: What evidence would change this view?"
+
+            if validation_result.red_flags_detected:
+                challenge_msg += f"\n\n**Potential concerns:** {', '.join(validation_result.red_flags_detected[:2])}"
+
+            await cl.Message(content=challenge_msg).send()
+        else:
+            # Fallback without validation middleware
+            await cl.Message(
+                content=f"Let me push back on that perspective from the {role}:\n\n"
+                        "• What assumptions is this based on?\n"
+                        "• What evidence would prove this wrong?\n"
+                        "• Who might disagree and why?"
+            ).send()
+
+    except Exception as e:
+        logger.warning(f"Challenge expert insight error: {e}")
+        await cl.Message(content="Let me reconsider that perspective...").send()
+
+
+@cl.action_callback("reclassify_problem")
+async def on_reclassify_problem(action: cl.Action):
+    """
+    Handle reclassification request from Red Team validation or user request.
+
+    This allows users to re-run the diagnostic if the problem has evolved
+    or if the initial classification feels wrong.
+
+    AGENTS.md pattern: Explicit handling of problem evolution.
+    """
+    try:
+        payload = action.payload or {}
+        reason = payload.get("reason", "user_request")
+
+        # Preserve challenge description for context
+        challenge_description = cl.user_session.get("pws_challenge_description", "")
+        existing_diagnosis = cl.user_session.get("pws_diagnosis", {})
+        consulting_turns = cl.user_session.get("pws_consulting_turn_count", 0)
+
+        # Log the reclassification event
+        logger.info(f"[PWS] Reclassification requested: reason={reason}, "
+                    f"previous_type={existing_diagnosis.get('primary', 'unknown')}, "
+                    f"consulting_turns={consulting_turns}")
+
+        # Reset to diagnostic stage
+        cl.user_session.set("pws_stage", "diagnostic")
+        cl.user_session.set("pws_sub_mode", "normal")
+        cl.user_session.set("pws_diagnostic_answers", [])
+        cl.user_session.set("pws_diagnosis", None)
+        cl.user_session.set("pws_diagnostic_context", "")
+
+        # Acknowledge the transition
+        if reason == "validation_suggested":
+            intro_msg = ("Let's step back and re-assess. Your problem seems to be "
+                         "evolving — that's actually a good sign that you're thinking "
+                         "more deeply about it. Let me ask the diagnostic questions again "
+                         "with your current understanding in mind.")
+        else:
+            intro_msg = ("Got it — let's re-assess. Problems often evolve as we think "
+                         "through them. I'll ask the questions again, and you can "
+                         "answer based on where you are now.")
+
+        await cl.Message(content=intro_msg).send()
+
+        # Show first diagnostic question
+        first_q = PWS_DIAGNOSTIC_QUESTIONS[0]
+        elements = [
+            cl.CustomElement(
+                name="DiagnosticFlow",
+                props={
+                    "question": first_q["text"],
+                    "options": [opt["label"] for opt in first_q["options"]],
+                    "questionNumber": 1,
+                    "totalQuestions": 5,
+                    "questionId": first_q["id"],
+                    "isReclassification": True,  # Flag for UI to show differently
+                },
+                display="inline",
+            )
+        ]
+        await cl.Message(content="", elements=elements).send()
+
+    except Exception as e:
+        logger.warning(f"[PWS] Reclassify callback error: {e}")
+        await cl.Message(content="Let me try that again...").send()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -9977,6 +10206,52 @@ Your insights help us improve Mindrian!"""
 
                 history.append({"role": "model", "parts": [full_response]})
                 cl.user_session.set("history", history)
+
+                # === Red Team Validation (AGENTS.md pattern) ===
+                # Run cross-cutting validation at key turns or when claims detected
+                if PWS_VALIDATION_ENABLED:
+                    try:
+                        diagnosis = cl.user_session.get("pws_diagnosis", {})
+                        problem_type = diagnosis.get("primary", "ill_defined")
+                        last_val_turn = cl.user_session.get("pws_last_validation_turn", 0)
+
+                        if should_validate(consulting_turns, last_val_turn, message.content, problem_type):
+                            validation_result = await validate_pws_response(
+                                user_message=message.content,
+                                assistant_response=full_response,
+                                problem_type=problem_type,
+                                turn_count=consulting_turns,
+                                context={"diagnosis": diagnosis}
+                            )
+
+                            cl.user_session.set("pws_last_validation_turn", consulting_turns)
+
+                            # If validation has notable observations, append to response
+                            validation_msg = format_validation_message(validation_result)
+                            if validation_msg:
+                                await msg.stream_token(validation_msg)
+                                await msg.update()
+
+                                # Also add to history so it's part of context
+                                history[-1]["parts"][0] += validation_msg
+                                cl.user_session.set("history", history)
+
+                            # If reclassification suggested, offer the option
+                            if validation_result.should_reclassify:
+                                reclassify_action = cl.Action(
+                                    name="reclassify_problem",
+                                    payload={"reason": "validation_suggested"},
+                                    label="🔄 Re-assess Problem Type",
+                                    description="The problem may be evolving - re-run diagnostic"
+                                )
+                                await cl.Message(
+                                    content="",
+                                    actions=[reclassify_action]
+                                ).send()
+
+                            logger.debug(f"[PWS_VALIDATION] Turn {consulting_turns}: passed={validation_result.passed}, flags={len(validation_result.red_flags_detected)}")
+                    except Exception as e:
+                        logger.debug(f"[PWS_VALIDATION] Error: {e}")
 
                 # Reset sub-mode after each turn (self-loop returns to normal)
                 if sub_mode != "normal":

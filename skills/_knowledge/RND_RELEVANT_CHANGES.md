@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-06 09:40*
+*Auto-generated: 2026-02-06 09:43*
 
 ---
 
 ## 2026-02-06
+
+### 🐛 fix: Update stale Supabase anon key + add env-based config injection
+
+- **Commit:** `47130a8b`
+- **Author:** jsagir
+- **Files changed:** 6
+  - mindrian_chat.py
+  - public/login.html
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+- **Details:** CRITICAL FIX: Login page was stuck on "Checking session..." because
 
 ### ✨ feat: Wire two-stage classifier (Cynefin + PWS) to PWS Consultant
 
@@ -387,15 +399,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** Session highlights:
-
-### 🐛 fix: Hide ThinkingPanel when no steps returned
-
-- **Commit:** `94e0af20`
-- **Author:** jsagir
-- **Files changed:** 5
-  - R&D/12_conversation_sampler_dashboard/README.md
-  - mindrian_chat.py
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** QA feedback: Lawrence's Thinking boxes showing 0/0 - Waiting for

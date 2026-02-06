@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-06 09:40*
+*Auto-generated: 2026-02-06 09:43*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,16 +13,16 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-06 | 5 |
+| 2026-02-06 | 6 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 40 |
+| 2026-02-04 | 39 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 4 |
-| `scripts/daily_summary.py` | 3 |
+| `mindrian_chat.py` | 5 |
+| `public/login.html` | 3 |
 
 ---
 
@@ -30,13 +30,44 @@
 
 ### 2026-02-06
 
+#### 🐛 fix: Update stale Supabase anon key + add env-based config injection
+
+- **Hash:** `47130a8b9b9585e9eb67fb98c3e7e24bc32ae3e4`
+- **Short:** `47130a8b`
+- **Parent:** `4bcbdf45`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-06 09:43:05
+- **Risk:** medium
+- **Diff:** +110 / -99
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 12 | 0 |
+  | `public/login.html` | 34 | 6 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 37 | 54 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 13 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 13 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `public/login.html`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** CRITICAL FIX: Login page was stuck on "Checking session..." because
+
+
 #### ✨ feat: Wire two-stage classifier (Cynefin + PWS) to PWS Consultant
 
 - **Hash:** `4bcbdf4524095501342c5936430ffa94f7081152`
 - **Short:** `4bcbdf45`
 - **Parent:** `783b3b54`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-06 09:40:50
 - **Risk:** high
@@ -1502,33 +1533,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** Session highlights:
-
-
-#### 🐛 fix: Hide ThinkingPanel when no steps returned
-
-- **Hash:** `94e0af20803a65081da97944b6b27bcaf239e03d`
-- **Short:** `94e0af20`
-- **Parent:** `cb013db9`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 02:26:31
-- **Risk:** medium
-- **Diff:** +141 / -30
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `R&D/12_conversation_sampler_dashboard/README.md` | 88 | 0 |
-  | `mindrian_chat.py` | 14 | 11 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 9 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 9 |
-
-  **File Operations:**
-  - ➕ Added: `R&D/12_conversation_sampler_dashboard/README.md`
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** QA feedback: Lawrence's Thinking boxes showing 0/0 - Waiting for
 
