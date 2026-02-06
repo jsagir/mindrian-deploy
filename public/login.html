@@ -585,13 +585,15 @@
     // ============================================================
     // AUTH STATE LISTENER
     // ============================================================
-    supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth event:', event);
+    if (supabase) {
+      supabase.auth.onAuthStateChange((event, session) => {
+        console.log('Auth event:', event);
 
-      if (event === 'SIGNED_IN' && session) {
-        redirectToChat(session.access_token);
-      }
-    });
+        if (event === 'SIGNED_IN' && session) {
+          redirectToChat(session.access_token);
+        }
+      });
+    }
 
     // ============================================================
     // EVENT HANDLERS

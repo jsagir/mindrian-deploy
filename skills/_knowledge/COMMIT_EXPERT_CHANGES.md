@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-06 12:14*
+*Auto-generated: 2026-02-06 12:26*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,16 +13,16 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-06 | 8 |
+| 2026-02-06 | 9 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 37 |
+| 2026-02-04 | 36 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
+| `public/login.html` | 5 |
 | `mindrian_chat.py` | 5 |
-| `public/login.html` | 4 |
 
 ---
 
@@ -30,13 +30,43 @@
 
 ### 2026-02-06
 
+#### 🐛 fix: Simplify login page - remove config fetch, use direct initialization
+
+- **Hash:** `4d144d94961720b0c2f6c778bd0101192e4d5bb3`
+- **Short:** `4d144d94`
+- **Parent:** `e4e69043`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-06 12:26:24
+- **Risk:** medium
+- **Diff:** +94 / -121
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `public/login.html` | 20 | 59 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 35 | 35 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 13 |
+
+  **File Operations:**
+  - ✏️ Modified: `public/login.html`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** - Remove async config fetch (was causing issues with Chainlit routing)
+
+
 #### 🐛 fix: Add proper timeout and safety fallback to login page
 
 - **Hash:** `e4e69043445360771b348bc148072ffc41776318`
 - **Short:** `e4e69043`
 - **Parent:** `771a4648`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-06 12:14:45
 - **Risk:** medium
@@ -66,7 +96,6 @@
 - **Short:** `771a4648`
 - **Parent:** `47130a8b`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-06 09:53:59
 - **Risk:** high
@@ -1512,30 +1541,4 @@
   - ✏️ Modified: `README.md`
 
 - **Body:** Added:
-
-
-#### 📝 docs: Update knowledge base (auto-generated)
-
-- **Hash:** `cb280d80ddf157d6781d94a7f2fe289814de9ca0`
-- **Short:** `cb280d80`
-- **Parent:** `7e4fbee4`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** triple-mode-v1
-- **Author:** jsagir
-- **Date:** 2026-02-04 02:30:47
-- **Risk:** low
-- **Diff:** +27 / -27
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 13 |
-
-  **File Operations:**
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 

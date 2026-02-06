@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-06 12:14*
+*Auto-generated: 2026-02-06 12:26*
 
 ---
 
 ## 2026-02-06
+
+### 🐛 fix: Simplify login page - remove config fetch, use direct initialization
+
+- **Commit:** `4d144d94`
+- **Author:** jsagir
+- **Files changed:** 5
+  - public/login.html
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** - Remove async config fetch (was causing issues with Chainlit routing)
 
 ### 🐛 fix: Add proper timeout and safety fallback to login page
 
@@ -558,13 +570,3 @@
 - **Files changed:** 1
   - README.md
 - **Details:** Added:
-
-### 📝 docs: Update knowledge base (auto-generated)
-
-- **Commit:** `cb280d80`
-- **Author:** jsagir
-- **Files changed:** 3
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
