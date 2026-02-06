@@ -1,6 +1,6 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-06 09:28*
+*Auto-generated: 2026-02-06 09:40*
 
 ---
 
@@ -246,15 +246,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** QA feedback: Lawrence's Thinking boxes showing 0/0 - Waiting for
-
-### 🐛 fix: Address all QA issues + add LangGraph sequential thinking
-
-- **Commit:** `cb013db9`
-- **Author:** jsagir
-- **Files changed:** 19
-  - callbacks/__init__.py
-  - callbacks/agent_switch.py
-  - callbacks/research.py
-  - intelligence/pipelines/__init__.py
-  - intelligence/pipelines/minto_pyramid.py
-- **Details:** QA Fixes (Feb 3 report):

@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-06 09:28*
+*Auto-generated: 2026-02-06 09:40*
 
 ---
 
 ## 2026-02-06
+
+### ✨ feat: Wire two-stage classifier (Cynefin + PWS) to PWS Consultant
+
+- **Commit:** `4bcbdf45`
+- **Author:** jsagir
+- **Files changed:** 6
+  - R&D/10_agents_md_architecture/README.md
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+- **Details:** Quick wins from AGENTS.md architecture analysis:
 
 ### ✨ feat: Add LangGraph-style PWS state management module
 
@@ -555,15 +567,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** QA feedback: Lawrence's Thinking boxes showing 0/0 - Waiting for
-
-### 🐛 fix: Address all QA issues + add LangGraph sequential thinking
-
-- **Commit:** `cb013db9`
-- **Author:** jsagir
-- **Files changed:** 19
-  - callbacks/__init__.py
-  - callbacks/agent_switch.py
-  - callbacks/research.py
-  - intelligence/pipelines/__init__.py
-  - intelligence/pipelines/minto_pyramid.py
-- **Details:** QA Fixes (Feb 3 report):

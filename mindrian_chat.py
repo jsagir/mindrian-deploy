@@ -107,6 +107,18 @@ class CronEndpointMiddleware(BaseHTTPMiddleware):
 fastapi_app.add_middleware(CronEndpointMiddleware)
 print("[CRON] /api/daily-summary middleware registered")
 
+# === Public Config Endpoint for Login Page ===
+# Serves Supabase public credentials from environment variables
+# This prevents stale hardcoded keys in login.html
+@fastapi_app.get("/api/public-config")
+async def get_public_config():
+    """Return public Supabase credentials for login page."""
+    return JSONResponse(content={
+        "supabase_url": os.environ.get("SUPABASE_URL", ""),
+        "supabase_anon_key": os.environ.get("SUPABASE_ANON_KEY", ""),
+    })
+print("[CONFIG] /api/public-config endpoint registered")
+
 from google import genai
 from google.genai import types
 

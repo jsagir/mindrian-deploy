@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-06 09:28*
+*Auto-generated: 2026-02-06 09:40*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,15 +13,15 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-06 | 4 |
+| 2026-02-06 | 5 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 41 |
+| 2026-02-04 | 40 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 3 |
+| `mindrian_chat.py` | 4 |
 | `scripts/daily_summary.py` | 3 |
 
 ---
@@ -30,13 +30,45 @@
 
 ### 2026-02-06
 
+#### ✨ feat: Wire two-stage classifier (Cynefin + PWS) to PWS Consultant
+
+- **Hash:** `4bcbdf4524095501342c5936430ffa94f7081152`
+- **Short:** `4bcbdf45`
+- **Parent:** `783b3b54`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-06 09:40:50
+- **Risk:** high
+- **Diff:** +206 / -88
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `R&D/10_agents_md_architecture/README.md` | 77 | 0 |
+  | `mindrian_chat.py` | 65 | 1 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 37 | 60 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 13 |
+
+  **File Operations:**
+  - ➕ Added: `R&D/10_agents_md_architecture/README.md`
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** Quick wins from AGENTS.md architecture analysis:
+
+
 #### ✨ feat: Add LangGraph-style PWS state management module
 
 - **Hash:** `783b3b542cdaedcc93d5b6d2473288debc2104d6`
 - **Short:** `783b3b54`
 - **Parent:** `83392ea1`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-06 09:28:27
 - **Risk:** high
@@ -68,7 +100,6 @@
 - **Short:** `83392ea1`
 - **Parent:** `16079714`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-06 09:20:54
 - **Risk:** high
@@ -1500,52 +1531,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** QA feedback: Lawrence's Thinking boxes showing 0/0 - Waiting for
-
-
-#### 🐛 fix: Address all QA issues + add LangGraph sequential thinking
-
-- **Hash:** `cb013db9101d8ed634d4113b66ce252fe363852a`
-- **Short:** `cb013db9`
-- **Parent:** `355bcde1`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 02:22:03
-- **Risk:** medium
-- **Diff:** +3159 / -151
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `callbacks/__init__.py` | 60 | 0 |
-  | `callbacks/agent_switch.py` | 264 | 0 |
-  | `callbacks/research.py` | 311 | 0 |
-  | `intelligence/pipelines/__init__.py` | 15 | 0 |
-  | `intelligence/pipelines/minto_pyramid.py` | 140 | 0 |
-  | `intelligence/pipelines/sequential_thinking.py` | 370 | 0 |
-  | `memory/__init__.py` | 43 | 0 |
-  | `memory/checkpointer.py` | 153 | 0 |
-  | `memory/user_journey.py` | 827 | 0 |
-  | `mindrian_chat.py` | 651 | 92 |
-
-  **File Operations:**
-  - ➕ Added: `callbacks/__init__.py`
-  - ➕ Added: `callbacks/agent_switch.py`
-  - ➕ Added: `callbacks/research.py`
-  - ✏️ Modified: `intelligence/pipelines/__init__.py`
-  - ✏️ Modified: `intelligence/pipelines/minto_pyramid.py`
-  - ➕ Added: `intelligence/pipelines/sequential_thinking.py`
-  - ➕ Added: `memory/__init__.py`
-  - ➕ Added: `memory/checkpointer.py`
-  - ➕ Added: `memory/user_journey.py`
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `prompts/minto_grading.py`
-  - ✏️ Modified: `protocols/triple_mode.py`
-  - ✏️ Modified: `public/elements/ThinkingPanel.jsx`
-  - ✏️ Modified: `requirements.txt`
-  - ✏️ Modified: `scripts/daily_summary.py`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `tools/result_synthesizer.py`
-
-- **Body:** QA Fixes (Feb 3 report):
 

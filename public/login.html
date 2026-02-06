@@ -466,14 +466,41 @@
 
   <script>
     // ============================================================
-    // CONFIGURATION - Replace with your Supabase credentials
+    // CONFIGURATION - Fetched from /api/public-config or fallback
     // These are public keys (safe to expose in frontend)
     // ============================================================
-    const SUPABASE_URL = 'https://ulmymxxmvsehjiyymqoi.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsbXlteHhtdnNlaGppeXltcW9pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY4OTM2MjcsImV4cCI6MjA1MjQ2OTYyN30.b5i2LTqzSqRPdFwCbCs4GohWbdWxuFbdwG_bwmsLJMo';
 
-    // Initialize Supabase client
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Fallback values (kept updated as backup, but prefer env-based config)
+    const FALLBACK_SUPABASE_URL = 'https://ulmymxxmvsehjiyymqoi.supabase.co';
+    const FALLBACK_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsbXlteHhtdnNlaGppeXltcW9pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NjkxMTEsImV4cCI6MjA3NjU0NTExMX0.4rGebUMo1tX90w9CIX4grQgMBbnUaEipFK-ktvq7VWI';
+
+    // Active config (set after fetching or using fallback)
+    let SUPABASE_URL = FALLBACK_SUPABASE_URL;
+    let SUPABASE_ANON_KEY = FALLBACK_SUPABASE_ANON_KEY;
+    let supabase = null;
+
+    // Fetch config from server (env-based) with fallback to hardcoded values
+    async function initSupabase() {
+      try {
+        const response = await fetch('/api/public-config', { timeout: 2000 });
+        if (response.ok) {
+          const config = await response.json();
+          if (config.supabase_url && config.supabase_anon_key) {
+            SUPABASE_URL = config.supabase_url;
+            SUPABASE_ANON_KEY = config.supabase_anon_key;
+            console.log('[Auth] Using server-provided Supabase config');
+          } else {
+            console.log('[Auth] Server config incomplete, using fallback');
+          }
+        }
+      } catch (err) {
+        console.log('[Auth] Config fetch failed, using fallback:', err.message);
+      }
+
+      // Initialize Supabase client with the resolved config
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      console.log('[Auth] Supabase client initialized');
+    }
 
     // ============================================================
     // VIEW MANAGEMENT
@@ -729,7 +756,8 @@
     // ============================================================
     // INITIALIZE
     // ============================================================
-    checkSession();
+    // First fetch config from server, then check session
+    initSupabase().then(() => checkSession());
   </script>
 </body>
 </html>
