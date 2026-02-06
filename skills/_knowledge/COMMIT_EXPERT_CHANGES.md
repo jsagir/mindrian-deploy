@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-06 15:16*
+*Auto-generated: 2026-02-06 15:53*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,16 +13,15 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-06 | 14 |
+| 2026-02-06 | 15 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 31 |
+| 2026-02-04 | 30 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
 | `public/login.html` | 8 |
-| `mindrian_chat.py` | 3 |
 
 ---
 
@@ -30,13 +29,43 @@
 
 ### 2026-02-06
 
+#### 🐛 fix: Disable SSL for Render internal database connections
+
+- **Hash:** `4d9f675cc12516cb0832d23e246c6d3f7d58faf0`
+- **Short:** `4d9f675c`
+- **Parent:** `fc8ed89a`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-06 15:53:12
+- **Risk:** medium
+- **Diff:** +74 / -43
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 36 | 30 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 10 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 1 |
+  | `utils/data_layer.py` | 11 | 1 |
+
+  **File Operations:**
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `utils/data_layer.py`
+
+- **Body:** Render internal database URLs (dpg-xxx-a without .render.com) don't
+
+
 #### 🐛 fix: Rename supabase variable to sbClient to avoid SDK conflict (v6)
 
 - **Hash:** `fc8ed89a3185ca7c00686422db439968877f244b`
 - **Short:** `fc8ed89a`
 - **Parent:** `f0d50869`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-06 15:16:47
 - **Risk:** medium
@@ -66,7 +95,6 @@
 - **Short:** `f0d50869`
 - **Parent:** `08043165`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-06 15:13:16
 - **Risk:** medium
@@ -1534,29 +1562,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** Root cause: auto_detect_entry_point returned should_show_selector=True
-
-
-#### 📝 docs: Add comprehensive Edwards onboarding guide
-
-- **Hash:** `fc9b592a1b9e934bef2503d192e0aab1ee692784`
-- **Short:** `fc9b592a`
-- **Parent:** `59c9dcb0`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 02:40:36
-- **Risk:** low
-- **Diff:** +637 / -18
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `docs/EDWARDS_ONBOARDING.md` | 628 | 0 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 9 | 9 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 0 | 9 |
-
-  **File Operations:**
-  - ➕ Added: `docs/EDWARDS_ONBOARDING.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** Complete technical overview covering:
 

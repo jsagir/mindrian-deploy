@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-06 15:16*
+*Auto-generated: 2026-02-06 15:53*
 
 ---
 
 ## 2026-02-06
+
+### 🐛 fix: Disable SSL for Render internal database connections
+
+- **Commit:** `4d9f675c`
+- **Author:** jsagir
+- **Files changed:** 5
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+  - utils/data_layer.py
+- **Details:** Render internal database URLs (dpg-xxx-a without .render.com) don't
 
 ### 🐛 fix: Rename supabase variable to sbClient to avoid SDK conflict (v6)
 
@@ -573,13 +585,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** Root cause: auto_detect_entry_point returned should_show_selector=True
-
-### 📝 docs: Add comprehensive Edwards onboarding guide
-
-- **Commit:** `fc9b592a`
-- **Author:** jsagir
-- **Files changed:** 3
-  - docs/EDWARDS_ONBOARDING.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** Complete technical overview covering:

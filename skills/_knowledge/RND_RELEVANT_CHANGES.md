@@ -1,6 +1,6 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-06 15:16*
+*Auto-generated: 2026-02-06 15:53*
 
 ---
 
@@ -394,13 +394,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** - Added google-cloud-documentai to requirements.txt
-
-### 📝 docs: Add comprehensive Edwards onboarding guide
-
-- **Commit:** `fc9b592a`
-- **Author:** jsagir
-- **Files changed:** 3
-  - docs/EDWARDS_ONBOARDING.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** Complete technical overview covering:

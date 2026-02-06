@@ -481,88 +481,10 @@ except ImportError as e:
     print(f"[AUTH] Supabase Auth module not available: {e}")
 
 
-# === Password Authentication via Supabase ===
-if SUPABASE_AUTH_ENABLED:
-    @cl.password_auth_callback
-    def supabase_password_auth(username: str, password: str) -> Optional[cl.User]:
-        """
-        Authenticate users via Supabase Auth backend.
-        Supports email/password login with rate limiting.
-        """
-        email = username.lower().strip()
-
-        # Rate limiting check
-        if not check_rate_limit(email):
-            logger.warning(f"[AUTH] Rate limit exceeded for: {email}")
-            return None
-
-        # Record attempt
-        record_auth_attempt(email)
-
-        # Authenticate with Supabase
-        result = authenticate_with_password(email, password)
-
-        if result and result.get("user"):
-            user_data = result["user"]
-            user_id = user_data.get("id")
-            user_email = user_data.get("email", email)
-
-            # Clear rate limit on success
-            clear_auth_attempts(email)
-
-            # Try to get profile for display name
-            display_name = email.split("@")[0].title()
-            try:
-                profile = get_user_profile(user_id)
-                if profile and profile.get("display_name"):
-                    display_name = profile["display_name"]
-            except:
-                pass
-
-            logger.info(f"[AUTH] Supabase user authenticated: {user_email}")
-
-            return cl.User(
-                identifier=user_id,  # Use Supabase UUID for proper isolation
-                metadata={
-                    "email": user_email,
-                    "provider": "supabase",
-                    "display_name": display_name,
-                    "role": "user",
-                }
-            )
-
-        logger.warning(f"[AUTH] Failed login attempt for: {email}")
-        return None
-
-    print("[AUTH] Supabase password authentication ENABLED")
-
-else:
-    # Fallback: Simple password auth for known testers (if Supabase not configured)
-    KNOWN_TESTERS = {
-        "aronhime@gmail.com": os.getenv("MINDRIAN_USER_ARONHIME_PASSWORD"),
-        "leaharonhime@gmail.com": os.getenv("MINDRIAN_USER_LEAH_PASSWORD"),
-        "lilianaronhime@gmail.com": os.getenv("MINDRIAN_USER_LILIAN_PASSWORD"),
-        "jonathan@mindrian.com": os.getenv("MINDRIAN_USER_JONATHAN_PASSWORD"),
-        "jsagi@mindrian.com": os.getenv("MINDRIAN_USER_JSAGI_PASSWORD"),
-    }
-    KNOWN_TESTERS = {k: v for k, v in KNOWN_TESTERS.items() if v}
-
-    if KNOWN_TESTERS:
-        @cl.password_auth_callback
-        def fallback_password_auth(username: str, password: str) -> Optional[cl.User]:
-            """Fallback auth for known testers when Supabase is not configured."""
-            username = username.lower().strip()
-            if username in KNOWN_TESTERS and KNOWN_TESTERS[username] == password:
-                logger.info(f"[AUTH] Fallback auth for: {username}")
-                return cl.User(
-                    identifier=username,
-                    metadata={"provider": "fallback", "role": "tester"}
-                )
-            return None
-
-        print(f"[AUTH] Fallback password auth enabled for {len(KNOWN_TESTERS)} testers")
-    else:
-        print("[AUTH] No authentication configured - sessions will be anonymous")
+# === Password Authentication DISABLED ===
+# We use custom Supabase login page (/public/login.html) + header auth instead
+# This prevents Chainlit from showing its built-in login screen
+print("[AUTH] Password auth DISABLED - using custom Supabase login + header auth")
 
 
 # === Header Authentication (JWT Validation) ===
