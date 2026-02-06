@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- VERSION: 2026-02-06-v5 -->
+<!-- VERSION: 2026-02-06-v6 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -320,7 +320,7 @@
   <div class="loading-overlay" id="loading">
     <div class="spinner"></div>
     <div class="loading-text">Checking session...</div>
-    <div style="position:fixed;bottom:10px;right:10px;font-size:10px;color:#666;">v5</div>
+    <div style="position:fixed;bottom:10px;right:10px;font-size:10px;color:#666;">v6</div>
   </div>
 
   <div class="login-container hidden" id="login-content">
@@ -470,19 +470,13 @@
     // ============================================================
     // CONFIGURATION
     // These are public keys (safe to expose in frontend)
-    // Updated: 2026-02-06 (iat: Oct 2025)
+    // Updated: 2026-02-06 v6 - renamed to sbClient to avoid conflicts
     // ============================================================
     const SUPABASE_URL = 'https://ulmymxxmvsehjiyymqoi.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsbXlteHhtdnNlaGppeXltcW9pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NjkxMTEsImV4cCI6MjA3NjU0NTExMX0.4rGebUMo1tX90w9CIX4grQgMBbnUaEipFK-ktvq7VWI';
 
-    // Initialize Supabase client immediately
-    let supabase = null;
-    try {
-      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      console.log('[Auth] Supabase client initialized');
-    } catch (err) {
-      console.error('[Auth] Failed to create Supabase client:', err);
-    }
+    // Use sbClient (not 'supabase') to avoid naming conflict with SDK global
+    var sbClient = null;
 
     // ============================================================
     // VIEW MANAGEMENT
@@ -531,13 +525,13 @@
 
       try {
         // Check if Supabase SDK loaded
-        if (!window.supabase || !supabase) {
-          console.error('Supabase SDK not loaded');
+        if (!sbClient) {
+          console.error('[Auth] sbClient not initialized');
           showLoginForm();
           return;
         }
 
-        const sessionPromise = supabase.auth.getSession();
+        const sessionPromise = sbClient.auth.getSession();
         const { data: { session }, error } = await Promise.race([sessionPromise, timeoutPromise]);
 
         if (error) {
@@ -590,7 +584,7 @@
 
     // Helper to check if Supabase is ready
     function requireSupabase(errorElementId) {
-      if (!supabase) {
+      if (!sbClient) {
         showError(errorElementId, 'Authentication service not loaded. Please refresh the page or try Guest mode.');
         return false;
       }
@@ -615,7 +609,7 @@
       const password = document.getElementById('signin-password').value;
 
       try {
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await sbClient.auth.signInWithPassword({
           email,
           password
         });
@@ -641,7 +635,7 @@
       const password = document.getElementById('signup-password').value;
 
       try {
-        const { data, error } = await supabase.auth.signUp({
+        const { data, error } = await sbClient.auth.signUp({
           email,
           password,
           options: {
@@ -673,7 +667,7 @@
       const email = document.getElementById('magic-email').value;
 
       try {
-        const { error } = await supabase.auth.signInWithOtp({
+        const { error } = await sbClient.auth.signInWithOtp({
           email,
           options: {
             emailRedirectTo: window.location.origin + '/public/login.html'
@@ -698,7 +692,7 @@
       const email = document.getElementById('forgot-email').value;
 
       try {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        const { error } = await sbClient.auth.resetPasswordForEmail(email, {
           redirectTo: window.location.origin + '/public/login.html'
         });
 
@@ -715,7 +709,7 @@
     document.getElementById('google-btn').onclick = async () => {
       if (!requireSupabase('signin-error')) return;
       try {
-        const { error } = await supabase.auth.signInWithOAuth({
+        const { error } = await sbClient.auth.signInWithOAuth({
           provider: 'google',
           options: {
             redirectTo: window.location.origin + '/public/login.html'
@@ -739,24 +733,24 @@
     };
 
     // ============================================================
-    // INITIALIZE
+    // INITIALIZE (v6 - using sbClient to avoid naming conflict)
     // ============================================================
-    console.log('[Auth] v5 - window.supabase:', !!window.supabase);
+    console.log('[Auth] v6 - window.supabase:', typeof window.supabase);
 
-    // Safety timeout
+    // Safety timeout - show login form no matter what after 4 seconds
     const safetyTimeout = setTimeout(() => {
       console.warn('[Auth] Safety timeout - forcing login form');
       showLoginForm();
-    }, 5000);
+    }, 4000);
 
-    // SDK should be loaded synchronously by now
-    if (window.supabase) {
+    // SDK should be loaded synchronously by now (script tag is above, no async/defer)
+    if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
       try {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log('[Auth] Client created, checking session...');
+        sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('[Auth] sbClient created successfully');
 
         // Set up auth listener
-        supabase.auth.onAuthStateChange((event, session) => {
+        sbClient.auth.onAuthStateChange((event, session) => {
           console.log('[Auth] Auth event:', event);
           if (event === 'SIGNED_IN' && session) {
             redirectToChat(session.access_token);
@@ -766,12 +760,12 @@
         // Check session
         checkSession().finally(() => clearTimeout(safetyTimeout));
       } catch (err) {
-        console.error('[Auth] Failed to create client:', err);
+        console.error('[Auth] Failed to create sbClient:', err);
         clearTimeout(safetyTimeout);
         showLoginForm();
       }
     } else {
-      console.error('[Auth] window.supabase is undefined - SDK failed to load');
+      console.error('[Auth] Supabase SDK not available. window.supabase =', window.supabase);
       clearTimeout(safetyTimeout);
       showLoginForm();
     }

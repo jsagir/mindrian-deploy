@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-06 15:00*
+*Auto-generated: 2026-02-06 15:13*
 
 ---
 
 ## 2026-02-06
+
+### 🐛 fix: Switch back to sync SDK loading (v5)
+
+- **Commit:** `f0d50869`
+- **Author:** jsagir
+- **Files changed:** 5
+  - public/login.html
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** The async loading was causing timing issues where window.supabase
 
 ### 🐛 fix: Add null checks to all auth handlers + improve SDK loading (v4)
 
@@ -568,13 +580,3 @@
   - skills/_knowledge/QA_RELEVANT_CHANGES.md
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
-
-### 🐛 fix: Disable pyaudio (requires system portaudio not available on Render)
-
-- **Commit:** `7a740d4a`
-- **Author:** jsagir
-- **Files changed:** 3
-  - requirements.txt
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** pyaudio needs portaudio.h header file which is a system-level dependency.
