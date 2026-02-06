@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-06 12:46*
+*Auto-generated: 2026-02-06 15:00*
 
 ---
 
 ## 2026-02-06
+
+### 🐛 fix: Add null checks to all auth handlers + improve SDK loading (v4)
+
+- **Commit:** `08043165`
+- **Author:** jsagir
+- **Files changed:** 5
+  - public/login.html
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** - Add requireSupabase() helper with user-friendly error message
 
 ### 🐛 fix: Make Supabase script async + robust initialization
 
@@ -566,14 +578,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** pyaudio needs portaudio.h header file which is a system-level dependency.
-
-### 📝 docs: Final knowledge sync
-
-- **Commit:** `3da69419`
-- **Author:** jsagir
-- **Files changed:** 9
-  - docs/CONDUCTOR_INTEGRATION_FEASIBILITY.md
-  - docs/MINDRIAN_CHAT_STRUCTURE.md
-  - public/elements/VoiceChat.jsx
-  - realtime_voice.py
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md

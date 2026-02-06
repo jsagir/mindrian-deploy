@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-06 12:46*
+*Auto-generated: 2026-02-06 15:00*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,9 +13,9 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-06 | 11 |
+| 2026-02-06 | 12 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 34 |
+| 2026-02-04 | 33 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
@@ -30,13 +30,43 @@
 
 ### 2026-02-06
 
+#### 🐛 fix: Add null checks to all auth handlers + improve SDK loading (v4)
+
+- **Hash:** `08043165576e29d68f0f401e69dd2597e6a3e1d4`
+- **Short:** `08043165`
+- **Parent:** `59435d56`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-06 15:00:55
+- **Risk:** medium
+- **Diff:** +113 / -56
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `public/login.html` | 51 | 15 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 35 | 29 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 10 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 1 |
+
+  **File Operations:**
+  - ✏️ Modified: `public/login.html`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** - Add requireSupabase() helper with user-friendly error message
+
+
 #### 🐛 fix: Make Supabase script async + robust initialization
 
 - **Hash:** `59435d5600983cd1902f3087ab4c0ed494fa0088`
 - **Short:** `59435d56`
 - **Parent:** `52269a0a`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-06 12:46:16
 - **Risk:** medium
@@ -66,7 +96,6 @@
 - **Short:** `52269a0a`
 - **Parent:** `4d144d94`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-06 12:28:13
 - **Risk:** medium
@@ -1520,39 +1549,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** pyaudio needs portaudio.h header file which is a system-level dependency.
-
-
-#### 📝 docs: Final knowledge sync
-
-- **Hash:** `3da69419bd2bd65444026d2570d484847bfad58e`
-- **Short:** `3da69419`
-- **Parent:** `646d47f5`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 02:33:17
-- **Risk:** low
-- **Diff:** +2819 / -24
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `docs/CONDUCTOR_INTEGRATION_FEASIBILITY.md` | 425 | 0 |
-  | `docs/MINDRIAN_CHAT_STRUCTURE.md` | 603 | 0 |
-  | `public/elements/VoiceChat.jsx` | 512 | 0 |
-  | `realtime_voice.py` | 688 | 0 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 0 | 8 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 9 | 8 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 0 | 8 |
-  | `voice/__init__.py` | 31 | 0 |
-  | `voice/realtime_server.py` | 551 | 0 |
-
-  **File Operations:**
-  - ➕ Added: `docs/CONDUCTOR_INTEGRATION_FEASIBILITY.md`
-  - ➕ Added: `docs/MINDRIAN_CHAT_STRUCTURE.md`
-  - ➕ Added: `public/elements/VoiceChat.jsx`
-  - ➕ Added: `realtime_voice.py`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-  - ➕ Added: `voice/__init__.py`
-  - ➕ Added: `voice/realtime_server.py`
 
