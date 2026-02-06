@@ -1,6 +1,6 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-06 12:26*
+*Auto-generated: 2026-02-06 12:28*
 
 ---
 
@@ -392,11 +392,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** Complete technical overview covering:
-
-### 📝 docs: Update README with Admin Tools, Memory, and v3.1 features
-
-- **Commit:** `5b0c474d`
-- **Author:** jsagir
-- **Files changed:** 1
-  - README.md
-- **Details:** Added:

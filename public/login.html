@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- VERSION: 2026-02-06-v3 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -6,8 +7,8 @@
   <title>Sign In - Mindrian</title>
   <link rel="icon" href="/public/favicon.svg" type="image/svg+xml">
 
-  <!-- Supabase JS v2 -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Supabase JS v2 (async to prevent blocking) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" async id="supabase-script"></script>
 
   <style>
     :root {
@@ -319,6 +320,7 @@
   <div class="loading-overlay" id="loading">
     <div class="spinner"></div>
     <div class="loading-text">Checking session...</div>
+    <div style="position:fixed;bottom:10px;right:10px;font-size:10px;color:#666;">v3</div>
   </div>
 
   <div class="login-container hidden" id="login-content">
@@ -583,19 +585,6 @@
     }
 
     // ============================================================
-    // AUTH STATE LISTENER
-    // ============================================================
-    if (supabase) {
-      supabase.auth.onAuthStateChange((event, session) => {
-        console.log('Auth event:', event);
-
-        if (event === 'SIGNED_IN' && session) {
-          redirectToChat(session.access_token);
-        }
-      });
-    }
-
-    // ============================================================
     // EVENT HANDLERS
     // ============================================================
 
@@ -738,19 +727,72 @@
     // ============================================================
     // INITIALIZE
     // ============================================================
-    // Safety timeout: If nothing happens in 6 seconds, force show login
-    const safetyTimeout = setTimeout(() => {
-      console.warn('[Auth] Safety timeout triggered - forcing login form');
-      showLoginForm();
-    }, 6000);
+    console.log('[Auth] Script loaded, version 2026-02-06-v3');
 
-    // Check session immediately (Supabase already initialized above)
-    if (supabase) {
-      checkSession().finally(() => clearTimeout(safetyTimeout));
-    } else {
-      console.error('[Auth] Supabase not initialized, showing login');
-      clearTimeout(safetyTimeout);
+    // Safety timeout: If nothing happens in 4 seconds, force show login
+    const safetyTimeout = setTimeout(() => {
+      console.warn('[Auth] Safety timeout (4s) - forcing login form');
       showLoginForm();
+    }, 4000);
+
+    // Function to initialize after Supabase SDK loads
+    function initializeAuth() {
+      console.log('[Auth] initializeAuth called, window.supabase:', !!window.supabase);
+
+      if (!window.supabase) {
+        console.error('[Auth] Supabase SDK not available');
+        clearTimeout(safetyTimeout);
+        showLoginForm();
+        return;
+      }
+
+      // Create client if not already created
+      if (!supabase) {
+        try {
+          supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+          console.log('[Auth] Supabase client created');
+        } catch (err) {
+          console.error('[Auth] Failed to create client:', err);
+          clearTimeout(safetyTimeout);
+          showLoginForm();
+          return;
+        }
+      }
+
+      // Set up auth listener
+      supabase.auth.onAuthStateChange((event, session) => {
+        console.log('[Auth] Auth event:', event);
+        if (event === 'SIGNED_IN' && session) {
+          redirectToChat(session.access_token);
+        }
+      });
+
+      // Check session
+      checkSession().finally(() => clearTimeout(safetyTimeout));
+    }
+
+    // Check if Supabase SDK already loaded (might be cached)
+    if (window.supabase) {
+      console.log('[Auth] Supabase SDK already loaded');
+      initializeAuth();
+    } else {
+      // Wait for script to load
+      const script = document.getElementById('supabase-script');
+      if (script) {
+        script.onload = () => {
+          console.log('[Auth] Supabase SDK loaded via onload');
+          initializeAuth();
+        };
+        script.onerror = () => {
+          console.error('[Auth] Failed to load Supabase SDK');
+          clearTimeout(safetyTimeout);
+          showLoginForm();
+        };
+      } else {
+        console.error('[Auth] Script tag not found');
+        clearTimeout(safetyTimeout);
+        showLoginForm();
+      }
     }
   </script>
 </body>

@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-06 12:26*
+*Auto-generated: 2026-02-06 12:28*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,15 +13,15 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-06 | 9 |
+| 2026-02-06 | 10 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 36 |
+| 2026-02-04 | 35 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `public/login.html` | 5 |
+| `public/login.html` | 6 |
 | `mindrian_chat.py` | 5 |
 
 ---
@@ -30,13 +30,43 @@
 
 ### 2026-02-06
 
+#### 🐛 fix: Guard onAuthStateChange against null supabase client
+
+- **Hash:** `52269a0a3a350cec2eff86e7ab6134c339e66b19`
+- **Short:** `52269a0a`
+- **Parent:** `4d144d94`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-06 12:28:13
+- **Risk:** medium
+- **Diff:** +70 / -51
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `public/login.html` | 8 | 6 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 35 | 32 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 11 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 1 |
+
+  **File Operations:**
+  - ✏️ Modified: `public/login.html`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** The auth state listener was being registered unconditionally, which
+
+
 #### 🐛 fix: Simplify login page - remove config fetch, use direct initialization
 
 - **Hash:** `4d144d94961720b0c2f6c778bd0101192e4d5bb3`
 - **Short:** `4d144d94`
 - **Parent:** `e4e69043`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-06 12:26:24
 - **Risk:** medium
@@ -66,7 +96,6 @@
 - **Short:** `e4e69043`
 - **Parent:** `771a4648`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-06 12:14:45
 - **Risk:** medium
@@ -1520,25 +1549,4 @@
   - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
   - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-
-#### 📝 docs: Update README with Admin Tools, Memory, and v3.1 features
-
-- **Hash:** `5b0c474d69a7e58cd933d3bdbbc17846eb556987`
-- **Short:** `5b0c474d`
-- **Parent:** `cb280d80`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 02:33:04
-- **Risk:** low
-- **Diff:** +173 / -12
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `README.md` | 173 | 12 |
-
-  **File Operations:**
-  - ✏️ Modified: `README.md`
-
-- **Body:** Added:
 
