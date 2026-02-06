@@ -1,6 +1,6 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-06 09:43*
+*Auto-generated: 2026-02-06 09:53*
 
 ---
 
@@ -235,14 +235,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** pyaudio needs portaudio.h header file which is a system-level dependency.
-
-### 📝 docs: Add QA feedback from excellent Nested Hierarchies session
-
-- **Commit:** `23243f47`
-- **Author:** jsagir
-- **Files changed:** 4
-  - qa/2026-02-04/QA_FEEDBACK_NESTED_HIERARCHIES.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** Session highlights:

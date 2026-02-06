@@ -482,7 +482,13 @@
     // Fetch config from server (env-based) with fallback to hardcoded values
     async function initSupabase() {
       try {
-        const response = await fetch('/api/public-config', { timeout: 2000 });
+        // Use AbortController for proper timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+        const response = await fetch('/api/public-config', { signal: controller.signal });
+        clearTimeout(timeoutId);
+
         if (response.ok) {
           const config = await response.json();
           if (config.supabase_url && config.supabase_anon_key) {
@@ -492,14 +498,16 @@
           } else {
             console.log('[Auth] Server config incomplete, using fallback');
           }
+        } else {
+          console.log('[Auth] Config endpoint returned', response.status, '- using fallback');
         }
       } catch (err) {
-        console.log('[Auth] Config fetch failed, using fallback:', err.message);
+        console.log('[Auth] Config fetch failed, using fallback:', err.name === 'AbortError' ? 'timeout' : err.message);
       }
 
-      // Initialize Supabase client with the resolved config
+      // Initialize Supabase client with the resolved config (fallback or server)
       supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      console.log('[Auth] Supabase client initialized');
+      console.log('[Auth] Supabase client initialized with URL:', SUPABASE_URL);
     }
 
     // ============================================================
@@ -756,8 +764,31 @@
     // ============================================================
     // INITIALIZE
     // ============================================================
+    // Safety timeout: If nothing happens in 8 seconds, force show login
+    const safetyTimeout = setTimeout(() => {
+      console.warn('[Auth] Safety timeout triggered - forcing login form');
+      if (!supabase) {
+        supabase = window.supabase.createClient(FALLBACK_SUPABASE_URL, FALLBACK_SUPABASE_ANON_KEY);
+      }
+      showLoginForm();
+    }, 8000);
+
     // First fetch config from server, then check session
-    initSupabase().then(() => checkSession());
+    // Use .catch() to ensure we always proceed even if init fails
+    initSupabase()
+      .then(() => {
+        clearTimeout(safetyTimeout);
+        return checkSession();
+      })
+      .catch(err => {
+        clearTimeout(safetyTimeout);
+        console.error('[Auth] Init failed:', err);
+        // Even on error, try to initialize with fallback and show login
+        if (!supabase) {
+          supabase = window.supabase.createClient(FALLBACK_SUPABASE_URL, FALLBACK_SUPABASE_ANON_KEY);
+        }
+        showLoginForm();
+      });
   </script>
 </body>
 </html>

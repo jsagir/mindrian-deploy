@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-06 09:43*
+*Auto-generated: 2026-02-06 09:53*
 
 ---
 
 ## 2026-02-06
+
+### ✨ feat: Implement AGENTS.md patterns for PWS Consultant
+
+- **Commit:** `771a4648`
+- **Author:** jsagir
+- **Files changed:** 7
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Complete implementation of A2A architecture patterns for the PWS Consultant:
 
 ### 🐛 fix: Update stale Supabase anon key + add env-based config injection
 
@@ -388,14 +400,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** New admin tools:
-
-### 📝 docs: Add QA feedback from excellent Nested Hierarchies session
-
-- **Commit:** `23243f47`
-- **Author:** jsagir
-- **Files changed:** 4
-  - qa/2026-02-04/QA_FEEDBACK_NESTED_HIERARCHIES.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** Session highlights:
