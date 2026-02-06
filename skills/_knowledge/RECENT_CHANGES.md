@@ -6,6 +6,18 @@
 
 ## 2026-02-06
 
+### ✨ feat: Add Context Manager + Commit Expert skills
+
+- **Commit:** `83392ea1`
+- **Author:** jsagir
+- **Files changed:** 14
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/KNOWLEDGE_INDEX.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Context Manager skill:
+
 ### 🐛 fix: Add guest mode + session timeout for login page
 
 - **Commit:** `16079714`
@@ -555,15 +567,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** Pipeline Integrations:
-
-### 🐛 fix: Critical context management and research query bugs
-
-- **Commit:** `4df6d1e0`
-- **Author:** jsagir
-- **Files changed:** 6
-  - intelligence/pipelines/__init__.py
-  - intelligence/pipelines/bono_innovation.py
-  - mindrian_chat.py
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-- **Details:** Bug fixes:

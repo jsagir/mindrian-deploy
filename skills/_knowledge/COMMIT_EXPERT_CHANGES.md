@@ -13,17 +13,15 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-06 | 2 |
+| 2026-02-06 | 3 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 43 |
+| 2026-02-04 | 42 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 3 |
 | `scripts/daily_summary.py` | 3 |
-| `intelligence/pipelines/genesis/panel.py` | 3 |
 
 ---
 
@@ -31,13 +29,56 @@
 
 ### 2026-02-06
 
+#### ✨ feat: Add Context Manager + Commit Expert skills
+
+- **Hash:** `83392ea19e0c57db5c6f05bc887452d120bd895a`
+- **Short:** `83392ea1`
+- **Parent:** `16079714`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-06 09:20:54
+- **Risk:** high
+- **Diff:** +3821 / -51
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `.claude/skills/context-manager.md` | 44 | 0 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 1564 | 0 |
+  | `skills/_knowledge/KNOWLEDGE_INDEX.md` | 77 | 0 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 27 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 27 | 25 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 27 | 25 |
+  | `skills/_knowledge/skill-reviews/2026-02-05_PWS_CONSULTANT_REVIEW.md` | 95 | 0 |
+  | `skills/_knowledge/skill-reviews/2026-02-05_PWS_CONSULTANT_UX_REVIEW.md` | 394 | 0 |
+  | `skills/_knowledge/swarm-reports/2026-02-05_PWS_CONSULTANT_DESIGN_REVIEW.md` | 94 | 0 |
+  | `skills/_knowledge/swarm-reports/2026-02-05_PWS_CONSULTANT_FINAL_PLAN.md` | 577 | 0 |
+
+  **File Operations:**
+  - ➕ Added: `.claude/skills/context-manager.md`
+  - ➕ Added: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ➕ Added: `skills/_knowledge/KNOWLEDGE_INDEX.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+  - ➕ Added: `skills/_knowledge/skill-reviews/2026-02-05_PWS_CONSULTANT_REVIEW.md`
+  - ➕ Added: `skills/_knowledge/skill-reviews/2026-02-05_PWS_CONSULTANT_UX_REVIEW.md`
+  - ➕ Added: `skills/_knowledge/swarm-reports/2026-02-05_PWS_CONSULTANT_DESIGN_REVIEW.md`
+  - ➕ Added: `skills/_knowledge/swarm-reports/2026-02-05_PWS_CONSULTANT_FINAL_PLAN.md`
+  - ➕ Added: `skills/_knowledge/swarm-reports/2026-02-05_PWS_CONSULTANT_IMPLEMENTATION_PLAN.md`
+  - ➕ Added: `skills/commit-expert/SKILL.md`
+  - ➕ Added: `skills/commit-expert/references/commit-analysis-guide.md`
+  - ➕ Added: `skills/context-manager/SKILL.md`
+
+- **Body:** Context Manager skill:
+
+
 #### 🐛 fix: Add guest mode + session timeout for login page
 
 - **Hash:** `160797144843c1a25b8893d0f40ba65861671d52`
 - **Short:** `16079714`
 - **Parent:** `f48e3f2a`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-06 09:20:46
 - **Risk:** medium
@@ -1530,35 +1571,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** Pipeline Integrations:
-
-
-#### 🐛 fix: Critical context management and research query bugs
-
-- **Hash:** `4df6d1e08112a1d3488095cf17b2903deb07282a`
-- **Short:** `4df6d1e0`
-- **Parent:** `da768322`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 01:19:29
-- **Risk:** medium
-- **Diff:** +1276 / -54
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `intelligence/pipelines/__init__.py` | 14 | 0 |
-  | `intelligence/pipelines/bono_innovation.py` | 1092 | 0 |
-  | `mindrian_chat.py` | 143 | 35 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 9 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 9 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 1 |
-
-  **File Operations:**
-  - ✏️ Modified: `intelligence/pipelines/__init__.py`
-  - ➕ Added: `intelligence/pipelines/bono_innovation.py`
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** Bug fixes:
 

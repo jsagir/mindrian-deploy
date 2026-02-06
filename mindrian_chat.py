@@ -886,6 +886,33 @@ async def capture_reasoning_steps(user_message: str, bot_id: str, history: list 
 # Store conversation history by user/thread to persist across bot switches
 context_store: Dict[str, Dict[str, Any]] = {}
 
+# === PWS Consultant State Management ===
+# LangGraph-style TypedDict state with context_store integration
+try:
+    from utils.pws_state import (
+        init_pws_state,
+        get_pws_state,
+        set_pws_state,
+        update_pws_state,
+        set_context_store,
+        sync_pws_to_context_store,
+        restore_pws_from_context_store,
+        CapturedPWSContext,
+        run_background_task_with_context,
+        transition_stage,
+        persist_pws_state_to_supabase,
+        is_stage,
+        get_stage,
+        increment_turn_count,
+    )
+    # Inject context_store for cross-bot persistence
+    set_context_store(context_store)
+    PWS_STATE_ENABLED = True
+    print("[PWS_STATE] Formal state management enabled (LangGraph-style)")
+except ImportError as e:
+    PWS_STATE_ENABLED = False
+    print(f"[PWS_STATE] State management not available: {e}")
+
 # === Topic-Aware Thread System ===
 # Fixes context-mixing bug by tracking conversations by topic, not just by user
 try:
@@ -3425,21 +3452,47 @@ async def start():
 
     # === PWS Consultant: Initialize stage machine state ===
     if chat_profile == "pws_consultant":
-        cl.user_session.set("pws_stage", "intro")
-        cl.user_session.set("pws_sub_mode", "normal")
-        cl.user_session.set("pws_intro_turn_count", 0)
-        cl.user_session.set("pws_challenge_description", "")
-        cl.user_session.set("pws_challenge_signals", {})
-        cl.user_session.set("pws_diagnostic_answers", [])
-        cl.user_session.set("pws_diagnosis", {})
-        cl.user_session.set("pws_diagnostic_context", "")
-        cl.user_session.set("pws_expert_panel_task", None)
-        cl.user_session.set("pws_expert_panel_data", {})
-        cl.user_session.set("pws_domain_discovery", {})
-        cl.user_session.set("pws_hybrid_context", "")
-        cl.user_session.set("pws_consulting_turn_count", 0)
-        cl.user_session.set("pws_expert_consult_count", 0)
-        cl.user_session.set("pws_active_expert_context", "")
+        # Try to restore state from context_store (for bot switching or page refresh)
+        restored_state = None
+        if PWS_STATE_ENABLED:
+            restored_state = restore_pws_from_context_store(context_key)
+
+        if restored_state and restored_state.get("stage"):
+            # Restore preserved state
+            logger.info(f"[PWS] Restoring state from context_store: stage={restored_state.get('stage')}")
+            cl.user_session.set("pws_stage", restored_state.get("stage", "intro"))
+            cl.user_session.set("pws_sub_mode", restored_state.get("sub_mode", "normal"))
+            cl.user_session.set("pws_challenge_description", restored_state.get("challenge_description", ""))
+            cl.user_session.set("pws_challenge_signals", restored_state.get("challenge_signals", {}))
+            cl.user_session.set("pws_diagnostic_answers", restored_state.get("diagnostic_answers", []))
+            cl.user_session.set("pws_diagnosis", restored_state.get("diagnosis"))
+            cl.user_session.set("pws_diagnostic_context", restored_state.get("diagnostic_context", ""))
+            cl.user_session.set("pws_expert_panel_data", restored_state.get("expert_panel"))
+            cl.user_session.set("pws_domain_discovery", restored_state.get("domain_discovery"))
+            cl.user_session.set("pws_consulting_turn_count", restored_state.get("consulting_turn_count", 0))
+            # Reset ephemeral state
+            cl.user_session.set("pws_intro_turn_count", 0)
+            cl.user_session.set("pws_expert_consult_count", 0)
+            cl.user_session.set("pws_active_expert_context", "")
+            cl.user_session.set("pws_hybrid_context", "")
+            cl.user_session.set("pws_expert_panel_task", None)
+        else:
+            # Fresh initialization
+            cl.user_session.set("pws_stage", "intro")
+            cl.user_session.set("pws_sub_mode", "normal")
+            cl.user_session.set("pws_intro_turn_count", 0)
+            cl.user_session.set("pws_challenge_description", "")
+            cl.user_session.set("pws_challenge_signals", {})
+            cl.user_session.set("pws_diagnostic_answers", [])
+            cl.user_session.set("pws_diagnosis", {})
+            cl.user_session.set("pws_diagnostic_context", "")
+            cl.user_session.set("pws_expert_panel_task", None)
+            cl.user_session.set("pws_expert_panel_data", {})
+            cl.user_session.set("pws_domain_discovery", {})
+            cl.user_session.set("pws_hybrid_context", "")
+            cl.user_session.set("pws_consulting_turn_count", 0)
+            cl.user_session.set("pws_expert_consult_count", 0)
+            cl.user_session.set("pws_active_expert_context", "")
 
     # Initialize settings
     settings = await cl.ChatSettings(await get_settings_widgets()).send()
@@ -9858,7 +9911,7 @@ Your insights help us improve Mindrian!"""
                 await msg.stream_token(f"I'm having trouble with that. Let's try again. ({e})")
                 await msg.update()
 
-            # Sync to context store
+            # Sync to context store (including PWS state)
             context_key = get_context_key()
             context_store[context_key] = {
                 "bot_id": bot_id,
@@ -9866,6 +9919,13 @@ Your insights help us improve Mindrian!"""
                 "phases": [],
                 "current_phase": 0,
             }
+
+            # Sync PWS-specific state for cross-bot persistence
+            if PWS_STATE_ENABLED:
+                sync_pws_to_context_store()
+                # Persist to Supabase every 5 turns
+                if consulting_turns % 5 == 0:
+                    asyncio.create_task(persist_pws_state_to_supabase())
 
             return  # Handled
 
