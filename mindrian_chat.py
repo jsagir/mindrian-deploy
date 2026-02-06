@@ -913,6 +913,16 @@ except ImportError as e:
     PWS_STATE_ENABLED = False
     print(f"[PWS_STATE] State management not available: {e}")
 
+# === Two-Stage Classifier (Cynefin + PWS) ===
+# Quick win from AGENTS.md architecture analysis
+try:
+    from protocols.classifier import classify, Classification, get_routing_recommendation
+    TWO_STAGE_CLASSIFIER_ENABLED = True
+    print("[CLASSIFIER] Two-stage Cynefin + PWS classifier enabled")
+except ImportError as e:
+    TWO_STAGE_CLASSIFIER_ENABLED = False
+    print(f"[CLASSIFIER] Two-stage classifier not available: {e}")
+
 # === Topic-Aware Thread System ===
 # Fixes context-mixing bug by tracking conversations by topic, not just by user
 try:
@@ -4943,6 +4953,35 @@ async def _complete_pws_diagnosis(diagnosis: dict, answers: list, challenge_desc
 
     # Build diagnostic context for LLM
     diag_context = pws_build_diagnostic_context(diagnosis, answers)
+
+    # Enrich with two-stage classification if available (Quick win from AGENTS.md)
+    classification = cl.user_session.get("pws_classification")
+    if classification:
+        cynefin = classification.get("cynefin", "unknown")
+        pws = classification.get("pws", "unknown")
+        cynefin_conf = classification.get("cynefin_confidence", 0)
+        pws_conf = classification.get("pws_confidence", 0)
+        diag_context += f"""
+[CYNEFIN DOMAIN ANALYSIS]
+Domain: {cynefin.upper()} (confidence: {cynefin_conf:.0%})
+PWS Lifecycle: {pws} (confidence: {pws_conf:.0%})
+Reasoning: {classification.get('reasoning', 'N/A')}
+
+[GUIDANCE BASED ON CYNEFIN DOMAIN]
+"""
+        if cynefin == "complex":
+            diag_context += "- Use probe-sense-respond: Suggest small experiments, not full solutions\n"
+            diag_context += "- Embrace emergence: Patterns will become clear through action\n"
+        elif cynefin == "complicated":
+            diag_context += "- Use sense-analyze-respond: Consult expert frameworks\n"
+            diag_context += "- Multiple valid approaches exist - help user analyze options\n"
+        elif cynefin == "chaotic":
+            diag_context += "- Act first, sense second: Establish stability before analysis\n"
+            diag_context += "- Focus on immediate actionable steps\n"
+        elif cynefin == "clear":
+            diag_context += "- Apply best practice directly\n"
+            diag_context += "- The path forward is straightforward\n"
+
     cl.user_session.set("pws_diagnostic_context", diag_context)
 
     # Transition stage: -> consulting
@@ -5024,6 +5063,18 @@ async def on_submit_challenge(action: cl.Action):
 
         # Store challenge in session
         cl.user_session.set("pws_challenge_description", challenge)
+
+        # Retrieve two-stage classification result if available (Quick win from AGENTS.md)
+        classification_task = cl.user_session.get("pws_classification_task")
+        if classification_task:
+            try:
+                classification_result = await asyncio.wait_for(classification_task, timeout=2.0)
+                cl.user_session.set("pws_classification", classification_result)
+                logger.info(f"[PWS] Classification retrieved: {classification_result}")
+            except asyncio.TimeoutError:
+                logger.debug("[PWS] Classification task timed out, will complete in background")
+            except Exception as e:
+                logger.debug(f"[PWS] Classification retrieval error: {e}")
 
         # Transition stage: intro -> diagnostic
         cl.user_session.set("pws_stage", "diagnostic")
@@ -9782,7 +9833,7 @@ Your insights help us improve Mindrian!"""
             except Exception as e:
                 print(f"[PWS] instant_analyze error (non-critical): {e}")
 
-            # Fire background domain discovery on first turn
+            # Fire background domain discovery + two-stage classification on first turn
             if cl.user_session.get("pws_intro_turn_count", 0) == 1:
                 try:
                     import asyncio
@@ -9793,6 +9844,19 @@ Your insights help us improve Mindrian!"""
                     cl.user_session.set("pws_domain_task", domain_task)
                 except Exception as e:
                     print(f"[PWS] domain discovery launch error: {e}")
+
+                # Two-stage classification (Cynefin + PWS) - Quick win from AGENTS.md
+                if TWO_STAGE_CLASSIFIER_ENABLED:
+                    try:
+                        async def run_classification(text: str):
+                            classification = await classify(text)
+                            print(f"[PWS] Classification: Cynefin={classification.cynefin}, PWS={classification.pws}")
+                            return classification.to_dict()
+
+                        classification_task = asyncio.create_task(run_classification(message.content))
+                        cl.user_session.set("pws_classification_task", classification_task)
+                    except Exception as e:
+                        print(f"[PWS] classification launch error: {e}")
 
             # Add user message to history
             history.append({"role": "user", "parts": [message.content]})

@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-06 09:20*
+*Auto-generated: 2026-02-06 09:28*
 
 ---
 
 ## 2026-02-06
+
+### ✨ feat: Add LangGraph-style PWS state management module
+
+- **Commit:** `783b3b54`
+- **Author:** jsagir
+- **Files changed:** 6
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** - Create utils/pws_state.py with formal TypedDict schema
 
 ### ✨ feat: Add Context Manager + Commit Expert skills
 
@@ -555,15 +567,3 @@
   - intelligence/pipelines/__init__.py
   - intelligence/pipelines/minto_pyramid.py
 - **Details:** QA Fixes (Feb 3 report):
-
-### ✨ feat: Integrate ALL LangGraph pipelines into chat flow
-
-- **Commit:** `355bcde1`
-- **Author:** jsagir
-- **Files changed:** 26
-  - mindrian_chat.py
-  - prompts/agent_generator_meta.py
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** Pipeline Integrations:
