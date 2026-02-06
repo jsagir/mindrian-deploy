@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-06 15:13*
+*Auto-generated: 2026-02-06 15:16*
 
 ---
 
 ## 2026-02-06
+
+### 🐛 fix: Rename supabase variable to sbClient to avoid SDK conflict (v6)
+
+- **Commit:** `fc8ed89a`
+- **Author:** jsagir
+- **Files changed:** 5
+  - public/login.html
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** The Supabase CDN + jsDelivr was declaring a global 'supabase' variable,
 
 ### 🐛 fix: Switch back to sync SDK loading (v5)
 
@@ -571,12 +583,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** Complete technical overview covering:
-
-### 📝 docs: Sync knowledge base
-
-- **Commit:** `59c9dcb0`
-- **Author:** jsagir
-- **Files changed:** 3
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md

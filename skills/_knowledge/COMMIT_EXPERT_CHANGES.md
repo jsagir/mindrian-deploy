@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-06 15:13*
+*Auto-generated: 2026-02-06 15:16*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,16 +13,16 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-06 | 13 |
+| 2026-02-06 | 14 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 32 |
+| 2026-02-04 | 31 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `public/login.html` | 7 |
-| `mindrian_chat.py` | 4 |
+| `public/login.html` | 8 |
+| `mindrian_chat.py` | 3 |
 
 ---
 
@@ -30,13 +30,43 @@
 
 ### 2026-02-06
 
+#### 🐛 fix: Rename supabase variable to sbClient to avoid SDK conflict (v6)
+
+- **Hash:** `fc8ed89a3185ca7c00686422db439968877f244b`
+- **Short:** `fc8ed89a`
+- **Parent:** `f0d50869`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-06 15:16:47
+- **Risk:** medium
+- **Diff:** +87 / -85
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `public/login.html` | 25 | 31 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 35 | 31 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 11 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 11 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 1 |
+
+  **File Operations:**
+  - ✏️ Modified: `public/login.html`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** The Supabase CDN + jsDelivr was declaring a global 'supabase' variable,
+
+
 #### 🐛 fix: Switch back to sync SDK loading (v5)
 
 - **Hash:** `f0d508695aec25e825c13b39c90b91b34875659d`
 - **Short:** `f0d50869`
 - **Parent:** `08043165`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-06 15:13:16
 - **Risk:** medium
@@ -66,7 +96,6 @@
 - **Short:** `08043165`
 - **Parent:** `59435d56`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-06 15:00:55
 - **Risk:** medium
@@ -1530,27 +1559,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** Complete technical overview covering:
-
-
-#### 📝 docs: Sync knowledge base
-
-- **Hash:** `59c9dcb09b61bbe25e8c24b82f1aeee0065cc518`
-- **Short:** `59c9dcb0`
-- **Parent:** `7a740d4a`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 02:37:43
-- **Risk:** low
-- **Diff:** +23 / -19
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 11 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 11 | 9 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 9 |
-
-  **File Operations:**
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 

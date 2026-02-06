@@ -459,16 +459,26 @@ def create_mindrian_data_layer(database_url: str) -> Optional[MindrianDataLayer]
         elif db_url.startswith("postgres://"):
             db_url = db_url.replace("postgres://", "postgresql+asyncpg://", 1)
 
+        # Detect if this is a Render internal URL (no SSL needed)
+        # Internal URLs look like: postgresql://user:pass@dpg-xxx-a/dbname (short hostname)
+        # External URLs look like: postgresql://user:pass@dpg-xxx-a.oregon-postgres.render.com/dbname
+        is_internal = ".render.com" not in db_url and ".supabase.co" not in db_url
+        ssl_required = not is_internal
+
+        print(f"[DATA_LAYER] Database URL type: {'internal' if is_internal else 'external'}, SSL: {ssl_required}")
+
         # Create blob storage client if Supabase is configured
         blob_storage = create_blob_storage_client()
 
         return MindrianDataLayer(
             conninfo=db_url,
-            ssl_require=True,
+            ssl_require=ssl_required,
             storage_provider=blob_storage
         )
     except Exception as e:
         print(f"⚠️ Failed to create data layer: {e}")
+        import traceback
+        traceback.print_exc()
         return None
 
 
