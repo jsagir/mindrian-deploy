@@ -1,10 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-06 15:53*
+*Auto-generated: 2026-02-06 16:03*
 
 ---
 
 ## 2026-02-06
+
+### 🐛 fix: Remove password_auth_callback to prevent double login screen
+
+- **Commit:** `0fd72710`
+- **Author:** jsagir
+- **Files changed:** 5
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Chainlit was showing its built-in login screen because @cl.password_auth_callback
 
 ### 🐛 fix: Disable SSL for Render internal database connections
 
@@ -310,14 +322,3 @@
   - scripts/push_opportunities_to_lightrag.py
   - scripts/push_qa_opportunities_to_lightrag.py
 - **Details:** LightRAG Integration:
-
-### 🐛 fix: P0 - File uploads blocked when message short (e.g., "review !")
-
-- **Commit:** `9920d572`
-- **Author:** jsagir
-- **Files changed:** 4
-  - mindrian_chat.py
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** Root cause: auto_detect_entry_point returned should_show_selector=True

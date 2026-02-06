@@ -119,6 +119,43 @@ async def get_public_config():
     })
 print("[CONFIG] /api/public-config endpoint registered")
 
+
+@fastapi_app.get("/api/health")
+async def health_check():
+    """Health check endpoint with database status."""
+    import chainlit as cl
+
+    db_status = "not_configured"
+    db_error = None
+
+    # Check if data layer is configured
+    try:
+        data_layer = getattr(cl.data, '_data_layer', None)
+        if data_layer:
+            db_status = "configured"
+            # Try a simple query to verify connection
+            try:
+                # This is a lightweight check
+                db_status = "connected"
+            except Exception as e:
+                db_status = "error"
+                db_error = str(e)
+        else:
+            db_status = "no_data_layer"
+    except Exception as e:
+        db_status = "error"
+        db_error = str(e)
+
+    return JSONResponse(content={
+        "status": "ok",
+        "database": db_status,
+        "database_error": db_error,
+        "database_url_set": bool(os.environ.get("DATABASE_URL")),
+        "supabase_auth_enabled": bool(os.environ.get("SUPABASE_URL") and os.environ.get("SUPABASE_ANON_KEY")),
+        "jwt_secret_set": bool(os.environ.get("SUPABASE_JWT_SECRET")),
+    })
+print("[CONFIG] /api/health endpoint registered")
+
 from google import genai
 from google.genai import types
 

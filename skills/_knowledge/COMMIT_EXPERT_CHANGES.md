@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-06 15:53*
+*Auto-generated: 2026-02-06 16:03*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,15 +13,15 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-06 | 15 |
+| 2026-02-06 | 16 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 30 |
+| 2026-02-04 | 29 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `public/login.html` | 8 |
+| `public/login.html` | 7 |
 
 ---
 
@@ -29,13 +29,43 @@
 
 ### 2026-02-06
 
+#### 🐛 fix: Remove password_auth_callback to prevent double login screen
+
+- **Hash:** `0fd727109e075697f6af35fffd8fad2dbfbd96ce`
+- **Short:** `0fd72710`
+- **Parent:** `4d9f675c`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-06 16:03:13
+- **Risk:** medium
+- **Diff:** +65 / -136
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 4 | 82 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 34 | 31 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 11 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 11 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** Chainlit was showing its built-in login screen because @cl.password_auth_callback
+
+
 #### 🐛 fix: Disable SSL for Render internal database connections
 
 - **Hash:** `4d9f675cc12516cb0832d23e246c6d3f7d58faf0`
 - **Short:** `4d9f675c`
 - **Parent:** `fc8ed89a`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-06 15:53:12
 - **Risk:** medium
@@ -65,7 +95,6 @@
 - **Short:** `fc8ed89a`
 - **Parent:** `f0d50869`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-06 15:16:47
 - **Risk:** medium
@@ -1535,31 +1564,4 @@
   - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
   - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-
-#### 🐛 fix: P0 - File uploads blocked when message short (e.g., "review !")
-
-- **Hash:** `9920d5729ec3e74f93b316a3dd1fe5737fa301a5`
-- **Short:** `9920d572`
-- **Parent:** `fc9b592a`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 02:54:05
-- **Risk:** medium
-- **Diff:** +34 / -29
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `mindrian_chat.py` | 11 | 2 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 9 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 11 | 9 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 11 | 9 |
-
-  **File Operations:**
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** Root cause: auto_detect_entry_point returned should_show_selector=True
 
