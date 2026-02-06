@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-06 12:28*
+*Auto-generated: 2026-02-06 12:46*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,16 +13,16 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-06 | 10 |
+| 2026-02-06 | 11 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 35 |
+| 2026-02-04 | 34 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
 | `public/login.html` | 6 |
-| `mindrian_chat.py` | 5 |
+| `mindrian_chat.py` | 4 |
 
 ---
 
@@ -30,13 +30,43 @@
 
 ### 2026-02-06
 
+#### 🐛 fix: Make Supabase script async + robust initialization
+
+- **Hash:** `59435d5600983cd1902f3087ab4c0ed494fa0088`
+- **Short:** `59435d56`
+- **Parent:** `52269a0a`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-06 12:46:16
+- **Risk:** medium
+- **Diff:** +127 / -69
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `public/login.html` | 65 | 23 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 35 | 27 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 9 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 9 |
+
+  **File Operations:**
+  - ✏️ Modified: `public/login.html`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** - Load Supabase SDK with async to prevent page blocking
+
+
 #### 🐛 fix: Guard onAuthStateChange against null supabase client
 
 - **Hash:** `52269a0a3a350cec2eff86e7ab6134c339e66b19`
 - **Short:** `52269a0a`
 - **Parent:** `4d144d94`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-06 12:28:13
 - **Risk:** medium
@@ -66,7 +96,6 @@
 - **Short:** `4d144d94`
 - **Parent:** `e4e69043`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-06 12:26:24
 - **Risk:** medium
@@ -1526,27 +1555,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
   - ➕ Added: `voice/__init__.py`
   - ➕ Added: `voice/realtime_server.py`
-
-
-#### 📝 docs: Sync knowledge base
-
-- **Hash:** `646d47f53f73b24b4b5b8aff7527cce6eb8f2efe`
-- **Short:** `646d47f5`
-- **Parent:** `5b0c474d`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 02:33:09
-- **Risk:** low
-- **Diff:** +29 / -61
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 13 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 19 | 24 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 9 | 24 |
-
-  **File Operations:**
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 

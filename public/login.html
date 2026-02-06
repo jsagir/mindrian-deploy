@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- VERSION: 2026-02-06-v3 -->
+<!-- VERSION: 2026-02-06-v4 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -320,7 +320,7 @@
   <div class="loading-overlay" id="loading">
     <div class="spinner"></div>
     <div class="loading-text">Checking session...</div>
-    <div style="position:fixed;bottom:10px;right:10px;font-size:10px;color:#666;">v3</div>
+    <div style="position:fixed;bottom:10px;right:10px;font-size:10px;color:#666;">v4</div>
   </div>
 
   <div class="login-container hidden" id="login-content">
@@ -588,6 +588,15 @@
     // EVENT HANDLERS
     // ============================================================
 
+    // Helper to check if Supabase is ready
+    function requireSupabase(errorElementId) {
+      if (!supabase) {
+        showError(errorElementId, 'Authentication service not loaded. Please refresh the page or try Guest mode.');
+        return false;
+      }
+      return true;
+    }
+
     // View switching
     document.getElementById('signup-link').onclick = (e) => { e.preventDefault(); showView('signup-view'); };
     document.getElementById('signin-link').onclick = (e) => { e.preventDefault(); showView('signin-view'); };
@@ -599,6 +608,7 @@
     // Sign In Form
     document.getElementById('signin-form').onsubmit = async (e) => {
       e.preventDefault();
+      if (!requireSupabase('signin-error')) return;
       setLoading('signin-btn', true);
 
       const email = document.getElementById('signin-email').value;
@@ -624,6 +634,7 @@
     // Sign Up Form
     document.getElementById('signup-form').onsubmit = async (e) => {
       e.preventDefault();
+      if (!requireSupabase('signup-error')) return;
       setLoading('signup-btn', true);
 
       const email = document.getElementById('signup-email').value;
@@ -656,6 +667,7 @@
     // Magic Link Form
     document.getElementById('magic-form').onsubmit = async (e) => {
       e.preventDefault();
+      if (!requireSupabase('magic-error')) return;
       setLoading('magic-btn', true);
 
       const email = document.getElementById('magic-email').value;
@@ -680,6 +692,7 @@
     // Forgot Password Form
     document.getElementById('forgot-form').onsubmit = async (e) => {
       e.preventDefault();
+      if (!requireSupabase('forgot-error')) return;
       setLoading('forgot-btn', true);
 
       const email = document.getElementById('forgot-email').value;
@@ -700,6 +713,7 @@
 
     // Google OAuth
     document.getElementById('google-btn').onclick = async () => {
+      if (!requireSupabase('signin-error')) return;
       try {
         const { error } = await supabase.auth.signInWithOAuth({
           provider: 'google',
@@ -727,7 +741,7 @@
     // ============================================================
     // INITIALIZE
     // ============================================================
-    console.log('[Auth] Script loaded, version 2026-02-06-v3');
+    console.log('[Auth] Script loaded, version 2026-02-06-v4');
 
     // Safety timeout: If nothing happens in 4 seconds, force show login
     const safetyTimeout = setTimeout(() => {
@@ -740,7 +754,7 @@
       console.log('[Auth] initializeAuth called, window.supabase:', !!window.supabase);
 
       if (!window.supabase) {
-        console.error('[Auth] Supabase SDK not available');
+        console.error('[Auth] Supabase SDK not available after load');
         clearTimeout(safetyTimeout);
         showLoginForm();
         return;
@@ -750,7 +764,7 @@
       if (!supabase) {
         try {
           supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-          console.log('[Auth] Supabase client created');
+          console.log('[Auth] Supabase client created successfully');
         } catch (err) {
           console.error('[Auth] Failed to create client:', err);
           clearTimeout(safetyTimeout);
@@ -771,20 +785,39 @@
       checkSession().finally(() => clearTimeout(safetyTimeout));
     }
 
-    // Check if Supabase SDK already loaded (might be cached)
-    if (window.supabase) {
-      console.log('[Auth] Supabase SDK already loaded');
-      initializeAuth();
-    } else {
-      // Wait for script to load
+    // Try to load Supabase SDK with multiple strategies
+    function tryLoadSupabase() {
+      // Strategy 1: Already loaded (cached)
+      if (window.supabase) {
+        console.log('[Auth] Supabase SDK already in window');
+        initializeAuth();
+        return;
+      }
+
+      // Strategy 2: Wait for async script
       const script = document.getElementById('supabase-script');
       if (script) {
+        // Check if it's already loaded but window.supabase isn't set yet
+        if (script.complete || script.readyState === 'complete') {
+          console.log('[Auth] Script already complete, checking window.supabase...');
+          setTimeout(() => {
+            if (window.supabase) {
+              initializeAuth();
+            } else {
+              console.error('[Auth] Script loaded but window.supabase is undefined');
+              showLoginForm();
+            }
+          }, 100);
+          return;
+        }
+
         script.onload = () => {
-          console.log('[Auth] Supabase SDK loaded via onload');
-          initializeAuth();
+          console.log('[Auth] Supabase SDK loaded via onload event');
+          // Small delay to ensure window.supabase is set
+          setTimeout(initializeAuth, 50);
         };
-        script.onerror = () => {
-          console.error('[Auth] Failed to load Supabase SDK');
+        script.onerror = (e) => {
+          console.error('[Auth] Failed to load Supabase SDK:', e);
           clearTimeout(safetyTimeout);
           showLoginForm();
         };
@@ -794,6 +827,9 @@
         showLoginForm();
       }
     }
+
+    // Start loading
+    tryLoadSupabase();
   </script>
 </body>
 </html>

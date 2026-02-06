@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-06 12:28*
+*Auto-generated: 2026-02-06 12:46*
 
 ---
 
 ## 2026-02-06
+
+### 🐛 fix: Make Supabase script async + robust initialization
+
+- **Commit:** `59435d56`
+- **Author:** jsagir
+- **Files changed:** 5
+  - public/login.html
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** - Load Supabase SDK with async to prevent page blocking
 
 ### 🐛 fix: Guard onAuthStateChange against null supabase client
 
@@ -565,12 +577,3 @@
   - public/elements/VoiceChat.jsx
   - realtime_voice.py
   - skills/_knowledge/QA_RELEVANT_CHANGES.md
-
-### 📝 docs: Sync knowledge base
-
-- **Commit:** `646d47f5`
-- **Author:** jsagir
-- **Files changed:** 3
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
