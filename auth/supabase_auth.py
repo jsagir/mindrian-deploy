@@ -112,6 +112,7 @@ def get_supabase_service_client() -> Optional[Client]:
 def validate_supabase_jwt(token: str) -> Optional[Dict[str, Any]]:
     """
     Validate a Supabase JWT token and return the decoded payload.
+    Also handles guest mode tokens (prefixed with 'guest_').
 
     Args:
         token: The JWT token string (without 'Bearer ' prefix)
@@ -127,12 +128,31 @@ def validate_supabase_jwt(token: str) -> Optional[Dict[str, Any]]:
         - exp: Expiration timestamp
         - iat: Issued at timestamp
     """
-    if not SUPABASE_JWT_SECRET:
-        logger.warning("[SUPABASE_AUTH] JWT validation failed - no secret configured")
-        return None
-
     if not token:
         return None
+
+    # Handle guest mode tokens
+    if token.startswith('guest_'):
+        guest_id = token  # Use full token as identifier
+        logger.info(f"[SUPABASE_AUTH] Guest mode user: {guest_id[:20]}...")
+        return {
+            "sub": guest_id,
+            "email": f"guest@mindrian.local",
+            "role": "guest",
+            "aud": "guest",
+            "guest_mode": True,
+        }
+
+    if not SUPABASE_JWT_SECRET:
+        logger.warning("[SUPABASE_AUTH] JWT validation failed - no secret configured")
+        # Allow through without validation if no secret configured (dev mode)
+        return {
+            "sub": "dev_user",
+            "email": "dev@mindrian.local",
+            "role": "authenticated",
+            "aud": "authenticated",
+            "dev_mode": True,
+        }
 
     try:
         payload = jwt.decode(

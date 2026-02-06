@@ -377,6 +377,15 @@
         <div class="form-footer" style="margin-top: 16px;">
           <a href="#" id="magic-link">Send me a magic link instead</a>
         </div>
+
+        <div class="divider" style="margin-top: 24px;"><span>or</span></div>
+
+        <button class="btn btn-outline" id="guest-btn" style="margin-top: 16px;">
+          Continue as Guest
+        </button>
+        <p style="font-size: 12px; color: var(--text-secondary); text-align: center; margin-top: 8px;">
+          Guest sessions are temporary and won't persist across visits
+        </p>
       </div>
 
       <!-- Sign Up View -->
@@ -506,8 +515,27 @@
     // CHECK EXISTING SESSION
     // ============================================================
     async function checkSession() {
+      // Add timeout for session check (5 seconds max)
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Session check timeout')), 5000)
+      );
+
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        // Check if Supabase SDK loaded
+        if (!window.supabase || !supabase) {
+          console.error('Supabase SDK not loaded');
+          showLoginForm();
+          return;
+        }
+
+        const sessionPromise = supabase.auth.getSession();
+        const { data: { session }, error } = await Promise.race([sessionPromise, timeoutPromise]);
+
+        if (error) {
+          console.error('Session error:', error);
+          showLoginForm();
+          return;
+        }
 
         if (session) {
           // Already logged in - redirect to chat
@@ -524,10 +552,14 @@
           return;
         }
       } catch (err) {
-        console.error('Session check error:', err);
+        console.error('Session check error:', err.message || err);
+        // On any error, just show login form
       }
 
-      // No session - show login form
+      showLoginForm();
+    }
+
+    function showLoginForm() {
       document.getElementById('loading').classList.add('hidden');
       document.getElementById('login-content').classList.remove('hidden');
     }
@@ -682,6 +714,16 @@
       } catch (err) {
         showError('signin-error', err.message || 'Failed to sign in with Google');
       }
+    };
+
+    // Guest Mode - Bypass auth for testing/development
+    document.getElementById('guest-btn').onclick = () => {
+      // Generate a temporary guest token (not a real JWT, just a marker)
+      const guestToken = 'guest_' + Date.now() + '_' + Math.random().toString(36).substring(7);
+      localStorage.setItem('supabase_access_token', guestToken);
+      localStorage.setItem('mindrian_guest_mode', 'true');
+      console.log('[AuthBridge] Guest mode activated');
+      window.location.href = '/';
     };
 
     // ============================================================

@@ -243,3 +243,23 @@ Common property types:
 - `StringArray` - Lists of strings
 - `DateTime` - Timestamps
 - `Date` - Date only
+
+## User Context Graph (L4 Persistence)
+
+User-scoped knowledge graphs for personalization:
+
+```cypher
+// User memory nodes (LazyGraph)
+MATCH (u:User {user_id: $user_id})-[:HAS_MEMORY]->(m:UserMemory)
+RETURN m.topic, m.content, m.created_at
+ORDER BY m.created_at DESC
+```
+
+See `context-manager` skill for full user context architecture.
+
+## Integration
+
+This skill works with:
+- `context-manager` - User context isolation and graph persistence (L4)
+- `mindrian-stack` - Overall architecture and GraphRAG Lite
+- `commit-expert` - Recent changes to graph code

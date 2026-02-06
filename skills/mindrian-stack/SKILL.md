@@ -185,5 +185,16 @@ NEO4J_USER              # Neo4j auth
 NEO4J_PASSWORD          # Neo4j auth
 SUPABASE_URL            # Supabase project URL
 SUPABASE_SERVICE_KEY    # Supabase service role key
+SUPABASE_ANON_KEY       # Public key for frontend auth
+SUPABASE_JWT_SECRET     # JWT validation
 DATABASE_URL            # PostgreSQL connection
+CHAINLIT_AUTH_SECRET    # Session signing
 ```
+
+## Integration
+
+This skill works with:
+- `context-manager` - User session isolation, auth flow, persistence layers
+- `commit-expert` - For recent code changes to the stack
+- `qa-consultant` - For tracking stack-related issues
+- `neo4j-schema-navigator` - Graph schema and queries

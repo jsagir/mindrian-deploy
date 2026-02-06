@@ -79,3 +79,13 @@ This skill works with:
 - `qa-analyzer` - For code-level issue location
 - `mindrian-stack` - For understanding architecture
 - `chainlit-consultant` - For UI-related fixes
+- `commit-expert` - For commit history, regression investigation, and deployment audits
+- `context-manager` - For auth/session isolation issues and context mixing bugs
+
+## Auth & Context QA Checks
+
+Common context-related issues to check:
+- **Context mixing** - Users seeing each other's data (`get_context_key()` returning shared key)
+- **JWT expired** - 401 errors, users logged out unexpectedly
+- **No persistence** - History lost on reload (using session ID instead of user ID)
+- **Race conditions** - Background tasks using stale `cl.user_session` references
