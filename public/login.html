@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In - Mindrian</title>
+  <link rel="icon" href="/public/favicon.svg" type="image/svg+xml">
+
+  <!-- Supabase JS v2 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --primary-light: rgba(99, 102, 241, 0.1);
+      --background: #fafafa;
+      --surface: #ffffff;
+      --text-primary: #1e1b4b;
+      --text-secondary: #64748b;
+      --border: rgba(0, 0, 0, 0.08);
+      --error: #ef4444;
+      --success: #22c55e;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background: #0f0f1a;
+        --surface: #1a1a2e;
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --border: rgba(255, 255, 255, 0.08);
+      }
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--background);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: var(--text-primary);
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .logo-section {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .logo-icon {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 26px;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .logo-text {
+      font-size: 32px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--text-primary), var(--primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .tagline {
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+
+    .auth-card {
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+      border: 1px solid var(--border);
+    }
+
+    .auth-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 15px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--background);
+      color: var(--text-primary);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .form-input::placeholder {
+      color: var(--text-secondary);
+      opacity: 0.7;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #7c3aed);
+      color: white;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      background: var(--primary-light);
+      border-color: var(--primary);
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 24px 0;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .divider span {
+      padding: 0 16px;
+    }
+
+    .social-btn {
+      margin-bottom: 12px;
+    }
+
+    .social-btn img {
+      width: 20px;
+      height: 20px;
+    }
+
+    .form-footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .form-footer a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .form-footer a:hover {
+      text-decoration: underline;
+    }
+
+    .error-message {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--error);
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .success-message {
+      background: rgba(34, 197, 94, 0.1);
+      color: var(--success);
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--background);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      gap: 16px;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    .loading-text {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .hidden { display: none !important; }
+
+    /* View Switching */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    @media (max-width: 480px) {
+      .auth-card {
+        padding: 24px;
+        border-radius: 16px;
+      }
+      .logo-text {
+        font-size: 26px;
+      }
+      .logo-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loading">
+    <div class="spinner"></div>
+    <div class="loading-text">Checking session...</div>
+  </div>
+
+  <div class="login-container hidden" id="login-content">
+    <div class="logo-section">
+      <div class="logo">
+        <div class="logo-icon">M</div>
+        <span class="logo-text">Mindrian</span>
+      </div>
+      <p class="tagline">AI-Powered Innovation Workshop Platform</p>
+    </div>
+
+    <div class="auth-card">
+      <!-- Sign In View -->
+      <div class="view active" id="signin-view">
+        <h2 class="auth-title">Welcome back</h2>
+
+        <div class="error-message" id="signin-error"></div>
+
+        <!-- Google OAuth -->
+        <button class="btn btn-outline social-btn" id="google-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+          </svg>
+          Continue with Google
+        </button>
+
+        <div class="divider"><span>or sign in with email</span></div>
+
+        <form id="signin-form">
+          <div class="form-group">
+            <label class="form-label" for="signin-email">Email address</label>
+            <input type="email" class="form-input" id="signin-email" placeholder="you@example.com" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="signin-password">Password</label>
+            <input type="password" class="form-input" id="signin-password" placeholder="Enter your password" required>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="signin-btn">
+            Sign in
+          </button>
+        </form>
+
+        <div class="form-footer">
+          <a href="#" id="forgot-link">Forgot your password?</a>
+        </div>
+
+        <div class="form-footer" style="margin-top: 12px;">
+          Don't have an account? <a href="#" id="signup-link">Sign up</a>
+        </div>
+
+        <div class="form-footer" style="margin-top: 16px;">
+          <a href="#" id="magic-link">Send me a magic link instead</a>
+        </div>
+
+        <div class="divider" style="margin-top: 24px;"><span>or</span></div>
+
+        <button class="btn btn-outline" id="guest-btn" style="margin-top: 16px;">
+          Continue as Guest
+        </button>
+        <p style="font-size: 12px; color: var(--text-secondary); text-align: center; margin-top: 8px;">
+          Guest sessions are temporary and won't persist across visits
+        </p>
+      </div>
+
+      <!-- Sign Up View -->
+      <div class="view" id="signup-view">
+        <h2 class="auth-title">Create an account</h2>
+
+        <div class="error-message" id="signup-error"></div>
+        <div class="success-message" id="signup-success"></div>
+
+        <form id="signup-form">
+          <div class="form-group">
+            <label class="form-label" for="signup-email">Email address</label>
+            <input type="email" class="form-input" id="signup-email" placeholder="you@example.com" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="signup-password">Password</label>
+            <input type="password" class="form-input" id="signup-password" placeholder="Create a password (min 8 characters)" required minlength="8">
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="signup-btn">
+            Create account
+          </button>
+        </form>
+
+        <div class="form-footer">
+          Already have an account? <a href="#" id="signin-link">Sign in</a>
+        </div>
+      </div>
+
+      <!-- Magic Link View -->
+      <div class="view" id="magic-view">
+        <h2 class="auth-title">Sign in with magic link</h2>
+
+        <div class="error-message" id="magic-error"></div>
+        <div class="success-message" id="magic-success"></div>
+
+        <form id="magic-form">
+          <div class="form-group">
+            <label class="form-label" for="magic-email">Email address</label>
+            <input type="email" class="form-input" id="magic-email" placeholder="you@example.com" required>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="magic-btn">
+            Send magic link
+          </button>
+        </form>
+
+        <div class="form-footer">
+          <a href="#" id="back-to-signin">Back to sign in</a>
+        </div>
+      </div>
+
+      <!-- Forgot Password View -->
+      <div class="view" id="forgot-view">
+        <h2 class="auth-title">Reset your password</h2>
+
+        <div class="error-message" id="forgot-error"></div>
+        <div class="success-message" id="forgot-success"></div>
+
+        <form id="forgot-form">
+          <div class="form-group">
+            <label class="form-label" for="forgot-email">Email address</label>
+            <input type="email" class="form-input" id="forgot-email" placeholder="you@example.com" required>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="forgot-btn">
+            Send reset link
+          </button>
+        </form>
+
+        <div class="form-footer">
+          <a href="#" id="back-to-signin-2">Back to sign in</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============================================================
+    // CONFIGURATION - Fetched from /api/public-config or fallback
+    // These are public keys (safe to expose in frontend)
+    // ============================================================
+
+    // Fallback values (kept updated as backup, but prefer env-based config)
+    const FALLBACK_SUPABASE_URL = 'https://ulmymxxmvsehjiyymqoi.supabase.co';
+    const FALLBACK_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsbXlteHhtdnNlaGppeXltcW9pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NjkxMTEsImV4cCI6MjA3NjU0NTExMX0.4rGebUMo1tX90w9CIX4grQgMBbnUaEipFK-ktvq7VWI';
+
+    // Active config (set after fetching or using fallback)
+    let SUPABASE_URL = FALLBACK_SUPABASE_URL;
+    let SUPABASE_ANON_KEY = FALLBACK_SUPABASE_ANON_KEY;
+    let supabase = null;
+
+    // Fetch config from server (env-based) with fallback to hardcoded values
+    async function initSupabase() {
+      try {
+        const response = await fetch('/api/public-config', { timeout: 2000 });
+        if (response.ok) {
+          const config = await response.json();
+          if (config.supabase_url && config.supabase_anon_key) {
+            SUPABASE_URL = config.supabase_url;
+            SUPABASE_ANON_KEY = config.supabase_anon_key;
+            console.log('[Auth] Using server-provided Supabase config');
+          } else {
+            console.log('[Auth] Server config incomplete, using fallback');
+          }
+        }
+      } catch (err) {
+        console.log('[Auth] Config fetch failed, using fallback:', err.message);
+      }
+
+      // Initialize Supabase client with the resolved config
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      console.log('[Auth] Supabase client initialized');
+    }
+
+    // ============================================================
+    // VIEW MANAGEMENT
+    // ============================================================
+    function showView(viewId) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById(viewId).classList.add('active');
+      // Clear messages
+      document.querySelectorAll('.error-message, .success-message').forEach(m => {
+        m.style.display = 'none';
+        m.textContent = '';
+      });
+    }
+
+    function showError(elementId, message) {
+      const el = document.getElementById(elementId);
+      el.textContent = message;
+      el.style.display = 'block';
+    }
+
+    function showSuccess(elementId, message) {
+      const el = document.getElementById(elementId);
+      el.textContent = message;
+      el.style.display = 'block';
+    }
+
+    function setLoading(buttonId, loading) {
+      const btn = document.getElementById(buttonId);
+      btn.disabled = loading;
+      if (loading) {
+        btn.dataset.originalText = btn.textContent;
+        btn.innerHTML = '<div class="spinner" style="width:20px;height:20px;border-width:2px;"></div>';
+      } else {
+        btn.textContent = btn.dataset.originalText || btn.textContent;
+      }
+    }
+
+    // ============================================================
+    // CHECK EXISTING SESSION
+    // ============================================================
+    async function checkSession() {
+      // Add timeout for session check (5 seconds max)
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Session check timeout')), 5000)
+      );
+
+      try {
+        // Check if Supabase SDK loaded
+        if (!window.supabase || !supabase) {
+          console.error('Supabase SDK not loaded');
+          showLoginForm();
+          return;
+        }
+
+        const sessionPromise = supabase.auth.getSession();
+        const { data: { session }, error } = await Promise.race([sessionPromise, timeoutPromise]);
+
+        if (error) {
+          console.error('Session error:', error);
+          showLoginForm();
+          return;
+        }
+
+        if (session) {
+          // Already logged in - redirect to chat
+          redirectToChat(session.access_token);
+          return;
+        }
+
+        // Check for auth callback (magic link, OAuth redirect)
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+
+        if (accessToken) {
+          redirectToChat(accessToken);
+          return;
+        }
+      } catch (err) {
+        console.error('Session check error:', err.message || err);
+        // On any error, just show login form
+      }
+
+      showLoginForm();
+    }
+
+    function showLoginForm() {
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('login-content').classList.remove('hidden');
+    }
+
+    // ============================================================
+    // REDIRECT TO CHAT
+    // ============================================================
+    function redirectToChat(accessToken) {
+      // Store token for Chainlit
+      localStorage.setItem('supabase_access_token', accessToken);
+
+      // Redirect to main app
+      window.location.href = '/';
+    }
+
+    // ============================================================
+    // AUTH STATE LISTENER (registered after initSupabase)
+    // ============================================================
+    function setupAuthListener() {
+      if (!supabase) return;
+      supabase.auth.onAuthStateChange((event, session) => {
+        console.log('Auth event:', event);
+
+        if (event === 'SIGNED_IN' && session) {
+          redirectToChat(session.access_token);
+        }
+      });
+    }
+
+    // ============================================================
+    // EVENT HANDLERS
+    // ============================================================
+
+    // View switching
+    document.getElementById('signup-link').onclick = (e) => { e.preventDefault(); showView('signup-view'); };
+    document.getElementById('signin-link').onclick = (e) => { e.preventDefault(); showView('signin-view'); };
+    document.getElementById('forgot-link').onclick = (e) => { e.preventDefault(); showView('forgot-view'); };
+    document.getElementById('magic-link').onclick = (e) => { e.preventDefault(); showView('magic-view'); };
+    document.getElementById('back-to-signin').onclick = (e) => { e.preventDefault(); showView('signin-view'); };
+    document.getElementById('back-to-signin-2').onclick = (e) => { e.preventDefault(); showView('signin-view'); };
+
+    // Sign In Form
+    document.getElementById('signin-form').onsubmit = async (e) => {
+      e.preventDefault();
+      setLoading('signin-btn', true);
+
+      const email = document.getElementById('signin-email').value;
+      const password = document.getElementById('signin-password').value;
+
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+
+        if (error) throw error;
+
+        if (data.session) {
+          redirectToChat(data.session.access_token);
+        }
+      } catch (err) {
+        showError('signin-error', err.message || 'Failed to sign in');
+        setLoading('signin-btn', false);
+      }
+    };
+
+    // Sign Up Form
+    document.getElementById('signup-form').onsubmit = async (e) => {
+      e.preventDefault();
+      setLoading('signup-btn', true);
+
+      const email = document.getElementById('signup-email').value;
+      const password = document.getElementById('signup-password').value;
+
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: window.location.origin + '/public/login.html'
+          }
+        });
+
+        if (error) throw error;
+
+        if (data.user && !data.session) {
+          // Email confirmation required
+          showSuccess('signup-success', 'Check your email for the confirmation link!');
+        } else if (data.session) {
+          // Auto-confirmed (dev mode)
+          redirectToChat(data.session.access_token);
+        }
+      } catch (err) {
+        showError('signup-error', err.message || 'Failed to sign up');
+      }
+      setLoading('signup-btn', false);
+    };
+
+    // Magic Link Form
+    document.getElementById('magic-form').onsubmit = async (e) => {
+      e.preventDefault();
+      setLoading('magic-btn', true);
+
+      const email = document.getElementById('magic-email').value;
+
+      try {
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            emailRedirectTo: window.location.origin + '/public/login.html'
+          }
+        });
+
+        if (error) throw error;
+
+        showSuccess('magic-success', 'Check your email for the magic link!');
+      } catch (err) {
+        showError('magic-error', err.message || 'Failed to send magic link');
+      }
+      setLoading('magic-btn', false);
+    };
+
+    // Forgot Password Form
+    document.getElementById('forgot-form').onsubmit = async (e) => {
+      e.preventDefault();
+      setLoading('forgot-btn', true);
+
+      const email = document.getElementById('forgot-email').value;
+
+      try {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: window.location.origin + '/public/login.html'
+        });
+
+        if (error) throw error;
+
+        showSuccess('forgot-success', 'Check your email for the password reset link!');
+      } catch (err) {
+        showError('forgot-error', err.message || 'Failed to send reset email');
+      }
+      setLoading('forgot-btn', false);
+    };
+
+    // Google OAuth
+    document.getElementById('google-btn').onclick = async () => {
+      try {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: window.location.origin + '/public/login.html'
+          }
+        });
+
+        if (error) throw error;
+      } catch (err) {
+        showError('signin-error', err.message || 'Failed to sign in with Google');
+      }
+    };
+
+    // Guest Mode - Bypass auth for testing/development
+    document.getElementById('guest-btn').onclick = () => {
+      // Generate a temporary guest token (not a real JWT, just a marker)
+      const guestToken = 'guest_' + Date.now() + '_' + Math.random().toString(36).substring(7);
+      localStorage.setItem('supabase_access_token', guestToken);
+      localStorage.setItem('mindrian_guest_mode', 'true');
+      console.log('[AuthBridge] Guest mode activated');
+      window.location.href = '/';
+    };
+
+    // ============================================================
+    // INITIALIZE
+    // ============================================================
+    // First fetch config from server, then register listener + check session
+    initSupabase().then(() => {
+      setupAuthListener();
+      checkSession();
+    });
+  </script>
+</body>
+</html>
