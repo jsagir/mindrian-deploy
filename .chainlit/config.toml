@@ -91,6 +91,9 @@ github = "https://github.com/jsagir/mindrian-deploy"
 custom_logo = "/public/logo_light.svg"
 custom_favicon = "/public/favicon.svg"
 
+# Custom JavaScript for Supabase Auth integration
+custom_js = "/public/auth-bridge.js"
+
 # Override default MUI light theme. (Check theme.ts for full theme configuration options)
 [UI.theme]
     [UI.theme.light]
@@ -102,6 +105,17 @@ custom_favicon = "/public/favicon.svg"
         primary = "#818cf8"
         background = "#1a1a2e"
         paper = "#16213e"
+
+# === Authentication ===
+# Password auth for known testers. Requires CHAINLIT_AUTH_SECRET env var.
+# Generate a secret with: openssl rand -hex 32
+# Set in environment: CHAINLIT_AUTH_SECRET=your_secret_here
+#
+# To add testers, set these env vars:
+#   MINDRIAN_USER_ARONHIME_PASSWORD=password1
+#   MINDRIAN_USER_LEAH_PASSWORD=password2
+#   MINDRIAN_USER_LILIAN_PASSWORD=password3
+#   etc.
 
 [meta]
 generated_by = "2.9.5"

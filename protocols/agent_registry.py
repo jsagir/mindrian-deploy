@@ -40,10 +40,11 @@ from dataclasses import dataclass, field
 
 class AgentRole(Enum):
     """Roles an agent can play in the system."""
-    ORCHESTRATOR = "orchestrator"  # Manages flow, routes to others
-    WORKSHOP = "workshop"          # Guides through phases
-    SUB_AGENT = "sub_agent"        # Called by other agents
-    SERVICE = "service"            # Returns data, no conversation
+    ORCHESTRATOR = "orchestrator"          # Manages flow, routes to others
+    WORKSHOP = "workshop"                  # Guides through phases (LLM-detected transitions)
+    STRUCTURED_PROCESS = "structured_process"  # Deterministic stage transitions (action-callback-driven)
+    SUB_AGENT = "sub_agent"                # Called by other agents
+    SERVICE = "service"                    # Returns data, no conversation
 
 
 class AgentCapability(Enum):
@@ -680,6 +681,64 @@ register_agent(AgentConfig(
     frameworks=[],
     keywords=[],
     has_phases=False,
+))
+
+register_agent(AgentConfig(
+    id="commit_expert",
+    name="Commit Expert",
+    description="Repository commit intelligence - change tracking, branch info, regression investigation",
+    icon="📋",
+    roles=[AgentRole.SERVICE, AgentRole.SUB_AGENT],
+    entry_points=[],
+    can_be_sub_agent=True,
+    service_mode=True,
+    called_by=["*"],
+    can_call=[],
+    capabilities=[
+        AgentCapability.CONTEXT_STORE,
+        AgentCapability.FILE_SEARCH,
+    ],
+    keywords=["commit", "change", "deploy", "branch", "regression", "diff", "history", "what changed"],
+    has_phases=False,
+    returns="CommitIntelligenceReport",
+))
+
+register_agent(AgentConfig(
+    id="pws_consultant",
+    name="PWS Consultant",
+    description="Structured problem diagnosis and framework-guided consulting with domain-specific expert panels",
+    icon="🧭",
+    roles=[AgentRole.STRUCTURED_PROCESS, AgentRole.SUB_AGENT],
+    entry_points=["brainstorming", "build_venture"],
+    venture_stages=["pre_opportunity", "opportunity_identified", "well_defined_problem"],
+    can_orchestrate=False,
+    can_be_sub_agent=True,
+    called_by=["lawrence", "larry_playground"],
+    can_call=["research", "redteam", "tta", "jtbd", "scurve", "ackoff"],
+    capabilities=[
+        AgentCapability.GRAPHRAG,
+        AgentCapability.RESEARCH,
+        AgentCapability.LANGEXTRACT,
+        AgentCapability.GRAPH_ROUTER,
+        AgentCapability.CONTEXT_STORE,
+        AgentCapability.FILE_SEARCH,
+        AgentCapability.NEO4J,
+    ],
+    frameworks=[
+        "Problem Classification", "Validation Compass", "JTBD",
+        "Scenario Planning", "Cynefin", "Beautiful Questions",
+        "TTA", "BONO", "Stakeholder Mapping", "Nested Hierarchies",
+    ],
+    keywords=[
+        "diagnose", "classify", "problem type", "what kind of problem",
+        "consultant", "structured help", "which framework", "not sure where to start",
+        "need guidance", "confused about approach", "expert panel", "domain experts",
+        "problem diagnosis", "framework selection",
+    ],
+    has_phases=False,
+    phase_count=0,
+    default_mode="sandbox",
+    returns="DiagnosisReport",
 ))
 
 

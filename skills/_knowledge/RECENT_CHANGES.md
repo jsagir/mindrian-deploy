@@ -1,10 +1,21 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-05 09:14*
+*Auto-generated: 2026-02-05 09:20*
 
 ---
 
 ## 2026-02-05
+
+### ✨ feat: Add Neo4j PWS methodology consultant to daily summary email
+
+- **Commit:** `300c98dc`
+- **Author:** jsagir
+- **Files changed:** 4
+  - scripts/daily_summary.py
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Query Neo4j knowledge graph for PWS methodology context (Opportunity
 
 ### ✨ feat: Add LightRAG opportunity bank review to daily summary email
 
@@ -554,15 +565,3 @@
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
   - skills/langchain/SKILL.md
 - **Details:** - REFACTORING_ANALYSIS.md: 10K line monolith → modular LangGraph architecture
-
-### ✨ feat: Add LangGraph file processing pipeline with LazyGraph integration
-
-- **Commit:** `2644dd52`
-- **Author:** jsagir
-- **Files changed:** 6
-  - intelligence/__init__.py
-  - intelligence/pipelines/__init__.py
-  - intelligence/pipelines/file_processing.py
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-- **Details:** New file_processing.py pipeline:

@@ -440,79 +440,213 @@ def _check_api_keys():
 
 _check_api_keys()
 
-# === OAuth Authentication (Google/GitHub) ===
-# DISABLED: Causing "User not found" errors when OAuth providers not fully configured.
-# To enable OAuth, uncomment the @cl.oauth_callback decorator below and ensure:
-#   CHAINLIT_AUTH_SECRET - Secret key for signing auth tokens
-#   OAUTH_GOOGLE_CLIENT_ID, OAUTH_GOOGLE_CLIENT_SECRET - For Google OAuth
-#   OAUTH_GITHUB_CLIENT_ID, OAUTH_GITHUB_CLIENT_SECRET - For GitHub OAuth
+# === Supabase Authentication ===
+# Full Supabase Auth integration with password, magic links, and OAuth support.
 #
-# Callback URLs to configure in OAuth providers:
-#   Google: {CHAINLIT_URL}/auth/oauth/google/callback
-#   GitHub: {CHAINLIT_URL}/auth/oauth/github/callback
+# Required environment variables:
+#   SUPABASE_URL - Your Supabase project URL
+#   SUPABASE_ANON_KEY - Public anon key for auth operations
+#   SUPABASE_JWT_SECRET - JWT secret for token validation
+#   CHAINLIT_AUTH_SECRET - Chainlit's auth secret
+#
+# Optional (for OAuth):
+#   OAUTH_GOOGLE_CLIENT_ID, OAUTH_GOOGLE_CLIENT_SECRET
+#   OAUTH_GITHUB_CLIENT_ID, OAUTH_GITHUB_CLIENT_SECRET
 
-# @cl.oauth_callback  # DISABLED - uncomment when OAuth is fully configured
-def oauth_callback(
-    provider_id: str,
-    token: str,
-    raw_user_data: dict,
-    default_user: cl.User
-) -> Optional[cl.User]:
-    """
-    Handle OAuth callback from Google or GitHub.
+try:
+    from auth.supabase_auth import (
+        SUPABASE_AUTH_ENABLED,
+        authenticate_with_password,
+        validate_supabase_jwt,
+        check_rate_limit,
+        record_auth_attempt,
+        clear_auth_attempts,
+        get_user_profile,
+    )
+    print(f"[AUTH] Supabase Auth module loaded. Enabled: {SUPABASE_AUTH_ENABLED}")
+except ImportError as e:
+    SUPABASE_AUTH_ENABLED = False
+    print(f"[AUTH] Supabase Auth module not available: {e}")
 
-    This function is called after successful OAuth authentication.
-    Return a User to allow login, or None to deny access.
 
-    Args:
-        provider_id: The OAuth provider ("google" or "github")
-        token: The OAuth access token
-        raw_user_data: Raw user data from the provider
-        default_user: Pre-populated User object from Chainlit
+# === Password Authentication via Supabase ===
+if SUPABASE_AUTH_ENABLED:
+    @cl.password_auth_callback
+    def supabase_password_auth(username: str, password: str) -> Optional[cl.User]:
+        """
+        Authenticate users via Supabase Auth backend.
+        Supports email/password login with rate limiting.
+        """
+        email = username.lower().strip()
 
-    Returns:
-        cl.User if authentication is successful, None to deny
-    """
-    # Log successful authentication (without sensitive data)
-    user_id = default_user.identifier
-    print(f"[OAuth] User authenticated via {provider_id}: {user_id}")
+        # Rate limiting check
+        if not check_rate_limit(email):
+            logger.warning(f"[AUTH] Rate limit exceeded for: {email}")
+            return None
 
-    # Extract additional user info based on provider
-    if provider_id == "google":
-        # Google provides: sub, name, given_name, family_name, picture, email
-        email = raw_user_data.get("email", "")
-        name = raw_user_data.get("name", user_id)
-        picture = raw_user_data.get("picture", "")
+        # Record attempt
+        record_auth_attempt(email)
+
+        # Authenticate with Supabase
+        result = authenticate_with_password(email, password)
+
+        if result and result.get("user"):
+            user_data = result["user"]
+            user_id = user_data.get("id")
+            user_email = user_data.get("email", email)
+
+            # Clear rate limit on success
+            clear_auth_attempts(email)
+
+            # Try to get profile for display name
+            display_name = email.split("@")[0].title()
+            try:
+                profile = get_user_profile(user_id)
+                if profile and profile.get("display_name"):
+                    display_name = profile["display_name"]
+            except:
+                pass
+
+            logger.info(f"[AUTH] Supabase user authenticated: {user_email}")
+
+            return cl.User(
+                identifier=user_id,  # Use Supabase UUID for proper isolation
+                metadata={
+                    "email": user_email,
+                    "provider": "supabase",
+                    "display_name": display_name,
+                    "role": "user",
+                }
+            )
+
+        logger.warning(f"[AUTH] Failed login attempt for: {email}")
+        return None
+
+    print("[AUTH] Supabase password authentication ENABLED")
+
+else:
+    # Fallback: Simple password auth for known testers (if Supabase not configured)
+    KNOWN_TESTERS = {
+        "aronhime@gmail.com": os.getenv("MINDRIAN_USER_ARONHIME_PASSWORD"),
+        "leaharonhime@gmail.com": os.getenv("MINDRIAN_USER_LEAH_PASSWORD"),
+        "lilianaronhime@gmail.com": os.getenv("MINDRIAN_USER_LILIAN_PASSWORD"),
+        "jonathan@mindrian.com": os.getenv("MINDRIAN_USER_JONATHAN_PASSWORD"),
+        "jsagi@mindrian.com": os.getenv("MINDRIAN_USER_JSAGI_PASSWORD"),
+    }
+    KNOWN_TESTERS = {k: v for k, v in KNOWN_TESTERS.items() if v}
+
+    if KNOWN_TESTERS:
+        @cl.password_auth_callback
+        def fallback_password_auth(username: str, password: str) -> Optional[cl.User]:
+            """Fallback auth for known testers when Supabase is not configured."""
+            username = username.lower().strip()
+            if username in KNOWN_TESTERS and KNOWN_TESTERS[username] == password:
+                logger.info(f"[AUTH] Fallback auth for: {username}")
+                return cl.User(
+                    identifier=username,
+                    metadata={"provider": "fallback", "role": "tester"}
+                )
+            return None
+
+        print(f"[AUTH] Fallback password auth enabled for {len(KNOWN_TESTERS)} testers")
+    else:
+        print("[AUTH] No authentication configured - sessions will be anonymous")
+
+
+# === Header Authentication (JWT Validation) ===
+# For API clients that send Supabase JWT in Authorization header
+if SUPABASE_AUTH_ENABLED:
+    @cl.header_auth_callback
+    def supabase_header_auth(headers: dict) -> Optional[cl.User]:
+        """
+        Validate Supabase JWT tokens from Authorization header.
+        Enables API access and programmatic integrations.
+
+        Expected header: Authorization: Bearer <supabase_jwt_token>
+        """
+        auth_header = headers.get("Authorization", "").strip()
+
+        if not auth_header.startswith("Bearer "):
+            return None
+
+        token = auth_header[7:]  # Remove "Bearer " prefix
+
+        payload = validate_supabase_jwt(token)
+        if not payload:
+            return None
+
+        user_id = payload.get("sub")
+        email = payload.get("email")
+
+        if not user_id:
+            return None
+
+        logger.info(f"[AUTH] JWT authenticated: {email or user_id}")
 
         return cl.User(
-            identifier=email or user_id,
+            identifier=user_id,
             metadata={
-                "name": name,
-                "image": picture,
-                "provider": "google",
-                "given_name": raw_user_data.get("given_name", ""),
+                "email": email,
+                "provider": "supabase_jwt",
+                "role": payload.get("role", "authenticated"),
             }
         )
 
-    elif provider_id == "github":
-        # GitHub provides: login, name, email, avatar_url
-        login = raw_user_data.get("login", user_id)
-        name = raw_user_data.get("name") or login
-        email = raw_user_data.get("email", "")
-        avatar = raw_user_data.get("avatar_url", "")
+    print("[AUTH] Supabase JWT header authentication ENABLED")
 
-        return cl.User(
-            identifier=email or login,
-            metadata={
-                "name": name,
-                "image": avatar,
-                "provider": "github",
-                "github_login": login,
-            }
-        )
 
-    # For other providers, use the default user
-    return default_user
+# === OAuth Authentication (Google/GitHub via Supabase) ===
+# When using Supabase Auth, OAuth is handled by Supabase, not Chainlit directly.
+# Users go to Supabase OAuth flow, get JWT, then use header auth.
+# However, we can still support Chainlit OAuth as a fallback.
+
+OAUTH_ENABLED = bool(
+    os.getenv("OAUTH_GOOGLE_CLIENT_ID") or os.getenv("OAUTH_GITHUB_CLIENT_ID")
+)
+
+if OAUTH_ENABLED:
+    @cl.oauth_callback
+    def oauth_callback(
+        provider_id: str,
+        token: str,
+        raw_user_data: dict,
+        default_user: cl.User
+    ) -> Optional[cl.User]:
+        """Handle OAuth callback from Google or GitHub."""
+        user_id = default_user.identifier
+        logger.info(f"[AUTH] OAuth user via {provider_id}: {user_id}")
+
+        if provider_id == "google":
+            email = raw_user_data.get("email", "")
+            name = raw_user_data.get("name", user_id)
+            picture = raw_user_data.get("picture", "")
+            return cl.User(
+                identifier=email or user_id,
+                metadata={
+                    "name": name,
+                    "image": picture,
+                    "provider": "google",
+                    "email": email,
+                }
+            )
+        elif provider_id == "github":
+            login = raw_user_data.get("login", user_id)
+            name = raw_user_data.get("name") or login
+            email = raw_user_data.get("email", "")
+            avatar = raw_user_data.get("avatar_url", "")
+            return cl.User(
+                identifier=email or login,
+                metadata={
+                    "name": name,
+                    "image": avatar,
+                    "provider": "github",
+                    "email": email,
+                }
+            )
+
+        return default_user
+
+    print("[AUTH] OAuth (Google/GitHub) ENABLED")
 
 
 # === Stop Event for Cancellation ===
@@ -824,6 +958,12 @@ AGENT_TRIGGERS = {
         "keywords": ["beautiful question", "warren berger", "why what if how", "five whys", "root cause", "what if", "how might we", "hmw", "assumption challenge", "constraint removal", "vuja de", "questioning"],
         "description": "WHY → WHAT IF → HOW questioning"
     },
+    "pws_consultant": {
+        "keywords": ["diagnose", "classify", "problem type", "what kind of problem", "consultant", "structured help",
+                      "which framework", "not sure where to start", "need guidance", "confused about approach",
+                      "expert panel", "domain experts"],
+        "description": "Structured problem diagnosis & guided consulting"
+    },
 }
 
 # === Data Persistence Setup with Native Feedback System ===
@@ -880,6 +1020,19 @@ from prompts import (
     POST_GRADING_LAWRENCE_CONTEXT,
     calculate_minto_score,
     get_minto_letter_grade,
+    # PWS Consultant
+    PWS_CONSULTANT_PROMPT,
+    PWS_CONSULTANT_PHASES,
+    PWS_PROBLEM_TYPES,
+    PWS_DIAGNOSTIC_QUESTIONS,
+    PWS_WORKSHOPS,
+    PWS_SELECTION_CRITERIA,
+    PWS_VALIDATION_COMPASS,
+    pws_score_diagnostic,
+    pws_build_diagnostic_context,
+    pws_get_recommended_tools,
+    pws_get_recommended_agents,
+    pws_build_expert_specs,
 )
 
 # === RAG Cache Support ===
@@ -1026,7 +1179,17 @@ WORKSHOP_PHASES = {
         {"name": "HOW: MVP Design", "status": "pending"},
         {"name": "Action Plan", "status": "pending"},
     ],
+    # pws_consultant: REMOVED — uses CONSULTANT_STAGES state machine, not workshop phases
+    # See prompts/pws_consultant.py PWS_CONSULTANT_PHASES for documentation only
     # Note: grading is one-shot, not a phased workshop
+}
+
+# === PWS Consultant Stage Machine ===
+# Deterministic stage transitions driven by action callbacks, NOT LLM-detected phases
+CONSULTANT_STAGES = {
+    "intro": {"name": "Challenge Description", "next": "diagnostic", "trigger": "submit_challenge"},
+    "diagnostic": {"name": "Problem Diagnostic", "next": "consulting", "trigger": "diagnostic_answer"},
+    "consulting": {"name": "Guided Consulting", "next": None, "trigger": None},
 }
 
 # === Bot Configurations ===
@@ -1392,6 +1555,29 @@ I'll give you honest feedback on where you nailed it and where you have gaps."""
         "has_phases": False,  # One-shot grading, no phases
         "simple_mode": False,
         "welcome": MINTO_WELCOME
+    },
+    "pws_consultant": {
+        "name": "PWS Consultant",
+        "icon": "/public/icons/explore.svg",
+        "emoji": "🩺",
+        "description": "Structured problem diagnosis: classify your challenge, get targeted framework guidance with domain experts",
+        "system_prompt": PWS_CONSULTANT_PROMPT,
+        "has_phases": False,  # Uses CONSULTANT_STAGES state machine, not workshop phases
+        "simple_mode": False,
+        "welcome": """🩺 **PWS Consultant**
+### Problems Before Solutions — Always.
+
+Hello, I'm Larry Aronhime.
+
+Most people jump to solutions too fast. Let's start where it matters — *with the problem itself*.
+
+Here's how this works: You'll tell me about your challenge, I'll run a quick diagnostic to understand what kind of problem you're dealing with, and then we'll work through it together using exactly the right frameworks for your situation.
+
+Along the way, I'll bring in domain-specific perspectives — think of them as colleagues with different expertise who can offer fresh angles on your challenge.
+
+**What's the challenge you're wrestling with?**
+
+Don't worry about being precise — that's what we'll work on together."""
     }
 }
 
@@ -2212,6 +2398,11 @@ async def chat_profiles():
             markdown_description=BOTS["minto"]["description"],
             icon=BOTS["minto"]["icon"],
         ),
+        cl.ChatProfile(
+            name="pws_consultant",
+            markdown_description=BOTS["pws_consultant"]["description"],
+            icon=BOTS["pws_consultant"]["icon"],
+        ),
     ]
 
 
@@ -2567,6 +2758,28 @@ STARTERS = {
             label="Example assessment",
             message="Show me an example of a Minto-style assessment with the full breakdown.",
             icon="/public/icons/example.svg",
+        ),
+    ],
+    "pws_consultant": [
+        cl.Starter(
+            label="Diagnose my problem",
+            message="I have a challenge I need help diagnosing. I'm not sure what kind of problem it is or which frameworks to use.",
+            icon="/public/icons/explore.svg",
+        ),
+        cl.Starter(
+            label="Business challenge",
+            message="I'm facing a business challenge and want structured guidance on how to think about it.",
+            icon="/public/icons/startup.svg",
+        ),
+        cl.Starter(
+            label="Innovation opportunity",
+            message="I see an opportunity but I'm not sure how to evaluate it. Help me figure out if it's worth pursuing.",
+            icon="/public/icons/future.svg",
+        ),
+        cl.Starter(
+            label="Complex decision",
+            message="I have a complex decision with many stakeholders and conflicting perspectives. Help me navigate it.",
+            icon="/public/icons/challenge.svg",
         ),
     ],
 }
@@ -3078,19 +3291,38 @@ Be conservative - only suggest a switch if it would clearly add value."""
 
 def get_context_key() -> str:
     """Generate a key for context preservation across profile switches.
-    Uses user identifier if available, or falls back to a session-based key.
+
+    SECURITY FIX (2026-02-06): NEVER return a shared key like "default_context".
+    This caused complete conversation history bleed across all unauthenticated users.
+
+    Priority order:
+    1. Authenticated user identifier (persistent across sessions)
+    2. Chainlit session ID (unique per browser tab, but lost on refresh)
+    3. Random UUID (last resort, prevents mixing but no persistence)
     """
     try:
-        # Try to get user info for consistent key across sessions
+        # Priority 1: Authenticated user - stable key across sessions
         user = cl.user_session.get("user")
-        if user and hasattr(user, "identifier"):
+        if user and hasattr(user, "identifier") and user.identifier:
             return f"user_{user.identifier}"
     except Exception as e:
         logger.debug("Could not get user identifier for context key: %s", e)
 
-    # Fallback: Use a cookie/browser fingerprint approach via session
-    # This preserves context within the same browser session
-    return "default_context"
+    # Priority 2: Session ID - unique per browser tab
+    # Trade-off: Context won't persist across page reloads, but NEVER mixes between users
+    try:
+        session_id = cl.user_session.get("id")
+        if session_id:
+            return f"session_{session_id}"
+    except Exception as e:
+        logger.debug("Could not get session ID for context key: %s", e)
+
+    # Priority 3: Random UUID - absolute last resort
+    # This should never happen in practice (Chainlit always provides session ID)
+    import uuid
+    fallback_key = f"anon_{uuid.uuid4().hex[:12]}"
+    logger.warning(f"[SECURITY] Using random fallback context key: {fallback_key}")
+    return fallback_key
 
 
 @cl.on_chat_start
@@ -3190,6 +3422,24 @@ async def start():
         "phases": cl.user_session.get("phases", []),
         "current_phase": cl.user_session.get("current_phase", 0),
     }
+
+    # === PWS Consultant: Initialize stage machine state ===
+    if chat_profile == "pws_consultant":
+        cl.user_session.set("pws_stage", "intro")
+        cl.user_session.set("pws_sub_mode", "normal")
+        cl.user_session.set("pws_intro_turn_count", 0)
+        cl.user_session.set("pws_challenge_description", "")
+        cl.user_session.set("pws_challenge_signals", {})
+        cl.user_session.set("pws_diagnostic_answers", [])
+        cl.user_session.set("pws_diagnosis", {})
+        cl.user_session.set("pws_diagnostic_context", "")
+        cl.user_session.set("pws_expert_panel_task", None)
+        cl.user_session.set("pws_expert_panel_data", {})
+        cl.user_session.set("pws_domain_discovery", {})
+        cl.user_session.set("pws_hybrid_context", "")
+        cl.user_session.set("pws_consulting_turn_count", 0)
+        cl.user_session.set("pws_expert_consult_count", 0)
+        cl.user_session.set("pws_active_expert_context", "")
 
     # Initialize settings
     settings = await cl.ChatSettings(await get_settings_widgets()).send()
@@ -3553,6 +3803,19 @@ I'll continue our conversation with my perspective.
                 except Exception as e:
                     logger.warning(f"[SMART_ONBOARDING] Error: {e}, falling back to default welcome")
                     await cl.Message(content=bot["welcome"], actions=actions if actions else None, elements=tools_panel_elements or None).send()
+            elif chat_profile == "pws_consultant":
+                # PWS Consultant: Welcome + ChallengeIntro component
+                await cl.Message(content=bot["welcome"], actions=actions if actions else None, elements=tools_panel_elements or None).send()
+                # Send ChallengeIntro component for challenge capture
+                challenge_intro = cl.CustomElement(
+                    name="ChallengeIntro",
+                    props={
+                        "placeholder": "Describe your problem or challenge...\n\nFor example:\n- What situation are you facing?\n- What have you tried so far?\n- What's at stake if this isn't resolved?",
+                        "showDirectSelect": True,
+                    },
+                    display="inline",
+                )
+                await cl.Message(content="", elements=[challenge_intro]).send()
             else:
                 await cl.Message(content=bot["welcome"], actions=actions if actions else None, elements=tools_panel_elements or None).send()
 
@@ -4523,6 +4786,420 @@ async def on_switch_to_validation(action: cl.Action):
 @cl.action_callback("switch_to_beautiful_question")
 async def on_switch_to_beautiful_question(action: cl.Action):
     await handle_agent_switch("beautiful_question")
+
+@cl.action_callback("switch_to_pws_consultant")
+async def on_switch_to_pws_consultant(action: cl.Action):
+    await handle_agent_switch("pws_consultant")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PWS Consultant: Shared Diagnosis Completion + Callbacks
+# ═══════════════════════════════════════════════════════════════════════════════
+
+async def _complete_pws_diagnosis(diagnosis: dict, answers: list, challenge_description: str = ""):
+    """
+    Shared post-diagnosis completion logic.
+
+    Called by:
+    - diagnostic_answer (normal 5-question flow)
+    - direct_select_type (skip diagnostic, manual type selection)
+    - reclassify_problem (redo diagnosis with different type)
+
+    Handles: DiagnosisResult, bridge message, ExpertPanel, tool actions, stage transition.
+    """
+    cl.user_session.set("pws_diagnosis", diagnosis)
+
+    primary = PWS_PROBLEM_TYPES.get(diagnosis["primary"], {})
+    secondary = PWS_PROBLEM_TYPES.get(diagnosis.get("secondary", ""), {})
+
+    # Show DiagnosisResult component
+    result_element = cl.CustomElement(
+        name="DiagnosisResult",
+        props={
+            "problemType": diagnosis["primary"],
+            "problemName": primary.get("name", ""),
+            "description": primary.get("description", ""),
+            "icon": primary.get("icon", ""),
+            "color": primary.get("color", "#E63946"),
+            "keyQuestion": primary.get("key_question", ""),
+            "frameworks": primary.get("frameworks", []),
+            "confidence": diagnosis.get("confidence", 0),
+            "complexity": primary.get("complexity", ""),
+            "secondaryName": secondary.get("name"),
+            "secondaryIcon": secondary.get("icon"),
+            "secondaryColor": secondary.get("color"),
+        },
+        display="inline",
+    )
+
+    # Build context-aware tool actions
+    tool_actions = []
+    rec_tools = pws_get_recommended_tools(diagnosis["primary"])
+    for tool in rec_tools:
+        tool_actions.append(
+            cl.Action(
+                name=tool["name"],
+                payload={"action": tool["name"], "problem_type": diagnosis["primary"]},
+                label=tool["label"],
+                description=tool.get("tooltip", ""),
+            )
+        )
+
+    # Collect expert panel (from background task or build fresh)
+    expert_panel_data = cl.user_session.get("pws_expert_panel_data")
+
+    if not expert_panel_data or not expert_panel_data.get("experts"):
+        # Build expert panel now with correct problem type
+        try:
+            domain_data = cl.user_session.get("pws_domain_discovery", {})
+            domain = domain_data.get("domain", "General")
+            subdomains = domain_data.get("subdomains", ["General"])
+            experts = pws_build_expert_specs(domain, subdomains, diagnosis["primary"])
+            expert_panel_data = {"experts": experts, "domain": domain}
+            cl.user_session.set("pws_expert_panel_data", expert_panel_data)
+        except Exception as e:
+            print(f"[PWS] Expert panel build error: {e}")
+            expert_panel_data = {"experts": [], "domain": ""}
+
+    elements_to_send = [result_element]
+
+    if expert_panel_data.get("experts"):
+        expert_element = cl.CustomElement(
+            name="ExpertPanel",
+            props={
+                "experts": expert_panel_data["experts"],
+                "domain": expert_panel_data.get("domain", ""),
+                "title": "Your Consulting Panel",
+                "subtitle": "Domain specialists ready to offer their perspective",
+                "loading": False,
+            },
+            display="inline",
+        )
+        elements_to_send.append(expert_element)
+    else:
+        expert_element = cl.CustomElement(
+            name="ExpertPanel",
+            props={
+                "experts": [],
+                "loading": True,
+                "loadingMessage": "I'm assembling a panel of domain experts for your situation...",
+            },
+            display="inline",
+        )
+        elements_to_send.append(expert_element)
+
+    # Build diagnostic context for LLM
+    diag_context = pws_build_diagnostic_context(diagnosis, answers)
+    cl.user_session.set("pws_diagnostic_context", diag_context)
+
+    # Transition stage: -> consulting
+    cl.user_session.set("pws_stage", "consulting")
+    cl.user_session.set("pws_sub_mode", "normal")
+    cl.user_session.set("pws_consulting_turn_count", 0)
+    cl.user_session.set("pws_expert_consult_count", 0)
+
+    await cl.Message(
+        content="",
+        elements=elements_to_send,
+        actions=tool_actions,
+    ).send()
+
+    # Build bridge prompt and send Larry's interpretive bridge message
+    from prompts.pws_consultant import build_bridge_prompt
+    bridge_instructions = build_bridge_prompt(diagnosis, challenge_description)
+
+    bot = cl.user_session.get("bot", {})
+    system_prompt = bot.get("system_prompt", PWS_CONSULTANT_PROMPT) + "\n\n" + diag_context + "\n\n" + bridge_instructions
+
+    # Get hybrid retrieval context
+    hybrid_ctx = ""
+    try:
+        from tools.pws_consultant_pipeline import hybrid_retrieve
+        hybrid_ctx_result, _ = hybrid_retrieve(challenge_description or "problem diagnosis")
+        if hybrid_ctx_result:
+            hybrid_ctx = hybrid_ctx_result
+            system_prompt += f"\n\n[KNOWLEDGE CONTEXT]\n{hybrid_ctx}"
+            cl.user_session.set("pws_hybrid_context", hybrid_ctx)
+    except Exception as e:
+        logger.debug("Hybrid retrieval in diagnosis failed: %s", e)
+
+    history = cl.user_session.get("history", [])
+
+    msg = cl.Message(content="")
+    await msg.send()
+
+    try:
+        model = genai.GenerativeModel(
+            MAIN_MODEL,
+            system_instruction=system_prompt
+        )
+        bridge_prompt = f"I've completed the diagnostic. My problem has been classified as: {primary.get('name', '')}. Now give me the bridge message explaining what this means for my specific situation."
+        history.append({"role": "user", "parts": [bridge_prompt]})
+
+        response = await model.generate_content_async(
+            history,
+            stream=True
+        )
+        full_response = ""
+        async for chunk in response:
+            if chunk.text:
+                await msg.stream_token(chunk.text)
+                full_response += chunk.text
+        await msg.update()
+
+        history.append({"role": "model", "parts": [full_response]})
+        cl.user_session.set("history", history)
+    except Exception as e:
+        await msg.stream_token(f"Let me think about this differently... ({e})")
+        await msg.update()
+
+
+@cl.action_callback("submit_challenge")
+async def on_submit_challenge(action: cl.Action):
+    """Handle challenge submission from ChallengeIntro component.
+
+    Transitions from intro to diagnostic stage, fires background expert panel task,
+    and shows the first diagnostic question.
+    """
+    try:
+        payload = action.payload or {}
+        challenge = payload.get("challenge", "").strip()
+
+        if not challenge:
+            await cl.Message(content="Please describe your challenge before continuing.").send()
+            return
+
+        # Store challenge in session
+        cl.user_session.set("pws_challenge_description", challenge)
+
+        # Transition stage: intro -> diagnostic
+        cl.user_session.set("pws_stage", "diagnostic")
+
+        # Run instant analysis on challenge text
+        try:
+            from tools.pws_consultant_pipeline import instant_analyze
+            turn_count = cl.user_session.get("pws_intro_turn_count", 1)
+            signals = instant_analyze(challenge, turn_count)
+            cl.user_session.set("pws_challenge_signals", signals)
+        except Exception as e:
+            logger.debug("Instant analyze failed in submit_challenge: %s", e)
+
+        # Fire background expert panel task (runs in parallel during diagnostic)
+        try:
+            from tools.pws_consultant_pipeline import build_expert_panel
+            task = asyncio.create_task(build_expert_panel(
+                user_message=challenge,
+                problem_type_key="undefined",  # Updated after diagnosis
+                conversation_context="",
+            ))
+            cl.user_session.set("pws_expert_panel_task", task)
+        except Exception as e:
+            logger.debug("Expert panel background task failed: %s", e)
+
+        # Fire hybrid retrieval in background
+        try:
+            from tools.pws_consultant_pipeline import hybrid_retrieve
+            loop = asyncio.get_event_loop()
+            hybrid_task = loop.run_in_executor(None, lambda: hybrid_retrieve(challenge))
+            cl.user_session.set("pws_hybrid_task", hybrid_task)
+        except Exception as e:
+            logger.debug("Hybrid retrieval background task failed: %s", e)
+
+        # Show acknowledgment and first diagnostic question
+        await cl.Message(content="I understand. Let me ask you 5 questions to classify your problem type.").send()
+
+        # Show first DiagnosticFlow question
+        first_q = PWS_DIAGNOSTIC_QUESTIONS[0]
+        elements = [
+            cl.CustomElement(
+                name="DiagnosticFlow",
+                props={
+                    "question": first_q["text"],
+                    "options": [opt["label"] for opt in first_q["options"]],
+                    "questionNumber": 1,
+                    "totalQuestions": 5,
+                    "questionId": first_q["id"],
+                },
+                display="inline",
+            )
+        ]
+        await cl.Message(content="", elements=elements).send()
+
+    except Exception as e:
+        logger.warning("Submit challenge callback error: %s", e)
+        await cl.Message(content="Something went wrong. Please try describing your challenge again.").send()
+
+
+@cl.action_callback("direct_select_type")
+async def on_direct_select_type(action: cl.Action):
+    """Handle direct problem type selection from ChallengeIntro component.
+
+    Skips the diagnostic phase and goes directly to consulting with
+    the manually selected problem type.
+    """
+    try:
+        payload = action.payload or {}
+        problem_type = payload.get("problemType", "undefined")
+        challenge = payload.get("challenge", "").strip()
+
+        # Store challenge if provided
+        if challenge:
+            cl.user_session.set("pws_challenge_description", challenge)
+
+        # Map short type id to full type key
+        type_mapping = {
+            "undefined": "Un-Defined",
+            "illdefined": "Ill-Defined",
+            "welldefined": "Well-Defined",
+            "wicked": "Wicked",
+        }
+        primary_type = type_mapping.get(problem_type, "Un-Defined")
+
+        # Create a synthetic diagnosis result (bypassing the 5-question flow)
+        diagnosis = {
+            "primary": primary_type,
+            "secondary": None,
+            "confidence": 0.85,  # Manual selection has high confidence
+            "scores": {primary_type: 5},  # Full score for selected type
+            "manual_selection": True,
+        }
+
+        # Create empty answers list (no diagnostic questions answered)
+        answers = []
+
+        # Store the challenge (use stored or fallback)
+        stored_challenge = cl.user_session.get("pws_challenge_description", "")
+        final_challenge = stored_challenge or challenge or "User selected problem type directly"
+        cl.user_session.set("pws_challenge_description", final_challenge)
+
+        # Show acknowledgment
+        await cl.Message(content=f"You've selected **{primary_type}** as your problem type. Let me configure our session for this approach.").send()
+
+        # Use shared completion function (handles DiagnosisResult, ExpertPanel, stage transition)
+        await _complete_pws_diagnosis(diagnosis, answers, final_challenge)
+
+    except Exception as e:
+        logger.warning("Direct select type callback error: %s", e)
+        await cl.Message(content="Something went wrong. Please try again.").send()
+
+
+@cl.action_callback("diagnostic_answer")
+async def on_diagnostic_answer(action: cl.Action):
+    """Handle a diagnostic question answer from DiagnosticFlow component."""
+    try:
+        payload = action.payload or {}
+        question_id = payload.get("questionId", "")
+        option_index = payload.get("optionIndex", 0)
+        option_label = payload.get("optionLabel", "")
+        question_number = payload.get("questionNumber", 1)
+
+        # Store answer in session (pws_ namespace)
+        answers = cl.user_session.get("pws_diagnostic_answers", [])
+        answers.append({
+            "question_id": question_id,
+            "option_index": option_index,
+            "question": question_id,
+            "answer": option_label,
+        })
+        cl.user_session.set("pws_diagnostic_answers", answers)
+
+        if question_number < 5:
+            # Send next question
+            next_q = PWS_DIAGNOSTIC_QUESTIONS[question_number]  # 0-indexed, questionNumber is 1-based
+            elements = [
+                cl.CustomElement(
+                    name="DiagnosticFlow",
+                    props={
+                        "question": next_q["text"],
+                        "options": [opt["label"] for opt in next_q["options"]],
+                        "questionNumber": question_number + 1,
+                        "totalQuestions": 5,
+                        "questionId": next_q["id"],
+                    },
+                    display="inline",
+                )
+            ]
+            await cl.Message(content="", elements=elements).send()
+        else:
+            # All 5 answered - score and use shared completion function
+            diagnosis = pws_score_diagnostic(answers)
+            challenge = cl.user_session.get("pws_challenge_description", "")
+            await _complete_pws_diagnosis(diagnosis, answers, challenge)
+
+    except Exception as e:
+        logger.warning("Diagnostic answer callback error: %s", e)
+        await cl.Message(content="Let me process that... Could you rephrase your challenge?").send()
+
+
+@cl.action_callback("consult_expert")
+async def on_consult_expert(action: cl.Action):
+    """Handle expert consultation from the ExpertPanel component."""
+    try:
+        payload = action.payload or {}
+        expert_id = payload.get("expertId", "")
+        role = payload.get("role", "Expert")
+        subdomain = payload.get("subdomain", "")
+        system_context = payload.get("systemContext", "")
+        approach = payload.get("approach", "")
+
+        # Set sub-mode to expert (will be reset to normal after the response)
+        cl.user_session.set("pws_sub_mode", "expert")
+        consult_count = cl.user_session.get("pws_expert_consult_count", 0) + 1
+        cl.user_session.set("pws_expert_consult_count", consult_count)
+
+        # Get the main system prompt + diagnostic context
+        bot = cl.user_session.get("bot", {})
+        base_prompt = bot.get("system_prompt", PWS_CONSULTANT_PROMPT)
+        diag_context = cl.user_session.get("pws_diagnostic_context", "")
+
+        # Build expert consultation prompt
+        expert_prompt = f"""{base_prompt}
+
+{diag_context}
+
+[EXPERT CONSULTATION MODE]
+The user has asked to consult with the {role} ({subdomain}).
+{system_context}
+
+Adopt this expert's perspective temporarily. Use their approach: {approach}
+Frame it as: "Let me put on a different hat for a moment — looking at this through the eyes of someone who lives in {subdomain}..."
+After giving the expert's perspective, return to your Larry perspective with a synthesis.
+End by asking what the user wants to explore next."""
+
+        # Get conversation history
+        history = cl.user_session.get("history", [])
+        history_messages = [{"role": h["role"], "parts": [{"text": h["content"]}]} for h in history[-10:]]
+
+        msg = cl.Message(content="")
+        await msg.send()
+
+        try:
+            response_stream = client.models.generate_content_stream(
+                model=MODEL_ID,
+                contents=history_messages + [{"role": "user", "parts": [{"text": f"I'd like to consult with the {role} about my challenge."}]}],
+                config=types.GenerateContentConfig(
+                    system_instruction=expert_prompt,
+                    temperature=0.7,
+                    max_output_tokens=1200,
+                ),
+            )
+            full_response = ""
+            for chunk in response_stream:
+                if chunk.text:
+                    await msg.stream_token(chunk.text)
+                    full_response += chunk.text
+            await msg.update()
+
+            history.append({"role": "user", "content": f"[Consulted {role} ({subdomain})]"})
+            history.append({"role": "assistant", "content": full_response})
+            cl.user_session.set("history", history)
+        except Exception as e:
+            await msg.stream_token(f"Let me bring in that perspective... {e}")
+            await msg.update()
+
+    except Exception as e:
+        logger.warning("Expert consultation callback error: %s", e)
+        await cl.Message(content="Let me try bringing in that perspective differently.").send()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -9029,6 +9706,168 @@ Your insights help us improve Mindrian!"""
     session_id = cl.user_session.get("id")
     bot_id = cl.user_session.get("bot_id", "lawrence")
     turn_count = len(history)
+
+    # === PWS Consultant: Stage-Aware Message Handler ===
+    # The PWS Consultant uses a deterministic stage machine instead of workshop phases.
+    # Each stage has a different interaction pattern, handled here instead of the generic flow.
+    if bot_id == "pws_consultant":
+        pws_stage = cl.user_session.get("pws_stage", "intro")
+
+        if pws_stage == "intro":
+            # Capture challenge description, run instant_analyze, accumulate text
+            existing_challenge = cl.user_session.get("pws_challenge_description", "")
+            cl.user_session.set("pws_challenge_description",
+                                (existing_challenge + "\n" + message.content).strip())
+
+            # Run instant analysis on challenge text
+            try:
+                from tools.pws_consultant_pipeline import instant_analyze
+                intro_turn = cl.user_session.get("pws_intro_turn_count", 0) + 1
+                cl.user_session.set("pws_intro_turn_count", intro_turn)
+                signals = instant_analyze(message.content, intro_turn)
+                cl.user_session.set("pws_challenge_signals", signals)
+            except Exception as e:
+                print(f"[PWS] instant_analyze error (non-critical): {e}")
+
+            # Fire background domain discovery on first turn
+            if cl.user_session.get("pws_intro_turn_count", 0) == 1:
+                try:
+                    import asyncio
+                    from tools.pws_consultant_pipeline import discover_domain_and_subdomains
+                    domain_task = asyncio.create_task(
+                        discover_domain_and_subdomains(message.content)
+                    )
+                    cl.user_session.set("pws_domain_task", domain_task)
+                except Exception as e:
+                    print(f"[PWS] domain discovery launch error: {e}")
+
+            # Add user message to history
+            history.append({"role": "user", "parts": [message.content]})
+            cl.user_session.set("history", history)
+
+            # Generate Larry's intro response (probing, not classifying)
+            system_prompt = bot.get("system_prompt", PWS_CONSULTANT_PROMPT)
+            system_prompt += "\n\n[STAGE: INTRO — Listen and probe. Do NOT classify yet. Ask 1-2 probing questions about the challenge.]"
+
+            msg = cl.Message(content="")
+            await msg.send()
+
+            try:
+                model = genai.GenerativeModel(
+                    MAIN_MODEL,
+                    system_instruction=system_prompt
+                )
+                response = await model.generate_content_async(
+                    history,
+                    stream=True
+                )
+                full_response = ""
+                async for chunk in response:
+                    if chunk.text:
+                        await msg.stream_token(chunk.text)
+                        full_response += chunk.text
+                await msg.update()
+
+                history.append({"role": "model", "parts": [full_response]})
+                cl.user_session.set("history", history)
+            except Exception as e:
+                await msg.stream_token(f"I'm having trouble processing that. Could you try again? ({e})")
+                await msg.update()
+
+            return  # Handled — don't fall through to generic handler
+
+        elif pws_stage == "diagnostic":
+            # During diagnostic, MCQ is handled by action callbacks.
+            # Any free text here gets a gentle redirect.
+            history.append({"role": "user", "parts": [message.content]})
+            cl.user_session.set("history", history)
+
+            redirect = ("I see you're typing — but the diagnostic questions above need your click to continue. "
+                        "Pick the option that best fits your situation, and we'll keep moving. "
+                        "If none of the options feel right, pick the closest one — we can always reclassify later.")
+            await cl.Message(content=redirect).send()
+
+            history.append({"role": "model", "parts": [redirect]})
+            cl.user_session.set("history", history)
+            return  # Handled
+
+        elif pws_stage == "consulting":
+            # Augment system prompt with diagnostic context + expert panel info
+            system_prompt = bot.get("system_prompt", PWS_CONSULTANT_PROMPT)
+
+            # Add diagnostic context
+            diag_context = cl.user_session.get("pws_diagnostic_context", "")
+            if diag_context:
+                system_prompt += "\n\n" + diag_context
+
+            # Add hybrid retrieval context if available
+            hybrid_context = cl.user_session.get("pws_hybrid_context", "")
+            if hybrid_context:
+                system_prompt += f"\n\n[KNOWLEDGE CONTEXT]\n{hybrid_context}"
+
+            # Check sub-mode
+            sub_mode = cl.user_session.get("pws_sub_mode", "normal")
+            if sub_mode == "expert":
+                expert_ctx = cl.user_session.get("pws_active_expert_context", "")
+                if expert_ctx:
+                    system_prompt += f"\n\n[EXPERT MODE]\n{expert_ctx}"
+
+            # Track consulting turns
+            consulting_turns = cl.user_session.get("pws_consulting_turn_count", 0) + 1
+            cl.user_session.set("pws_consulting_turn_count", consulting_turns)
+
+            # Exit condition: at turn 15+, suggest synthesis
+            if consulting_turns >= 15:
+                system_prompt += ("\n\n[TURN 15+ — You've covered substantial ground. "
+                                  "Naturally suggest synthesizing the conversation: "
+                                  "'We've covered a lot of ground. Would you like me to synthesize what we've discussed?']")
+
+            # Add user message to history
+            history.append({"role": "user", "parts": [message.content]})
+            cl.user_session.set("history", history)
+
+            # Stream response
+            msg = cl.Message(content="")
+            await msg.send()
+
+            try:
+                model = genai.GenerativeModel(
+                    MAIN_MODEL,
+                    system_instruction=system_prompt
+                )
+                response = await model.generate_content_async(
+                    history,
+                    stream=True
+                )
+                full_response = ""
+                async for chunk in response:
+                    if chunk.text:
+                        await msg.stream_token(chunk.text)
+                        full_response += chunk.text
+                await msg.update()
+
+                history.append({"role": "model", "parts": [full_response]})
+                cl.user_session.set("history", history)
+
+                # Reset sub-mode after each turn (self-loop returns to normal)
+                if sub_mode != "normal":
+                    cl.user_session.set("pws_sub_mode", "normal")
+                    cl.user_session.set("pws_active_expert_context", "")
+
+            except Exception as e:
+                await msg.stream_token(f"I'm having trouble with that. Let's try again. ({e})")
+                await msg.update()
+
+            # Sync to context store
+            context_key = get_context_key()
+            context_store[context_key] = {
+                "bot_id": bot_id,
+                "history": history.copy(),
+                "phases": [],
+                "current_phase": 0,
+            }
+
+            return  # Handled
 
     # === Smart Thread Matching for "continue from above" ===
     # Detect if user wants to continue a previous conversation topic

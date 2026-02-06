@@ -81,6 +81,23 @@ from .agent_generator_meta import (
     validate_agent_config,
 )
 
+from .pws_consultant import (
+    PWS_CONSULTANT_PROMPT,
+    PWS_CONSULTANT_PHASES,
+    PROBLEM_TYPES as PWS_PROBLEM_TYPES,
+    DIAGNOSTIC_QUESTIONS as PWS_DIAGNOSTIC_QUESTIONS,
+    WORKSHOPS as PWS_WORKSHOPS,
+    SELECTION_CRITERIA as PWS_SELECTION_CRITERIA,
+    VALIDATION_COMPASS as PWS_VALIDATION_COMPASS,
+    score_diagnostic as pws_score_diagnostic,
+    build_diagnostic_context as pws_build_diagnostic_context,
+    build_bridge_prompt as pws_build_bridge_prompt,
+    get_workshops_for_type as pws_get_workshops_for_type,
+    get_recommended_tools as pws_get_recommended_tools,
+    get_recommended_agents as pws_get_recommended_agents,
+    build_expert_specs as pws_build_expert_specs,
+)
+
 __all__ = [
     "LARRY_RAG_SYSTEM_PROMPT",
     "TTA_WORKSHOP_PROMPT",
@@ -137,4 +154,17 @@ __all__ = [
     "MINDRIAN_TOOL_STACK",
     "THINKINGPANEL_COLORS",
     "validate_agent_config",
+    # PWS Consultant
+    "PWS_CONSULTANT_PROMPT",
+    "PWS_CONSULTANT_PHASES",
+    "PWS_PROBLEM_TYPES",
+    "PWS_DIAGNOSTIC_QUESTIONS",
+    "PWS_WORKSHOPS",
+    "PWS_SELECTION_CRITERIA",
+    "PWS_VALIDATION_COMPASS",
+    "pws_score_diagnostic",
+    "pws_build_diagnostic_context",
+    "pws_get_recommended_tools",
+    "pws_get_recommended_agents",
+    "pws_build_expert_specs",
 ]
