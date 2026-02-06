@@ -1,8 +1,34 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-05 09:20*
+*Auto-generated: 2026-02-06 09:20*
 
 ---
+
+## 2026-02-06
+
+### 🐛 fix: Add guest mode + session timeout for login page
+
+- **Commit:** `16079714`
+- **Author:** jsagir
+- **Files changed:** 5
+  - auth/supabase_auth.py
+  - public/login.html
+  - skills/mindrian-stack/SKILL.md
+  - skills/neo4j-schema-navigator/SKILL.md
+  - skills/qa-consultant/SKILL.md
+- **Details:** - Add 5-second timeout for Supabase session check (prevents infinite "Checking session...")
+
+### ✨ feat: Add Supabase Auth + Login Page + PWS Consultant + Context Fix
+
+- **Commit:** `f48e3f2a`
+- **Author:** jsagir
+- **Files changed:** 19
+  - auth/__init__.py
+  - auth/supabase_auth.py
+  - mindrian_chat.py
+  - prompts/__init__.py
+  - prompts/pws_consultant.py
+- **Details:** ## Supabase Authentication
 
 ## 2026-02-05
 
