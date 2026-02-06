@@ -1,10 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-06 09:53*
+*Auto-generated: 2026-02-06 12:14*
 
 ---
 
 ## 2026-02-06
+
+### 🐛 fix: Add proper timeout and safety fallback to login page
+
+- **Commit:** `e4e69043`
+- **Author:** jsagir
+- **Files changed:** 5
+  - public/login.html
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** - Use AbortController for proper fetch timeout (2s)
 
 ### 🐛 fix: Update stale Supabase anon key + add env-based config injection
 

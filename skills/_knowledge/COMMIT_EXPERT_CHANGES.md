@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-06 09:53*
+*Auto-generated: 2026-02-06 12:14*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,16 +13,16 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-06 | 7 |
+| 2026-02-06 | 8 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 38 |
+| 2026-02-04 | 37 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
 | `mindrian_chat.py` | 5 |
-| `public/login.html` | 3 |
+| `public/login.html` | 4 |
 
 ---
 
@@ -30,13 +30,43 @@
 
 ### 2026-02-06
 
+#### 🐛 fix: Add proper timeout and safety fallback to login page
+
+- **Hash:** `e4e69043445360771b348bc148072ffc41776318`
+- **Short:** `e4e69043`
+- **Parent:** `771a4648`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-06 12:14:45
+- **Risk:** medium
+- **Diff:** +101 / -74
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `public/login.html` | 36 | 5 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 38 | 33 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 12 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 12 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 12 |
+
+  **File Operations:**
+  - ✏️ Modified: `public/login.html`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** - Use AbortController for proper fetch timeout (2s)
+
+
 #### ✨ feat: Implement AGENTS.md patterns for PWS Consultant
 
 - **Hash:** `771a4648a21078518bea44aecdd08242a0e0a9d6`
 - **Short:** `771a4648`
 - **Parent:** `47130a8b`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-06 09:53:59
 - **Risk:** high
@@ -70,7 +100,6 @@
 - **Short:** `47130a8b`
 - **Parent:** `4bcbdf45`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-06 09:43:05
 - **Risk:** medium
@@ -1509,33 +1538,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-
-
-#### ✨ feat: Add conversation sampler CLI + Streamlit admin dashboard
-
-- **Hash:** `7e4fbee470865b217e8a77096ee7715ef79f9c46`
-- **Short:** `7e4fbee4`
-- **Parent:** `23243f47`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 02:30:35
-- **Risk:** high
-- **Diff:** +1034 / -19
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `scripts/admin_dashboard.py` | 434 | 0 |
-  | `scripts/conversation_sampler.py` | 564 | 0 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 12 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 12 | 9 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 12 | 9 |
-
-  **File Operations:**
-  - ➕ Added: `scripts/admin_dashboard.py`
-  - ➕ Added: `scripts/conversation_sampler.py`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** New admin tools:
 
