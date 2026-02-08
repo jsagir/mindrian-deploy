@@ -1,10 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-08 23:45*
+*Auto-generated: 2026-02-08 23:47*
 
 ---
 
 ## 2026-02-08
+
+### 📝 docs: Add QA Testing Memo for Feb 8, 2026 release
+
+- **Commit:** `bad0e6b6`
+- **Author:** jsagir
+- **Files changed:** 5
+  - qa/2026-02-08/QA_TESTING_MEMO_FEB8.md
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Covers:
 
 ### 🐛 fix: Remove broken entry selector, use starters instead
 

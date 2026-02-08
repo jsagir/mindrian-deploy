@@ -1908,6 +1908,18 @@ def get_core_action_buttons(include_example: bool = True) -> list:
             label="🧭 My Journey",
             tooltip="View your PWS learning journey: phases, insights, and progress",
         ),
+        cl.Action(
+            name="fork_conversation",
+            payload={"action": "fork"},
+            label="🍴 Fork",
+            tooltip="Create a branch to explore an alternative direction",
+        ),
+        cl.Action(
+            name="show_idea_canvas",
+            payload={"action": "ideas"},
+            label="💡 Ideas",
+            tooltip="View and manage extracted ideas from this conversation",
+        ),
     ]
 
     if include_example:
@@ -12888,8 +12900,10 @@ Your insights help us improve Mindrian!"""
                 elements=[thinking_element]
             ).send()
 
-    # Create streaming message
-    msg = cl.Message(content="")
+    # Create streaming message with agent attribution (UX-006)
+    bot_name = bot.get("name", "Assistant")
+    bot_icon = bot.get("icon", "🤖")
+    msg = cl.Message(content="", author=f"{bot_icon} {bot_name}")
     await msg.send()
 
     try:
@@ -13056,6 +13070,20 @@ The user expects you to be responsive to what they JUST said, not to lecture fro
                 payload={"action": "think"},
                 label="🧠 Think",
                 tooltip="Run a structured analysis: define the problem → list assumptions → find gaps → suggest next steps",
+            ))
+
+            # Fork and Ideas buttons (UX-001, UX-002)
+            actions.append(cl.Action(
+                name="fork_conversation",
+                payload={"action": "fork"},
+                label="🍴 Fork",
+                tooltip="Create a branch to explore an alternative direction",
+            ))
+            actions.append(cl.Action(
+                name="show_idea_canvas",
+                payload={"action": "ideas"},
+                label="💡 Ideas",
+                tooltip="View and manage extracted ideas from this conversation",
             ))
 
             # Deep Research (Gemini) — only in full/playground mode

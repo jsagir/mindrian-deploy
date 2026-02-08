@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-08 23:45*
+*Auto-generated: 2026-02-08 23:47*
 
 ---
 
 ## 2026-02-08
+
+### 📝 docs: Add QA Testing Memo for Feb 8, 2026 release
+
+- **Commit:** `bad0e6b6`
+- **Author:** jsagir
+- **Files changed:** 5
+  - qa/2026-02-08/QA_TESTING_MEMO_FEB8.md
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Covers:
 
 ### ✨ feat: Add LightRAG health check + Bank of Opportunities UX notifications
 
@@ -590,14 +602,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** - Add ToolsPanel.jsx floating component (bottom-right) showing PWS methodology tools
-
-### ✨ feat: Humanize file upload feedback with PWS/Lawrence-style language
-
-- **Commit:** `1a220553`
-- **Author:** jsagir
-- **Files changed:** 4
-  - mindrian_chat.py
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** Replace robotic processing messages with conversational, thinking-out-loud style:

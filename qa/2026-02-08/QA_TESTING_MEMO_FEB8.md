@@ -22,11 +22,13 @@
   * NEW: Bank of Opportunities notifications (users now see extracted opportunities)
   * NEW: LightRAG health check in system monitoring
   * NEW: Updated README reflecting v4.0 architecture
+  * NEW: Conversation Forking (UX-001) - Fork button in action bar
+  * NEW: Idea Canvas (UX-002) - Ideas button in action bar
+  * NEW: Agent Attribution Badges (UX-006) - Bot name/icon on responses
+  * NEW: Idea Tagging/Rating (UX-007) - Star and prune actions in canvas
 
   **Still pending from user testing (see Section 4):**
-  * Conversation branching/forking (designed, not implemented)
-  * Idea visualization auto-generation
-  * Topic blacklist UI management
+  * Topic blacklist UI management (detection exists, no management UI)
 
   ================================================================================
 
@@ -210,16 +212,16 @@
 
   --------------------------------------------------------------------------------
 
-  ### 4.2 Designed but Not Implemented
+  ### 4.2 Implemented This Session
 
-  | Issue ID | Description | Status | Design Location |
-  |----------|-------------|--------|-----------------|
-  | UX-001 | Conversation branching | 📋 DESIGNED | docs/WAVE2_FORKING_DESIGN.md |
-  | UX-002 | Idea visualization | 📋 DESIGNED | MermaidDiagram exists, auto-gen needed |
-  | - | Canvas collaboration | 📋 DESIGNED | docs/WAVE3_CANVAS_DESIGN.md |
-  | - | Auto-orchestration | 📋 DESIGNED | docs/WAVE4_ORCHESTRATION_DESIGN.md |
+  | Issue ID | Description | Status | How to Test |
+  |----------|-------------|--------|-------------|
+  | UX-001 | Conversation branching | ✅ IMPLEMENTED | See Section 8.1 |
+  | UX-002 | Idea visualization | ✅ IMPLEMENTED | See Section 8.2 |
+  | UX-006 | Agent attribution badges | ✅ IMPLEMENTED | See Section 8.3 |
+  | UX-007 | Idea tagging/rating | ✅ IMPLEMENTED | See Section 8.4 |
 
-  **Note:** Wave 2, 3, 4 protocols are designed in docs/ but not wired to UI.
+  **Note:** Wave 2, 3, 4 protocols are now wired to UI via action buttons.
 
   --------------------------------------------------------------------------------
 
@@ -230,8 +232,6 @@
   | BUG-001 | Context persistence (avoided topics returning) | P0 | Medium |
   | UX-003 | Project organization | P1 | High |
   | UX-004 | Research results persistence | P1 | Medium |
-  | UX-006 | Agent attribution badges | P2 | Low |
-  | UX-007 | Idea tagging/rating | P2 | Medium |
   | FR-004 | Notion/Miro export | P2 | Medium |
 
   ================================================================================
@@ -250,6 +250,10 @@
   | 7 | View Bank | OpportunityCards display properly | [ ] |
   | 8 | Pipeline imports | All 10 pipelines import without error | [ ] |
   | 9 | Health check | python scripts/health_check.py passes | [ ] |
+  | 10 | Fork | 🍴 Fork button visible, creates branch | [ ] |
+  | 11 | Ideas | 💡 Ideas button visible, shows canvas | [ ] |
+  | 12 | Agent Badge | Response shows agent icon + name | [ ] |
+  | 13 | Star/Prune | Idea actions work in canvas | [ ] |
 
   ================================================================================
 
@@ -262,8 +266,100 @@
     not immediately after extraction
   * **Topic blacklist needs UI:** detect_topic_exclusion() works but no
     management interface exists
-  * **Waves 2-4 not wired:** Forking, Canvas, Auto-Orchestration designed but
-    not accessible from UI
+
+  ================================================================================
+
+  ## Section 8: NEWLY WIRED UX FEATURES
+  ================================================================================
+
+  The following features from user testing feedback have been wired and are now
+  testable. These use Chainlit's action buttons and custom elements.
+
+  ### 8.1 Conversation Forking (UX-001)
+
+  **Description:** Git-like branching for conversations. Users can explore
+  alternative directions without losing their main conversation.
+
+  **How to Test:**
+  1. Start a conversation with any agent (5+ messages)
+  2. Look for the "🍴 Fork" button in the action bar
+  3. Click Fork - creates a new branch
+  4. Continue the conversation in the new branch
+  5. Click "View All Branches" to see branch tree
+  6. Switch between branches to verify history
+
+  | Test | Expected | Pass |
+  |------|----------|------|
+  | Fork button visible | 🍴 Fork in action bar | [ ] |
+  | Create branch | Shows "Branch Created: [title]" | [ ] |
+  | View branches | BranchSelector shows all branches | [ ] |
+  | Switch branch | History changes to selected branch | [ ] |
+
+  --------------------------------------------------------------------------------
+
+  ### 8.2 Idea Canvas (UX-002)
+
+  **Description:** Visual canvas showing extracted ideas from conversation.
+  Ideas are auto-classified as problems, insights, or questions.
+
+  **How to Test:**
+  1. Have a substantive conversation (5+ turns)
+  2. Look for the "💡 Ideas" button in the action bar
+  3. Click Ideas - shows IdeaCanvas with extracted ideas
+  4. Click star on promising ideas
+  5. Click prune on dead ends
+  6. Click Refresh to re-extract
+  7. Click Export to get markdown summary
+
+  | Test | Expected | Pass |
+  |------|----------|------|
+  | Ideas button visible | 💡 Ideas in action bar | [ ] |
+  | Canvas displays | Shows extracted nodes | [ ] |
+  | Star idea | Toggles star, shows confirmation | [ ] |
+  | Prune idea | Marks as dead end | [ ] |
+  | Export | Generates markdown grouped by type | [ ] |
+
+  --------------------------------------------------------------------------------
+
+  ### 8.3 Agent Attribution Badges (UX-006)
+
+  **Description:** AI responses now show which agent responded with their
+  icon and name in the message header.
+
+  **How to Test:**
+  1. Start conversation with Lawrence
+  2. Observe response shows "🧑‍🏫 Lawrence" as author
+  3. Switch to Larry Playground
+  4. Observe response shows "🧪 Larry Playground"
+  5. Try other agents (TTA, Ackoff, etc.)
+
+  | Test | Expected | Pass |
+  |------|----------|------|
+  | Lawrence response | Shows 🧑‍🏫 Lawrence as author | [ ] |
+  | Larry Playground | Shows 🧪 Larry Playground | [ ] |
+  | TTA response | Shows appropriate icon + name | [ ] |
+
+  --------------------------------------------------------------------------------
+
+  ### 8.4 Idea Tagging/Rating (UX-007)
+
+  **Description:** Within the Idea Canvas, users can star (mark as promising)
+  or prune (mark as dead end) individual ideas.
+
+  **How to Test:**
+  1. Open Idea Canvas (💡 Ideas button)
+  2. Find an idea node
+  3. Click star icon - should toggle star status
+  4. Click prune icon - should mark as dead end
+  5. Pruned ideas should be visually dimmed
+  6. Starred ideas appear first in exports
+
+  | Test | Expected | Pass |
+  |------|----------|------|
+  | Star idea | Shows "⭐ Starred: [preview]" | [ ] |
+  | Unstar idea | Shows "Unstarred: [preview]" | [ ] |
+  | Prune idea | Shows "🗑️ Pruned: [preview]" | [ ] |
+  | Export starred | Starred items have ⭐ prefix | [ ] |
 
   ================================================================================
 

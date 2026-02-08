@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-08 23:45*
+*Auto-generated: 2026-02-08 23:47*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,16 +13,16 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-08 | 19 |
+| 2026-02-08 | 20 |
 | 2026-02-06 | 17 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 9 |
+| 2026-02-04 | 8 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 9 |
+| `mindrian_chat.py` | 8 |
 | `scripts/init_database.py` | 3 |
 
 ---
@@ -31,13 +31,43 @@
 
 ### 2026-02-08
 
+#### 📝 docs: Add QA Testing Memo for Feb 8, 2026 release
+
+- **Hash:** `bad0e6b602a5e5f5fdc264ab7db7104a41c7b0bc`
+- **Short:** `bad0e6b6`
+- **Parent:** `67cde4ea`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-08 23:47:58
+- **Risk:** low
+- **Diff:** +373 / -63
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `qa/2026-02-08/QA_TESTING_MEMO_FEB8.md` | 306 | 0 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 40 | 36 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 13 |
+
+  **File Operations:**
+  - ➕ Added: `qa/2026-02-08/QA_TESTING_MEMO_FEB8.md`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** Covers:
+
+
 #### ✨ feat: Add LightRAG health check + Bank of Opportunities UX notifications
 
 - **Hash:** `67cde4ea54d80b20a1fdad09c452e64b458649dc`
 - **Short:** `67cde4ea`
 - **Parent:** `9e7786fd`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 23:45:45
 - **Risk:** high
@@ -73,7 +103,6 @@
 - **Short:** `9e7786fd`
 - **Parent:** `52de710f`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 21:51:22
 - **Risk:** medium
@@ -1550,31 +1579,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** - Add ToolsPanel.jsx floating component (bottom-right) showing PWS methodology tools
-
-
-#### ✨ feat: Humanize file upload feedback with PWS/Lawrence-style language
-
-- **Hash:** `1a220553a8890e3bd70a710593940e8575a049c6`
-- **Short:** `1a220553`
-- **Parent:** `593f3685`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 13:39:31
-- **Risk:** high
-- **Diff:** +103 / -54
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `mindrian_chat.py` | 76 | 35 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 9 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 9 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 1 |
-
-  **File Operations:**
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** Replace robotic processing messages with conversational, thinking-out-loud style:
 
