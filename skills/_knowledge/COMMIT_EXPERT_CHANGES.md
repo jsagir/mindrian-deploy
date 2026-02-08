@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-08 13:02*
+*Auto-generated: 2026-02-08 13:03*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,10 +13,10 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-08 | 9 |
+| 2026-02-08 | 10 |
 | 2026-02-06 | 17 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 19 |
+| 2026-02-04 | 18 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
@@ -30,13 +30,43 @@
 
 ### 2026-02-08
 
+#### 🐛 fix: Remove await from sync get_data_layer() call
+
+- **Hash:** `9b90ac28cae3c69066ca95086081e398979b2fce`
+- **Short:** `9b90ac28`
+- **Parent:** `ddce8741`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-08 13:03:02
+- **Risk:** medium
+- **Diff:** +63 / -80
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 2 | 1 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 34 | 40 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 13 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 13 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+
+
 #### ✨ feat: Add tables list to /api/health endpoint
 
 - **Hash:** `ddce8741db2e7d4ab53ee3d35285487b684af8e6`
 - **Short:** `ddce8741`
 - **Parent:** `de2a5fc6`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 13:01:59
 - **Risk:** high
@@ -66,7 +96,6 @@
 - **Short:** `de2a5fc6`
 - **Parent:** `a97ba57b`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 13:00:51
 - **Risk:** medium
@@ -1559,31 +1588,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** - Log message.elements count at on_message entry
-
-
-#### ✨ feat: Auto-push opportunities to LightRAG on every registration
-
-- **Hash:** `3c31ad65ad60070cef7bfc4c281aabac02ccd053`
-- **Short:** `3c31ad65`
-- **Parent:** `95c9ecb3`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 04:25:02
-- **Risk:** high
-- **Diff:** +168 / -39
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 13 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 13 |
-  | `tools/opportunity_bank.py` | 129 | 0 |
-
-  **File Operations:**
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `tools/opportunity_bank.py`
-
-- **Body:** - Add store_opportunity_lightrag() using document ingestion API
 

@@ -1,6 +1,6 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-08 13:02*
+*Auto-generated: 2026-02-08 13:03*
 
 ---
 
@@ -363,14 +363,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** - Log message.elements count at on_message entry
-
-### ✨ feat: Auto-push opportunities to LightRAG on every registration
-
-- **Commit:** `3c31ad65`
-- **Author:** jsagir
-- **Files changed:** 4
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-  - tools/opportunity_bank.py
-- **Details:** - Add store_opportunity_lightrag() using document ingestion API

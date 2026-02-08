@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-08 13:01*
+*Auto-generated: 2026-02-08 13:03*
 
 ---
 
 ## 2026-02-08
+
+### 🐛 fix: Remove await from sync get_data_layer() call
+
+- **Commit:** `9b90ac28`
+- **Author:** jsagir
+- **Files changed:** 5
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 
 ### ✨ feat: Add tables list to /api/health endpoint
 
@@ -586,14 +598,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** - Log message.elements count at on_message entry
-
-### ✨ feat: Auto-push opportunities to LightRAG on every registration
-
-- **Commit:** `3c31ad65`
-- **Author:** jsagir
-- **Files changed:** 4
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-  - tools/opportunity_bank.py
-- **Details:** - Add store_opportunity_lightrag() using document ingestion API

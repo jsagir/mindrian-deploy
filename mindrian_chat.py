@@ -102,6 +102,41 @@ class CronEndpointMiddleware(BaseHTTPMiddleware):
                 "supabase_anon_key": os.environ.get("SUPABASE_ANON_KEY", ""),
             })
 
+        # Handle /api/init-db - one-time database initialization
+        if request.url.path == "/api/init-db":
+            try:
+                database_url = os.environ.get("DATABASE_URL")
+                if not database_url:
+                    return JSONResponse(content={"success": False, "error": "No DATABASE_URL"})
+
+                # Convert to asyncpg format
+                if database_url.startswith("postgresql://"):
+                    database_url = database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+                elif database_url.startswith("postgres://"):
+                    database_url = database_url.replace("postgres://", "postgresql+asyncpg://", 1)
+
+                from sqlalchemy.ext.asyncio import create_async_engine
+                from chainlit.data.sql_alchemy import Base
+
+                engine = create_async_engine(database_url)
+                async with engine.begin() as conn:
+                    await conn.run_sync(Base.metadata.create_all)
+                await engine.dispose()
+
+                tables = list(Base.metadata.tables.keys())
+                return JSONResponse(content={
+                    "success": True,
+                    "message": "Database tables created",
+                    "tables": tables
+                })
+            except Exception as e:
+                import traceback
+                return JSONResponse(content={
+                    "success": False,
+                    "error": str(e),
+                    "traceback": traceback.format_exc()
+                })
+
         if request.url.path == "/api/daily-summary":
             # Handle cron endpoint
             secret = request.query_params.get("secret", "")
