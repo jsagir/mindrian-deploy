@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-08 21:47*
+*Auto-generated: 2026-02-08 21:49*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,16 +13,16 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-08 | 16 |
+| 2026-02-08 | 17 |
 | 2026-02-06 | 17 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 12 |
+| 2026-02-04 | 11 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 7 |
+| `mindrian_chat.py` | 8 |
 | `scripts/init_database.py` | 4 |
 
 ---
@@ -31,13 +31,45 @@
 
 ### 2026-02-08
 
+#### 🐛 fix: Use separate action callbacks for each entry point
+
+- **Hash:** `52de710f410b91761cb5c2862d7417e2d723eeda`
+- **Short:** `52de710f`
+- **Parent:** `f6100de3`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-08 21:49:13
+- **Risk:** medium
+- **Diff:** +91 / -87
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 26 | 10 |
+  | `protocols/triple_mode.py` | 3 | 9 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 35 | 41 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 13 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `protocols/triple_mode.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** Separate callbacks (ep_brainstorming, ep_document_review, ep_build_venture)
+
+
 #### 🐛 fix: Replace EntryPointSelector with native Chainlit Action buttons
 
 - **Hash:** `f6100de3708947a1f2705317e37cb510b62019de`
 - **Short:** `f6100de3`
 - **Parent:** `6b698370`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 21:47:54
 - **Risk:** medium
@@ -67,7 +99,6 @@
 - **Short:** `6b698370`
 - **Parent:** `c6e51612`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 21:28:04
 - **Risk:** medium
@@ -1540,37 +1571,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** Bug Fixes:
-
-
-#### ✨ feat: Smart onboarding + humanized research contextualization
-
-- **Hash:** `2d0b0fbc97c5ca42e1cce871c5ad2cb8a05e7f8a`
-- **Short:** `2d0b0fbc`
-- **Parent:** `7c31f267`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 13:17:33
-- **Risk:** high
-- **Diff:** +1467 / -85
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `docs/EDWARDS_ONBOARDING.md` | 210 | 7 |
-  | `mindrian_chat.py` | 397 | 48 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 10 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 1 |
-  | `utils/research_contextualizer.py` | 682 | 0 |
-  | `utils/smart_onboarding.py` | 151 | 18 |
-
-  **File Operations:**
-  - ✏️ Modified: `docs/EDWARDS_ONBOARDING.md`
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-  - ➕ Added: `utils/research_contextualizer.py`
-  - ✏️ Modified: `utils/smart_onboarding.py`
-
-- **Body:** Smart Onboarding (utils/smart_onboarding.py):
 

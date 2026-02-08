@@ -1,10 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-08 21:47*
+*Auto-generated: 2026-02-08 21:49*
 
 ---
 
 ## 2026-02-08
+
+### 🐛 fix: Use separate action callbacks for each entry point
+
+- **Commit:** `52de710f`
+- **Author:** jsagir
+- **Files changed:** 6
+  - mindrian_chat.py
+  - protocols/triple_mode.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+- **Details:** Separate callbacks (ep_brainstorming, ep_document_review, ep_build_venture)
 
 ### 🐛 fix: Replace EntryPointSelector with native Chainlit Action buttons
 

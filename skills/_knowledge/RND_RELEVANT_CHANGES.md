@@ -1,6 +1,6 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-08 21:47*
+*Auto-generated: 2026-02-08 21:49*
 
 ---
 
@@ -317,15 +317,3 @@
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
   - utils/research_contextualizer.py
 - **Details:** README Update:
-
-### ✨ feat: Smart onboarding + humanized research contextualization
-
-- **Commit:** `2d0b0fbc`
-- **Author:** jsagir
-- **Files changed:** 7
-  - docs/EDWARDS_ONBOARDING.md
-  - mindrian_chat.py
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** Smart Onboarding (utils/smart_onboarding.py):

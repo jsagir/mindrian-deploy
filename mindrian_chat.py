@@ -2991,23 +2991,23 @@ STARTERS = {
     ],
     "pws_consultant": [
         cl.Starter(
-            label="Diagnose my problem",
-            message="I have a challenge I need help diagnosing. I'm not sure what kind of problem it is or which frameworks to use.",
+            label="🧠 Explore Ideas",
+            message="I want to explore and find problems worth solving. I'm curious about something but don't have a clear direction yet.",
             icon="/public/icons/explore.svg",
         ),
         cl.Starter(
-            label="Business challenge",
-            message="I'm facing a business challenge and want structured guidance on how to think about it.",
+            label="📄 Get Feedback",
+            message="I have something I need feedback on - a document, idea, or plan. Help me validate my thinking.",
+            icon="/public/icons/info.svg",
+        ),
+        cl.Starter(
+            label="🚀 Build Venture",
+            message="I'm ready to execute on an opportunity. Help me build and launch my venture.",
             icon="/public/icons/startup.svg",
         ),
         cl.Starter(
-            label="Innovation opportunity",
-            message="I see an opportunity but I'm not sure how to evaluate it. Help me figure out if it's worth pursuing.",
-            icon="/public/icons/future.svg",
-        ),
-        cl.Starter(
-            label="Complex decision",
-            message="I have a complex decision with many stakeholders and conflicting perspectives. Help me navigate it.",
+            label="❓ Not sure yet",
+            message="I'm not sure where to start. Can you help me figure out what I need?",
             icon="/public/icons/challenge.svg",
         ),
     ],
@@ -11584,18 +11584,19 @@ Your insights help us improve Mindrian!"""
                 logger.info(f"[TRIPLE_MODE] First message: has_attachment={has_attachment}, elements={len(message.elements) if message.elements else 0}, content='{message.content[:50]}'")
                 detection = await auto_detect_entry_point(message.content, has_attachment)
 
-                # BUG FIX: If there's an attachment, ALWAYS process it - never show selector
-                # The selector was blocking file uploads when message was short (e.g., "review !")
-                if detection["should_show_selector"] and not has_attachment:
-                    # Low confidence AND no attachment - show selector and wait
-                    await show_entry_point_selector()
-                    return  # Don't process message yet
-
-                # If attachment present but selector was suggested, force document_review mode
-                if has_attachment and detection["should_show_selector"]:
-                    detection["entry_point"] = "document_review"
-                    detection["mode"] = "workshop"
-                    logger.info(f"[TRIPLE_MODE] Forced document_review due to attachment (was: should_show_selector=True)")
+                # SIMPLIFIED: No selector - just default to brainstorming if unsure
+                # The starters provide navigation, selector was unreliable
+                if detection["should_show_selector"]:
+                    if has_attachment:
+                        # Has attachment - force document_review mode
+                        detection["entry_point"] = "document_review"
+                        detection["mode"] = "workshop"
+                        logger.info(f"[TRIPLE_MODE] Forced document_review due to attachment")
+                    else:
+                        # No attachment, low confidence - default to brainstorming
+                        detection["entry_point"] = "brainstorming"
+                        detection["mode"] = "sandbox"
+                        logger.info(f"[TRIPLE_MODE] Defaulted to brainstorming (low confidence)")
 
                 # High confidence - set entry point and continue
                 cl.user_session.set("entry_point", detection["entry_point"])
