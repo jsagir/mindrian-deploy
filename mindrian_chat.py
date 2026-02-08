@@ -132,7 +132,7 @@ async def health_check():
 
     # Check if data layer is configured
     try:
-        data_layer = getattr(cl.data, '_data_layer', None)
+        data_layer = await cl.data.get_data_layer()
         if data_layer:
             db_status = "configured"
             # Try a simple query to verify connection
@@ -1074,17 +1074,26 @@ AGENT_TRIGGERS = {
 # - Automatic feedback collection (thumbs up/down UI on all AI messages)
 # - CSV export for analytics
 # - Supabase storage integration
+#
+# IMPORTANT: We use @cl.data_layer decorator to ensure the data layer is
+# registered BEFORE Chainlit's routes are created. This fixes the /threads 404 issue.
 if DATABASE_URL:
     try:
         from utils.data_layer import create_mindrian_data_layer
 
-        # Create custom data layer with feedback analytics
-        data_layer = create_mindrian_data_layer(DATABASE_URL)
-        if data_layer:
-            cl.data._data_layer = data_layer
+        # Create the data layer instance
+        _mindrian_data_layer = create_mindrian_data_layer(DATABASE_URL)
+
+        if _mindrian_data_layer:
+            # Use the decorator pattern to register with Chainlit's route system
+            @cl.data_layer
+            async def get_data_layer():
+                return _mindrian_data_layer
+
             print("✅ Data persistence enabled with MindrianDataLayer (PostgreSQL + Feedback Analytics)")
         else:
-            print("⚠️ Data layer creation failed")
+            print("⚠️ Data layer creation failed - threads/persistence disabled")
+
     except Exception as e:
         print(f"⚠️ Data persistence disabled: {e}")
         import traceback
@@ -5064,8 +5073,8 @@ async def on_show_feedback_dashboard(action: cl.Action):
         step.input = "Fetching feedback data..."
 
         # Try to use the new MindrianDataLayer first (native Chainlit feedback)
-        data_layer = cl.data._data_layer
-        if hasattr(data_layer, 'get_feedback_stats'):
+        data_layer = await cl.data.get_data_layer()
+        if data_layer and hasattr(data_layer, 'get_feedback_stats'):
             # Using MindrianDataLayer with built-in analytics
             stats = data_layer.get_feedback_stats()
             report = data_layer.export_feedback_report()

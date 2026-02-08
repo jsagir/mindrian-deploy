@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-08 12:16*
+*Auto-generated: 2026-02-08 12:33*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,16 +13,16 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-08 | 2 |
+| 2026-02-08 | 3 |
 | 2026-02-06 | 17 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 26 |
+| 2026-02-04 | 25 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `public/login.html` | 5 |
+| `public/login.html` | 4 |
 | `mindrian_chat.py` | 3 |
 
 ---
@@ -31,13 +31,47 @@
 
 ### 2026-02-08
 
+#### 🐛 fix: Resolve pipeline import issues (Minto/Oracle/Genesis)
+
+- **Hash:** `1749e0acbc387e4b8d59a77909937ddfb0a43b23`
+- **Short:** `1749e0ac`
+- **Parent:** `224b729d`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-08 12:33:49
+- **Risk:** medium
+- **Diff:** +95 / -73
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `intelligence/__init__.py` | 14 | 4 |
+  | `intelligence/agents/research_agent.py` | 1 | 1 |
+  | `intelligence/tools/text2cypher.py` | 14 | 3 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 37 | 38 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 15 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 13 |
+
+  **File Operations:**
+  - ✏️ Modified: `intelligence/__init__.py`
+  - ✏️ Modified: `intelligence/agents/research_agent.py`
+  - ✏️ Modified: `intelligence/tools/text2cypher.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** - text2cypher.py: Lazy-initialize genai.Client to avoid import-time
+
+
 #### 🐛 fix: Auth - use Chainlit native password auth, disable auth-bridge
 
 - **Hash:** `224b729df4b385ecfa6821ad97c0c813b25e4038`
 - **Short:** `224b729d`
 - **Parent:** `93cf83bc`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 12:16:21
 - **Risk:** medium
@@ -115,7 +149,6 @@
 - **Short:** `e50607aa`
 - **Parent:** `0fd72710`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-06 16:05:51
 - **Risk:** high
@@ -1558,35 +1591,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** - build.sh: Install script with poppler-utils
-
-
-#### ✨ feat: Smart multi-model document processing (Gemini FREE first)
-
-- **Hash:** `0b116abd65c16489b2d8c3d7b943fd6ce6b72678`
-- **Short:** `0b116abd`
-- **Parent:** `cd034edc`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 03:15:11
-- **Risk:** high
-- **Diff:** +525 / -58
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `intelligence/pipelines/file_processing.py` | 29 | 26 |
-  | `mindrian_chat.py` | 26 | 20 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 10 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 1 |
-  | `tools/smart_document.py` | 443 | 0 |
-
-  **File Operations:**
-  - ✏️ Modified: `intelligence/pipelines/file_processing.py`
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-  - ➕ Added: `tools/smart_document.py`
-
-- **Body:** Fallback priority:
 

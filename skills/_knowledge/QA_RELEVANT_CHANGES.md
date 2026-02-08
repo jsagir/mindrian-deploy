@@ -1,10 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-08 12:16*
+*Auto-generated: 2026-02-08 12:33*
 
 ---
 
 ## 2026-02-08
+
+### 🐛 fix: Resolve pipeline import issues (Minto/Oracle/Genesis)
+
+- **Commit:** `1749e0ac`
+- **Author:** jsagir
+- **Files changed:** 7
+  - intelligence/__init__.py
+  - intelligence/agents/research_agent.py
+  - intelligence/tools/text2cypher.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+- **Details:** - text2cypher.py: Lazy-initialize genai.Client to avoid import-time
 
 ### 🐛 fix: Auth - use Chainlit native password auth, disable auth-bridge
 
