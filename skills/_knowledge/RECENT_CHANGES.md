@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-08 12:33*
+*Auto-generated: 2026-02-08 12:41*
 
 ---
 
 ## 2026-02-08
+
+### 🐛 fix: Data layer registration + MIME types for file upload
+
+- **Commit:** `41f14e01`
+- **Author:** jsagir
+- **Files changed:** 6
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Data Layer:
 
 ### 🐛 fix: Resolve pipeline import issues (Minto/Oracle/Genesis)
 
@@ -580,15 +592,3 @@
   - skills/_knowledge/QA_RELEVANT_CHANGES.md
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
-
-### 🔧 build: Add poppler-utils for PDF-to-image conversion
-
-- **Commit:** `e4da460a`
-- **Author:** jsagir
-- **Files changed:** 5
-  - build.sh
-  - render.yaml
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** - build.sh: Install script with poppler-utils

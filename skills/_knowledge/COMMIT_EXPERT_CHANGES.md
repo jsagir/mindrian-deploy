@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-08 12:33*
+*Auto-generated: 2026-02-08 12:41*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,17 +13,17 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-08 | 3 |
+| 2026-02-08 | 4 |
 | 2026-02-06 | 17 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 25 |
+| 2026-02-04 | 24 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `public/login.html` | 4 |
-| `mindrian_chat.py` | 3 |
+| `mindrian_chat.py` | 4 |
+| `public/login.html` | 3 |
 
 ---
 
@@ -31,13 +31,45 @@
 
 ### 2026-02-08
 
+#### 🐛 fix: Data layer registration + MIME types for file upload
+
+- **Hash:** `41f14e019c5df1c32015703860eb82d2fdbd80fa`
+- **Short:** `41f14e01`
+- **Parent:** `1749e0ac`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-08 12:41:33
+- **Risk:** medium
+- **Diff:** +96 / -73
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `.chainlit/config.toml` | 1 | 1 |
+  | `mindrian_chat.py` | 17 | 8 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 39 | 37 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 13 |
+
+  **File Operations:**
+  - ✏️ Modified: `.chainlit/config.toml`
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** Data Layer:
+
+
 #### 🐛 fix: Resolve pipeline import issues (Minto/Oracle/Genesis)
 
 - **Hash:** `1749e0acbc387e4b8d59a77909937ddfb0a43b23`
 - **Short:** `1749e0ac`
 - **Parent:** `224b729d`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 12:33:49
 - **Risk:** medium
@@ -71,7 +103,6 @@
 - **Short:** `224b729d`
 - **Parent:** `93cf83bc`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 12:16:21
 - **Risk:** medium
@@ -1562,33 +1593,4 @@
   - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
   - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-
-#### 🔧 build: Add poppler-utils for PDF-to-image conversion
-
-- **Hash:** `e4da460a6dfdd522df604e5f5e358e576f8e6ba6`
-- **Short:** `e4da460a`
-- **Parent:** `0b116abd`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 03:17:15
-- **Risk:** medium
-- **Diff:** +63 / -25
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `build.sh` | 21 | 0 |
-  | `render.yaml` | 15 | 0 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 12 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 12 |
-
-  **File Operations:**
-  - ➕ Added: `build.sh`
-  - ➕ Added: `render.yaml`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** - build.sh: Install script with poppler-utils
 

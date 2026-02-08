@@ -59,6 +59,36 @@ class CronEndpointMiddleware(BaseHTTPMiddleware):
     """Middleware to handle /api/daily-summary before Chainlit routing."""
 
     async def dispatch(self, request: Request, call_next):
+        # Handle /api/health - public endpoint, no auth needed
+        if request.url.path == "/api/health":
+            import chainlit as cl
+            db_status = "not_configured"
+            db_error = None
+            try:
+                data_layer = await cl.data.get_data_layer()
+                if data_layer:
+                    db_status = "connected"
+                else:
+                    db_status = "no_data_layer"
+            except Exception as e:
+                db_status = "error"
+                db_error = str(e)
+            return JSONResponse(content={
+                "status": "ok",
+                "database": db_status,
+                "database_error": db_error,
+                "database_url_set": bool(os.environ.get("DATABASE_URL")),
+                "chainlit_db_url_set": bool(os.environ.get("CHAINLIT_DATABASE_URL")),
+                "auth_secret_set": bool(os.environ.get("CHAINLIT_AUTH_SECRET")),
+            })
+
+        # Handle /api/public-config - public endpoint for login page
+        if request.url.path == "/api/public-config":
+            return JSONResponse(content={
+                "supabase_url": os.environ.get("SUPABASE_URL", ""),
+                "supabase_anon_key": os.environ.get("SUPABASE_ANON_KEY", ""),
+            })
+
         if request.url.path == "/api/daily-summary":
             # Handle cron endpoint
             secret = request.query_params.get("secret", "")
@@ -106,57 +136,9 @@ class CronEndpointMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
 # Add middleware BEFORE any routes
+# This middleware handles /api/* endpoints BEFORE Chainlit's auth kicks in
 fastapi_app.add_middleware(CronEndpointMiddleware)
-print("[CRON] /api/daily-summary middleware registered")
-
-# === Public Config Endpoint for Login Page ===
-# Serves Supabase public credentials from environment variables
-# This prevents stale hardcoded keys in login.html
-@fastapi_app.get("/api/public-config")
-async def get_public_config():
-    """Return public Supabase credentials for login page."""
-    return JSONResponse(content={
-        "supabase_url": os.environ.get("SUPABASE_URL", ""),
-        "supabase_anon_key": os.environ.get("SUPABASE_ANON_KEY", ""),
-    })
-print("[CONFIG] /api/public-config endpoint registered")
-
-
-@fastapi_app.get("/api/health")
-async def health_check():
-    """Health check endpoint with database status."""
-    import chainlit as cl
-
-    db_status = "not_configured"
-    db_error = None
-
-    # Check if data layer is configured
-    try:
-        data_layer = await cl.data.get_data_layer()
-        if data_layer:
-            db_status = "configured"
-            # Try a simple query to verify connection
-            try:
-                # This is a lightweight check
-                db_status = "connected"
-            except Exception as e:
-                db_status = "error"
-                db_error = str(e)
-        else:
-            db_status = "no_data_layer"
-    except Exception as e:
-        db_status = "error"
-        db_error = str(e)
-
-    return JSONResponse(content={
-        "status": "ok",
-        "database": db_status,
-        "database_error": db_error,
-        "database_url_set": bool(os.environ.get("DATABASE_URL")),
-        "supabase_auth_enabled": bool(os.environ.get("SUPABASE_URL") and os.environ.get("SUPABASE_ANON_KEY")),
-        "jwt_secret_set": bool(os.environ.get("SUPABASE_JWT_SECRET")),
-    })
-print("[CONFIG] /api/health endpoint registered")
+print("[API] Middleware registered: /api/health, /api/public-config, /api/daily-summary")
 
 from google import genai
 from google.genai import types

@@ -1,6 +1,6 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-08 12:33*
+*Auto-generated: 2026-02-08 12:41*
 
 ---
 
@@ -385,15 +385,3 @@
   - scripts/push_opportunities_to_lightrag.py
   - scripts/push_qa_opportunities_to_lightrag.py
 - **Details:** LightRAG Integration:
-
-### 🔧 build: Add poppler-utils for PDF-to-image conversion
-
-- **Commit:** `e4da460a`
-- **Author:** jsagir
-- **Files changed:** 5
-  - build.sh
-  - render.yaml
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** - build.sh: Install script with poppler-utils
