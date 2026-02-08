@@ -114,6 +114,7 @@ async def on_message_processed(
     Called after a message is processed.
 
     Extracts entities and updates user graph every N turns.
+    Also extracts opportunities and queues notifications.
     Set force=True to process immediately (e.g., on important messages).
 
     Returns extraction result if processing occurred, None otherwise.
@@ -148,6 +149,29 @@ async def on_message_processed(
                 f"assums={result['stored']['assumptions']}, "
                 f"insights={result['stored']['insights']}"
             )
+
+        # === Extract opportunities and queue for notification ===
+        # This runs in background, so we queue notifications for the next turn
+        try:
+            opp_result = await extract_opportunities_with_lightrag(
+                conversation=conversation,
+                bot_id=bot_id,
+                methodology=phase,
+                phase=phase,
+                conversation_id=session_id,
+                user_id=user_id,
+            )
+
+            if opp_result.get("extracted", 0) > 0:
+                opportunities = opp_result.get("opportunities", [])
+                if opportunities:
+                    queue_opportunity_notification(session_id, opportunities)
+                    logger.info(
+                        f"[OPPORTUNITY] Queued {len(opportunities)} opportunities "
+                        f"for notification in session {session_id}"
+                    )
+        except Exception as opp_err:
+            logger.warning(f"Opportunity extraction error: {opp_err}")
 
         return result
 
@@ -283,11 +307,12 @@ async def extract_opportunities_with_lightrag(
     Extract and store opportunities using LightRAG enhancement.
 
     Call this instead of extract_and_store_opportunities for full integration.
+    Returns dict with 'extracted', 'stored', 'opportunities' keys.
     """
     try:
         from tools.opportunity_bank_lightrag import extract_and_store_with_lightrag
 
-        return await extract_and_store_with_lightrag(
+        result = await extract_and_store_with_lightrag(
             conversation=conversation,
             bot_id=bot_id,
             methodology=methodology,
@@ -295,6 +320,15 @@ async def extract_opportunities_with_lightrag(
             conversation_id=conversation_id,
             user_id=user_id,
         )
+
+        # Log if opportunities were found
+        if result.get("extracted", 0) > 0:
+            logger.info(
+                f"[OPPORTUNITY] Extracted {result['extracted']} opportunities "
+                f"for user {user_id} in session {conversation_id}"
+            )
+
+        return result
 
     except ImportError:
         # Fall back to basic opportunity extraction
@@ -308,13 +342,37 @@ async def extract_opportunities_with_lightrag(
                 conversation_id=conversation_id,
                 user_id=user_id,
             )
+            # Add opportunities to summary for notification
+            if opps:
+                summary["opportunities"] = [opp.to_dict() for opp in opps]
             return summary
         except ImportError:
-            return {"extracted": 0, "stored": 0}
+            return {"extracted": 0, "stored": 0, "opportunities": []}
 
     except Exception as e:
         logger.warning(f"Opportunity extraction error: {e}")
-        return {"extracted": 0, "stored": 0}
+        return {"extracted": 0, "stored": 0, "opportunities": []}
+
+
+# Store pending opportunity notifications for the next response
+_pending_opportunity_notifications: Dict[str, List[Dict]] = {}
+
+
+def queue_opportunity_notification(session_id: str, opportunities: List[Dict]):
+    """Queue opportunity notifications for display after next response."""
+    if not session_id or not opportunities:
+        return
+    if session_id not in _pending_opportunity_notifications:
+        _pending_opportunity_notifications[session_id] = []
+    _pending_opportunity_notifications[session_id].extend(opportunities)
+
+
+def get_pending_opportunities(session_id: str) -> List[Dict]:
+    """Get and clear pending opportunity notifications for a session."""
+    if session_id in _pending_opportunity_notifications:
+        opps = _pending_opportunity_notifications.pop(session_id)
+        return opps
+    return []
 
 
 def get_memory_stats() -> Dict[str, Any]:

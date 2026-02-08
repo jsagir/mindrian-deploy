@@ -372,6 +372,8 @@ try:
         on_message_processed as session_memory_process,
         get_user_context as get_session_user_context,
         extract_opportunities_with_lightrag,
+        queue_opportunity_notification,
+        get_pending_opportunities,
     )
     SESSION_MEMORY_ENABLED = True
     print("Session Memory enabled (per-user LazyGraph + LightRAG)")
@@ -383,6 +385,8 @@ except ImportError as e:
     async def session_memory_process(*args, **kwargs): return None
     async def get_session_user_context(*args, **kwargs): return ""
     async def extract_opportunities_with_lightrag(*args, **kwargs): return {}
+    def queue_opportunity_notification(*args, **kwargs): pass
+    def get_pending_opportunities(*args, **kwargs): return []
 
 # === Self-Describing Phases - Auto-discovery from prompt modules ===
 try:
@@ -11614,6 +11618,31 @@ Your insights help us improve Mindrian!"""
     session_id = cl.user_session.get("id")
     bot_id = cl.user_session.get("bot_id", "lawrence")
     turn_count = len(history)
+
+    # === Show pending opportunity notifications from previous turn ===
+    # Opportunities are extracted in background, so we notify on next message
+    if SESSION_MEMORY_ENABLED and session_id:
+        pending_opps = get_pending_opportunities(str(session_id))
+        if pending_opps:
+            try:
+                # Show a subtle notification that opportunities were found
+                opp_names = [opp.get("name", "opportunity")[:40] for opp in pending_opps[:3]]
+                notification = f"💡 **{len(pending_opps)} opportunity{'s' if len(pending_opps) > 1 else ''} captured**: {', '.join(opp_names)}"
+                if len(pending_opps) > 3:
+                    notification += f" (+{len(pending_opps) - 3} more)"
+                await cl.Message(
+                    content=notification,
+                    actions=[
+                        cl.Action(
+                            name="view_opportunities",
+                            payload={},
+                            label="📊 View Bank",
+                            tooltip="See all your captured opportunities"
+                        )
+                    ]
+                ).send()
+            except Exception as opp_err:
+                logger.warning(f"[OPPORTUNITY] Notification error: {opp_err}")
 
     # === BUG-001 FIX: Topic Exclusion Detection ===
     # Check if user wants to exclude a topic from the conversation

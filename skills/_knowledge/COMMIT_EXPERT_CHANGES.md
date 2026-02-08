@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-08 21:49*
+*Auto-generated: 2026-02-08 21:51*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,17 +13,17 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-08 | 17 |
+| 2026-02-08 | 18 |
 | 2026-02-06 | 17 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 11 |
+| 2026-02-04 | 10 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 8 |
-| `scripts/init_database.py` | 4 |
+| `mindrian_chat.py` | 9 |
+| `scripts/init_database.py` | 3 |
 
 ---
 
@@ -31,13 +31,43 @@
 
 ### 2026-02-08
 
+#### 🐛 fix: Remove broken entry selector, use starters instead
+
+- **Hash:** `9e7786fddd98eb11f05cb57ccf9bf2b82edc8bf9`
+- **Short:** `9e7786fd`
+- **Parent:** `52de710f`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-08 21:51:22
+- **Risk:** medium
+- **Diff:** +87 / -88
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 23 | 22 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 37 | 39 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 13 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** - Don't show entry point selector (was unreliable)
+
+
 #### 🐛 fix: Use separate action callbacks for each entry point
 
 - **Hash:** `52de710f410b91761cb5c2862d7417e2d723eeda`
 - **Short:** `52de710f`
 - **Parent:** `f6100de3`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 21:49:13
 - **Risk:** medium
@@ -69,7 +99,6 @@
 - **Short:** `f6100de3`
 - **Parent:** `6b698370`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 21:47:54
 - **Risk:** medium
@@ -1544,31 +1573,4 @@
   - ✏️ Modified: `utils/smart_onboarding.py`
 
 - **Body:** README Update:
-
-
-#### 🐛 fix: Critical PDF processing bug + streaming file upload feedback
-
-- **Hash:** `7a3b73101e6827374cb3c5af61ea483301ecac82`
-- **Short:** `7a3b7310`
-- **Parent:** `2d0b0fbc`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 13:35:49
-- **Risk:** medium
-- **Diff:** +105 / -29
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `mindrian_chat.py` | 78 | 18 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 9 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 1 |
-
-  **File Operations:**
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** Bug Fixes:
 

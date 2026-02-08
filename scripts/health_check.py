@@ -60,6 +60,7 @@ RECOMMENDED_KEYS = {
     "ELEVENLABS_API_KEY": "Text-to-Speech",
     "ELEVENLABS_VOICE_ID": "Voice Selection",
     "DEEPGRAM_API_KEY": "Speech-to-Text",
+    "LIGHTRAG_PASSWORD": "LightRAG Auth (Bank of Opportunities)",
 }
 
 OPTIONAL_KEYS = {
@@ -540,6 +541,66 @@ if pws_base.exists():
     check("Local PWS Files Index", "pass", f"{len(local_files)} files indexed → {local_manifest_path}")
 else:
     check("Local PWS Files Index", "skip", "PWS base folder not found")
+
+
+# ─────────────────────────────────────────────
+# 12. LIGHTRAG (Bank of Opportunities)
+# ─────────────────────────────────────────────
+section("12. LIGHTRAG (Bank of Opportunities)")
+
+lightrag_url = os.getenv("LIGHTRAG_URL", "https://mondrian-ts.onrender.com")
+lightrag_user = os.getenv("LIGHTRAG_USERNAME", "jsagir")
+lightrag_pwd = os.getenv("LIGHTRAG_PASSWORD")
+
+# Check health endpoint (no auth required)
+try:
+    import requests
+    resp = requests.get(f"{lightrag_url}/health", timeout=10)
+    if resp.status_code == 200:
+        data = resp.json()
+        check("LightRAG Server", "pass", f"Healthy at {lightrag_url}")
+    else:
+        check("LightRAG Server", "fail", f"HTTP {resp.status_code}")
+except Exception as e:
+    check("LightRAG Server", "fail", f"Connection error: {e}")
+
+# Check auth
+if lightrag_pwd:
+    try:
+        resp = requests.post(
+            f"{lightrag_url}/login",
+            data={"username": lightrag_user, "password": lightrag_pwd},
+            timeout=15
+        )
+        if resp.status_code == 200 and "access_token" in resp.text:
+            check("LightRAG Auth", "pass", f"Login OK (user: {lightrag_user})")
+
+            # Test a query
+            token = resp.json().get("access_token")
+            headers = {"Authorization": f"Bearer {token}"}
+            query_resp = requests.post(
+                f"{lightrag_url}/query",
+                json={"query": "opportunities", "mode": "local"},
+                headers=headers,
+                timeout=15
+            )
+            if query_resp.status_code == 200:
+                check("LightRAG Query", "pass", "Query endpoint accessible")
+            else:
+                check("LightRAG Query", "warn", f"HTTP {query_resp.status_code}")
+        else:
+            check("LightRAG Auth", "fail", f"Login failed: HTTP {resp.status_code}")
+    except Exception as e:
+        check("LightRAG Auth", "fail", f"Error: {e}")
+else:
+    check("LightRAG Auth", "fail", "LIGHTRAG_PASSWORD not set — Bank of Opportunities disabled")
+
+# Check integration module
+try:
+    from tools.opportunity_bank_lightrag import push_opportunity_to_lightrag, query_related_opportunities_lightrag
+    check("LightRAG Integration Module", "pass", "opportunity_bank_lightrag imports OK")
+except Exception as e:
+    check("LightRAG Integration Module", "fail", str(e))
 
 
 # ─────────────────────────────────────────────

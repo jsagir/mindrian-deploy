@@ -1,10 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-08 21:49*
+*Auto-generated: 2026-02-08 21:51*
 
 ---
 
 ## 2026-02-08
+
+### 🐛 fix: Remove broken entry selector, use starters instead
+
+- **Commit:** `9e7786fd`
+- **Author:** jsagir
+- **Files changed:** 5
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** - Don't show entry point selector (was unreliable)
 
 ### 🐛 fix: Use separate action callbacks for each entry point
 
@@ -402,14 +414,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** - Replace shadcn/ui components with raw inline styles
-
-### 🐛 fix: Critical PDF processing bug + streaming file upload feedback
-
-- **Commit:** `7a3b7310`
-- **Author:** jsagir
-- **Files changed:** 4
-  - mindrian_chat.py
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** Bug Fixes:

@@ -1,11 +1,45 @@
 # Welcome to Mindrian
 
-**Your AI-Powered Innovation Workshop Platform**
+**AI-Powered Innovation Workshop Platform with Multi-Agent Orchestration**
 
-Mindrian helps you discover problems worth solving through structured thinking frameworks. Whether you're an entrepreneur, researcher, or student exploring innovation, Mindrian guides you through proven methodologies.
+Mindrian is an advanced multi-agent platform for innovation methodology, built on LangGraph orchestration and the A2A (Agent-to-Agent) Protocol. It combines structured thinking frameworks with intelligent routing, expert panels, and collaborative agent workflows.
 
 **Live Demo:** https://mindrian.onrender.com
 **Course:** EN.663.635 Problems Worth Solving - Johns Hopkins University
+
+---
+
+## Triple-Mode Architecture
+
+Mindrian uses intelligent entry point detection to route users to the right experience:
+
+| Entry Point | Mode | What Happens |
+|------------|------|--------------|
+| 🧠 **Explore Ideas** | Sandbox | Open-ended exploration with coaching hints |
+| 📄 **Get Feedback** | Workshop | Document analysis with structured diagnostic flow |
+| 🚀 **Build Venture** | Venture | Stage-aware guidance (ideation → validation → growth) |
+
+---
+
+## PWS Consultant (Primary Bot)
+
+The **PWS Consultant** is a structured 3-stage process that adapts to your problem type:
+
+### Stage 1: Challenge Introduction
+- You describe your challenge
+- Background pipelines run: LangExtract, GraphRAG, domain discovery, expert panel building
+
+### Stage 2: Problem Diagnostic
+- 5 MCQ questions scored automatically
+- Classification into 4 problem types:
+  - **Un-Defined** → Exploration mode
+  - **Ill-Defined** → Framework selection
+  - **Well-Defined** → Solution refinement
+  - **Wicked** → Multi-perspective synthesis
+
+### Stage 3: Guided Consulting
+- Framework-guided conversation with dynamically built expert panel
+- Context-driven tool offering (research, visualization, synthesis)
 
 ---
 
@@ -13,16 +47,61 @@ Mindrian helps you discover problems worth solving through structured thinking f
 
 | Workshop | What It Does | Best For |
 |----------|-------------|----------|
-| **Lawrence** | Your thinking partner for discovering valuable problems | Starting exploration, general guidance |
-| **Larry Playground** | Full-featured lab with research tools + multi-agent analysis | Deep research, complex problems |
+| **PWS Consultant** | Structured diagnostic + expert panel consulting | Primary entry, all problem types |
+| **Lawrence** | Focused thinking partner for discovering problems | Quick guidance, general exploration |
+| **Larry Playground** | Full-featured lab with all tools enabled | Deep research, complex problems |
 | **Trending to the Absurd (TTA)** | Take trends to extremes to find future problems | Spotting emerging opportunities |
 | **Jobs to Be Done (JTBD)** | Discover what customers actually hire products for | Customer research, product design |
 | **S-Curve Analysis** | Analyze technology timing and disruption | Market timing, investment decisions |
-| **Red Teaming** | Stress-test your assumptions as devil's advocate | Validating ideas, finding weaknesses |
-| **Ackoff's Pyramid** | Validate understanding before taking action (DIKW) | Decision-making, avoiding blind spots |
+| **Red Teaming** | Stress-test assumptions as devil's advocate | Validating ideas, finding weaknesses |
+| **Ackoff's Pyramid** | DIKW framework for validated understanding | Decision-making, avoiding blind spots |
 | **Scenario Analysis** | Explore multiple plausible futures | Strategic planning |
 | **Beautiful Question** | WHY → WHAT IF → HOW methodology | Breaking assumptions |
-| **Nested Hierarchies** | Systems analysis for leverage points | Complex problems |
+
+---
+
+## Intelligence Pipelines
+
+Mindrian includes production-grade LangGraph pipelines for complex analysis:
+
+| Pipeline | What It Does | Output |
+|----------|-------------|--------|
+| **Minto Pyramid** | SCQA + Beautiful Question synthesis | Structured problem definition |
+| **Genesis** | 6-stage expert breakdown (decompose → domains → personas → panel → synthesize) | Multi-expert synthesis |
+| **Domain Discovery** | CV/background analysis → IKA scoring → domain recommendations | Personalized domain map |
+| **Reverse Salient** | Cross-domain pattern mining | Innovation opportunities |
+| **Oracle** | Prediction market formulation + resolution | Calibrated forecasts |
+| **Grading** | PWS quality scoring with bias detection | Grade breakdown |
+
+---
+
+## A2A Protocol (Agent-to-Agent Communication)
+
+Agents communicate via structured Markdown handoffs:
+
+```
+┌─────────────┐    ┌──────────────────┐    ┌─────────────┐
+│   Agent A   │ -> │  handoff.md file │ -> │   Agent B   │
+│  (Lawrence) │    │  (structured)    │    │    (TTA)    │
+└─────────────┘    └──────────────────┘    └─────────────┘
+```
+
+- **Two-stage classification**: Cynefin (uncertainty) + PWS (lifecycle)
+- **Red Team middleware**: Cross-cutting challenge layer for all outputs
+- **Context separation**: Artifacts (validated facts) vs Frames (agent speculation)
+- **Journey mapping**: Any agent can request user's full journey context
+
+---
+
+## Privacy & Context Isolation
+
+**Your data is yours:**
+
+- **Per-user sessions**: Your conversation context is isolated to your session only
+- **Supabase Auth**: OAuth login with secure session management
+- **No cross-user sharing**: Context, artifacts, and history are never shared between users
+- **PostgreSQL persistence**: Session data stored securely per user ID
+- **GDPR-aligned**: User data is associated with your account only
 
 ---
 
@@ -31,31 +110,35 @@ Mindrian helps you discover problems worth solving through structured thinking f
 ### Getting Started
 
 1. **Visit** https://mindrian.onrender.com
-2. **Choose a workshop** from the dropdown (top-left)
-3. **Click a starter prompt** or type your own question
-4. **Follow the conversation** - the AI will guide you through the methodology
+2. **Log in** with your account (or continue as guest)
+3. **Choose your entry point**: Explore Ideas, Get Feedback, or Build Venture
+4. **Follow the diagnostic flow** or start with conversation starters
+5. **Use action buttons** for research, synthesis, and visualization
 
 ### Tips for Best Results
 
-- **Upload documents** - PDFs, Word docs, and images are supported. Just drag and drop.
-- **Be specific** - The more context you provide, the better the guidance.
-- **Use the buttons** - Action buttons (Research, Synthesize, etc.) trigger specialized workflows.
-- **Adjust detail level** - Use the Settings gear (top-right) to control response length.
-- **Ask for examples** - Request real-world examples to understand frameworks better.
+- **Upload documents** - PDFs, Word docs, images, and code files are supported
+- **Be specific** - More context enables better guidance
+- **Use the buttons** - Action buttons trigger specialized agent workflows
+- **Adjust settings** - Use Settings gear to control response detail level
+- **Ask for examples** - Request real-world examples from the knowledge base
 
 ### Features
 
-- **Voice input** - Click the microphone to speak your thoughts
-- **Document analysis** - Upload PDFs, Word docs, presentations
-- **Research tools** - One-click access to patents, news, academic papers, trends
-- **Progress tracking** - See where you are in multi-phase workshops
-- **Export** - Download conversation summaries as markdown
+- **Voice input** - Click the microphone to speak
+- **Document analysis** - Upload and analyze PDFs, Word docs, presentations
+- **Multi-agent analysis** - Get perspectives from multiple specialized agents
+- **Research tools** - Patents, news, academic papers, trends, government data
+- **Progress tracking** - Visual progress through workshop phases
+- **Bank of Opportunities** - Extracted opportunities stored across sessions
+- **Expert panels** - Dynamically assembled based on your problem domain
+- **Visualizations** - Mermaid diagrams, quadrant charts, canvases
 
 ---
 
 ## Research Tools
 
-Mindrian includes powerful research capabilities that analyze results in context of YOUR problem:
+Mindrian includes 16+ LangChain-wrapped tools for comprehensive research:
 
 | Tool | What It Searches | Use For |
 |------|-----------------|---------|
@@ -66,13 +149,16 @@ Mindrian includes powerful research capabilities that analyze results in context
 | **Trends Search** | SerpAPI Google Trends | Market interest, timing |
 | **Government Data** | FRED, World Bank | Economic indicators, statistics |
 | **Dataset Search** | Kaggle, Socrata | Data for analysis |
+| **Neo4j GraphRAG** | PWS knowledge graph | Frameworks, case studies, concepts |
+| **LangExtract** | Structured extraction | Statistics, assumptions, signals |
+| **Text2Cypher** | Natural language → Cypher | Query the knowledge graph |
 
 ### Smart Research Contextualization
 
-Research results aren't just dumped - they're analyzed for relevance to YOUR current exploration. You'll see:
-- Which results actually matter to your problem
-- Why each result is relevant
-- Actionable recommendations based on findings
+Research results are analyzed for relevance to YOUR specific problem:
+- Relevance scoring for each result
+- PWS-grounded recommendations
+- Integration with your Bank of Opportunities
 
 ---
 
@@ -98,27 +184,34 @@ A: Yes! Click the microphone icon to speak instead of type.
 
 ---
 
-## New Features (v3.1)
+## New in v4.0 (February 2026)
 
-### Smart Onboarding
-First-time users get a guided introduction to PWS concepts with the option to take a 2-minute tour or dive right in.
+### Triple-Mode Architecture
+Intelligent entry point detection routes users to the right experience based on their intent and attachments.
 
-### Research Contextualization
-All research results (patents, news, papers, trends) are now analyzed for relevance to YOUR specific problem, not just returned as raw data.
+### PWS Consultant Bot
+Structured 3-stage diagnostic flow with automated problem classification and expert panel building.
 
-### API Health Monitoring
-Automated daily health checks ensure all integrations are working properly.
+### A2A Protocol
+Agent-to-agent communication via structured Markdown handoffs with two-stage classification (Cynefin + PWS).
 
-### Streaming File Processing
-When you upload documents, you now see real-time progress:
-```
-├─ Detecting file type... ✓ Document (.pdf)
-├─ Extracting PDF text... ✓ 6,824 chars
-└─ ✅ Complete!
-```
+### Wave 2-4 Features
+- **Wave 2**: Conversation forking and branch management
+- **Wave 3**: Idea Canvas for visual collaboration
+- **Wave 4**: Auto-orchestration with intent-based workflow selection
+
+### 40+ Custom UI Components
+Interactive React components for visualizations, forms, and workflows:
+- MermaidDiagram, QuadrantChart, BusinessModelCanvas
+- OpportunityCard, ScoreBreakdown, GradeReveal
+- IdeaCanvas, BranchSelector, CommandCenter
+- ThinkingPanel, VoiceChat, WorkshopRoadmap
 
 ### LangGraph Intelligence Layer
-Behind the scenes, complex multi-step workflows use LangGraph for reliable execution with automatic retry and fallback handling.
+10 production pipelines: Minto, Genesis, Oracle, Grading, Domain Discovery, Reverse Salient, BONO, File Processing, and more.
+
+### Bank of Opportunities
+Multi-backend storage (Supabase, Neo4j, LightRAG, FileSearch) for extracted opportunities with 40+ fields per opportunity.
 
 ---
 
@@ -156,18 +249,34 @@ Use of this platform constitutes acceptance of these terms.
 
 ## Technical Details
 
-For developers and those interested in the technical implementation:
-
 ### Stack
-- **Frontend:** Chainlit 2.9+
-- **AI Model:** Google Gemini 2.5-flash / 3-flash-preview
-- **Knowledge Base:** Gemini File Search (RAG) + Neo4j GraphRAG
-- **Database:** PostgreSQL (Supabase)
-- **Deployment:** Render
+
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | Chainlit 2.9+ with 40+ custom JSX components |
+| **AI Model** | Google Gemini 2.5-flash / 3-flash-preview |
+| **Orchestration** | LangGraph StateGraph + LangChain tools |
+| **Knowledge Base** | Neo4j GraphRAG + Gemini File Search + LightRAG |
+| **Database** | PostgreSQL (Supabase) with per-user isolation |
+| **Auth** | Supabase Auth (OAuth, password, guest) |
+| **Storage** | Supabase Storage + Cloud buckets |
+| **Deployment** | Render (auto-deploy from main) |
+
+### Architecture Highlights
+
+- **Protocols Package**: A2A handoffs, context journals, agent registry, phase manager
+- **Intelligence Package**: 16 tools, 12 schemas, 10 pipelines, 7 agents
+- **Skills System**: 16+ Claude Code skills for development assistance
+- **R&D Folder**: 25+ research tracks with implementations
 
 ### Documentation
-- [CLAUDE.md](./CLAUDE.md) - Technical reference for developers
-- [docs/EDWARDS_ONBOARDING.md](./docs/EDWARDS_ONBOARDING.md) - System architecture overview
+
+| Document | Purpose |
+|----------|---------|
+| [CLAUDE.md](./CLAUDE.md) | Technical reference for developers |
+| [docs/A2A_PRACTICAL_ARCHITECTURE.md](./docs/A2A_PRACTICAL_ARCHITECTURE.md) | A2A protocol design decisions |
+| [docs/CHAINLIT_COMPONENTS.md](./docs/CHAINLIT_COMPONENTS.md) | Custom UI component guide |
+| [docs/TRIPLE_MODE_ARCHITECTURE_SPEC.md](./docs/TRIPLE_MODE_ARCHITECTURE_SPEC.md) | Entry point routing specification |
 
 ### Repository
 - **GitHub:** https://github.com/jsagir/mindrian-deploy
@@ -181,6 +290,16 @@ Mindrian was developed to support the **Problems Worth Solving** methodology cre
 
 **Core Insight:** Most innovation fails not because of bad solutions, but because people solve the wrong problems.
 
+### Project Philosophy
+
+- **Per-user context isolation** - Your data is never shared with other users
+- **Structured over freeform** - Explicit state machines over loose conversational phases
+- **Evidence over opinion** - Always show WHY the AI thinks something
+- **Artifacts vs Frames** - Validated facts persist; agent speculation stays scoped
+- **Red Team everything** - Cross-cutting challenge layer for all outputs
+
 ---
 
-Built with Chainlit + Google Gemini + Neo4j + Supabase
+Built with Chainlit + LangGraph + Google Gemini + Neo4j + LightRAG + Supabase
+
+*v4.0 - February 2026*
