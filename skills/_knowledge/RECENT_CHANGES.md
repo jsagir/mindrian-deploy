@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-08 21:51*
+*Auto-generated: 2026-02-08 23:45*
 
 ---
 
 ## 2026-02-08
+
+### ✨ feat: Add LightRAG health check + Bank of Opportunities UX notifications
+
+- **Commit:** `67cde4ea`
+- **Author:** jsagir
+- **Files changed:** 8
+  - README.md
+  - mindrian_chat.py
+  - scripts/health_check.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+- **Details:** README:
 
 ### 🐛 fix: Remove broken entry selector, use starters instead
 
@@ -589,15 +601,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** Replace robotic processing messages with conversational, thinking-out-loud style:
-
-### 📝 docs: User-friendly README + legal disclaimers
-
-- **Commit:** `593f3685`
-- **Author:** jsagir
-- **Files changed:** 6
-  - README.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-  - utils/research_contextualizer.py
-- **Details:** README Update:
