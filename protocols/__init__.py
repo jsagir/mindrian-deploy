@@ -134,6 +134,33 @@ from .context_journal import (
     create_journal_viewer_element,
 )
 
+# === WAVE 4: Auto-Orchestration ===
+from .intent_classifier import (
+    WorkflowType,
+    IntentSignal,
+    ClassificationResult,
+    classify_intent,
+    should_auto_orchestrate,
+    get_workflow_description,
+)
+
+from .workflow_recipes import (
+    StageConfig,
+    WorkflowRecipe,
+    WORKFLOWS,
+    get_workflow,
+    list_workflows,
+    create_custom_workflow,
+)
+
+from .auto_orchestrator import (
+    OrchestratorStatus,
+    StageResult,
+    OrchestratorState,
+    AutoOrchestrator,
+    run_orchestration,
+)
+
 __all__ = [
     # Context Manager (Artifacts vs Frames)
     'Artifact',
@@ -240,4 +267,22 @@ __all__ = [
     'inject_journal_context',
     'get_journal_entries_for_ui',
     'create_journal_viewer_element',
+    # Wave 4: Auto-Orchestration
+    'WorkflowType',
+    'IntentSignal',
+    'ClassificationResult',
+    'classify_intent',
+    'should_auto_orchestrate',
+    'get_workflow_description',
+    'StageConfig',
+    'WorkflowRecipe',
+    'WORKFLOWS',
+    'get_workflow',
+    'list_workflows',
+    'create_custom_workflow',
+    'OrchestratorStatus',
+    'StageResult',
+    'OrchestratorState',
+    'AutoOrchestrator',
+    'run_orchestration',
 ]

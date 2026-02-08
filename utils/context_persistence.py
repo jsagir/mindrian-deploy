@@ -318,7 +318,13 @@ async def save_cross_bot_context(
     bot_id: str,
     bot_name: str,
     phases: Optional[List[Dict]] = None,
-    current_phase: int = 0
+    current_phase: int = 0,
+    conversation_id: Optional[str] = None,
+    conversation_name: Optional[str] = None,
+    excluded_topics: Optional[List[str]] = None,
+    # === Wave 2: Forking ===
+    branch_tree: Optional[Dict] = None,
+    active_branch_id: Optional[str] = None,
 ) -> bool:
     """
     Save context to in-memory cache and Supabase Storage.
@@ -328,6 +334,9 @@ async def save_cross_bot_context(
     - Exponential backoff retry for Supabase
     - Tracks failed saves for potential recovery
     - Persists workshop phases and current progress
+    - Tracks conversation metadata (ID, name, checkpoint)
+    - BUG-001 FIX: Persists excluded topics for topic filtering
+    - WAVE-2: Persists conversation branch tree for forking
 
     Args:
         user_key: Unique identifier for the user/session context
@@ -336,19 +345,33 @@ async def save_cross_bot_context(
         bot_name: Display name of the current bot
         phases: Optional list of workshop phase dicts
         current_phase: Current phase index (0-based)
+        conversation_id: Optional UUID for the conversation
+        conversation_name: Optional user-assigned name for the conversation
+        excluded_topics: Optional list of topics user wants to avoid
+        branch_tree: Optional BranchTree structure for conversation forking
+        active_branch_id: Optional currently active branch ID
 
     Returns:
         True if saved to at least in-memory cache
     """
+    last_checkpoint = datetime.utcnow().isoformat()
+
     context_data = {
         "user_key": user_key,
         "history": history[-100:],  # Keep last 100 messages to prevent unbounded growth
         "last_bot_id": bot_id,
         "last_bot_name": bot_name,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": last_checkpoint,
         "message_count": len(history),
         "phases": phases or [],
         "current_phase": current_phase,
+        "conversation_id": conversation_id,
+        "conversation_name": conversation_name or "",
+        "last_checkpoint": last_checkpoint,
+        "excluded_topics": excluded_topics or [],  # BUG-001 FIX
+        # === Wave 2: Forking ===
+        "branch_tree": branch_tree,  # Full BranchTree structure
+        "active_branch_id": active_branch_id,
     }
 
     # Always update in-memory cache (fast, reliable)
