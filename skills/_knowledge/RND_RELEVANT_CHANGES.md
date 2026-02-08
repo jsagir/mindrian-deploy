@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-08 13:00*
+*Auto-generated: 2026-02-08 13:02*
 
 ---
 
 ## 2026-02-08
+
+### ✨ feat: Add tables list to /api/health endpoint
+
+- **Commit:** `ddce8741`
+- **Author:** jsagir
+- **Files changed:** 5
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 
 ### 🐛 fix: Add database initialization to create Chainlit tables
 
@@ -362,15 +374,3 @@
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
   - tools/opportunity_bank.py
 - **Details:** - Add store_opportunity_lightrag() using document ingestion API
-
-### 🐛 fix: Resolve Chainlit 2.9 compatibility + module naming conflict
-
-- **Commit:** `95c9ecb3`
-- **Author:** jsagir
-- **Files changed:** 8
-  - backups/filesearch/store_manifest.json
-  - intelligence/__init__.py
-  - intelligence/research_tools.py
-  - intelligence/tools.py
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-- **Details:** - data_layer.py: Handle removed BaseStorageClient with Protocol fallback

@@ -1,6 +1,6 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-08 13:00*
+*Auto-generated: 2026-02-08 13:02*
 
 ---
 
@@ -375,15 +375,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** - Log message.elements count at on_message entry
-
-### 🐛 fix: Resolve Chainlit 2.9 compatibility + module naming conflict
-
-- **Commit:** `95c9ecb3`
-- **Author:** jsagir
-- **Files changed:** 8
-  - backups/filesearch/store_manifest.json
-  - intelligence/__init__.py
-  - intelligence/research_tools.py
-  - intelligence/tools.py
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-- **Details:** - data_layer.py: Handle removed BaseStorageClient with Protocol fallback

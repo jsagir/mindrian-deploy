@@ -66,7 +66,8 @@ class CronEndpointMiddleware(BaseHTTPMiddleware):
             db_error = None
             tables_exist = []
             try:
-                data_layer = await cl.data.get_data_layer()
+                # get_data_layer() is sync when using @cl.data_layer decorator
+                data_layer = cl.data.get_data_layer()
                 if data_layer:
                     db_status = "connected"
                     # Check if tables exist

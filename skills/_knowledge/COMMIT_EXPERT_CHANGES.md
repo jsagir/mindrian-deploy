@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-08 13:00*
+*Auto-generated: 2026-02-08 13:02*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,10 +13,10 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-08 | 8 |
+| 2026-02-08 | 9 |
 | 2026-02-06 | 17 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 20 |
+| 2026-02-04 | 19 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
@@ -30,13 +30,43 @@
 
 ### 2026-02-08
 
+#### ✨ feat: Add tables list to /api/health endpoint
+
+- **Hash:** `ddce8741db2e7d4ab53ee3d35285487b684af8e6`
+- **Short:** `ddce8741`
+- **Parent:** `de2a5fc6`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-08 13:01:59
+- **Risk:** high
+- **Diff:** +88 / -54
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 13 | 1 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 36 | 30 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 11 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 11 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 1 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+
+
 #### 🐛 fix: Add database initialization to create Chainlit tables
 
 - **Hash:** `de2a5fc6bab43b6b8e0029456f938224a5994fdd`
 - **Short:** `de2a5fc6`
 - **Parent:** `a97ba57b`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 13:00:51
 - **Risk:** medium
@@ -68,7 +98,6 @@
 - **Short:** `a97ba57b`
 - **Parent:** `306188c3`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 12:59:25
 - **Risk:** medium
@@ -1557,39 +1586,4 @@
   - ✏️ Modified: `tools/opportunity_bank.py`
 
 - **Body:** - Add store_opportunity_lightrag() using document ingestion API
-
-
-#### 🐛 fix: Resolve Chainlit 2.9 compatibility + module naming conflict
-
-- **Hash:** `95c9ecb3cf1ad38e83c0086d8b5ff9a34c9f0cb0`
-- **Short:** `95c9ecb3`
-- **Parent:** `4e394e45`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 04:19:42
-- **Risk:** medium
-- **Diff:** +586 / -577
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `backups/filesearch/store_manifest.json` | 1 | 1 |
-  | `intelligence/__init__.py` | 1 | 1 |
-  | `intelligence/research_tools.py` | 547 | 0 |
-  | `intelligence/tools.py` | 0 | 547 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 11 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 11 | 13 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 13 |
-  | `utils/data_layer.py` | 14 | 1 |
-
-  **File Operations:**
-  - ✏️ Modified: `backups/filesearch/store_manifest.json`
-  - ✏️ Modified: `intelligence/__init__.py`
-  - ➕ Added: `intelligence/research_tools.py`
-  - ➖ Deleted: `intelligence/tools.py`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `utils/data_layer.py`
-
-- **Body:** - data_layer.py: Handle removed BaseStorageClient with Protocol fallback
 
