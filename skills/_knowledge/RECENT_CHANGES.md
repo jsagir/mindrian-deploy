@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-08 12:53*
+*Auto-generated: 2026-02-08 12:59*
 
 ---
 
 ## 2026-02-08
+
+### 🐛 fix: EntryPointSelector - clickable cards + side-by-side layout
+
+- **Commit:** `a97ba57b`
+- **Author:** jsagir
+- **Files changed:** 5
+  - public/elements/EntryPointSelector.jsx
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** 1. Fix click handler to use window.Chainlit.callAction (not global)
 
 ### 🐛 fix: Use sync function for @cl.data_layer decorator
 
@@ -583,14 +595,3 @@
   - skills/_knowledge/QA_RELEVANT_CHANGES.md
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
-
-### 🐛 fix: Add file processing error handling and logging
-
-- **Commit:** `0c461a2c`
-- **Author:** jsagir
-- **Files changed:** 4
-  - mindrian_chat.py
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** - Add [FILE PROCESSING] log at start showing element count

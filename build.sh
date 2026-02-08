@@ -18,4 +18,12 @@ echo "Installing Python dependencies..."
 pip install --upgrade pip
 pip install -r requirements.txt
 
+# Initialize database tables (safe to run multiple times)
+echo "Initializing database tables..."
+if [ -n "$DATABASE_URL" ]; then
+    python scripts/init_database.py || echo "Warning: Database init failed (may already exist)"
+else
+    echo "No DATABASE_URL set, skipping database init"
+fi
+
 echo "=== Build Complete ==="

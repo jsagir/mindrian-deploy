@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-08 12:53*
+*Auto-generated: 2026-02-08 12:59*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,10 +13,10 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-08 | 6 |
+| 2026-02-08 | 7 |
 | 2026-02-06 | 17 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 22 |
+| 2026-02-04 | 21 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
@@ -30,13 +30,43 @@
 
 ### 2026-02-08
 
+#### 🐛 fix: EntryPointSelector - clickable cards + side-by-side layout
+
+- **Hash:** `a97ba57b7b99d17ef4ef279e3c5be2f6528fbc31`
+- **Short:** `a97ba57b`
+- **Parent:** `306188c3`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-08 12:59:25
+- **Risk:** medium
+- **Diff:** +94 / -106
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `public/elements/EntryPointSelector.jsx` | 32 | 20 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 35 | 47 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 13 |
+
+  **File Operations:**
+  - ✏️ Modified: `public/elements/EntryPointSelector.jsx`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** 1. Fix click handler to use window.Chainlit.callAction (not global)
+
+
 #### 🐛 fix: Use sync function for @cl.data_layer decorator
 
 - **Hash:** `306188c3d56f68f1b3c713fc07e1eaafef26cf63`
 - **Short:** `306188c3`
 - **Parent:** `2f08c187`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 12:53:58
 - **Risk:** medium
@@ -66,7 +96,6 @@
 - **Short:** `2f08c187`
 - **Parent:** `41f14e01`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 12:47:28
 - **Risk:** medium
@@ -1557,31 +1586,4 @@
   - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
   - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-
-#### 🐛 fix: Add file processing error handling and logging
-
-- **Hash:** `0c461a2cd75619f676cef7bf7e8c010440dd6700`
-- **Short:** `0c461a2c`
-- **Parent:** `3b107f94`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 04:02:27
-- **Risk:** medium
-- **Diff:** +53 / -22
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `mindrian_chat.py` | 14 | 1 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 10 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 10 |
-
-  **File Operations:**
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** - Add [FILE PROCESSING] log at start showing element count
 
