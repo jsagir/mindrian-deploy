@@ -1,6 +1,6 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-08 13:03*
+*Auto-generated: 2026-02-08 13:08*
 
 ---
 
@@ -376,14 +376,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** - Show "File received: filename - Processing..." immediately when file detected
-
-### 🔧 debug: Add detailed file upload logging to diagnose processing issue
-
-- **Commit:** `c320042e`
-- **Author:** jsagir
-- **Files changed:** 4
-  - mindrian_chat.py
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** - Log message.elements count at on_message entry

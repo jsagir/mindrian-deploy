@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-08 13:03*
+*Auto-generated: 2026-02-08 13:08*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,16 +13,16 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-08 | 10 |
+| 2026-02-08 | 11 |
 | 2026-02-06 | 17 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 18 |
+| 2026-02-04 | 17 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 6 |
+| `mindrian_chat.py` | 7 |
 
 ---
 
@@ -30,13 +30,43 @@
 
 ### 2026-02-08
 
+#### ✨ feat: Add /api/init-db endpoint to manually create tables
+
+- **Hash:** `ea7f9a71738ddcb313f361edadb2cccd37fa4ef4`
+- **Short:** `ea7f9a71`
+- **Parent:** `9b90ac28`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-08 13:08:53
+- **Risk:** high
+- **Diff:** +96 / -57
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 35 | 0 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 34 | 32 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 12 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 12 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+
+
 #### 🐛 fix: Remove await from sync get_data_layer() call
 
 - **Hash:** `9b90ac28cae3c69066ca95086081e398979b2fce`
 - **Short:** `9b90ac28`
 - **Parent:** `ddce8741`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 13:03:02
 - **Risk:** medium
@@ -66,7 +96,6 @@
 - **Short:** `ddce8741`
 - **Parent:** `de2a5fc6`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 13:01:59
 - **Risk:** high
@@ -1561,31 +1590,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** - Show "File received: filename - Processing..." immediately when file detected
-
-
-#### 🔧 debug: Add detailed file upload logging to diagnose processing issue
-
-- **Hash:** `c320042e649fdcd7ffd6ac392808462182fa6c6c`
-- **Short:** `c320042e`
-- **Parent:** `3c31ad65`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 08:37:50
-- **Risk:** medium
-- **Diff:** +46 / -27
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `mindrian_chat.py` | 21 | 0 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 12 | 13 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 12 | 13 |
-
-  **File Operations:**
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** - Log message.elements count at on_message entry
 
