@@ -118,76 +118,77 @@ class CronEndpointMiddleware(BaseHTTPMiddleware):
                 from sqlalchemy.ext.asyncio import create_async_engine
                 from sqlalchemy import text
 
-                # Raw SQL to create Chainlit tables (Chainlit doesn't export SQLAlchemy models)
-                CREATE_TABLES_SQL = """
-                CREATE TABLE IF NOT EXISTS users (
-                    "id" UUID PRIMARY KEY,
-                    "identifier" TEXT NOT NULL UNIQUE,
-                    "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                    "metadata" JSONB DEFAULT '{}'::jsonb
-                );
-                CREATE TABLE IF NOT EXISTS threads (
-                    "id" UUID PRIMARY KEY,
-                    "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                    "name" TEXT,
-                    "userId" UUID REFERENCES users("id") ON DELETE SET NULL,
-                    "userIdentifier" TEXT,
-                    "tags" TEXT[],
-                    "metadata" JSONB DEFAULT '{}'::jsonb
-                );
-                CREATE TABLE IF NOT EXISTS steps (
-                    "id" UUID PRIMARY KEY,
-                    "name" TEXT NOT NULL,
-                    "type" TEXT NOT NULL,
-                    "threadId" UUID REFERENCES threads("id") ON DELETE CASCADE,
-                    "parentId" UUID,
-                    "streaming" BOOLEAN DEFAULT FALSE,
-                    "waitForAnswer" BOOLEAN DEFAULT FALSE,
-                    "isError" BOOLEAN DEFAULT FALSE,
-                    "metadata" JSONB DEFAULT '{}'::jsonb,
-                    "input" TEXT,
-                    "output" TEXT,
-                    "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                    "start" TIMESTAMP WITH TIME ZONE,
-                    "end" TIMESTAMP WITH TIME ZONE,
-                    "generation" JSONB,
-                    "showInput" TEXT,
-                    "indent" INTEGER DEFAULT 0,
-                    "language" TEXT
-                );
-                CREATE TABLE IF NOT EXISTS elements (
-                    "id" UUID PRIMARY KEY,
-                    "threadId" UUID REFERENCES threads("id") ON DELETE CASCADE,
-                    "type" TEXT NOT NULL,
-                    "url" TEXT,
-                    "chainlitKey" TEXT,
-                    "name" TEXT NOT NULL,
-                    "display" TEXT,
-                    "objectKey" TEXT,
-                    "size" TEXT,
-                    "page" INTEGER,
-                    "language" TEXT,
-                    "forId" UUID,
-                    "mime" TEXT
-                );
-                CREATE TABLE IF NOT EXISTS feedbacks (
-                    "id" UUID PRIMARY KEY,
-                    "forId" UUID NOT NULL,
-                    "threadId" UUID REFERENCES threads("id") ON DELETE CASCADE,
-                    "value" INTEGER NOT NULL,
-                    "comment" TEXT
-                );
-                CREATE INDEX IF NOT EXISTS idx_threads_userid ON threads("userId");
-                CREATE INDEX IF NOT EXISTS idx_threads_useridentifier ON threads("userIdentifier");
-                CREATE INDEX IF NOT EXISTS idx_steps_threadid ON steps("threadId");
-                CREATE INDEX IF NOT EXISTS idx_elements_threadid ON elements("threadId");
-                CREATE INDEX IF NOT EXISTS idx_feedbacks_threadid ON feedbacks("threadId");
-                CREATE INDEX IF NOT EXISTS idx_feedbacks_forid ON feedbacks("forId");
-                """
+                # Raw SQL to create Chainlit tables - each statement separate for asyncpg
+                CREATE_STATEMENTS = [
+                    """CREATE TABLE IF NOT EXISTS users (
+                        "id" UUID PRIMARY KEY,
+                        "identifier" TEXT NOT NULL UNIQUE,
+                        "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                        "metadata" JSONB DEFAULT '{}'::jsonb
+                    )""",
+                    """CREATE TABLE IF NOT EXISTS threads (
+                        "id" UUID PRIMARY KEY,
+                        "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                        "name" TEXT,
+                        "userId" UUID REFERENCES users("id") ON DELETE SET NULL,
+                        "userIdentifier" TEXT,
+                        "tags" TEXT[],
+                        "metadata" JSONB DEFAULT '{}'::jsonb
+                    )""",
+                    """CREATE TABLE IF NOT EXISTS steps (
+                        "id" UUID PRIMARY KEY,
+                        "name" TEXT NOT NULL,
+                        "type" TEXT NOT NULL,
+                        "threadId" UUID REFERENCES threads("id") ON DELETE CASCADE,
+                        "parentId" UUID,
+                        "streaming" BOOLEAN DEFAULT FALSE,
+                        "waitForAnswer" BOOLEAN DEFAULT FALSE,
+                        "isError" BOOLEAN DEFAULT FALSE,
+                        "metadata" JSONB DEFAULT '{}'::jsonb,
+                        "input" TEXT,
+                        "output" TEXT,
+                        "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                        "start" TIMESTAMP WITH TIME ZONE,
+                        "end" TIMESTAMP WITH TIME ZONE,
+                        "generation" JSONB,
+                        "showInput" TEXT,
+                        "indent" INTEGER DEFAULT 0,
+                        "language" TEXT
+                    )""",
+                    """CREATE TABLE IF NOT EXISTS elements (
+                        "id" UUID PRIMARY KEY,
+                        "threadId" UUID REFERENCES threads("id") ON DELETE CASCADE,
+                        "type" TEXT NOT NULL,
+                        "url" TEXT,
+                        "chainlitKey" TEXT,
+                        "name" TEXT NOT NULL,
+                        "display" TEXT,
+                        "objectKey" TEXT,
+                        "size" TEXT,
+                        "page" INTEGER,
+                        "language" TEXT,
+                        "forId" UUID,
+                        "mime" TEXT
+                    )""",
+                    """CREATE TABLE IF NOT EXISTS feedbacks (
+                        "id" UUID PRIMARY KEY,
+                        "forId" UUID NOT NULL,
+                        "threadId" UUID REFERENCES threads("id") ON DELETE CASCADE,
+                        "value" INTEGER NOT NULL,
+                        "comment" TEXT
+                    )""",
+                    """CREATE INDEX IF NOT EXISTS idx_threads_userid ON threads("userId")""",
+                    """CREATE INDEX IF NOT EXISTS idx_threads_useridentifier ON threads("userIdentifier")""",
+                    """CREATE INDEX IF NOT EXISTS idx_steps_threadid ON steps("threadId")""",
+                    """CREATE INDEX IF NOT EXISTS idx_elements_threadid ON elements("threadId")""",
+                    """CREATE INDEX IF NOT EXISTS idx_feedbacks_threadid ON feedbacks("threadId")""",
+                    """CREATE INDEX IF NOT EXISTS idx_feedbacks_forid ON feedbacks("forId")""",
+                ]
 
                 engine = create_async_engine(database_url)
                 async with engine.begin() as conn:
-                    await conn.execute(text(CREATE_TABLES_SQL))
+                    for stmt in CREATE_STATEMENTS:
+                        await conn.execute(text(stmt))
 
                 # Verify tables
                 async with engine.connect() as conn:

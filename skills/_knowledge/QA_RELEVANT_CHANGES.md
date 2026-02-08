@@ -1,10 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-08 13:08*
+*Auto-generated: 2026-02-08 20:41*
 
 ---
 
 ## 2026-02-08
+
+### 🐛 fix: Use raw SQL for Chainlit database table creation
+
+- **Commit:** `4c7d8e07`
+- **Author:** jsagir
+- **Files changed:** 6
+  - mindrian_chat.py
+  - scripts/init_database.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+- **Details:** Chainlit doesn't export a Base class from sql_alchemy, so we can't use
 
 ### 🐛 fix: Remove await from sync get_data_layer() call
 
@@ -365,14 +377,3 @@
   - tools/user_lazygraph.py
   - utils/context_persistence.py
 - **Details:** - context_persistence: Suppress 400/Bad Request errors (expected for new users)
-
-### 🐛 fix: Add immediate file upload feedback for better UX
-
-- **Commit:** `23720333`
-- **Author:** jsagir
-- **Files changed:** 4
-  - mindrian_chat.py
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** - Show "File received: filename - Processing..." immediately when file detected
