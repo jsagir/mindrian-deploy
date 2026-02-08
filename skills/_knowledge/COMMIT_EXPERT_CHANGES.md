@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-08 12:41*
+*Auto-generated: 2026-02-08 12:47*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,17 +13,16 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-08 | 4 |
+| 2026-02-08 | 5 |
 | 2026-02-06 | 17 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 24 |
+| 2026-02-04 | 23 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 4 |
-| `public/login.html` | 3 |
+| `mindrian_chat.py` | 5 |
 
 ---
 
@@ -31,13 +30,43 @@
 
 ### 2026-02-08
 
+#### 🐛 fix: Move /api/health and /api/public-config to middleware
+
+- **Hash:** `2f08c187e54ada6dafd7ab5ddf5de55239d6f452`
+- **Short:** `2f08c187`
+- **Parent:** `41f14e01`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-08 12:47:28
+- **Risk:** medium
+- **Diff:** +97 / -113
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 32 | 50 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 38 | 36 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 13 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** These endpoints were being blocked by Chainlit's auth. Moving them to
+
+
 #### 🐛 fix: Data layer registration + MIME types for file upload
 
 - **Hash:** `41f14e019c5df1c32015703860eb82d2fdbd80fa`
 - **Short:** `41f14e01`
 - **Parent:** `1749e0ac`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 12:41:33
 - **Risk:** medium
@@ -69,7 +98,6 @@
 - **Short:** `1749e0ac`
 - **Parent:** `224b729d`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 12:33:49
 - **Risk:** medium
@@ -1568,29 +1596,4 @@
   - ➕ Added: `tools/user_lazygraph.py`
 
 - **Body:** LightRAG Integration:
-
-
-#### 🔧 build: Update render.yaml with poppler-utils in buildCommand
-
-- **Hash:** `e90230f577faa0d36b3fe44eee08e5c55606bf7a`
-- **Short:** `e90230f5`
-- **Parent:** `e4da460a`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 03:21:07
-- **Risk:** medium
-- **Diff:** +114 / -33
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `render.yaml` | 87 | 14 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 9 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 9 |
-
-  **File Operations:**
-  - ✏️ Modified: `render.yaml`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 

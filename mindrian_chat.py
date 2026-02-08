@@ -1069,7 +1069,7 @@ if DATABASE_URL:
         if _mindrian_data_layer:
             # Use the decorator pattern to register with Chainlit's route system
             @cl.data_layer
-            async def get_data_layer():
+            def get_data_layer():
                 return _mindrian_data_layer
 
             print("✅ Data persistence enabled with MindrianDataLayer (PostgreSQL + Feedback Analytics)")

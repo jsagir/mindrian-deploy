@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-08 12:41*
+*Auto-generated: 2026-02-08 12:47*
 
 ---
 
 ## 2026-02-08
+
+### 🐛 fix: Move /api/health and /api/public-config to middleware
+
+- **Commit:** `2f08c187`
+- **Author:** jsagir
+- **Files changed:** 5
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** These endpoints were being blocked by Chainlit's auth. Moving them to
 
 ### 🐛 fix: Data layer registration + MIME types for file upload
 
@@ -582,13 +594,3 @@
   - scripts/push_opportunities_to_lightrag.py
   - scripts/push_qa_opportunities_to_lightrag.py
 - **Details:** LightRAG Integration:
-
-### 🔧 build: Update render.yaml with poppler-utils in buildCommand
-
-- **Commit:** `e90230f5`
-- **Author:** jsagir
-- **Files changed:** 4
-  - render.yaml
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
