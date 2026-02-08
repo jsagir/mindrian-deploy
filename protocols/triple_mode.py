@@ -537,16 +537,35 @@ async def extract_and_update_progress(message: str) -> Dict[str, Any]:
 # ============================================================================
 
 async def show_entry_point_selector():
-    """Show entry point selector element."""
-    try:
-        selector = cl.CustomElement(
-            name="EntryPointSelector",
-            props={"showWelcome": True, "disabled": False},
-            display="inline"
-        )
-        await cl.Message(content="", elements=[selector]).send()
-    except Exception:
-        await cl.Message(content=get_clarification_prompt()).send()
+    """Show entry point selector with native Chainlit Action buttons."""
+    actions = [
+        cl.Action(
+            name="select_entry_point",
+            payload={"entry_point": "brainstorming"},
+            label="🧠 Explore Ideas",
+            description="Find problems worth solving"
+        ),
+        cl.Action(
+            name="select_entry_point",
+            payload={"entry_point": "document_review"},
+            label="📄 Get Feedback",
+            description="Validate your thinking"
+        ),
+        cl.Action(
+            name="select_entry_point",
+            payload={"entry_point": "build_venture"},
+            label="🚀 Build Venture",
+            description="Execute on your opportunity"
+        ),
+    ]
+
+    welcome = """## Welcome to Mindrian
+
+**Where are you today?**
+
+Choose your starting point, or just tell me what's on your mind."""
+
+    await cl.Message(content=welcome, actions=actions).send()
 
 
 async def handle_entry_point_selection(entry_point: str, show_welcome: bool = True):

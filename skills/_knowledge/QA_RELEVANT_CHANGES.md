@@ -1,10 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-08 21:17*
+*Auto-generated: 2026-02-08 21:28*
 
 ---
 
 ## 2026-02-08
+
+### 🔧 debug: Add logging to select_entry_point callback
+
+- **Commit:** `6b698370`
+- **Author:** jsagir
+- **Files changed:** 5
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Helps diagnose why button clicks aren't working.
 
 ### 🐛 fix: Use TEXT columns for Chainlit compatibility (not UUID/TIMESTAMP)
 
@@ -377,15 +389,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** Bug Fixes:
-
-### 🐛 fix: QA UI/UX improvements - accessibility and error handling
-
-- **Commit:** `cc1ed3ca`
-- **Author:** jsagir
-- **Files changed:** 8
-  - mindrian_chat.py
-  - public/elements/BusinessModelCanvas.jsx
-  - public/elements/FloatingActionBar.jsx
-  - public/elements/QuadrantChart.jsx
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-- **Details:** UI Accessibility (P1):

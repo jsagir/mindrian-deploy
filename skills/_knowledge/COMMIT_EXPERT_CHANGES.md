@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-08 21:17*
+*Auto-generated: 2026-02-08 21:28*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,10 +13,10 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-08 | 14 |
+| 2026-02-08 | 15 |
 | 2026-02-06 | 17 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 14 |
+| 2026-02-04 | 13 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
@@ -31,13 +31,43 @@
 
 ### 2026-02-08
 
+#### 🔧 debug: Add logging to select_entry_point callback
+
+- **Hash:** `6b6983701a3ce2e86b30edb3235afbe4b9ea49bb`
+- **Short:** `6b698370`
+- **Parent:** `c6e51612`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-08 21:28:04
+- **Risk:** medium
+- **Diff:** +76 / -79
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 12 | 3 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 37 | 49 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 13 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** Helps diagnose why button clicks aren't working.
+
+
 #### 🐛 fix: Use TEXT columns for Chainlit compatibility (not UUID/TIMESTAMP)
 
 - **Hash:** `c6e516126c7e37f2c7637003985d5548993961eb`
 - **Short:** `c6e51612`
 - **Parent:** `6290e5e9`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 21:17:09
 - **Risk:** medium
@@ -69,7 +99,6 @@
 - **Short:** `6290e5e9`
 - **Parent:** `4c7d8e07`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 20:52:05
 - **Risk:** medium
@@ -1550,39 +1579,4 @@
   - ➕ Added: `utils/smart_onboarding.py`
 
 - **Body:** New Systems:
-
-
-#### 🐛 fix: QA UI/UX improvements - accessibility and error handling
-
-- **Hash:** `cc1ed3ca5ba5d846d5fc5cc8b861776d0357c2d9`
-- **Short:** `cc1ed3ca`
-- **Parent:** `a8f90512`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 09:55:39
-- **Risk:** medium
-- **Diff:** +308 / -52
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `mindrian_chat.py` | 28 | 10 |
-  | `public/elements/BusinessModelCanvas.jsx` | 26 | 9 |
-  | `public/elements/FloatingActionBar.jsx` | 33 | 2 |
-  | `public/elements/QuadrantChart.jsx` | 124 | 15 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 10 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 1 |
-  | `utils/diagrams.py` | 70 | 4 |
-
-  **File Operations:**
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `public/elements/BusinessModelCanvas.jsx`
-  - ✏️ Modified: `public/elements/FloatingActionBar.jsx`
-  - ✏️ Modified: `public/elements/QuadrantChart.jsx`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `utils/diagrams.py`
-
-- **Body:** UI Accessibility (P1):
 

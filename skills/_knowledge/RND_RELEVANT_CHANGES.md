@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-08 21:17*
+*Auto-generated: 2026-02-08 21:28*
 
 ---
 
 ## 2026-02-08
+
+### 🔧 debug: Add logging to select_entry_point callback
+
+- **Commit:** `6b698370`
+- **Author:** jsagir
+- **Files changed:** 5
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Helps diagnose why button clicks aren't working.
 
 ### ✨ feat: Add /api/init-db endpoint to manually create tables
 
