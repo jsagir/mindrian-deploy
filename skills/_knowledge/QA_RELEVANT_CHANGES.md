@@ -1,10 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-08 21:28*
+*Auto-generated: 2026-02-08 21:47*
 
 ---
 
 ## 2026-02-08
+
+### 🐛 fix: Replace EntryPointSelector with native Chainlit Action buttons
+
+- **Commit:** `f6100de3`
+- **Author:** jsagir
+- **Files changed:** 5
+  - protocols/triple_mode.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** CustomElement + callAction was unreliable. Using native cl.Action
 
 ### 🔧 debug: Add logging to select_entry_point callback
 

@@ -7252,27 +7252,43 @@ Ready to apply these? Tell me about a problem, industry, or idea you're curious 
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# TRIPLE-MODE CONSOLIDATED CALLBACKS (3 instead of 7)
+# TRIPLE-MODE ENTRY POINT CALLBACKS (separate for reliability)
 # ═══════════════════════════════════════════════════════════════════════════════
+
+@cl.action_callback("ep_brainstorming")
+async def on_ep_brainstorming(action: cl.Action):
+    """Handle Explore Ideas entry point."""
+    logger.info("[ACTION] ep_brainstorming triggered")
+    if TRIPLE_MODE_ENABLED:
+        await handle_entry_point_selection("brainstorming")
+
+
+@cl.action_callback("ep_document_review")
+async def on_ep_document_review(action: cl.Action):
+    """Handle Get Feedback entry point."""
+    logger.info("[ACTION] ep_document_review triggered")
+    if TRIPLE_MODE_ENABLED:
+        await handle_entry_point_selection("document_review")
+
+
+@cl.action_callback("ep_build_venture")
+async def on_ep_build_venture(action: cl.Action):
+    """Handle Build Venture entry point."""
+    logger.info("[ACTION] ep_build_venture triggered")
+    if TRIPLE_MODE_ENABLED:
+        await handle_entry_point_selection("build_venture")
+
 
 @cl.action_callback("select_entry_point")
 async def on_select_entry_point(action: cl.Action):
-    """
-    CONSOLIDATED: Handle all entry point selections.
-    Payload: { entry_point: "brainstorming" | "document_review" | "build_venture" }
-    """
+    """Legacy handler for backward compatibility."""
     logger.info(f"[ACTION] select_entry_point triggered: {action.payload}")
     try:
         if TRIPLE_MODE_ENABLED:
             entry_point = action.payload.get("entry_point", "brainstorming")
-            logger.info(f"[ACTION] Processing entry_point: {entry_point}")
             await handle_entry_point_selection(entry_point)
-            logger.info(f"[ACTION] Entry point selection complete")
-        else:
-            logger.warning("[ACTION] TRIPLE_MODE_ENABLED is False")
     except Exception as e:
         logger.error(f"[ACTION] Error in select_entry_point: {e}", exc_info=True)
-        await cl.Message(content=f"Error selecting entry point: {e}").send()
 
 
 @cl.action_callback("mode_or_stage")

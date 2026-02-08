@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-08 21:28*
+*Auto-generated: 2026-02-08 21:47*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,16 +13,16 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-08 | 15 |
+| 2026-02-08 | 16 |
 | 2026-02-06 | 17 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 13 |
+| 2026-02-04 | 12 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 8 |
+| `mindrian_chat.py` | 7 |
 | `scripts/init_database.py` | 4 |
 
 ---
@@ -31,13 +31,43 @@
 
 ### 2026-02-08
 
+#### 🐛 fix: Replace EntryPointSelector with native Chainlit Action buttons
+
+- **Hash:** `f6100de3708947a1f2705317e37cb510b62019de`
+- **Short:** `f6100de3`
+- **Parent:** `6b698370`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-08 21:47:54
+- **Risk:** medium
+- **Diff:** +102 / -77
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `protocols/triple_mode.py` | 29 | 10 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 34 | 40 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 1 |
+
+  **File Operations:**
+  - ✏️ Modified: `protocols/triple_mode.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** CustomElement + callAction was unreliable. Using native cl.Action
+
+
 #### 🔧 debug: Add logging to select_entry_point callback
 
 - **Hash:** `6b6983701a3ce2e86b30edb3235afbe4b9ea49bb`
 - **Short:** `6b698370`
 - **Parent:** `c6e51612`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 21:28:04
 - **Risk:** medium
@@ -67,7 +97,6 @@
 - **Short:** `c6e51612`
 - **Parent:** `6290e5e9`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 21:17:09
 - **Risk:** medium
@@ -1544,39 +1573,4 @@
   - ✏️ Modified: `utils/smart_onboarding.py`
 
 - **Body:** Smart Onboarding (utils/smart_onboarding.py):
-
-
-#### ✨ feat: API health monitoring, daily digest email, and smart onboarding
-
-- **Hash:** `7c31f2677e7f9aa79bad994e7db9d3896810c09e`
-- **Short:** `7c31f267`
-- **Parent:** `cc1ed3ca`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 10:05:13
-- **Risk:** high
-- **Diff:** +2630 / -27
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `scripts/daily_cron.py` | 228 | 0 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 13 |
-  | `sql/api_health_log.sql` | 105 | 0 |
-  | `utils/api_health_monitor.py` | 840 | 0 |
-  | `utils/opportunity_digest.py` | 817 | 0 |
-  | `utils/smart_onboarding.py` | 613 | 0 |
-
-  **File Operations:**
-  - ➕ Added: `scripts/daily_cron.py`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-  - ➕ Added: `sql/api_health_log.sql`
-  - ➕ Added: `utils/api_health_monitor.py`
-  - ➕ Added: `utils/opportunity_digest.py`
-  - ➕ Added: `utils/smart_onboarding.py`
-
-- **Body:** New Systems:
 

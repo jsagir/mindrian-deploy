@@ -540,22 +540,16 @@ async def show_entry_point_selector():
     """Show entry point selector with native Chainlit Action buttons."""
     actions = [
         cl.Action(
-            name="select_entry_point",
-            payload={"entry_point": "brainstorming"},
+            name="ep_brainstorming",
             label="🧠 Explore Ideas",
-            description="Find problems worth solving"
         ),
         cl.Action(
-            name="select_entry_point",
-            payload={"entry_point": "document_review"},
+            name="ep_document_review",
             label="📄 Get Feedback",
-            description="Validate your thinking"
         ),
         cl.Action(
-            name="select_entry_point",
-            payload={"entry_point": "build_venture"},
+            name="ep_build_venture",
             label="🚀 Build Venture",
-            description="Execute on your opportunity"
         ),
     ]
 

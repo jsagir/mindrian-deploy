@@ -1,6 +1,6 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-08 21:28*
+*Auto-generated: 2026-02-08 21:47*
 
 ---
 
@@ -329,15 +329,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** Smart Onboarding (utils/smart_onboarding.py):
-
-### ✨ feat: API health monitoring, daily digest email, and smart onboarding
-
-- **Commit:** `7c31f267`
-- **Author:** jsagir
-- **Files changed:** 8
-  - scripts/daily_cron.py
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-  - sql/api_health_log.sql
-- **Details:** New Systems:
