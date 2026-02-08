@@ -64,10 +64,21 @@ class CronEndpointMiddleware(BaseHTTPMiddleware):
             import chainlit as cl
             db_status = "not_configured"
             db_error = None
+            tables_exist = []
             try:
                 data_layer = await cl.data.get_data_layer()
                 if data_layer:
                     db_status = "connected"
+                    # Check if tables exist
+                    try:
+                        from sqlalchemy import text
+                        async with data_layer.engine.connect() as conn:
+                            result = await conn.execute(text(
+                                "SELECT tablename FROM pg_tables WHERE schemaname = 'public'"
+                            ))
+                            tables_exist = [row[0] for row in result.fetchall()]
+                    except Exception as te:
+                        db_error = f"Table check failed: {te}"
                 else:
                     db_status = "no_data_layer"
             except Exception as e:
@@ -77,8 +88,9 @@ class CronEndpointMiddleware(BaseHTTPMiddleware):
                 "status": "ok",
                 "database": db_status,
                 "database_error": db_error,
+                "tables": tables_exist,
+                "required_tables": ["users", "threads", "steps", "elements", "feedbacks"],
                 "database_url_set": bool(os.environ.get("DATABASE_URL")),
-                "chainlit_db_url_set": bool(os.environ.get("CHAINLIT_DATABASE_URL")),
                 "auth_secret_set": bool(os.environ.get("CHAINLIT_AUTH_SECRET")),
             })
 

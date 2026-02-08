@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-08 12:59*
+*Auto-generated: 2026-02-08 13:00*
 
 ---
 
 ## 2026-02-08
+
+### 🐛 fix: Add database initialization to create Chainlit tables
+
+- **Commit:** `de2a5fc6`
+- **Author:** jsagir
+- **Files changed:** 6
+  - build.sh
+  - scripts/init_database.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+- **Details:** The PostgreSQL database was empty - Chainlit's users, threads, steps,
 
 ### 🐛 fix: EntryPointSelector - clickable cards + side-by-side layout
 
@@ -585,13 +597,3 @@
   - intelligence/tools.py
   - skills/_knowledge/QA_RELEVANT_CHANGES.md
 - **Details:** - data_layer.py: Handle removed BaseStorageClient with Protocol fallback
-
-### 🐛 fix: Revert try-except that broke indentation
-
-- **Commit:** `4e394e45`
-- **Author:** jsagir
-- **Files changed:** 4
-  - mindrian_chat.py
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md

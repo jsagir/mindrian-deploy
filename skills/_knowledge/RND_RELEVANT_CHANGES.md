@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-08 12:59*
+*Auto-generated: 2026-02-08 13:00*
 
 ---
 
 ## 2026-02-08
+
+### 🐛 fix: Add database initialization to create Chainlit tables
+
+- **Commit:** `de2a5fc6`
+- **Author:** jsagir
+- **Files changed:** 6
+  - build.sh
+  - scripts/init_database.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+- **Details:** The PostgreSQL database was empty - Chainlit's users, threads, steps,
 
 ### 🐛 fix: Resolve pipeline import issues (Minto/Oracle/Genesis)
 

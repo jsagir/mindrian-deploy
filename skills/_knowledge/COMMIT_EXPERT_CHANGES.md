@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-08 12:59*
+*Auto-generated: 2026-02-08 13:00*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,10 +13,10 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-08 | 7 |
+| 2026-02-08 | 8 |
 | 2026-02-06 | 17 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 21 |
+| 2026-02-04 | 20 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
@@ -30,13 +30,45 @@
 
 ### 2026-02-08
 
+#### 🐛 fix: Add database initialization to create Chainlit tables
+
+- **Hash:** `de2a5fc6bab43b6b8e0029456f938224a5994fdd`
+- **Short:** `de2a5fc6`
+- **Parent:** `a97ba57b`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-08 13:00:51
+- **Risk:** medium
+- **Diff:** +131 / -68
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `build.sh` | 8 | 0 |
+  | `scripts/init_database.py` | 62 | 0 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 34 | 32 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 12 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 12 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 12 |
+
+  **File Operations:**
+  - ✏️ Modified: `build.sh`
+  - ➕ Added: `scripts/init_database.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** The PostgreSQL database was empty - Chainlit's users, threads, steps,
+
+
 #### 🐛 fix: EntryPointSelector - clickable cards + side-by-side layout
 
 - **Hash:** `a97ba57b7b99d17ef4ef279e3c5be2f6528fbc31`
 - **Short:** `a97ba57b`
 - **Parent:** `306188c3`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 12:59:25
 - **Risk:** medium
@@ -66,7 +98,6 @@
 - **Short:** `306188c3`
 - **Parent:** `2f08c187`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 12:53:58
 - **Risk:** medium
@@ -1561,29 +1592,4 @@
   - ✏️ Modified: `utils/data_layer.py`
 
 - **Body:** - data_layer.py: Handle removed BaseStorageClient with Protocol fallback
-
-
-#### 🐛 fix: Revert try-except that broke indentation
-
-- **Hash:** `4e394e455afb6e8de6aafca49a6514e233ee90c1`
-- **Short:** `4e394e45`
-- **Parent:** `0c461a2c`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 04:07:10
-- **Risk:** medium
-- **Diff:** +37 / -36
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `mindrian_chat.py` | 1 | 9 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 12 | 9 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 12 | 9 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 12 | 9 |
-
-  **File Operations:**
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
