@@ -118,62 +118,73 @@ class CronEndpointMiddleware(BaseHTTPMiddleware):
                 from sqlalchemy.ext.asyncio import create_async_engine
                 from sqlalchemy import text
 
-                # Raw SQL to create Chainlit tables - each statement separate for asyncpg
+                # Raw SQL to create Chainlit tables - matching Chainlit's expected schema
+                # Chainlit uses TEXT for IDs and timestamps, not UUID/TIMESTAMP
                 CREATE_STATEMENTS = [
-                    """CREATE TABLE IF NOT EXISTS users (
-                        "id" UUID PRIMARY KEY,
+                    # Drop old tables if they have wrong schema
+                    """DROP TABLE IF EXISTS feedbacks CASCADE""",
+                    """DROP TABLE IF EXISTS elements CASCADE""",
+                    """DROP TABLE IF EXISTS steps CASCADE""",
+                    """DROP TABLE IF EXISTS threads CASCADE""",
+                    """DROP TABLE IF EXISTS users CASCADE""",
+                    # Create with correct Chainlit schema
+                    """CREATE TABLE users (
+                        "id" TEXT PRIMARY KEY,
                         "identifier" TEXT NOT NULL UNIQUE,
-                        "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                        "metadata" JSONB DEFAULT '{}'::jsonb
+                        "createdAt" TEXT,
+                        "metadata" JSONB NOT NULL DEFAULT '{}'::jsonb
                     )""",
-                    """CREATE TABLE IF NOT EXISTS threads (
-                        "id" UUID PRIMARY KEY,
-                        "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                    """CREATE TABLE threads (
+                        "id" TEXT PRIMARY KEY,
+                        "createdAt" TEXT,
                         "name" TEXT,
-                        "userId" UUID REFERENCES users("id") ON DELETE SET NULL,
+                        "userId" TEXT REFERENCES users("id") ON DELETE SET NULL,
                         "userIdentifier" TEXT,
                         "tags" TEXT[],
-                        "metadata" JSONB DEFAULT '{}'::jsonb
+                        "metadata" JSONB NOT NULL DEFAULT '{}'::jsonb
                     )""",
-                    """CREATE TABLE IF NOT EXISTS steps (
-                        "id" UUID PRIMARY KEY,
+                    """CREATE TABLE steps (
+                        "id" TEXT PRIMARY KEY,
                         "name" TEXT NOT NULL,
                         "type" TEXT NOT NULL,
-                        "threadId" UUID REFERENCES threads("id") ON DELETE CASCADE,
-                        "parentId" UUID,
-                        "streaming" BOOLEAN DEFAULT FALSE,
-                        "waitForAnswer" BOOLEAN DEFAULT FALSE,
-                        "isError" BOOLEAN DEFAULT FALSE,
-                        "metadata" JSONB DEFAULT '{}'::jsonb,
+                        "threadId" TEXT REFERENCES threads("id") ON DELETE CASCADE,
+                        "parentId" TEXT,
+                        "streaming" BOOLEAN,
+                        "waitForAnswer" BOOLEAN,
+                        "isError" BOOLEAN,
+                        "metadata" JSONB NOT NULL DEFAULT '{}'::jsonb,
+                        "tags" TEXT[],
                         "input" TEXT,
                         "output" TEXT,
-                        "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                        "start" TIMESTAMP WITH TIME ZONE,
-                        "end" TIMESTAMP WITH TIME ZONE,
+                        "createdAt" TEXT,
+                        "start" TEXT,
+                        "end" TEXT,
                         "generation" JSONB,
                         "showInput" TEXT,
-                        "indent" INTEGER DEFAULT 0,
                         "language" TEXT
                     )""",
-                    """CREATE TABLE IF NOT EXISTS elements (
-                        "id" UUID PRIMARY KEY,
-                        "threadId" UUID REFERENCES threads("id") ON DELETE CASCADE,
+                    """CREATE TABLE elements (
+                        "id" TEXT PRIMARY KEY,
+                        "threadId" TEXT REFERENCES threads("id") ON DELETE CASCADE,
                         "type" TEXT NOT NULL,
-                        "url" TEXT,
                         "chainlitKey" TEXT,
+                        "url" TEXT,
+                        "objectKey" TEXT,
                         "name" TEXT NOT NULL,
                         "display" TEXT,
-                        "objectKey" TEXT,
                         "size" TEXT,
-                        "page" INTEGER,
                         "language" TEXT,
-                        "forId" UUID,
-                        "mime" TEXT
+                        "page" INTEGER,
+                        "forId" TEXT,
+                        "mime" TEXT,
+                        "props" JSONB,
+                        "autoPlay" BOOLEAN,
+                        "playerConfig" JSONB
                     )""",
-                    """CREATE TABLE IF NOT EXISTS feedbacks (
-                        "id" UUID PRIMARY KEY,
-                        "forId" UUID NOT NULL,
-                        "threadId" UUID REFERENCES threads("id") ON DELETE CASCADE,
+                    """CREATE TABLE feedbacks (
+                        "id" TEXT PRIMARY KEY,
+                        "forId" TEXT NOT NULL,
+                        "threadId" TEXT REFERENCES threads("id") ON DELETE CASCADE,
                         "value" INTEGER NOT NULL,
                         "comment" TEXT
                     )""",

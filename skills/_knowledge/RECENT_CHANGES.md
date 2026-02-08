@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-08 20:41*
+*Auto-generated: 2026-02-08 20:52*
 
 ---
 
 ## 2026-02-08
+
+### 🐛 fix: Execute SQL statements one at a time for asyncpg compatibility
+
+- **Commit:** `6290e5e9`
+- **Author:** jsagir
+- **Files changed:** 6
+  - mindrian_chat.py
+  - scripts/init_database.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+- **Details:** asyncpg doesn't support multiple statements in a single execute() call.
 
 ### 🐛 fix: Use raw SQL for Chainlit database table creation
 
@@ -588,15 +600,3 @@
   - scripts/push_opportunities_to_lightrag.py
   - scripts/push_qa_opportunities_to_lightrag.py
 - **Details:** - Remove hardcoded LightRAG password defaults (7 files)
-
-### 🐛 fix: Reduce log noise from expected errors
-
-- **Commit:** `24623356`
-- **Author:** jsagir
-- **Files changed:** 5
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-  - tools/user_lazygraph.py
-  - utils/context_persistence.py
-- **Details:** - context_persistence: Suppress 400/Bad Request errors (expected for new users)

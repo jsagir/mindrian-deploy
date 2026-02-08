@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-08 20:41*
+*Auto-generated: 2026-02-08 20:52*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,16 +13,17 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-08 | 12 |
+| 2026-02-08 | 13 |
 | 2026-02-06 | 17 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 16 |
+| 2026-02-04 | 15 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 7 |
+| `mindrian_chat.py` | 8 |
+| `scripts/init_database.py` | 3 |
 
 ---
 
@@ -30,13 +31,45 @@
 
 ### 2026-02-08
 
+#### 🐛 fix: Execute SQL statements one at a time for asyncpg compatibility
+
+- **Hash:** `6290e5e925fcc505698866b360633fc1213179ae`
+- **Short:** `6290e5e9`
+- **Parent:** `4c7d8e07`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-08 20:52:05
+- **Risk:** medium
+- **Diff:** +200 / -214
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 68 | 67 |
+  | `scripts/init_database.py` | 69 | 79 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 36 | 32 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 12 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 12 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 12 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `scripts/init_database.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** asyncpg doesn't support multiple statements in a single execute() call.
+
+
 #### 🐛 fix: Use raw SQL for Chainlit database table creation
 
 - **Hash:** `4c7d8e076b2286df3411ba2742d1b0ad17547586`
 - **Short:** `4c7d8e07`
 - **Parent:** `ea7f9a71`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 20:41:13
 - **Risk:** medium
@@ -68,7 +101,6 @@
 - **Short:** `ea7f9a71`
 - **Parent:** `9b90ac28`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 13:08:53
 - **Risk:** high
@@ -1565,33 +1597,4 @@
   - ➕ Added: `utils/input_validation.py`
 
 - **Body:** - Remove hardcoded LightRAG password defaults (7 files)
-
-
-#### 🐛 fix: Reduce log noise from expected errors
-
-- **Hash:** `24623356bc5be5c9fddc3eb82406bb6fe9b309df`
-- **Short:** `24623356`
-- **Parent:** `23720333`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 08:41:39
-- **Risk:** medium
-- **Diff:** +52 / -31
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 12 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 12 | 13 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 12 | 13 |
-  | `tools/user_lazygraph.py` | 14 | 2 |
-  | `utils/context_persistence.py` | 2 | 2 |
-
-  **File Operations:**
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `tools/user_lazygraph.py`
-  - ✏️ Modified: `utils/context_persistence.py`
-
-- **Body:** - context_persistence: Suppress 400/Bad Request errors (expected for new users)
 
