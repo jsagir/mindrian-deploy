@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-08 12:47*
+*Auto-generated: 2026-02-08 12:53*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,16 +13,16 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-08 | 5 |
+| 2026-02-08 | 6 |
 | 2026-02-06 | 17 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 23 |
+| 2026-02-04 | 22 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 5 |
+| `mindrian_chat.py` | 6 |
 
 ---
 
@@ -30,13 +30,43 @@
 
 ### 2026-02-08
 
+#### 🐛 fix: Use sync function for @cl.data_layer decorator
+
+- **Hash:** `306188c3d56f68f1b3c713fc07e1eaafef26cf63`
+- **Short:** `306188c3`
+- **Parent:** `2f08c187`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-08 12:53:58
+- **Risk:** medium
+- **Diff:** +63 / -46
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 1 | 1 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 35 | 32 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 11 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 1 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+
+
 #### 🐛 fix: Move /api/health and /api/public-config to middleware
 
 - **Hash:** `2f08c187e54ada6dafd7ab5ddf5de55239d6f452`
 - **Short:** `2f08c187`
 - **Parent:** `41f14e01`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 12:47:28
 - **Risk:** medium
@@ -66,7 +96,6 @@
 - **Short:** `41f14e01`
 - **Parent:** `1749e0ac`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 12:41:33
 - **Risk:** medium
@@ -1555,45 +1584,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** - Add [FILE PROCESSING] log at start showing element count
-
-
-#### ✨ feat: Add LightRAG Bank of Opportunities + Per-User Memory
-
-- **Hash:** `3b107f94afb11a1bd46ae5e432c9d2b7ab7f6f7f`
-- **Short:** `3b107f94`
-- **Parent:** `e90230f5`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 03:56:25
-- **Risk:** high
-- **Diff:** +3194 / -23
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `mindrian_chat.py` | 60 | 0 |
-  | `qa/extracted_opportunities.json` | 222 | 0 |
-  | `scripts/populate_lightrag_from_qa.py` | 288 | 0 |
-  | `scripts/push_opportunities_to_lightrag.py` | 302 | 0 |
-  | `scripts/push_qa_opportunities_to_lightrag.py` | 293 | 0 |
-  | `scripts/test_user_lazygraph.py` | 169 | 0 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 11 | 11 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 11 |
-  | `tools/opportunity_bank_lightrag.py` | 714 | 0 |
-
-  **File Operations:**
-  - ✏️ Modified: `mindrian_chat.py`
-  - ➕ Added: `qa/extracted_opportunities.json`
-  - ➕ Added: `scripts/populate_lightrag_from_qa.py`
-  - ➕ Added: `scripts/push_opportunities_to_lightrag.py`
-  - ➕ Added: `scripts/push_qa_opportunities_to_lightrag.py`
-  - ➕ Added: `scripts/test_user_lazygraph.py`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-  - ➕ Added: `tools/opportunity_bank_lightrag.py`
-  - ➕ Added: `tools/session_memory.py`
-  - ➕ Added: `tools/user_lazygraph.py`
-
-- **Body:** LightRAG Integration:
 

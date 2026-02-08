@@ -1,6 +1,6 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-08 12:47*
+*Auto-generated: 2026-02-08 12:53*
 
 ---
 
@@ -373,15 +373,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** - Add [FILE PROCESSING] log at start showing element count
-
-### ✨ feat: Add LightRAG Bank of Opportunities + Per-User Memory
-
-- **Commit:** `3b107f94`
-- **Author:** jsagir
-- **Files changed:** 12
-  - mindrian_chat.py
-  - qa/extracted_opportunities.json
-  - scripts/populate_lightrag_from_qa.py
-  - scripts/push_opportunities_to_lightrag.py
-  - scripts/push_qa_opportunities_to_lightrag.py
-- **Details:** LightRAG Integration:

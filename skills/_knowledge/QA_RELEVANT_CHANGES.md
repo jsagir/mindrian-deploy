@@ -1,10 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-08 12:47*
+*Auto-generated: 2026-02-08 12:53*
 
 ---
 
 ## 2026-02-08
+
+### 🐛 fix: Use sync function for @cl.data_layer decorator
+
+- **Commit:** `306188c3`
+- **Author:** jsagir
+- **Files changed:** 5
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 
 ### 🐛 fix: Move /api/health and /api/public-config to middleware
 
@@ -372,15 +384,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** - Add [FILE PROCESSING] log at start showing element count
-
-### ✨ feat: Add LightRAG Bank of Opportunities + Per-User Memory
-
-- **Commit:** `3b107f94`
-- **Author:** jsagir
-- **Files changed:** 12
-  - mindrian_chat.py
-  - qa/extracted_opportunities.json
-  - scripts/populate_lightrag_from_qa.py
-  - scripts/push_opportunities_to_lightrag.py
-  - scripts/push_qa_opportunities_to_lightrag.py
-- **Details:** LightRAG Integration:

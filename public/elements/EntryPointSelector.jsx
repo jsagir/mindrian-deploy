@@ -39,12 +39,15 @@ export default function EntryPointSelector() {
 
     const handleSelect = (entryPointId) => {
         if (disabled) return;
-        // callAction is injected as a global by Chainlit
+        // Chainlit injects callAction via window.Chainlit
+        const { callAction } = window.Chainlit || {};
         if (typeof callAction === 'function') {
             callAction({
                 name: "select_entry_point",
                 payload: { entry_point: entryPointId }
             });
+        } else {
+            console.warn('[EntryPointSelector] callAction not available');
         }
     };
 
@@ -72,9 +75,17 @@ export default function EntryPointSelector() {
             color: '#6b7280',
         },
         grid: {
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-            gap: '12px',
+            display: 'flex',
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: '16px',
+        },
+        // Each card takes ~30% width on desktop, full width on mobile
+        cardWrapper: {
+            flex: '1 1 180px',
+            maxWidth: '200px',
+            minWidth: '150px',
         },
         card: {
             padding: '20px 16px',
@@ -122,22 +133,23 @@ export default function EntryPointSelector() {
 
             <div style={styles.grid}>
                 {entryPoints.map(ep => (
-                    <div
-                        key={ep.id}
-                        onClick={() => handleSelect(ep.id)}
-                        onMouseEnter={() => setHoveredId(ep.id)}
-                        onMouseLeave={() => setHoveredId(null)}
-                        style={{
-                            ...styles.card,
-                            borderColor: hoveredId === ep.id ? ep.color : 'transparent',
-                            transform: hoveredId === ep.id ? 'translateY(-2px)' : 'none',
-                            boxShadow: hoveredId === ep.id ? '0 4px 12px rgba(0,0,0,0.15)' : '0 2px 8px rgba(0,0,0,0.08)',
-                            opacity: disabled ? 0.6 : 1,
-                        }}
-                    >
-                        <span style={styles.icon}>{ep.icon}</span>
-                        <div style={styles.label}>{ep.label}</div>
-                        <div style={styles.description}>{ep.description}</div>
+                    <div key={ep.id} style={styles.cardWrapper}>
+                        <div
+                            onClick={() => handleSelect(ep.id)}
+                            onMouseEnter={() => setHoveredId(ep.id)}
+                            onMouseLeave={() => setHoveredId(null)}
+                            style={{
+                                ...styles.card,
+                                borderColor: hoveredId === ep.id ? ep.color : 'transparent',
+                                transform: hoveredId === ep.id ? 'translateY(-2px)' : 'none',
+                                boxShadow: hoveredId === ep.id ? '0 4px 12px rgba(0,0,0,0.15)' : '0 2px 8px rgba(0,0,0,0.08)',
+                                opacity: disabled ? 0.6 : 1,
+                            }}
+                        >
+                            <span style={styles.icon}>{ep.icon}</span>
+                            <div style={styles.label}>{ep.label}</div>
+                            <div style={styles.description}>{ep.description}</div>
+                        </div>
                     </div>
                 ))}
             </div>
