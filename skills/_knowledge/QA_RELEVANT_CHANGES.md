@@ -1,10 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-06 16:03*
+*Auto-generated: 2026-02-08 12:15*
 
 ---
 
 ## 2026-02-06
+
+### ✨ feat: Add /api/health endpoint for debugging
+
+- **Commit:** `e50607aa`
+- **Author:** jsagir
+- **Files changed:** 5
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Shows database connection status, env var configuration.
 
 ### 🐛 fix: Remove password_auth_callback to prevent double login screen
 

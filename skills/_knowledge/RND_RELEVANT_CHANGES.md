@@ -1,10 +1,36 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-06 16:03*
+*Auto-generated: 2026-02-08 12:15*
 
 ---
 
+## 2026-02-08
+
+### ✨ feat: Implement Waves 2, 3, 4 - Forking, Canvas, Auto-Orchestration
+
+- **Commit:** `93cf83bc`
+- **Author:** jsagir
+- **Files changed:** 15
+  - docs/WAVE2_FORKING_DESIGN.md
+  - docs/WAVE3_CANVAS_DESIGN.md
+  - docs/WAVE4_ORCHESTRATION_DESIGN.md
+  - protocols/__init__.py
+  - protocols/auto_orchestrator.py
+- **Details:** Wave 2 - Conversation Forking:
+
 ## 2026-02-06
+
+### ✨ feat: Add /api/health endpoint for debugging
+
+- **Commit:** `e50607aa`
+- **Author:** jsagir
+- **Files changed:** 5
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Shows database connection status, env var configuration.
 
 ### 🐛 fix: Add null checks to all auth handlers + improve SDK loading (v4)
 
@@ -383,14 +409,3 @@
   - skills/_knowledge/QA_RELEVANT_CHANGES.md
   - skills/_knowledge/RECENT_CHANGES.md
 - **Details:** Multi-model architecture:
-
-### ✨ feat: Document AI as PRIMARY PDF processor (handwriting + equations)
-
-- **Commit:** `3b3c3f88`
-- **Author:** jsagir
-- **Files changed:** 4
-  - mindrian_chat.py
-  - requirements.txt
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** - Added google-cloud-documentai to requirements.txt

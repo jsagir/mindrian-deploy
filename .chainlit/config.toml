@@ -92,7 +92,8 @@ custom_logo = "/public/logo_light.svg"
 custom_favicon = "/public/favicon.svg"
 
 # Custom JavaScript for Supabase Auth integration
-custom_js = "/public/auth-bridge.js"
+# DISABLED: Using Chainlit's native password auth instead
+# custom_js = "/public/auth-bridge.js"
 
 # Override default MUI light theme. (Check theme.ts for full theme configuration options)
 [UI.theme]
