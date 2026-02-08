@@ -1,6 +1,6 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-08 12:15*
+*Auto-generated: 2026-02-08 12:16*
 
 ---
 
@@ -397,15 +397,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** Fallback priority:
-
-### ✨ feat: Claude Vision for document processing (replaces Document AI)
-
-- **Commit:** `cd034edc`
-- **Author:** jsagir
-- **Files changed:** 7
-  - intelligence/pipelines/file_processing.py
-  - mindrian_chat.py
-  - requirements.txt
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-- **Details:** Multi-model architecture:

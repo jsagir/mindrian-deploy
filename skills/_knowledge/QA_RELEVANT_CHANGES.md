@@ -1,8 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-08 12:15*
+*Auto-generated: 2026-02-08 12:16*
 
 ---
+
+## 2026-02-08
+
+### 🐛 fix: Auth - use Chainlit native password auth, disable auth-bridge
+
+- **Commit:** `224b729d`
+- **Author:** jsagir
+- **Files changed:** 6
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** - Add Supabase password_auth_callback (when SUPABASE_AUTH_ENABLED)
 
 ## 2026-02-06
 

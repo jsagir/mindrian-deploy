@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-08 12:15*
+*Auto-generated: 2026-02-08 12:16*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,16 +13,17 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-08 | 1 |
+| 2026-02-08 | 2 |
 | 2026-02-06 | 17 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 27 |
+| 2026-02-04 | 26 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `public/login.html` | 6 |
+| `public/login.html` | 5 |
+| `mindrian_chat.py` | 3 |
 
 ---
 
@@ -30,13 +31,44 @@
 
 ### 2026-02-08
 
+#### 🐛 fix: Auth - use Chainlit native password auth, disable auth-bridge
+
+- **Hash:** `224b729df4b385ecfa6821ad97c0c813b25e4038`
+- **Short:** `224b729d`
+- **Parent:** `93cf83bc`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-08 12:16:21
+- **Risk:** medium
+- **Diff:** +1851 / -237
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `.chainlit/config.toml` | 2 | 1 |
+  | `mindrian_chat.py` | 1700 | 146 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 82 | 56 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 27 | 21 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 27 | 12 |
+
+  **File Operations:**
+  - ✏️ Modified: `.chainlit/config.toml`
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** - Add Supabase password_auth_callback (when SUPABASE_AUTH_ENABLED)
+
+
 #### ✨ feat: Implement Waves 2, 3, 4 - Forking, Canvas, Auto-Orchestration
 
 - **Hash:** `93cf83bc249a6732c4c543d993f0721d69596d91`
 - **Short:** `93cf83bc`
 - **Parent:** `e50607aa`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 12:15:54
 - **Risk:** high
@@ -1557,37 +1589,4 @@
   - ➕ Added: `tools/smart_document.py`
 
 - **Body:** Fallback priority:
-
-
-#### ✨ feat: Claude Vision for document processing (replaces Document AI)
-
-- **Hash:** `cd034edcb5ceecb306723465714046a8228fd966`
-- **Short:** `cd034edc`
-- **Parent:** `3b3c3f88`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 03:11:45
-- **Risk:** high
-- **Diff:** +372 / -96
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `intelligence/pipelines/file_processing.py` | 38 | 32 |
-  | `mindrian_chat.py` | 30 | 41 |
-  | `requirements.txt` | 2 | 2 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 12 | 10 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 12 | 10 |
-  | `tools/claude_document.py` | 277 | 0 |
-
-  **File Operations:**
-  - ✏️ Modified: `intelligence/pipelines/file_processing.py`
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `requirements.txt`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-  - ➕ Added: `tools/claude_document.py`
-
-- **Body:** Multi-model architecture:
 

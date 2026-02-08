@@ -33,7 +33,7 @@ except ImportError:
     LANGCHAIN_AVAILABLE = False
 
 # Import our tools
-from intelligence.tools import ALL_RESEARCH_TOOLS, ALL_KNOWLEDGE_TOOLS
+from intelligence.research_tools import ALL_RESEARCH_TOOLS, ALL_KNOWLEDGE_TOOLS
 
 
 # =============================================================================

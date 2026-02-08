@@ -45,8 +45,18 @@ except ImportError:
 # LangChain
 from langchain_core.tools import tool
 
-# Initialize Gemini client
-_client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
+# Lazy-initialized Gemini client (avoids import-time errors when API key is missing)
+_client = None
+
+def _get_client():
+    """Get or create Gemini client (lazy initialization)."""
+    global _client
+    if _client is None:
+        api_key = os.getenv("GOOGLE_API_KEY")
+        if not api_key:
+            raise RuntimeError("GOOGLE_API_KEY environment variable not set")
+        _client = genai.Client(api_key=api_key)
+    return _client
 
 # Neo4j configuration
 NEO4J_URI = os.getenv("NEO4J_URI")
@@ -200,7 +210,8 @@ If the question cannot be answered from this graph, return:
 }}"""
 
     try:
-        response = _client.models.generate_content(
+        client = _get_client()
+        response = client.models.generate_content(
             model="gemini-2.5-flash",
             contents=prompt,
             config=types.GenerateContentConfig(

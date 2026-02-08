@@ -120,8 +120,8 @@ from .pipelines import (
     create_oracle_pipeline,
     run_oracle_formulation,
     run_oracle_resolution,
-    format_research_brief,
-    format_retrospective,
+    format_research_brief_output,
+    generate_retrospective,
     # File Processing Pipeline
     FileState,
     FilePipelineState,
@@ -129,6 +129,11 @@ from .pipelines import (
     process_files,
     process_single_file,
     process_uploaded_files_langgraph,
+    # Genesis Expert Breakdown + BONO
+    GenesisState,
+    create_genesis_graph,
+    run_genesis_pipeline,
+    format_genesis_report,
 )
 
 # =============================================================================
@@ -269,8 +274,8 @@ __all__ = [
     "create_oracle_pipeline",
     "run_oracle_formulation",
     "run_oracle_resolution",
-    "format_research_brief",
-    "format_retrospective",
+    "format_research_brief_output",
+    "generate_retrospective",
     # File Processing Pipeline
     "FileState",
     "FilePipelineState",
@@ -278,6 +283,11 @@ __all__ = [
     "process_files",
     "process_single_file",
     "process_uploaded_files_langgraph",
+    # Genesis Expert Breakdown + BONO
+    "GenesisState",
+    "create_genesis_graph",
+    "run_genesis_pipeline",
+    "format_genesis_report",
     # Oracle Tools
     "create_prediction_market",
     "get_open_markets",
