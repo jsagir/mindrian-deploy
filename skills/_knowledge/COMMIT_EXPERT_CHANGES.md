@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-08 20:52*
+*Auto-generated: 2026-02-08 21:17*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,17 +13,17 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-08 | 13 |
+| 2026-02-08 | 14 |
 | 2026-02-06 | 17 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 15 |
+| 2026-02-04 | 14 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
 | `mindrian_chat.py` | 8 |
-| `scripts/init_database.py` | 3 |
+| `scripts/init_database.py` | 4 |
 
 ---
 
@@ -31,13 +31,45 @@
 
 ### 2026-02-08
 
+#### 🐛 fix: Use TEXT columns for Chainlit compatibility (not UUID/TIMESTAMP)
+
+- **Hash:** `c6e516126c7e37f2c7637003985d5548993961eb`
+- **Short:** `c6e51612`
+- **Parent:** `6290e5e9`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-08 21:17:09
+- **Risk:** medium
+- **Diff:** +155 / -142
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 45 | 34 |
+  | `scripts/init_database.py` | 45 | 34 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 38 | 35 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 13 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `scripts/init_database.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** Chainlit's SQLAlchemyDataLayer expects:
+
+
 #### 🐛 fix: Execute SQL statements one at a time for asyncpg compatibility
 
 - **Hash:** `6290e5e925fcc505698866b360633fc1213179ae`
 - **Short:** `6290e5e9`
 - **Parent:** `4c7d8e07`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 20:52:05
 - **Risk:** medium
@@ -69,7 +101,6 @@
 - **Short:** `4c7d8e07`
 - **Parent:** `ea7f9a71`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-08 20:41:13
 - **Risk:** medium
@@ -1554,47 +1585,4 @@
   - ✏️ Modified: `utils/diagrams.py`
 
 - **Body:** UI Accessibility (P1):
-
-
-#### ✨ feat: Security hardening and performance improvements
-
-- **Hash:** `a8f9051232e109154f1bc606d6afddaa20611082`
-- **Short:** `a8f90512`
-- **Parent:** `24623356`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 09:47:41
-- **Risk:** high
-- **Diff:** +814 / -52
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `mindrian_chat.py` | 29 | 6 |
-  | `scripts/lightrag_gentle_upload.py` | 2 | 1 |
-  | `scripts/lightrag_graph_push.py` | 1 | 1 |
-  | `scripts/push_opportunities_to_lightrag.py` | 1 | 1 |
-  | `scripts/push_qa_opportunities_to_lightrag.py` | 1 | 1 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 11 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 1 |
-  | `tools/opportunity_bank.py` | 1 | 1 |
-  | `tools/opportunity_bank_lightrag.py` | 1 | 1 |
-
-  **File Operations:**
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `scripts/lightrag_gentle_upload.py`
-  - ✏️ Modified: `scripts/lightrag_graph_push.py`
-  - ✏️ Modified: `scripts/push_opportunities_to_lightrag.py`
-  - ✏️ Modified: `scripts/push_qa_opportunities_to_lightrag.py`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `tools/opportunity_bank.py`
-  - ✏️ Modified: `tools/opportunity_bank_lightrag.py`
-  - ✏️ Modified: `tools/research_orchestrator.py`
-  - ✏️ Modified: `tools/user_lazygraph.py`
-  - ➕ Added: `utils/history_manager.py`
-  - ➕ Added: `utils/input_validation.py`
-
-- **Body:** - Remove hardcoded LightRAG password defaults (7 files)
 

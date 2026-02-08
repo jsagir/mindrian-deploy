@@ -7261,9 +7261,18 @@ async def on_select_entry_point(action: cl.Action):
     CONSOLIDATED: Handle all entry point selections.
     Payload: { entry_point: "brainstorming" | "document_review" | "build_venture" }
     """
-    if TRIPLE_MODE_ENABLED:
-        entry_point = action.payload.get("entry_point", "brainstorming")
-        await handle_entry_point_selection(entry_point)
+    logger.info(f"[ACTION] select_entry_point triggered: {action.payload}")
+    try:
+        if TRIPLE_MODE_ENABLED:
+            entry_point = action.payload.get("entry_point", "brainstorming")
+            logger.info(f"[ACTION] Processing entry_point: {entry_point}")
+            await handle_entry_point_selection(entry_point)
+            logger.info(f"[ACTION] Entry point selection complete")
+        else:
+            logger.warning("[ACTION] TRIPLE_MODE_ENABLED is False")
+    except Exception as e:
+        logger.error(f"[ACTION] Error in select_entry_point: {e}", exc_info=True)
+        await cl.Message(content=f"Error selecting entry point: {e}").send()
 
 
 @cl.action_callback("mode_or_stage")

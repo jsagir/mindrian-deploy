@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-08 20:52*
+*Auto-generated: 2026-02-08 21:17*
 
 ---
 
 ## 2026-02-08
+
+### 🐛 fix: Use TEXT columns for Chainlit compatibility (not UUID/TIMESTAMP)
+
+- **Commit:** `c6e51612`
+- **Author:** jsagir
+- **Files changed:** 6
+  - mindrian_chat.py
+  - scripts/init_database.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+- **Details:** Chainlit's SQLAlchemyDataLayer expects:
 
 ### 🐛 fix: Execute SQL statements one at a time for asyncpg compatibility
 
@@ -588,15 +600,3 @@
   - public/elements/QuadrantChart.jsx
   - skills/_knowledge/QA_RELEVANT_CHANGES.md
 - **Details:** UI Accessibility (P1):
-
-### ✨ feat: Security hardening and performance improvements
-
-- **Commit:** `a8f90512`
-- **Author:** jsagir
-- **Files changed:** 14
-  - mindrian_chat.py
-  - scripts/lightrag_gentle_upload.py
-  - scripts/lightrag_graph_push.py
-  - scripts/push_opportunities_to_lightrag.py
-  - scripts/push_qa_opportunities_to_lightrag.py
-- **Details:** - Remove hardcoded LightRAG password defaults (7 files)

@@ -1,10 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-08 20:52*
+*Auto-generated: 2026-02-08 21:17*
 
 ---
 
 ## 2026-02-08
+
+### 🐛 fix: Use TEXT columns for Chainlit compatibility (not UUID/TIMESTAMP)
+
+- **Commit:** `c6e51612`
+- **Author:** jsagir
+- **Files changed:** 6
+  - mindrian_chat.py
+  - scripts/init_database.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+- **Details:** Chainlit's SQLAlchemyDataLayer expects:
 
 ### 🐛 fix: Execute SQL statements one at a time for asyncpg compatibility
 
