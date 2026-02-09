@@ -497,6 +497,8 @@ async def persist_pws_state_to_supabase(state: Optional[PWSConsultantState] = No
         history = cl.user_session.get("history", [])
 
         # Build context data including PWS state
+        # BUG-001 FIX: Include excluded_topics in persistence
+        excluded_topics = cl.user_session.get("excluded_topics", [])
         success = await save_cross_bot_context(
             user_key=context_key,
             history=history,
@@ -504,6 +506,7 @@ async def persist_pws_state_to_supabase(state: Optional[PWSConsultantState] = No
             bot_name="PWS Consultant",
             phases=[],  # PWS uses stages, not phases
             current_phase=0,
+            excluded_topics=excluded_topics,
         )
 
         if success:

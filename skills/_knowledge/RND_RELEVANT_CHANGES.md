@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-09 00:09*
+*Auto-generated: 2026-02-09 08:39*
 
 ---
 
 ## 2026-02-09
+
+### ✨ feat: Add Breakthrough button + improve Research error logging
+
+- **Commit:** `a3282c77`
+- **Author:** jsagir
+- **Files changed:** 5
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Wave 4: Auto-Orchestration
 
 ### ✨ feat: Wire UX features - Fork, Ideas, Agent Attribution
 

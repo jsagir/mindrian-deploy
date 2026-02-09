@@ -458,8 +458,9 @@ export default function IdeaCanvas() {
     justifyContent: "space-between",
     alignItems: "center",
     padding: "12px 16px",
-    borderBottom: "1px solid #e5e7eb",
-    backgroundColor: "#f9fafb",
+    borderBottom: "1px solid #374151",
+    backgroundColor: "#1f2937",
+    color: "#f9fafb",
   };
 
   const filterBarStyle = {
@@ -485,8 +486,9 @@ export default function IdeaCanvas() {
   const viewModeButtonStyle = {
     padding: "4px 8px",
     borderRadius: "4px",
-    border: "none",
-    backgroundColor: "transparent",
+    border: "1px solid #4b5563",
+    backgroundColor: "#374151",
+    color: "#f9fafb",
     fontSize: "11px",
     cursor: "pointer",
   };
@@ -522,13 +524,13 @@ export default function IdeaCanvas() {
     <div style={containerStyle}>
       {/* Header */}
       <div style={headerStyle}>
-        <span style={{ fontWeight: 600, fontSize: "14px" }}>
+        <span style={{ fontWeight: 600, fontSize: "14px", color: "#f9fafb" }}>
           🎨 {title}
           <span
             style={{
               marginLeft: "8px",
               fontSize: "12px",
-              color: "#6b7280",
+              color: "#9ca3af",
               fontWeight: 400,
             }}
           >
@@ -610,9 +612,10 @@ export default function IdeaCanvas() {
       <div
         ref={canvasRef}
         style={{
-          width: canvasWidth,
+          width: "100%",
+          minWidth: canvasWidth,
           height: canvasHeight,
-          overflow: "hidden",
+          overflow: "auto",
           position: "relative",
         }}
         onMouseMove={handleMouseMove}

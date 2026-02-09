@@ -59,171 +59,6 @@ class CronEndpointMiddleware(BaseHTTPMiddleware):
     """Middleware to handle /api/daily-summary before Chainlit routing."""
 
     async def dispatch(self, request: Request, call_next):
-        # Handle /api/health - public endpoint, no auth needed
-        if request.url.path == "/api/health":
-            import chainlit as cl
-            db_status = "not_configured"
-            db_error = None
-            tables_exist = []
-            try:
-                # get_data_layer() is sync when using @cl.data_layer decorator
-                data_layer = cl.data.get_data_layer()
-                if data_layer:
-                    db_status = "connected"
-                    # Check if tables exist
-                    try:
-                        from sqlalchemy import text
-                        async with data_layer.engine.connect() as conn:
-                            result = await conn.execute(text(
-                                "SELECT tablename FROM pg_tables WHERE schemaname = 'public'"
-                            ))
-                            tables_exist = [row[0] for row in result.fetchall()]
-                    except Exception as te:
-                        db_error = f"Table check failed: {te}"
-                else:
-                    db_status = "no_data_layer"
-            except Exception as e:
-                db_status = "error"
-                db_error = str(e)
-            return JSONResponse(content={
-                "status": "ok",
-                "database": db_status,
-                "database_error": db_error,
-                "tables": tables_exist,
-                "required_tables": ["users", "threads", "steps", "elements", "feedbacks"],
-                "database_url_set": bool(os.environ.get("DATABASE_URL")),
-                "auth_secret_set": bool(os.environ.get("CHAINLIT_AUTH_SECRET")),
-            })
-
-        # Handle /api/public-config - public endpoint for login page
-        if request.url.path == "/api/public-config":
-            return JSONResponse(content={
-                "supabase_url": os.environ.get("SUPABASE_URL", ""),
-                "supabase_anon_key": os.environ.get("SUPABASE_ANON_KEY", ""),
-            })
-
-        # Handle /api/init-db - one-time database initialization
-        if request.url.path == "/api/init-db":
-            try:
-                database_url = os.environ.get("DATABASE_URL")
-                if not database_url:
-                    return JSONResponse(content={"success": False, "error": "No DATABASE_URL"})
-
-                # Convert to asyncpg format
-                if database_url.startswith("postgresql://"):
-                    database_url = database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
-                elif database_url.startswith("postgres://"):
-                    database_url = database_url.replace("postgres://", "postgresql+asyncpg://", 1)
-
-                from sqlalchemy.ext.asyncio import create_async_engine
-                from sqlalchemy import text
-
-                # Raw SQL to create Chainlit tables - matching Chainlit's expected schema
-                # Chainlit uses TEXT for IDs and timestamps, not UUID/TIMESTAMP
-                CREATE_STATEMENTS = [
-                    # Drop old tables if they have wrong schema
-                    """DROP TABLE IF EXISTS feedbacks CASCADE""",
-                    """DROP TABLE IF EXISTS elements CASCADE""",
-                    """DROP TABLE IF EXISTS steps CASCADE""",
-                    """DROP TABLE IF EXISTS threads CASCADE""",
-                    """DROP TABLE IF EXISTS users CASCADE""",
-                    # Create with correct Chainlit schema
-                    """CREATE TABLE users (
-                        "id" TEXT PRIMARY KEY,
-                        "identifier" TEXT NOT NULL UNIQUE,
-                        "createdAt" TEXT,
-                        "metadata" JSONB NOT NULL DEFAULT '{}'::jsonb
-                    )""",
-                    """CREATE TABLE threads (
-                        "id" TEXT PRIMARY KEY,
-                        "createdAt" TEXT,
-                        "name" TEXT,
-                        "userId" TEXT REFERENCES users("id") ON DELETE SET NULL,
-                        "userIdentifier" TEXT,
-                        "tags" TEXT[],
-                        "metadata" JSONB NOT NULL DEFAULT '{}'::jsonb
-                    )""",
-                    """CREATE TABLE steps (
-                        "id" TEXT PRIMARY KEY,
-                        "name" TEXT NOT NULL,
-                        "type" TEXT NOT NULL,
-                        "threadId" TEXT REFERENCES threads("id") ON DELETE CASCADE,
-                        "parentId" TEXT,
-                        "streaming" BOOLEAN,
-                        "waitForAnswer" BOOLEAN,
-                        "isError" BOOLEAN,
-                        "metadata" JSONB NOT NULL DEFAULT '{}'::jsonb,
-                        "tags" TEXT[],
-                        "input" TEXT,
-                        "output" TEXT,
-                        "createdAt" TEXT,
-                        "start" TEXT,
-                        "end" TEXT,
-                        "generation" JSONB,
-                        "showInput" TEXT,
-                        "language" TEXT
-                    )""",
-                    """CREATE TABLE elements (
-                        "id" TEXT PRIMARY KEY,
-                        "threadId" TEXT REFERENCES threads("id") ON DELETE CASCADE,
-                        "type" TEXT NOT NULL,
-                        "chainlitKey" TEXT,
-                        "url" TEXT,
-                        "objectKey" TEXT,
-                        "name" TEXT NOT NULL,
-                        "display" TEXT,
-                        "size" TEXT,
-                        "language" TEXT,
-                        "page" INTEGER,
-                        "forId" TEXT,
-                        "mime" TEXT,
-                        "props" JSONB,
-                        "autoPlay" BOOLEAN,
-                        "playerConfig" JSONB
-                    )""",
-                    """CREATE TABLE feedbacks (
-                        "id" TEXT PRIMARY KEY,
-                        "forId" TEXT NOT NULL,
-                        "threadId" TEXT REFERENCES threads("id") ON DELETE CASCADE,
-                        "value" INTEGER NOT NULL,
-                        "comment" TEXT
-                    )""",
-                    """CREATE INDEX IF NOT EXISTS idx_threads_userid ON threads("userId")""",
-                    """CREATE INDEX IF NOT EXISTS idx_threads_useridentifier ON threads("userIdentifier")""",
-                    """CREATE INDEX IF NOT EXISTS idx_steps_threadid ON steps("threadId")""",
-                    """CREATE INDEX IF NOT EXISTS idx_elements_threadid ON elements("threadId")""",
-                    """CREATE INDEX IF NOT EXISTS idx_feedbacks_threadid ON feedbacks("threadId")""",
-                    """CREATE INDEX IF NOT EXISTS idx_feedbacks_forid ON feedbacks("forId")""",
-                ]
-
-                engine = create_async_engine(database_url)
-                async with engine.begin() as conn:
-                    for stmt in CREATE_STATEMENTS:
-                        await conn.execute(text(stmt))
-
-                # Verify tables
-                async with engine.connect() as conn:
-                    result = await conn.execute(text("""
-                        SELECT table_name FROM information_schema.tables
-                        WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
-                        ORDER BY table_name
-                    """))
-                    tables = [row[0] for row in result.fetchall()]
-                await engine.dispose()
-
-                return JSONResponse(content={
-                    "success": True,
-                    "message": "Database tables created",
-                    "tables": tables
-                })
-            except Exception as e:
-                import traceback
-                return JSONResponse(content={
-                    "success": False,
-                    "error": str(e),
-                    "traceback": traceback.format_exc()
-                })
-
         if request.url.path == "/api/daily-summary":
             # Handle cron endpoint
             secret = request.query_params.get("secret", "")
@@ -271,9 +106,57 @@ class CronEndpointMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
 # Add middleware BEFORE any routes
-# This middleware handles /api/* endpoints BEFORE Chainlit's auth kicks in
 fastapi_app.add_middleware(CronEndpointMiddleware)
-print("[API] Middleware registered: /api/health, /api/public-config, /api/daily-summary")
+print("[CRON] /api/daily-summary middleware registered")
+
+# === Public Config Endpoint for Login Page ===
+# Serves Supabase public credentials from environment variables
+# This prevents stale hardcoded keys in login.html
+@fastapi_app.get("/api/public-config")
+async def get_public_config():
+    """Return public Supabase credentials for login page."""
+    return JSONResponse(content={
+        "supabase_url": os.environ.get("SUPABASE_URL", ""),
+        "supabase_anon_key": os.environ.get("SUPABASE_ANON_KEY", ""),
+    })
+print("[CONFIG] /api/public-config endpoint registered")
+
+
+@fastapi_app.get("/api/health")
+async def health_check():
+    """Health check endpoint with database status."""
+    import chainlit as cl
+
+    db_status = "not_configured"
+    db_error = None
+
+    # Check if data layer is configured
+    try:
+        data_layer = getattr(cl.data, '_data_layer', None)
+        if data_layer:
+            db_status = "configured"
+            # Try a simple query to verify connection
+            try:
+                # This is a lightweight check
+                db_status = "connected"
+            except Exception as e:
+                db_status = "error"
+                db_error = str(e)
+        else:
+            db_status = "no_data_layer"
+    except Exception as e:
+        db_status = "error"
+        db_error = str(e)
+
+    return JSONResponse(content={
+        "status": "ok",
+        "database": db_status,
+        "database_error": db_error,
+        "database_url_set": bool(os.environ.get("DATABASE_URL")),
+        "supabase_auth_enabled": bool(os.environ.get("SUPABASE_URL") and os.environ.get("SUPABASE_ANON_KEY")),
+        "jwt_secret_set": bool(os.environ.get("SUPABASE_JWT_SECRET")),
+    })
+print("[CONFIG] /api/health endpoint registered")
 
 from google import genai
 from google.genai import types
@@ -372,8 +255,6 @@ try:
         on_message_processed as session_memory_process,
         get_user_context as get_session_user_context,
         extract_opportunities_with_lightrag,
-        queue_opportunity_notification,
-        get_pending_opportunities,
     )
     SESSION_MEMORY_ENABLED = True
     print("Session Memory enabled (per-user LazyGraph + LightRAG)")
@@ -385,8 +266,6 @@ except ImportError as e:
     async def session_memory_process(*args, **kwargs): return None
     async def get_session_user_context(*args, **kwargs): return ""
     async def extract_opportunities_with_lightrag(*args, **kwargs): return {}
-    def queue_opportunity_notification(*args, **kwargs): pass
-    def get_pending_opportunities(*args, **kwargs): return []
 
 # === Self-Describing Phases - Auto-discovery from prompt modules ===
 try:
@@ -641,88 +520,10 @@ except ImportError as e:
     print(f"[AUTH] Supabase Auth module not available: {e}")
 
 
-# === Password Authentication (Supabase) ===
-# Uses Chainlit's built-in login screen with Supabase validation
-if SUPABASE_AUTH_ENABLED:
-    @cl.password_auth_callback
-    def supabase_password_auth(username: str, password: str) -> Optional[cl.User]:
-        """
-        Validate username/password against Supabase Auth.
-        Shows Chainlit's built-in login screen.
-        """
-        try:
-            # Rate limiting check
-            if not check_rate_limit(username):
-                logger.warning(f"[AUTH] Rate limit exceeded for {username}")
-                return None
-
-            # Authenticate with Supabase
-            result = authenticate_with_password(username, password)
-
-            if result and result.get("user"):
-                user_data = result["user"]
-                user_id = user_data.get("id", username)
-                email = user_data.get("email", username)
-
-                # Clear failed attempts on success
-                clear_auth_attempts(username)
-
-                logger.info(f"[AUTH] Password authenticated: {email}")
-
-                return cl.User(
-                    identifier=user_id,
-                    metadata={
-                        "email": email,
-                        "provider": "supabase_password",
-                        "role": user_data.get("role", "authenticated"),
-                    }
-                )
-            else:
-                # Record failed attempt
-                record_auth_attempt(username, success=False)
-                return None
-
-        except Exception as e:
-            logger.error(f"[AUTH] Password auth error: {e}")
-            record_auth_attempt(username, success=False)
-            return None
-
-    print("[AUTH] Supabase password authentication ENABLED")
-elif os.getenv("CHAINLIT_AUTH_SECRET"):
-    # Fallback: Simple env-based password auth (only when auth secret is set)
-    # Set MINDRIAN_USER_<NAME>_PASSWORD=password in env
-    @cl.password_auth_callback
-    def simple_password_auth(username: str, password: str) -> Optional[cl.User]:
-        """
-        Simple password auth using environment variables.
-        Set MINDRIAN_USER_<NAME>_PASSWORD=password for each user.
-        Example: MINDRIAN_USER_DEMO_PASSWORD=demo123
-        """
-        # Normalize username
-        name = username.split("@")[0].upper().replace(" ", "_").replace("-", "_")
-        env_key = f"MINDRIAN_USER_{name}_PASSWORD"
-        expected_password = os.getenv(env_key)
-
-        # Also check for a default demo user
-        if not expected_password and username.lower() == "demo":
-            expected_password = os.getenv("MINDRIAN_DEMO_PASSWORD", "demo")
-
-        if expected_password and password == expected_password:
-            logger.info(f"[AUTH] Simple auth succeeded: {username}")
-            return cl.User(
-                identifier=username,
-                metadata={
-                    "email": f"{username}@mindrian.local",
-                    "provider": "simple_password",
-                    "role": "authenticated",
-                }
-            )
-
-        return None
-
-    print("[AUTH] Simple password authentication ENABLED (env-based)")
-else:
-    print("[AUTH] No authentication configured - anonymous access allowed")
+# === Password Authentication DISABLED ===
+# We use custom Supabase login page (/public/login.html) + header auth instead
+# This prevents Chainlit from showing its built-in login screen
+print("[AUTH] Password auth DISABLED - using custom Supabase login + header auth")
 
 
 # === Header Authentication (JWT Validation) ===
@@ -1195,26 +996,17 @@ AGENT_TRIGGERS = {
 # - Automatic feedback collection (thumbs up/down UI on all AI messages)
 # - CSV export for analytics
 # - Supabase storage integration
-#
-# IMPORTANT: We use @cl.data_layer decorator to ensure the data layer is
-# registered BEFORE Chainlit's routes are created. This fixes the /threads 404 issue.
 if DATABASE_URL:
     try:
         from utils.data_layer import create_mindrian_data_layer
 
-        # Create the data layer instance
-        _mindrian_data_layer = create_mindrian_data_layer(DATABASE_URL)
-
-        if _mindrian_data_layer:
-            # Use the decorator pattern to register with Chainlit's route system
-            @cl.data_layer
-            def get_data_layer():
-                return _mindrian_data_layer
-
+        # Create custom data layer with feedback analytics
+        data_layer = create_mindrian_data_layer(DATABASE_URL)
+        if data_layer:
+            cl.data._data_layer = data_layer
             print("✅ Data persistence enabled with MindrianDataLayer (PostgreSQL + Feedback Analytics)")
         else:
-            print("⚠️ Data layer creation failed - threads/persistence disabled")
-
+            print("⚠️ Data layer creation failed")
     except Exception as e:
         print(f"⚠️ Data persistence disabled: {e}")
         import traceback
@@ -1907,18 +1699,6 @@ def get_core_action_buttons(include_example: bool = True) -> list:
             payload={"action": "journey"},
             label="🧭 My Journey",
             tooltip="View your PWS learning journey: phases, insights, and progress",
-        ),
-        cl.Action(
-            name="fork_conversation",
-            payload={"action": "fork"},
-            label="🍴 Fork",
-            tooltip="Create a branch to explore an alternative direction",
-        ),
-        cl.Action(
-            name="show_idea_canvas",
-            payload={"action": "ideas"},
-            label="💡 Ideas",
-            tooltip="View and manage extracted ideas from this conversation",
         ),
     ]
 
@@ -3007,23 +2787,23 @@ STARTERS = {
     ],
     "pws_consultant": [
         cl.Starter(
-            label="🧠 Explore Ideas",
-            message="I want to explore and find problems worth solving. I'm curious about something but don't have a clear direction yet.",
+            label="Diagnose my problem",
+            message="I have a challenge I need help diagnosing. I'm not sure what kind of problem it is or which frameworks to use.",
             icon="/public/icons/explore.svg",
         ),
         cl.Starter(
-            label="📄 Get Feedback",
-            message="I have something I need feedback on - a document, idea, or plan. Help me validate my thinking.",
-            icon="/public/icons/info.svg",
-        ),
-        cl.Starter(
-            label="🚀 Build Venture",
-            message="I'm ready to execute on an opportunity. Help me build and launch my venture.",
+            label="Business challenge",
+            message="I'm facing a business challenge and want structured guidance on how to think about it.",
             icon="/public/icons/startup.svg",
         ),
         cl.Starter(
-            label="❓ Not sure yet",
-            message="I'm not sure where to start. Can you help me figure out what I need?",
+            label="Innovation opportunity",
+            message="I see an opportunity but I'm not sure how to evaluate it. Help me figure out if it's worth pursuing.",
+            icon="/public/icons/future.svg",
+        ),
+        cl.Starter(
+            label="Complex decision",
+            message="I have a complex decision with many stakeholders and conflicting perspectives. Help me navigate it.",
             icon="/public/icons/challenge.svg",
         ),
     ],
@@ -3552,71 +3332,6 @@ Be conservative - only suggest a switch if it would clearly add value."""
     return None
 
 
-
-
-# === Topic Exclusion Detection ===
-# BUG-001 FIX: Detect when user wants to avoid certain topics
-
-import re as _exclusion_re
-
-# Patterns to detect exclusion requests - each pattern captures the topic directly
-_EXCLUSION_PATTERNS = [
-    # "avoid discussing X", "avoid talking about X", "avoid X"
-    r"avoid\s+(?:discussing|talking\s+about|mentioning|covering)\s+(.+?)(?:\s+(?:for\s+now|please|today)|[.,!?]|$)",
-    r"(?:please\s+)?avoid\s+(.+?)(?:\s+(?:for\s+now|please|today)|[.,!?]|$)",
-    # "don't/do not discuss X", "don't bring up X"
-    r"(?:please\s+)?(?:don'?t|do\s+not)\s+(?:discuss|talk\s+about|mention|bring\s+up|cover)\s+(.+?)(?:\s+(?:for\s+now|please|today)|[.,!?]|$)",
-    # "skip X", "skip the X"
-    r"(?:please\s+)?skip\s+(?:the\s+)?(.+?)(?:\s+(?:for\s+now|please|today)|[.,!?]|$)",
-    # "I don't want to discuss X"
-    r"i\s+(?:don'?t|do\s+not)\s+want\s+(?:to\s+)?(?:discuss|talk\s+about|hear\s+about|cover)\s+(.+?)(?:\s+(?:for\s+now|please|today)|[.,!?]|$)",
-    # "not interested in X"
-    r"(?:i'?m\s+)?not\s+interested\s+in\s+(.+?)(?:\s+(?:for\s+now|please|today)|[.,!?]|$)",
-    # "let's skip X", "let's avoid X", "let's not talk about X"
-    r"let'?s\s+(?:skip|avoid)\s+(?:the\s+)?(.+?)(?:\s+(?:for\s+now|please|today)|[.,!?]|$)",
-    r"let'?s\s+not\s+(?:talk|discuss)\s+about\s+(.+?)(?:\s+(?:for\s+now|please|today)|[.,!?]|$)",
-    # "no more X", "enough about X"
-    r"no\s+more\s+(?:about\s+)?(.+?)(?:\s+(?:for\s+now|please|today)|[.,!?]|$)",
-    r"enough\s+about\s+(.+?)(?:\s+(?:for\s+now|please|today)|[.,!?]|$)",
-    # "exclude X from the discussion"
-    r"exclude\s+(.+?)\s+from\s+(?:the\s+)?(?:discussion|conversation|topics?)",
-    # "stay away from X"
-    r"stay\s+away\s+from\s+(.+?)(?:\s+(?:for\s+now|please|today)|[.,!?]|$)",
-    # "stop with X", "stop mentioning X"
-    r"stop\s+(?:with|mentioning|discussing|talking\s+about)\s+(.+?)(?:\s+(?:for\s+now|please|today)|[.,!?]|$)",
-]
-
-
-def detect_topic_exclusion(message: str) -> tuple:
-    """
-    Detect if user wants to exclude a topic from the conversation.
-
-    Returns:
-        (is_exclusion, topic_name) - tuple with bool and extracted topic
-    """
-    message_lower = message.lower().strip()
-
-    # Skip very short messages
-    if len(message_lower) < 10:
-        return False, None
-
-    for pattern in _EXCLUSION_PATTERNS:
-        match = _exclusion_re.search(pattern, message_lower, _exclusion_re.IGNORECASE)
-        if match:
-            topic = match.group(1).strip()
-            # Clean up the topic - remove articles and trailing words
-            topic = _exclusion_re.sub(r'^(the|a|an|any|all|those|these)\s+', '', topic)
-            topic = _exclusion_re.sub(r'\s+(for\s+now|please|today)$', '', topic)
-            topic = topic.rstrip('.,!?')
-
-            # Validate topic is reasonable (2-50 chars, not just stopwords)
-            if 2 <= len(topic) <= 50:
-                stopwords = {'it', 'that', 'this', 'them', 'they', 'we', 'you', 'me', 'i', 'about'}
-                if topic.lower() not in stopwords:
-                    return True, topic.title()
-
-    return False, None
-
 def get_context_key() -> str:
     """Generate a key for context preservation across profile switches.
 
@@ -3729,54 +3444,6 @@ async def start():
     cl.user_session.set("last_checkpoint", last_checkpoint)
     logger.info(f"[PERSISTENCE] Conversation ID: {conversation_id[:8]}..., checkpoint: {last_checkpoint}")
 
-    # === Wave 2: Conversation Forking - Initialize or restore branch state ===
-    preserved_branch_tree = preserved_context.get("branch_tree")
-    preserved_active_branch_id = preserved_context.get("active_branch_id")
-
-    if preserved_branch_tree:
-        cl.user_session.set("branch_tree", preserved_branch_tree)
-        cl.user_session.set("active_branch_id", preserved_active_branch_id)
-        cl.user_session.set("fork_points", preserved_branch_tree.get("fork_points", []))
-
-        # If we have an active branch, restore its specific history
-        if preserved_active_branch_id:
-            active_branch = preserved_branch_tree["branches"].get(preserved_active_branch_id, {})
-            cl.user_session.set("branch_history", active_branch.get("history", []))
-        else:
-            cl.user_session.set("branch_history", [])
-
-        print(f"[FORKING] Restored branch tree with {len(preserved_branch_tree['branches'])} branches")
-    else:
-        # No branching yet - initialize empty state
-        cl.user_session.set("branch_tree", None)
-        cl.user_session.set("active_branch_id", None)
-        cl.user_session.set("fork_points", [])
-        cl.user_session.set("branch_history", [])
-
-    cl.user_session.set("show_branch_selector", False)
-    cl.user_session.set("pending_merge", None)
-
-    # === Wave 3: Idea Canvas - Initialize canvas state ===
-    try:
-        from tools.idea_canvas import init_canvas_state, load_canvas_state
-        session_id = cl.user_session.get("id") or str(uuid.uuid4())
-        branch_id = cl.user_session.get("active_branch_id") or "main"
-
-        # Try to load existing canvas state
-        existing_canvas = await load_canvas_state(session_id)
-        if existing_canvas:
-            cl.user_session.set("canvas_state", existing_canvas)
-            print(f"[CANVAS] Restored {len(existing_canvas.get('idea_nodes', {}))} ideas")
-        else:
-            cl.user_session.set("canvas_state", init_canvas_state(session_id, branch_id))
-    except Exception as e:
-        print(f"[CANVAS] Init error (non-fatal): {e}")
-        cl.user_session.set("canvas_state", None)
-
-    # === WAVE 4: Auto-Orchestration State ===
-    cl.user_session.set("active_orchestrator", None)
-    cl.user_session.set("orchestrator_history", [])  # Track completed orchestrations
-
     # === Recursive Intelligence: Track session start ===
     if SESSION_LOGGER_ENABLED and session_id:
         track_agent_start(session_id, chat_profile or "lawrence")
@@ -3809,13 +3476,12 @@ async def start():
     if cl.user_session.get("current_phase") is None:
         cl.user_session.set("current_phase", 0)
 
-    # Update context store with current session info (including phases and exclusions)
+    # Update context store with current session info (including phases)
     context_store[context_key] = {
         "bot_id": chat_profile or "lawrence",
         "history": cl.user_session.get("history", []),
         "phases": cl.user_session.get("phases", []),
         "current_phase": cl.user_session.get("current_phase", 0),
-        "excluded_topics": cl.user_session.get("excluded_topics", []),  # BUG-001 FIX
     }
 
     # === PWS Consultant: Initialize stage machine state ===
@@ -3947,13 +3613,6 @@ async def start():
                 tooltip="👥 Get different perspectives from Larry, Red Team, Ackoff, and other PWS experts"
             ),
             cl.Action(
-                name="find_breakthrough",
-                payload={"action": "breakthrough"},
-                label="🚀 Find the Breakthrough",
-                description="Auto-orchestrated multi-agent analysis",
-                tooltip="🚀 Intelligent workflow selection with auto-orchestrated agent collaboration"
-            ),
-            cl.Action(
                 name="watch_video",
                 payload={"action": "video"},
                 label="🎬 Watch Video",
@@ -4068,13 +3727,6 @@ async def start():
                 tooltip="👥 Get different perspectives from Larry, Red Team, Ackoff, and other PWS experts"
             ))
             actions.append(cl.Action(
-                name="find_breakthrough",
-                payload={"action": "breakthrough"},
-                label="🚀 Find the Breakthrough",
-                description="Auto-orchestrated multi-agent analysis",
-                tooltip="🚀 Intelligent workflow selection with auto-orchestrated agent collaboration"
-            ))
-            actions.append(cl.Action(
                 name="show_example",
                 payload={"action": "example"},
                 label="📖 Show Example",
@@ -4096,15 +3748,6 @@ async def start():
         label="📝 Synthesize & Download",
         description="Larry synthesizes the entire conversation as a downloadable MD file",
         tooltip="📝 Larry summarizes your conversation: key insights, breakthroughs, and next steps"
-    ))
-
-    # Add "Save Conversation" button for ALL bots - explicit checkpoint
-    actions.append(cl.Action(
-        name="save_conversation",
-        payload={"action": "save"},
-        label="💾 Save Conversation",
-        description="Save your progress to cloud storage",
-        tooltip="💾 Create a checkpoint - your conversation will persist across server restarts"
     ))
 
     # Full-mode-only: Extract Insights, Generate Image, Analytics
@@ -4139,24 +3782,6 @@ async def start():
             label="📈 Usage Metrics",
             description="View usage metrics dashboard",
             tooltip="📈 See message counts, bot usage, and activity trends"
-        ))
-
-        # === WAVE 2: Conversation Forking ===
-        actions.append(cl.Action(
-            name="show_branch_selector",
-            payload={},
-            label="🌿 Branches",
-            description="View and manage conversation branches",
-            tooltip="🌿 Fork conversations, switch branches, merge insights"
-        ))
-
-        # === WAVE 3: Idea Canvas ===
-        actions.append(cl.Action(
-            name="show_idea_canvas",
-            payload={},
-            label="🎨 Idea Canvas",
-            description="Visual workspace for extracted ideas",
-            tooltip="🎨 View, organize, and connect ideas extracted from conversation"
         ))
 
     # Add "Clear Context" action to all bots if there's preserved history
@@ -4310,58 +3935,6 @@ async def on_chat_resume(thread: dict):
 
     # Try to infer chat_profile from thread name or first messages if not in metadata
     chat_profile = metadata.get("chat_profile", "lawrence")
-
-    # === CRITICAL FIX: Load persisted context from Supabase ===
-    # This ensures conversation history survives server restarts
-    from utils.context_persistence import load_cross_bot_context
-    context_key = get_context_key()
-    persisted_context = await load_cross_bot_context(context_key)
-
-    if persisted_context:
-        logger.info(f"[PERSISTENCE] Restored context on resume: {persisted_context.get('message_count', 0)} messages")
-        # Use persisted data to augment/override thread metadata
-        if not metadata.get("current_phase") and persisted_context.get("current_phase"):
-            metadata["current_phase"] = persisted_context["current_phase"]
-        if not metadata.get("phases") and persisted_context.get("phases"):
-            metadata["phases"] = persisted_context["phases"]
-
-        # Restore conversation metadata
-        cl.user_session.set("conversation_id", persisted_context.get("conversation_id") or str(uuid.uuid4()))
-        cl.user_session.set("conversation_name", persisted_context.get("conversation_name", ""))
-        cl.user_session.set("last_checkpoint", persisted_context.get("last_checkpoint", datetime.utcnow().isoformat()))
-
-        # === Wave 2: Restore branch tree from persisted context ===
-        preserved_branch_tree = persisted_context.get("branch_tree")
-        preserved_active_branch_id = persisted_context.get("active_branch_id")
-
-        if preserved_branch_tree:
-            cl.user_session.set("branch_tree", preserved_branch_tree)
-            cl.user_session.set("active_branch_id", preserved_active_branch_id)
-            cl.user_session.set("fork_points", preserved_branch_tree.get("fork_points", []))
-
-            if preserved_active_branch_id:
-                active_branch = preserved_branch_tree["branches"].get(preserved_active_branch_id, {})
-                cl.user_session.set("branch_history", active_branch.get("history", []))
-            else:
-                cl.user_session.set("branch_history", [])
-
-            print(f"[FORKING] Restored {len(preserved_branch_tree['branches'])} branches on resume")
-        else:
-            cl.user_session.set("branch_tree", None)
-            cl.user_session.set("active_branch_id", None)
-            cl.user_session.set("fork_points", [])
-            cl.user_session.set("branch_history", [])
-    else:
-        # No persisted context - initialize fresh conversation metadata
-        cl.user_session.set("conversation_id", str(uuid.uuid4()))
-        cl.user_session.set("conversation_name", "")
-        cl.user_session.set("last_checkpoint", datetime.utcnow().isoformat())
-
-        # Initialize empty branch state
-        cl.user_session.set("branch_tree", None)
-        cl.user_session.set("active_branch_id", None)
-        cl.user_session.set("fork_points", [])
-        cl.user_session.set("branch_history", [])
 
     # Restore bot configuration
     bot = BOTS.get(chat_profile, BOTS["lawrence"])
@@ -4857,130 +4430,6 @@ async def on_clear_context(action: cl.Action):
     ).send()
 
 
-# === BUG-001 FIX: Topic Exclusion Management Callbacks ===
-
-@cl.action_callback("manage_exclusions")
-async def on_manage_exclusions(action: cl.Action):
-    """Show current list of excluded topics with management options."""
-    excluded_topics = cl.user_session.get("excluded_topics", [])
-
-    if not excluded_topics:
-        await cl.Message(
-            content="You don't have any excluded topics. To exclude a topic, just say something like:\n\n- *\"Avoid discussing S-curves\"*\n- *\"Skip the JTBD framework\"*\n- *\"Don't bring up market sizing\"*"
-        ).send()
-        return
-
-    topics_list = "\n".join([f"- {topic}" for topic in excluded_topics])
-    await cl.Message(
-        content=f"""**Currently Excluded Topics:**
-
-{topics_list}
-
-To remove a topic from this list, click \"Clear All\" or ask me to discuss the topic again.""",
-        actions=[
-            cl.Action(
-                name="clear_exclusions",
-                payload={"action": "clear_all"},
-                label="Clear All Exclusions",
-                tooltip="Remove all topic exclusions"
-            )
-        ]
-    ).send()
-
-
-@cl.action_callback("clear_exclusions")
-async def on_clear_exclusions(action: cl.Action):
-    """Clear all excluded topics."""
-    excluded_topics = cl.user_session.get("excluded_topics", [])
-    count = len(excluded_topics)
-
-    # Clear the list
-    cl.user_session.set("excluded_topics", [])
-
-    # Update context store
-    context_key = get_context_key()
-    if context_key in context_store:
-        context_store[context_key]["excluded_topics"] = []
-
-    await cl.Message(
-        content=f"**All topic exclusions cleared.** I've removed {count} topic{'s' if count != 1 else ''} from the exclusion list. I'm now free to discuss any topic."
-    ).send()
-
-
-# === Explicit Save Conversation ===
-@cl.action_callback("save_conversation")
-async def on_save_conversation(action: cl.Action):
-    """
-    Explicitly save the current conversation state.
-
-    Creates a checkpoint with:
-    - Full conversation history
-    - Current phase progress
-    - Conversation metadata (ID, name, timestamp)
-    """
-    from utils.context_persistence import save_cross_bot_context
-
-    context_key = get_context_key()
-    bot_id = cl.user_session.get("bot_id", "lawrence")
-    history = cl.user_session.get("history", [])
-    phases = cl.user_session.get("phases", [])
-    current_phase = cl.user_session.get("current_phase", 0)
-
-    # Update checkpoint timestamp
-    last_checkpoint = datetime.utcnow().isoformat()
-    cl.user_session.set("last_checkpoint", last_checkpoint)
-
-    # Get or create conversation_id
-    conversation_id = cl.user_session.get("conversation_id")
-    if not conversation_id:
-        conversation_id = str(uuid.uuid4())
-        cl.user_session.set("conversation_id", conversation_id)
-
-    # Get optional conversation name from action payload
-    conversation_name = action.payload.get("name") or cl.user_session.get("conversation_name", "")
-    if action.payload.get("name"):
-        cl.user_session.set("conversation_name", conversation_name)
-
-    try:
-        # BUG-001 FIX: Include excluded_topics in context persistence
-        excluded_topics = cl.user_session.get("excluded_topics", [])
-        success = await save_cross_bot_context(
-            user_key=context_key,
-            history=history.copy(),
-            bot_id=bot_id,
-            bot_name=BOTS.get(bot_id, {}).get("name", bot_id),
-            phases=[p.copy() for p in phases] if phases else None,
-            current_phase=current_phase,
-            conversation_id=conversation_id,
-            conversation_name=conversation_name,
-            excluded_topics=excluded_topics
-        )
-
-        if success:
-            # Format timestamp for display
-            checkpoint_display = datetime.fromisoformat(last_checkpoint).strftime("%I:%M %p")
-            message_count = len(history)
-
-            name_display = f' "{conversation_name}"' if conversation_name else ""
-            await cl.Message(
-                content=f"**Conversation saved!**{name_display}\n\n"
-                        f"- Messages: {message_count}\n"
-                        f"- Checkpoint: {checkpoint_display}\n"
-                        f"- ID: `{conversation_id[:8]}...`\n\n"
-                        f"*Your progress is now persisted and will survive server restarts.*"
-            ).send()
-            logger.info(f"[PERSISTENCE] Manual save: {message_count} messages, checkpoint {last_checkpoint}")
-        else:
-            await cl.Message(
-                content="**Warning:** Could not save to cloud storage. Your conversation is cached locally but may not persist across server restarts."
-            ).send()
-    except Exception as e:
-        logger.error(f"[PERSISTENCE] Manual save failed: {e}")
-        await cl.Message(
-            content=f"**Error saving conversation:** {str(e)}"
-        ).send()
-
-
 # === Form Submission Callbacks (AskElementMessage) ===
 
 @cl.action_callback("form_submit")
@@ -5206,8 +4655,8 @@ async def on_show_feedback_dashboard(action: cl.Action):
         step.input = "Fetching feedback data..."
 
         # Try to use the new MindrianDataLayer first (native Chainlit feedback)
-        data_layer = await cl.data.get_data_layer()
-        if data_layer and hasattr(data_layer, 'get_feedback_stats'):
+        data_layer = cl.data._data_layer
+        if hasattr(data_layer, 'get_feedback_stats'):
             # Using MindrianDataLayer with built-in analytics
             stats = data_layer.get_feedback_stats()
             report = data_layer.export_feedback_report()
@@ -5385,996 +4834,6 @@ async def on_toggle_quick_mode(action: cl.Action):
                 tooltip="Toggle between fast answers and Socratic exploration"
             )
         ]
-    ).send()
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Wave 2: Conversation Forking - Branch management callbacks
-# ═══════════════════════════════════════════════════════════════════════════════
-
-@cl.action_callback("fork_conversation")
-async def on_fork_conversation(action: cl.Action):
-    """
-    Create a new branch from the current conversation point.
-
-    Triggered by:
-    - "Fork Here" button on message hover
-    - "Create Branch" in BranchSelector
-    - Automatic fork suggestion after "what if" detection
-    """
-    from utils.forking_utils import (
-        create_root_branch,
-        create_new_branch,
-        generate_branch_title,
-    )
-    from utils.context_persistence import save_cross_bot_context
-
-    try:
-        fork_at_index = action.payload.get("fork_at_index")
-        custom_title = action.payload.get("title")
-        copy_excluded = action.payload.get("copy_excluded_topics", True)
-
-        # Get current state
-        history = cl.user_session.get("history", [])
-        bot_id = cl.user_session.get("bot_id", "lawrence")
-        phases = cl.user_session.get("phases", [])
-        current_phase = cl.user_session.get("current_phase", 0)
-        excluded_topics = cl.user_session.get("excluded_topics", [])
-        conversation_id = cl.user_session.get("conversation_id", str(uuid.uuid4()))
-
-        # Determine fork point
-        if fork_at_index is None:
-            fork_at_index = len(history)  # Fork from current position
-
-        # Get or create branch tree
-        branch_tree = cl.user_session.get("branch_tree")
-        if not branch_tree:
-            # First fork - create root branch from existing conversation
-            branch_tree = create_root_branch(
-                history=history,
-                bot_id=bot_id,
-                phases=phases,
-                current_phase=current_phase,
-                excluded_topics=excluded_topics,
-                conversation_id=conversation_id,
-            )
-            parent_branch_id = branch_tree["root_branch_id"]
-        else:
-            parent_branch_id = branch_tree["active_branch_id"]
-
-        # Generate branch title
-        context = "\n".join([
-            m.get("content", "")[:200]
-            for m in history[max(0, fork_at_index-3):fork_at_index]
-        ])
-        parent_title = branch_tree["branches"][parent_branch_id]["title"]
-        title = custom_title or generate_branch_title(
-            context,
-            parent_title,
-            len(branch_tree["branches"])
-        )
-
-        # Create new branch
-        new_branch_id = create_new_branch(
-            branch_tree=branch_tree,
-            parent_branch_id=parent_branch_id,
-            fork_at_index=fork_at_index,
-            title=title,
-            bot_id=bot_id,
-            phases=phases,
-            current_phase=current_phase,
-            excluded_topics=excluded_topics,
-            copy_excluded=copy_excluded,
-        )
-
-        # Update session state
-        cl.user_session.set("branch_tree", branch_tree)
-        cl.user_session.set("active_branch_id", new_branch_id)
-        cl.user_session.set("fork_points", branch_tree["fork_points"])
-        cl.user_session.set("branch_history", [])
-
-        # Persist to storage
-        context_key = get_context_key()
-        await save_cross_bot_context(
-            user_key=context_key,
-            history=history,
-            bot_id=bot_id,
-            bot_name=BOTS.get(bot_id, {}).get("name", "Bot"),
-            phases=phases,
-            current_phase=current_phase,
-            conversation_id=conversation_id,
-            excluded_topics=excluded_topics,
-            branch_tree=branch_tree,
-            active_branch_id=new_branch_id,
-        )
-
-        # Show confirmation
-        await cl.Message(
-            content=f"**🌿 Branch Created: {title}**\n\n"
-                    f"Forked from *{parent_title}* at message {fork_at_index}.\n\n"
-                    "Continue exploring this path. Your original conversation is preserved.",
-            actions=[
-                cl.Action(
-                    name="show_branch_selector",
-                    payload={},
-                    label="View All Branches",
-                    tooltip="See all conversation branches"
-                ),
-                cl.Action(
-                    name="switch_branch",
-                    payload={"branch_id": parent_branch_id},
-                    label=f"← Back to {parent_title}",
-                    tooltip="Return to the original branch"
-                ),
-            ]
-        ).send()
-
-        print(f"[FORKING] Created branch '{title}' from message {fork_at_index}")
-
-    except Exception as e:
-        print(f"Fork error: {e}")
-        await cl.Message(content=f"Unable to create branch: {str(e)[:100]}").send()
-
-
-@cl.action_callback("switch_branch")
-async def on_switch_branch(action: cl.Action):
-    """Switch to a different conversation branch."""
-    from utils.forking_utils import switch_to_branch, get_composed_history
-    from utils.context_persistence import save_cross_bot_context
-
-    try:
-        target_branch_id = action.payload.get("branch_id")
-
-        branch_tree = cl.user_session.get("branch_tree")
-        if not branch_tree:
-            await cl.Message(content="No branches exist yet.").send()
-            return
-
-        target_branch = branch_tree["branches"].get(target_branch_id)
-        if not target_branch:
-            await cl.Message(content="Branch not found.").send()
-            return
-
-        current_branch_id = branch_tree["active_branch_id"]
-        if current_branch_id == target_branch_id:
-            await cl.Message(content=f"Already on branch: {target_branch['title']}").send()
-            return
-
-        # Save current branch state and switch
-        current_session = {
-            "branch_history": cl.user_session.get("branch_history", []),
-            "bot_id": cl.user_session.get("bot_id"),
-            "phases": cl.user_session.get("phases", []),
-            "current_phase": cl.user_session.get("current_phase", 0),
-            "excluded_topics": cl.user_session.get("excluded_topics", []),
-        }
-
-        branch_tree = switch_to_branch(branch_tree, target_branch_id, current_session)
-
-        # Restore target branch state
-        cl.user_session.set("branch_tree", branch_tree)
-        cl.user_session.set("active_branch_id", target_branch_id)
-        cl.user_session.set("branch_history", target_branch.get("history", []))
-        cl.user_session.set("bot_id", target_branch.get("bot_id", "lawrence"))
-        cl.user_session.set("phases", target_branch.get("phases", []))
-        cl.user_session.set("current_phase", target_branch.get("current_phase", 0))
-        cl.user_session.set("excluded_topics", target_branch.get("excluded_topics", []))
-
-        # Compose full history for LLM context
-        # Use the branch's history directly (forking utils composes internally)
-        composed_history = []
-        parent_id = target_branch.get("parent_branch_id")
-        if parent_id:
-            parent = branch_tree["branches"].get(parent_id, {})
-            fork_point = target_branch.get("fork_point_message_index", 0)
-            shared_history = parent.get("history", [])[:fork_point]
-            composed_history = shared_history + target_branch.get("history", [])
-        else:
-            composed_history = target_branch.get("history", [])
-
-        cl.user_session.set("history", composed_history)
-
-        # Persist
-        context_key = get_context_key()
-        bot_id = target_branch.get("bot_id", "lawrence")
-        await save_cross_bot_context(
-            user_key=context_key,
-            history=composed_history,
-            bot_id=bot_id,
-            bot_name=BOTS.get(bot_id, {}).get("name", "Bot"),
-            phases=target_branch.get("phases"),
-            current_phase=target_branch.get("current_phase", 0),
-            conversation_id=cl.user_session.get("conversation_id"),
-            excluded_topics=target_branch.get("excluded_topics", []),
-            branch_tree=branch_tree,
-            active_branch_id=target_branch_id,
-        )
-
-        # Get previous branch name for message
-        current_branch = branch_tree["branches"].get(current_branch_id, {})
-
-        await cl.Message(
-            content=f"**Switched to: {target_branch['title']}**\n\n"
-                    f"Left *{current_branch.get('title', 'previous branch')}* (paused).\n"
-                    f"This branch has {target_branch.get('message_count', 0)} messages.",
-            actions=[
-                cl.Action(
-                    name="show_branch_selector",
-                    payload={},
-                    label="View All Branches",
-                    tooltip="See all conversation branches"
-                ),
-            ]
-        ).send()
-
-        print(f"[FORKING] Switched from '{current_branch.get('title')}' to '{target_branch['title']}'")
-
-    except Exception as e:
-        print(f"Switch branch error: {e}")
-        await cl.Message(content=f"Unable to switch branch: {str(e)[:100]}").send()
-
-
-@cl.action_callback("delete_branch")
-async def on_delete_branch(action: cl.Action):
-    """Delete (archive) a conversation branch."""
-    from utils.forking_utils import can_delete_branch, archive_branch
-    from utils.context_persistence import save_cross_bot_context
-
-    try:
-        branch_id = action.payload.get("branch_id")
-        permanent = action.payload.get("permanent", False)
-
-        branch_tree = cl.user_session.get("branch_tree")
-        if not branch_tree:
-            await cl.Message(content="No branches exist.").send()
-            return
-
-        # Check if we can delete
-        can_delete, reason = can_delete_branch(branch_tree, branch_id)
-        if not can_delete:
-            await cl.Message(
-                content=reason,
-                actions=[cl.Action(name="show_branch_selector", payload={}, label="View Branches")]
-            ).send()
-            return
-
-        branch = branch_tree["branches"].get(branch_id)
-        if not branch:
-            await cl.Message(content="Branch not found.").send()
-            return
-
-        branch_title = branch.get("title", "Unknown")
-
-        # Archive (soft delete)
-        branch_tree = archive_branch(branch_tree, branch_id)
-        cl.user_session.set("branch_tree", branch_tree)
-
-        # Persist
-        context_key = get_context_key()
-        await save_cross_bot_context(
-            user_key=context_key,
-            history=cl.user_session.get("history", []),
-            bot_id=cl.user_session.get("bot_id", "lawrence"),
-            bot_name=BOTS.get(cl.user_session.get("bot_id", "lawrence"), {}).get("name", "Bot"),
-            phases=cl.user_session.get("phases"),
-            current_phase=cl.user_session.get("current_phase", 0),
-            conversation_id=cl.user_session.get("conversation_id"),
-            excluded_topics=cl.user_session.get("excluded_topics", []),
-            branch_tree=branch_tree,
-            active_branch_id=cl.user_session.get("active_branch_id"),
-        )
-
-        await cl.Message(
-            content=f"**Branch Archived:** {branch_title}\n\nYou can still access it from the branch selector.",
-            actions=[cl.Action(name="show_branch_selector", payload={}, label="View Branches")]
-        ).send()
-
-        print(f"[FORKING] Archived branch '{branch_title}'")
-
-    except Exception as e:
-        print(f"Delete branch error: {e}")
-        await cl.Message(content=f"Unable to delete branch: {str(e)[:100]}").send()
-
-
-@cl.action_callback("show_branch_selector")
-async def on_show_branch_selector(action: cl.Action):
-    """Display the BranchSelector custom element."""
-    branch_tree = cl.user_session.get("branch_tree")
-
-    if not branch_tree or len(branch_tree["branches"]) <= 1:
-        await cl.Message(
-            content="No branches yet. Use the **Fork** button to create a branch for exploring alternative directions.",
-            actions=[
-                cl.Action(
-                    name="fork_conversation",
-                    payload={},
-                    label="🌿 Create Branch",
-                    tooltip="Fork the conversation to explore a 'what if' scenario"
-                )
-            ]
-        ).send()
-        return
-
-    # Create BranchSelector element
-    selector = cl.CustomElement(
-        name="BranchSelector",
-        props={
-            "branches": list(branch_tree["branches"].values()),
-            "activeBranchId": branch_tree["active_branch_id"],
-            "rootBranchId": branch_tree["root_branch_id"],
-            "forkPoints": branch_tree["fork_points"],
-        },
-        display="inline"
-    )
-
-    await cl.Message(content="", elements=[selector]).send()
-
-
-@cl.action_callback("merge_branches")
-async def on_merge_branches(action: cl.Action):
-    """Merge insights from one branch into another."""
-    from utils.forking_merge import extract_and_merge_insights, create_merge_message
-    from utils.context_persistence import save_cross_bot_context
-
-    try:
-        source_id = action.payload.get("source_branch_id")
-        target_id = action.payload.get("target_branch_id")
-        archive_source = action.payload.get("archive_source", True)
-
-        branch_tree = cl.user_session.get("branch_tree")
-        if not branch_tree:
-            await cl.Message(content="No branches to merge.").send()
-            return
-
-        source_branch = branch_tree["branches"].get(source_id)
-        target_branch = branch_tree["branches"].get(target_id)
-
-        if not source_branch or not target_branch:
-            await cl.Message(content="Source or target branch not found.").send()
-            return
-
-        # Show merging status
-        msg = cl.Message(content="Merging branches...")
-        await msg.send()
-
-        # Extract insights using LLM
-        source_history = source_branch.get("history", [])
-        target_history = target_branch.get("history", [])
-
-        merge_result = await extract_and_merge_insights(
-            source_history=source_history,
-            target_history=target_history,
-            source_title=source_branch["title"],
-            target_title=target_branch["title"],
-        )
-
-        if merge_result["success"]:
-            # Create merge message and add to target branch
-            merge_msg = create_merge_message(
-                source_title=source_branch["title"],
-                insights=merge_result["insights_merged"],
-                conflicts=merge_result["conflicts"],
-                summary=merge_result["merge_summary"],
-            )
-
-            target_branch["history"].append(merge_msg)
-            target_branch["message_count"] = len(target_branch["history"])
-            target_branch["last_activity"] = datetime.utcnow().isoformat()
-
-            # Archive source branch if requested
-            if archive_source:
-                source_branch["status"] = "merged"
-                source_branch["merge_target"] = target_id
-
-            branch_tree["last_modified"] = datetime.utcnow().isoformat()
-            cl.user_session.set("branch_tree", branch_tree)
-
-            # Persist
-            context_key = get_context_key()
-            await save_cross_bot_context(
-                user_key=context_key,
-                history=cl.user_session.get("history", []),
-                bot_id=cl.user_session.get("bot_id", "lawrence"),
-                bot_name=BOTS.get(cl.user_session.get("bot_id", "lawrence"), {}).get("name", "Bot"),
-                phases=cl.user_session.get("phases"),
-                current_phase=cl.user_session.get("current_phase", 0),
-                conversation_id=cl.user_session.get("conversation_id"),
-                excluded_topics=cl.user_session.get("excluded_topics", []),
-                branch_tree=branch_tree,
-                active_branch_id=cl.user_session.get("active_branch_id"),
-            )
-
-            # Show result
-            insights_list = "\n".join(f"• {i}" for i in merge_result["insights_merged"][:5])
-            conflicts_section = ""
-            if merge_result["conflicts"]:
-                conflicts_list = "\n".join(f"⚠️ {c}" for c in merge_result["conflicts"][:3])
-                conflicts_section = f"\n\n**Differences Noted:**\n{conflicts_list}"
-
-            await msg.remove()
-            await cl.Message(
-                content=f"**✅ Merge Complete**\n\n"
-                        f"Merged insights from *{source_branch['title']}* into *{target_branch['title']}*.\n\n"
-                        f"**Key Insights Merged:**\n{insights_list}{conflicts_section}",
-                actions=[
-                    cl.Action(
-                        name="switch_branch",
-                        payload={"branch_id": target_id},
-                        label=f"Go to {target_branch['title']}",
-                    ),
-                    cl.Action(
-                        name="show_branch_selector",
-                        payload={},
-                        label="View All Branches",
-                    ),
-                ]
-            ).send()
-
-            print(f"[FORKING] Merged '{source_branch['title']}' into '{target_branch['title']}'")
-
-        else:
-            await msg.remove()
-            await cl.Message(content=f"Merge failed: {merge_result.get('error', 'Unknown error')}").send()
-
-    except Exception as e:
-        print(f"Merge error: {e}")
-        await cl.Message(content=f"Unable to merge branches: {str(e)[:100]}").send()
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Wave 3: Idea Canvas - Extracted ideas visualization
-# ═══════════════════════════════════════════════════════════════════════════════
-
-@cl.action_callback("show_idea_canvas")
-async def on_show_idea_canvas(action: cl.Action):
-    """Display the IdeaCanvas custom element."""
-    canvas_state = cl.user_session.get("canvas_state")
-
-    if not canvas_state or not canvas_state.get("idea_nodes"):
-        await cl.Message(
-            content="No ideas extracted yet. Ideas will appear as you explore topics in conversation.",
-            actions=[
-                cl.Action(
-                    name="extract_ideas_now",
-                    payload={},
-                    label="🔍 Extract Ideas Now",
-                    tooltip="Analyze conversation for ideas"
-                )
-            ]
-        ).send()
-        return
-
-    # Create IdeaCanvas element
-    canvas = cl.CustomElement(
-        name="IdeaCanvas",
-        props={
-            "nodes": list(canvas_state["idea_nodes"].values()),
-            "layout": canvas_state["layout"],
-            "viewMode": canvas_state["view_mode"],
-            "filters": canvas_state["filters"],
-            "currentBranchId": canvas_state.get("current_branch_id", "main"),
-            "title": "Idea Canvas",
-            "editable": True,
-        },
-        display="inline"
-    )
-
-    await cl.Message(content="", elements=[canvas]).send()
-
-
-@cl.action_callback("star_idea")
-async def on_star_idea(action: cl.Action):
-    """Toggle star status on an idea."""
-    try:
-        node_id = action.payload.get("node_id")
-        print(f"[STAR_IDEA] Received node_id: {node_id}")
-
-        canvas_state = cl.user_session.get("canvas_state")
-        if not canvas_state:
-            print("[STAR_IDEA] No canvas_state in session")
-            await cl.Message(content="No canvas state. Try extracting ideas first.").send()
-            return
-
-        idea_nodes = canvas_state.get("idea_nodes", {})
-        print(f"[STAR_IDEA] idea_nodes keys: {list(idea_nodes.keys())[:5]}...")
-
-        if node_id not in idea_nodes:
-            print(f"[STAR_IDEA] node_id {node_id} not in idea_nodes")
-            await cl.Message(content=f"Idea not found: {node_id}").send()
-            return
-
-        node = idea_nodes[node_id]
-        node["starred"] = not node.get("starred", False)
-
-        cl.user_session.set("canvas_state", canvas_state)
-
-        # Try to save, but don't fail if save_canvas_state doesn't exist
-        try:
-            from tools.idea_canvas import save_canvas_state
-            await save_canvas_state(canvas_state)
-        except ImportError:
-            print("[STAR_IDEA] save_canvas_state not available, skipping persist")
-
-        status = "⭐ Starred" if node["starred"] else "Unstarred"
-        await cl.Message(
-            content=f"{status}: {node.get('content', 'idea')[:60]}...",
-        ).send()
-    except Exception as e:
-        print(f"[STAR_IDEA] Error: {e}")
-        await cl.Message(content=f"Star error: {str(e)[:100]}").send()
-
-
-@cl.action_callback("prune_idea")
-async def on_prune_idea(action: cl.Action):
-    """Mark an idea as pruned (dead end)."""
-    try:
-        node_id = action.payload.get("node_id")
-        print(f"[PRUNE_IDEA] Received node_id: {node_id}")
-
-        canvas_state = cl.user_session.get("canvas_state")
-        if not canvas_state:
-            print("[PRUNE_IDEA] No canvas_state in session")
-            await cl.Message(content="No canvas state. Try extracting ideas first.").send()
-            return
-
-        idea_nodes = canvas_state.get("idea_nodes", {})
-        if node_id not in idea_nodes:
-            print(f"[PRUNE_IDEA] node_id {node_id} not in idea_nodes")
-            await cl.Message(content=f"Idea not found: {node_id}").send()
-            return
-
-        node = idea_nodes[node_id]
-        node["pruned"] = True
-
-        # Cascade prune to children
-        def prune_children(nid):
-            for child_id in idea_nodes.get(nid, {}).get("child_node_ids", []):
-                if child_id in idea_nodes:
-                    idea_nodes[child_id]["pruned"] = True
-                    prune_children(child_id)
-
-        prune_children(node_id)
-
-        cl.user_session.set("canvas_state", canvas_state)
-
-        # Try to save, but don't fail if save_canvas_state doesn't exist
-        try:
-            from tools.idea_canvas import save_canvas_state
-            await save_canvas_state(canvas_state)
-        except ImportError:
-            print("[PRUNE_IDEA] save_canvas_state not available, skipping persist")
-
-        await cl.Message(
-            content=f"🗑️ Pruned: {node.get('content', 'idea')[:50]}...",
-        ).send()
-    except Exception as e:
-        print(f"[PRUNE_IDEA] Error: {e}")
-        await cl.Message(content=f"Prune error: {str(e)[:100]}").send()
-
-    children_count = len(node.get("child_node_ids", []))
-    child_text = f" (and {children_count} children)" if children_count > 0 else ""
-    await cl.Message(
-        content=f"🗑️ Pruned: {node['content'][:50]}...{child_text}",
-        author="system"
-    ).send()
-
-
-@cl.action_callback("canvas_layout_updated")
-async def on_canvas_layout_updated(action: cl.Action):
-    """Save new node positions from drag-and-drop."""
-    from tools.idea_canvas import save_canvas_state
-    from datetime import datetime
-
-    positions = action.payload.get("positions", {})
-    canvas_state = cl.user_session.get("canvas_state")
-
-    if not canvas_state:
-        return
-
-    canvas_state["layout"]["positions"] = positions
-    canvas_state["last_updated"] = datetime.utcnow().isoformat()
-
-    cl.user_session.set("canvas_state", canvas_state)
-    await save_canvas_state(canvas_state)
-
-
-@cl.action_callback("canvas_node_selected")
-async def on_canvas_node_selected(action: cl.Action):
-    """Handle node selection - show source context."""
-    node_id = action.payload.get("node_id")
-    message_index = action.payload.get("message_index")
-
-    canvas_state = cl.user_session.get("canvas_state")
-    if not canvas_state or node_id not in canvas_state.get("idea_nodes", {}):
-        return
-
-    node = canvas_state["idea_nodes"][node_id]
-    history = cl.user_session.get("history", [])
-
-    # Get source message context
-    source_context = ""
-    if message_index is not None and message_index < len(history):
-        msg = history[message_index]
-        source_context = f"\n\n**Source ({node.get('source_role', 'unknown')}):**\n> {msg.get('content', '')[:300]}..."
-
-    await cl.Message(
-        content=f"**{node.get('node_type', 'idea').upper()}**: {node['content']}{source_context}",
-        actions=[
-            cl.Action(
-                name="star_idea",
-                payload={"node_id": node_id},
-                label="⭐ Star" if not node.get("starred") else "★ Unstar",
-            ),
-            cl.Action(
-                name="prune_idea",
-                payload={"node_id": node_id},
-                label="🗑️ Prune",
-            ),
-        ]
-    ).send()
-
-
-@cl.action_callback("extract_ideas_now")
-async def on_extract_ideas_now(action: cl.Action):
-    """Manually trigger idea extraction from conversation history."""
-    from tools.idea_canvas import (
-        background_extract_ideas,
-        link_idea_parents,
-        init_canvas_state,
-        auto_layout,
-        save_canvas_state,
-    )
-    from datetime import datetime
-
-    history = cl.user_session.get("history", [])
-    if len(history) < 2:
-        await cl.Message(content="Not enough conversation to extract ideas from. Keep chatting!").send()
-        return
-
-    msg = cl.Message(content="🔍 Analyzing conversation for ideas...")
-    await msg.send()
-
-    # Get or create canvas state
-    canvas_state = cl.user_session.get("canvas_state")
-    if not canvas_state:
-        session_id = cl.user_session.get("id") or str(uuid.uuid4())
-        branch_id = cl.user_session.get("active_branch_id") or "main"
-        canvas_state = init_canvas_state(session_id, branch_id)
-
-    branch_id = canvas_state.get("current_branch_id", "main")
-
-    # Extract ideas from recent messages
-    all_ideas = []
-    recent_history = history[-20:]  # Last 20 messages
-
-    for i, msg_data in enumerate(recent_history):
-        role = msg_data.get("role", "user")
-        if role == "model":
-            role = "assistant"
-        content = msg_data.get("content", "")
-
-        if len(content) > 50:  # Skip very short messages
-            ideas = await background_extract_ideas(
-                message_content=content,
-                message_role=role,
-                message_index=len(history) - len(recent_history) + i,
-                message_id=str(i),
-                branch_id=branch_id,
-                conversation_context=""
-            )
-            all_ideas.extend(ideas)
-
-    # LIMIT to top 10 ideas with PWS-aware ranking (BUG-104: 52 ideas is too many)
-    if len(all_ideas) > 10:
-        # PWS-aware scoring: prioritize problems worth solving
-        def pws_score(idea):
-            score = idea.get("confidence", 0.5)
-            content = idea.get("content", "").lower()
-            node_type = idea.get("node_type", "")
-
-            # Boost problems and insights (PWS core)
-            if node_type == "problem":
-                score += 0.3
-            elif node_type == "insight":
-                score += 0.2
-
-            # Boost ideas with PWS keywords
-            pws_keywords = ["opportunity", "gap", "need", "pain", "struggle", "worth solving",
-                           "market", "customer", "value", "solution", "assumption"]
-            for kw in pws_keywords:
-                if kw in content:
-                    score += 0.1
-
-            # Penalize generic/vague ideas
-            vague_keywords = ["something", "maybe", "might", "could be", "perhaps"]
-            for kw in vague_keywords:
-                if kw in content:
-                    score -= 0.1
-
-            # Boost longer, more substantive ideas (more context)
-            if len(content) > 100:
-                score += 0.1
-            if len(content) > 200:
-                score += 0.1
-
-            return score
-
-        all_ideas = sorted(all_ideas, key=pws_score, reverse=True)[:10]
-        print(f"[EXTRACT_IDEAS] Filtered {len(all_ideas)} ideas from original set using PWS ranking")
-
-    # Add to canvas state
-    for idea in all_ideas:
-        canvas_state["idea_nodes"][idea["node_id"]] = idea
-
-    # Link parents
-    parent_hints = [idea.get("metadata", {}).get("parent_hint", "") for idea in all_ideas]
-    link_idea_parents(all_ideas, canvas_state["idea_nodes"], parent_hints)
-
-    # Calculate layout
-    canvas_state["layout"]["positions"] = auto_layout(
-        list(canvas_state["idea_nodes"].values()),
-        canvas_state["view_mode"]
-    )
-    canvas_state["last_updated"] = datetime.utcnow().isoformat()
-
-    cl.user_session.set("canvas_state", canvas_state)
-    await save_canvas_state(canvas_state)
-
-    await msg.remove()
-    await cl.Message(
-        content=f"✨ Extracted {len(all_ideas)} ideas from conversation!",
-        actions=[
-            cl.Action(
-                name="show_idea_canvas",
-                payload={},
-                label="🎨 View Canvas",
-            )
-        ]
-    ).send()
-
-
-@cl.action_callback("export_canvas")
-async def on_export_canvas(action: cl.Action):
-    """Export canvas to markdown."""
-    from tools.idea_canvas import export_canvas_to_markdown
-
-    canvas_state = cl.user_session.get("canvas_state")
-    if not canvas_state or not canvas_state.get("idea_nodes"):
-        await cl.Message(content="No ideas to export. Use the canvas first!").send()
-        return
-
-    markdown = export_canvas_to_markdown(canvas_state)
-
-    # Create downloadable file
-    from utils.media import create_downloadable_file
-    file_elem = await create_downloadable_file(
-        content=markdown,
-        filename="idea_canvas_export.md",
-        content_type="text/markdown"
-    )
-
-    await cl.Message(
-        content="📥 **Canvas Exported**\n\nDownload your idea canvas as markdown.",
-        elements=[file_elem] if file_elem else []
-    ).send()
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# WAVE 4: Auto-Orchestration - "Find the Breakthrough"
-# ═══════════════════════════════════════════════════════════════════════════════
-
-@cl.action_callback("find_breakthrough")
-async def on_find_breakthrough(action: cl.Action):
-    """Trigger auto-orchestration workflow for breakthrough discovery."""
-    from protocols.auto_orchestrator import AutoOrchestrator, OrchestratorStatus
-    from protocols.intent_classifier import classify_intent, get_workflow_description
-
-    # Get the query - either from payload or from recent history
-    query = action.payload.get("query", "")
-    if not query:
-        history = cl.user_session.get("history", [])
-        # Find the most recent user message
-        for msg in reversed(history):
-            if msg.get("role") == "user":
-                query = msg.get("content", "")
-                break
-
-    if not query:
-        await cl.Message(
-            content="🔍 **Find the Breakthrough**\n\nPlease describe what you're working on first, then I can help find opportunities!"
-        ).send()
-        return
-
-    # Classify intent to determine workflow
-    classification = classify_intent(query)
-    workflow_desc = get_workflow_description(classification.workflow_type)
-
-    # Show initial message with workflow selection
-    await cl.Message(
-        content=f"🚀 **Starting: {workflow_desc}**\n\n"
-                f"*Detected intent: {classification.workflow_type.value}*\n"
-                f"*Confidence: {classification.confidence:.0%}*\n"
-                f"*Agents: {', '.join(classification.recommended_agents)}*\n\n"
-                "Orchestrating multi-agent analysis...",
-        actions=[
-            cl.Action(
-                name="cancel_orchestration",
-                payload={},
-                label="⏹️ Cancel",
-            )
-        ]
-    ).send()
-
-    session_id = cl.user_session.get("id") or str(uuid.uuid4())
-    history = cl.user_session.get("history", [])
-
-    # Progress callback for real-time updates
-    async def progress_callback(progress: dict):
-        stage = progress.get("stage", 0) + 1
-        total = progress.get("total", 1)
-        task = progress.get("task", "")
-        agents = progress.get("agents", [])
-
-        msg = cl.Message(
-            content=f"📊 **Stage {stage}/{total}**: {task}\n"
-                    f"*Running: {', '.join(agents)}*"
-        )
-        await msg.send()
-
-    # Create and run orchestrator
-    orchestrator = AutoOrchestrator(
-        session_id=session_id,
-        progress_callback=progress_callback,
-    )
-
-    # Store orchestrator for cancellation
-    cl.user_session.set("active_orchestrator", orchestrator)
-
-    try:
-        result = await orchestrator.run(
-            query=query,
-            workflow_override=action.payload.get("workflow"),
-            history=history
-        )
-
-        # Clear active orchestrator
-        cl.user_session.set("active_orchestrator", None)
-
-        # Display synthesis
-        if result.synthesis and "content" in result.synthesis:
-            synthesis_content = result.synthesis["content"]
-            agents_used = result.synthesis.get("agents_used", [])
-            duration_ms = result.synthesis.get("total_duration_ms", 0)
-
-            await cl.Message(
-                content=f"## 🎯 Breakthrough Analysis Complete\n\n"
-                        f"{synthesis_content}\n\n"
-                        f"---\n"
-                        f"*Agents: {', '.join(agents_used)} | "
-                        f"Duration: {duration_ms/1000:.1f}s | "
-                        f"Confidence: {result.confidence:.0%}*",
-                actions=[
-                    cl.Action(
-                        name="find_breakthrough",
-                        payload={"query": query},
-                        label="🔄 Re-analyze",
-                    ),
-                    cl.Action(
-                        name="show_workflow_options",
-                        payload={"query": query},
-                        label="📋 Try Different Workflow",
-                    ),
-                ]
-            ).send()
-        elif result.status == OrchestratorStatus.CANCELLED.value:
-            await cl.Message(content="❌ Analysis cancelled.").send()
-        else:
-            error = result.error or result.synthesis.get("error", "Unknown error")
-            await cl.Message(
-                content=f"⚠️ **Analysis incomplete**\n\n{error}"
-            ).send()
-
-    except Exception as e:
-        cl.user_session.set("active_orchestrator", None)
-        print(f"[ORCHESTRATOR] Error: {e}")
-        await cl.Message(content=f"⚠️ Orchestration error: {str(e)}").send()
-
-
-@cl.action_callback("run_workflow")
-async def on_run_workflow(action: cl.Action):
-    """Run a specific workflow by ID."""
-    from protocols.workflow_recipes import get_workflow, list_workflows
-
-    workflow_id = action.payload.get("workflow_id")
-    query = action.payload.get("query", "")
-
-    if not workflow_id:
-        await cl.Message(content="⚠️ No workflow specified.").send()
-        return
-
-    workflow = get_workflow(workflow_id)
-    if not workflow:
-        await cl.Message(content=f"⚠️ Unknown workflow: {workflow_id}").send()
-        return
-
-    # Re-trigger find_breakthrough with workflow override
-    await on_find_breakthrough(cl.Action(
-        name="find_breakthrough",
-        payload={"query": query, "workflow": workflow_id}
-    ))
-
-
-@cl.action_callback("show_workflow_options")
-async def on_show_workflow_options(action: cl.Action):
-    """Show available workflow options."""
-    from protocols.workflow_recipes import list_workflows
-
-    query = action.payload.get("query", "")
-    workflows = list_workflows()
-
-    workflow_list = "\n".join([
-        f"- **{w['name']}** ({w['stage_count']} stages): {w['description']}"
-        for w in workflows
-    ])
-
-    actions = [
-        cl.Action(
-            name="run_workflow",
-            payload={"workflow_id": w["id"], "query": query},
-            label=f"▶️ {w['name']}",
-        )
-        for w in workflows[:6]  # Limit to 6 buttons
-    ]
-
-    await cl.Message(
-        content=f"## 📋 Available Workflows\n\n{workflow_list}\n\n*Select a workflow to run:*",
-        actions=actions
-    ).send()
-
-
-@cl.action_callback("cancel_orchestration")
-async def on_cancel_orchestration(action: cl.Action):
-    """Cancel running orchestration."""
-    orchestrator = cl.user_session.get("active_orchestrator")
-    if orchestrator:
-        orchestrator.cancel()
-        await cl.Message(content="⏹️ Cancelling analysis...").send()
-    else:
-        await cl.Message(content="No active analysis to cancel.").send()
-
-
-@cl.action_callback("show_orchestrator_progress")
-async def on_show_orchestrator_progress(action: cl.Action):
-    """Show current orchestrator state."""
-    orchestrator = cl.user_session.get("active_orchestrator")
-    if not orchestrator or not orchestrator.state:
-        await cl.Message(content="No active analysis running.").send()
-        return
-
-    state = orchestrator.state
-    progress_pct = (state.current_stage / max(state.total_stages, 1)) * 100
-
-    completed_stages = []
-    for sr in state.stage_results:
-        agents_ok = sum(1 for o in sr.outputs.values() if isinstance(o, dict) and "response" in o)
-        agents_err = sum(1 for o in sr.outputs.values() if isinstance(o, dict) and "error" in o)
-        completed_stages.append(f"- Stage {sr.stage_index + 1} ({sr.task}): {agents_ok} ✅ {agents_err} ❌")
-
-    stages_text = "\n".join(completed_stages) if completed_stages else "No stages completed yet."
-
-    await cl.Message(
-        content=f"## 📊 Orchestration Progress\n\n"
-                f"**Workflow:** {state.workflow_name}\n"
-                f"**Status:** {state.status}\n"
-                f"**Progress:** {progress_pct:.0f}% ({state.current_stage}/{state.total_stages} stages)\n\n"
-                f"### Completed Stages\n{stages_text}",
-        actions=[
-            cl.Action(
-                name="cancel_orchestration",
-                payload={},
-                label="⏹️ Cancel",
-            )
-        ] if state.status == "running" else []
     ).send()
 
 
@@ -7345,43 +5804,18 @@ Ready to apply these? Tell me about a problem, industry, or idea you're curious 
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# TRIPLE-MODE ENTRY POINT CALLBACKS (separate for reliability)
+# TRIPLE-MODE CONSOLIDATED CALLBACKS (3 instead of 7)
 # ═══════════════════════════════════════════════════════════════════════════════
-
-@cl.action_callback("ep_brainstorming")
-async def on_ep_brainstorming(action: cl.Action):
-    """Handle Explore Ideas entry point."""
-    logger.info("[ACTION] ep_brainstorming triggered")
-    if TRIPLE_MODE_ENABLED:
-        await handle_entry_point_selection("brainstorming")
-
-
-@cl.action_callback("ep_document_review")
-async def on_ep_document_review(action: cl.Action):
-    """Handle Get Feedback entry point."""
-    logger.info("[ACTION] ep_document_review triggered")
-    if TRIPLE_MODE_ENABLED:
-        await handle_entry_point_selection("document_review")
-
-
-@cl.action_callback("ep_build_venture")
-async def on_ep_build_venture(action: cl.Action):
-    """Handle Build Venture entry point."""
-    logger.info("[ACTION] ep_build_venture triggered")
-    if TRIPLE_MODE_ENABLED:
-        await handle_entry_point_selection("build_venture")
-
 
 @cl.action_callback("select_entry_point")
 async def on_select_entry_point(action: cl.Action):
-    """Legacy handler for backward compatibility."""
-    logger.info(f"[ACTION] select_entry_point triggered: {action.payload}")
-    try:
-        if TRIPLE_MODE_ENABLED:
-            entry_point = action.payload.get("entry_point", "brainstorming")
-            await handle_entry_point_selection(entry_point)
-    except Exception as e:
-        logger.error(f"[ACTION] Error in select_entry_point: {e}", exc_info=True)
+    """
+    CONSOLIDATED: Handle all entry point selections.
+    Payload: { entry_point: "brainstorming" | "document_review" | "build_venture" }
+    """
+    if TRIPLE_MODE_ENABLED:
+        entry_point = action.payload.get("entry_point", "brainstorming")
+        await handle_entry_point_selection(entry_point)
 
 
 @cl.action_callback("mode_or_stage")
@@ -7497,7 +5931,6 @@ async def handle_agent_switch(new_agent_id: str):
         last_checkpoint = datetime.utcnow().isoformat()
         cl.user_session.set("last_checkpoint", last_checkpoint)
 
-        # BUG-001 FIX: Preserve excluded_topics on bot switch
         await save_cross_bot_context(
             user_key=context_key,
             history=history.copy(),
@@ -7506,8 +5939,7 @@ async def handle_agent_switch(new_agent_id: str):
             phases=[p.copy() for p in stored_phases] if stored_phases else None,
             current_phase=cl.user_session.get("current_phase", 0),
             conversation_id=cl.user_session.get("conversation_id"),
-            conversation_name=cl.user_session.get("conversation_name", ""),
-            excluded_topics=cl.user_session.get("excluded_topics", [])
+            conversation_name=cl.user_session.get("conversation_name", "")
         )
         logger.info(f"[PERSISTENCE] Checkpoint saved on bot switch: {last_checkpoint}")
     except Exception as e:
@@ -7998,29 +6430,6 @@ async def on_next_phase(action: cl.Action):
         if context_key in context_store:
             context_store[context_key]["phases"] = [p.copy() for p in phases]
             context_store[context_key]["current_phase"] = current_phase_idx + 1
-
-        # === CRITICAL: Persist phase transition to Supabase ===
-        # Phase transitions are key checkpoints - save immediately
-        try:
-            from utils.context_persistence import save_cross_bot_context
-            last_checkpoint = datetime.utcnow().isoformat()
-            cl.user_session.set("last_checkpoint", last_checkpoint)
-
-            # BUG-001 FIX: Preserve excluded_topics on phase transition
-            await save_cross_bot_context(
-                user_key=context_key,
-                history=history.copy(),
-                bot_id=bot_id,
-                bot_name=BOTS.get(bot_id, {}).get("name", bot_id),
-                phases=[p.copy() for p in phases],
-                current_phase=current_phase_idx + 1,
-                conversation_id=cl.user_session.get("conversation_id"),
-                conversation_name=cl.user_session.get("conversation_name", ""),
-                excluded_topics=cl.user_session.get("excluded_topics", [])
-            )
-            logger.info(f"[PERSISTENCE] Phase transition saved: phase {current_phase_idx + 1} -> {current_phase_idx + 2}")
-        except Exception as e:
-            logger.warning(f"[PERSISTENCE] Phase transition save failed: {e}")
 
         # === STEP 3: Generate Smart Transition ===
         if use_smart_transition and next_config:
@@ -10372,9 +8781,8 @@ async def on_deep_research(action: cl.Action):
     except Exception as e:
         # CRITICAL: Never let research errors destroy the session
         import traceback
-        error_traceback = traceback.format_exc()
         print(f"[RESEARCH] Critical callback error: {e}")
-        print(f"[RESEARCH] Full traceback:\n{error_traceback}")
+        traceback.print_exc()
 
         # Map technical errors to user-friendly messages
         error_msg = str(e).lower()
@@ -10388,11 +8796,8 @@ async def on_deep_research(action: cl.Action):
             user_message = "The research service is busy. Please wait a moment and try again."
         elif "none" in error_msg and "attribute" in error_msg:
             user_message = "Received an unexpected response from the search service. Please try again."
-        elif "tavily" in error_msg or "search" in error_msg:
-            user_message = "Web search service is temporarily unavailable. Please try again."
         else:
-            # Log the actual error for debugging
-            user_message = f"Research encountered an issue: {str(e)[:100]}"
+            user_message = "An unexpected issue occurred. Your conversation is safe."
 
         # Send graceful error message with action buttons preserved
         try:
@@ -11681,19 +10086,18 @@ Your insights help us improve Mindrian!"""
                 logger.info(f"[TRIPLE_MODE] First message: has_attachment={has_attachment}, elements={len(message.elements) if message.elements else 0}, content='{message.content[:50]}'")
                 detection = await auto_detect_entry_point(message.content, has_attachment)
 
-                # SIMPLIFIED: No selector - just default to brainstorming if unsure
-                # The starters provide navigation, selector was unreliable
-                if detection["should_show_selector"]:
-                    if has_attachment:
-                        # Has attachment - force document_review mode
-                        detection["entry_point"] = "document_review"
-                        detection["mode"] = "workshop"
-                        logger.info(f"[TRIPLE_MODE] Forced document_review due to attachment")
-                    else:
-                        # No attachment, low confidence - default to brainstorming
-                        detection["entry_point"] = "brainstorming"
-                        detection["mode"] = "sandbox"
-                        logger.info(f"[TRIPLE_MODE] Defaulted to brainstorming (low confidence)")
+                # BUG FIX: If there's an attachment, ALWAYS process it - never show selector
+                # The selector was blocking file uploads when message was short (e.g., "review !")
+                if detection["should_show_selector"] and not has_attachment:
+                    # Low confidence AND no attachment - show selector and wait
+                    await show_entry_point_selector()
+                    return  # Don't process message yet
+
+                # If attachment present but selector was suggested, force document_review mode
+                if has_attachment and detection["should_show_selector"]:
+                    detection["entry_point"] = "document_review"
+                    detection["mode"] = "workshop"
+                    logger.info(f"[TRIPLE_MODE] Forced document_review due to attachment (was: should_show_selector=True)")
 
                 # High confidence - set entry point and continue
                 cl.user_session.set("entry_point", detection["entry_point"])
@@ -11711,67 +10115,6 @@ Your insights help us improve Mindrian!"""
     session_id = cl.user_session.get("id")
     bot_id = cl.user_session.get("bot_id", "lawrence")
     turn_count = len(history)
-
-    # === Show pending opportunity notifications from previous turn ===
-    # Opportunities are extracted in background, so we notify on next message
-    if SESSION_MEMORY_ENABLED and session_id:
-        pending_opps = get_pending_opportunities(str(session_id))
-        if pending_opps:
-            try:
-                # Show a subtle notification that opportunities were found
-                opp_names = [opp.get("name", "opportunity")[:40] for opp in pending_opps[:3]]
-                notification = f"💡 **{len(pending_opps)} opportunity{'s' if len(pending_opps) > 1 else ''} captured**: {', '.join(opp_names)}"
-                if len(pending_opps) > 3:
-                    notification += f" (+{len(pending_opps) - 3} more)"
-                await cl.Message(
-                    content=notification,
-                    actions=[
-                        cl.Action(
-                            name="view_opportunities",
-                            payload={},
-                            label="📊 View Bank",
-                            tooltip="See all your captured opportunities"
-                        )
-                    ]
-                ).send()
-            except Exception as opp_err:
-                logger.warning(f"[OPPORTUNITY] Notification error: {opp_err}")
-
-    # === BUG-001 FIX: Topic Exclusion Detection ===
-    # Check if user wants to exclude a topic from the conversation
-    is_exclusion, excluded_topic = detect_topic_exclusion(message.content)
-    if is_exclusion and excluded_topic:
-        # Add to excluded topics list
-        excluded_topics = cl.user_session.get("excluded_topics", [])
-        if excluded_topic not in excluded_topics:
-            excluded_topics.append(excluded_topic)
-            cl.user_session.set("excluded_topics", excluded_topics)
-            print(f"[EXCLUSIONS] Added topic: {excluded_topic} (total: {len(excluded_topics)})")
-
-            # Confirm to user with management action
-            await cl.Message(
-                content=f"Got it, I'll avoid discussing **{excluded_topic}** in our conversation.",
-                actions=[
-                    cl.Action(
-                        name="manage_exclusions",
-                        payload={"action": "show"},
-                        label="Manage Exclusions",
-                        tooltip="View and manage excluded topics"
-                    )
-                ]
-            ).send()
-
-            # Persist exclusions to context store
-            context_key = get_context_key()
-            if context_key in context_store:
-                context_store[context_key]["excluded_topics"] = excluded_topics
-        else:
-            await cl.Message(
-                content=f"I'm already avoiding **{excluded_topic}**."
-            ).send()
-
-        # Don't process further - the exclusion request was handled
-        return
 
     # === PWS Consultant: Stage-Aware Message Handler ===
     # The PWS Consultant uses a deterministic stage machine instead of workshop phases.
@@ -12769,11 +11112,7 @@ Your insights help us improve Mindrian!"""
     if GRAPHRAG_ENABLED and turn_count >= 0:
         try:
             bot_id = cl.user_session.get("bot_id", "lawrence")
-            # BUG-001 FIX: Pass excluded topics to filter RAG results
-            excluded_topics = cl.user_session.get("excluded_topics", [])
-            graphrag_hint = enrich_for_bot(
-                message.content, turn_count, bot_id=bot_id, excluded_topics=excluded_topics
-            )
+            graphrag_hint = enrich_for_bot(message.content, turn_count, bot_id=bot_id)
             if graphrag_hint:
                 # Add as invisible context hint - not shown to user
                 full_user_message += f"\n\n{graphrag_hint}"
@@ -12981,10 +11320,8 @@ Your insights help us improve Mindrian!"""
                 elements=[thinking_element]
             ).send()
 
-    # Create streaming message with agent attribution (UX-006)
-    bot_name = bot.get("name", "Assistant")
-    bot_icon = bot.get("icon", "🤖")
-    msg = cl.Message(content="", author=f"{bot_icon} {bot_name}")
+    # Create streaming message
+    msg = cl.Message(content="")
     await msg.send()
 
     try:
@@ -13020,25 +11357,6 @@ The user wants SPEED. Follow these rules:
 [END QUICK MODE]
 """
             system_instruction += quick_mode_prompt
-
-        # === BUG-001 FIX: Inject topic exclusions into system prompt ===
-        excluded_topics = cl.user_session.get("excluded_topics", [])
-        if excluded_topics:
-            exclusion_prompt = f"""
-
-[TOPIC EXCLUSIONS]
-The user has requested to AVOID these topics: {', '.join(excluded_topics)}
-
-CRITICAL RULES:
-1. Do NOT bring up, mention, or reference these topics unprompted
-2. If RAG retrieval returns content about these topics, IGNORE that content
-3. If the user's question touches on an excluded topic, acknowledge the exclusion politely
-4. If a framework or tool is named as excluded, do NOT recommend or explain it
-5. Focus on alternative frameworks, tools, or approaches instead
-[END EXCLUSIONS]
-"""
-            system_instruction += exclusion_prompt
-            print(f"[EXCLUSIONS] Injected {len(excluded_topics)} exclusions into system prompt")
 
         context_handoff = cl.user_session.get("context_handoff")
         previous_bot = cl.user_session.get("previous_bot")
@@ -13151,28 +11469,6 @@ The user expects you to be responsive to what they JUST said, not to lecture fro
                 payload={"action": "think"},
                 label="🧠 Think",
                 tooltip="Run a structured analysis: define the problem → list assumptions → find gaps → suggest next steps",
-            ))
-
-            # Fork and Ideas buttons (UX-001, UX-002)
-            actions.append(cl.Action(
-                name="fork_conversation",
-                payload={"action": "fork"},
-                label="🍴 Fork",
-                tooltip="Create a branch to explore an alternative direction",
-            ))
-            actions.append(cl.Action(
-                name="show_idea_canvas",
-                payload={"action": "ideas"},
-                label="💡 Ideas",
-                tooltip="View and manage extracted ideas from this conversation",
-            ))
-
-            # Wave 4: Auto-Orchestration - Find the Breakthrough
-            actions.append(cl.Action(
-                name="find_breakthrough",
-                payload={"action": "breakthrough"},
-                label="🚀 Breakthrough",
-                tooltip="Auto-orchestrated multi-agent analysis to find opportunities",
             ))
 
             # Deep Research (Gemini) — only in full/playground mode
@@ -13436,7 +11732,6 @@ The user expects you to be responsive to what they JUST said, not to lecture fro
             last_checkpoint = datetime.utcnow().isoformat()
             cl.user_session.set("last_checkpoint", last_checkpoint)
 
-            # BUG-001 FIX: Persist excluded_topics on every message
             await save_cross_bot_context(
                 user_key=context_key,
                 history=history.copy(),
@@ -13445,8 +11740,7 @@ The user expects you to be responsive to what they JUST said, not to lecture fro
                 phases=[p.copy() for p in phases] if phases else None,
                 current_phase=current_phase,
                 conversation_id=cl.user_session.get("conversation_id"),
-                conversation_name=cl.user_session.get("conversation_name", ""),
-                excluded_topics=cl.user_session.get("excluded_topics", [])
+                conversation_name=cl.user_session.get("conversation_name", "")
             )
         except Exception as e:
             # Log but don't fail the response

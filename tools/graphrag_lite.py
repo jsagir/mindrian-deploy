@@ -722,14 +722,22 @@ _BOT_HINT_PREFIX: Dict[str, str] = {
 }
 
 
-def enrich_for_bot(user_message: str, turn_count: int, bot_id: str = "larry") -> Optional[str]:
+def enrich_for_bot(
+    user_message: str,
+    turn_count: int,
+    bot_id: str = "larry",
+    excluded_topics: Optional[List[str]] = None
+) -> Optional[str]:
     """
     Enrich any bot's context with graph hints.
+
+    BUG-001 FIX: Now accepts excluded_topics to filter out unwanted content.
 
     Args:
         user_message: What the user said
         turn_count: How many turns into the conversation
         bot_id: Which bot is active (e.g. 'larry', 'tta', 'jtbd')
+        excluded_topics: List of topics to filter out from retrieval results
 
     Returns:
         Context hint string with bot-specific prefix if helpful, None otherwise
@@ -743,6 +751,43 @@ def enrich_for_bot(user_message: str, turn_count: int, bot_id: str = "larry") ->
         elapsed = time.monotonic() - t0
 
         if hint:
+            # BUG-001 FIX: Filter out excluded topics from hint
+            if excluded_topics:
+                original_hint = hint
+                for topic in excluded_topics:
+                    # Case-insensitive removal of excluded topics
+                    topic_lower = topic.lower()
+                    hint_lower = hint.lower()
+                    if topic_lower in hint_lower:
+                        # Remove the topic and surrounding context
+                        import re
+                        # Remove topic mentions (with optional surrounding punctuation/spacing)
+                        hint = re.sub(
+                            rf'\b{re.escape(topic)}\b[,\s]*',
+                            '',
+                            hint,
+                            flags=re.IGNORECASE
+                        )
+                        # Clean up any resulting "Key concepts: , " artifacts
+                        hint = re.sub(r':\s*,\s*', ': ', hint)
+                        hint = re.sub(r',\s*,', ',', hint)
+                        hint = re.sub(r',\s*$', '', hint)
+                        hint = re.sub(r',\s*\.', '.', hint)
+
+                if hint != original_hint:
+                    logger.info(
+                        "GraphRAG filtered excluded topics: %s (original: %d chars, filtered: %d chars)",
+                        excluded_topics,
+                        len(original_hint),
+                        len(hint)
+                    )
+
+                # If filtering removed everything meaningful, return None
+                hint = hint.strip()
+                if not hint or hint in ['Key concepts:', 'Related:', 'Also in this domain:']:
+                    logger.info("GraphRAG: All content filtered by exclusions, returning None")
+                    return None
+
             logger.info(
                 "GraphRAG enrichment [%dms] bot=%s: concepts=%s, communities=%s, cross_domain=%s, entity_layer=%s",
                 trace.get("total_ms", 0),
@@ -764,6 +809,10 @@ def enrich_for_bot(user_message: str, turn_count: int, bot_id: str = "larry") ->
     return None
 
 
-def enrich_for_larry(user_message: str, turn_count: int) -> Optional[str]:
+def enrich_for_larry(
+    user_message: str,
+    turn_count: int,
+    excluded_topics: Optional[List[str]] = None
+) -> Optional[str]:
     """Backward-compatible wrapper around enrich_for_bot."""
-    return enrich_for_bot(user_message, turn_count, bot_id="larry")
+    return enrich_for_bot(user_message, turn_count, bot_id="larry", excluded_topics=excluded_topics)

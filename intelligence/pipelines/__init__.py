@@ -43,8 +43,8 @@ from .oracle_pipeline import (
     create_oracle_pipeline,
     run_oracle_formulation,
     run_oracle_resolution,
-    format_research_brief,
-    format_retrospective,
+    format_research_brief_output,
+    generate_retrospective,
 )
 
 from .file_processing import (
@@ -127,8 +127,8 @@ __all__ = [
     "create_oracle_pipeline",
     "run_oracle_formulation",
     "run_oracle_resolution",
-    "format_research_brief",
-    "format_retrospective",
+    "format_research_brief_output",
+    "generate_retrospective",
     # File Processing Pipeline
     "FileState",
     "FilePipelineState",
