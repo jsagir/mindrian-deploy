@@ -383,16 +383,46 @@ def is_information_query(query: str) -> bool:
 
 
 def is_repeat_pattern(query: str, history: List[str]) -> bool:
-    """Check if user is asking the same question again."""
+    """
+    Check if user is asking the EXACT same question again.
+    Much stricter to avoid false positives.
+    """
     if not history:
         return False
 
-    query_words = set(query.lower().split())
-    for past_query in history[-5:]:
-        past_words = set(past_query.lower().split())
+    # Common stop words to exclude from comparison
+    STOP_WORDS = {
+        "i", "me", "my", "we", "our", "you", "your", "the", "a", "an",
+        "is", "are", "was", "were", "be", "been", "being", "have", "has",
+        "had", "do", "does", "did", "will", "would", "could", "should",
+        "can", "may", "might", "must", "shall", "to", "of", "in", "for",
+        "on", "with", "at", "by", "from", "as", "into", "through", "about",
+        "what", "which", "who", "whom", "this", "that", "these", "those",
+        "am", "it", "its", "and", "but", "or", "if", "so", "than", "too",
+        "very", "just", "how", "when", "where", "why", "all", "any", "some",
+        "want", "think", "know", "like", "need", "let", "go", "first",
+    }
+
+    # Get meaningful words only
+    query_words = set(w for w in query.lower().split() if w not in STOP_WORDS and len(w) > 2)
+
+    # Need at least 3 meaningful words to compare
+    if len(query_words) < 3:
+        return False
+
+    for past_query in history[-3:]:  # Only check last 3, not 5
+        past_words = set(w for w in past_query.lower().split() if w not in STOP_WORDS and len(w) > 2)
+
+        if len(past_words) < 3:
+            continue
+
+        # Calculate overlap with meaningful words only
         overlap = len(query_words & past_words) / max(len(query_words), 1)
-        if overlap > 0.7:
+
+        # Much stricter threshold: 85% overlap required
+        if overlap > 0.85:
             return True
+
     return False
 
 
@@ -1102,6 +1132,21 @@ TEACHABLE_MOMENT_SIGNALS = {
             "compare", "weigh options", "trade-off",
         ],
     },
+    # EXPLICIT teaching requests - HIGH priority, auto-trigger
+    "explicit_teaching_requests": [
+        "teach me", "give me a lecture", "explain this to me",
+        "help me understand", "break this down", "walk me through",
+        "show me how", "guide me", "mentor me", "coach me",
+        "what should i learn", "what do you think", "go on teach",
+        "tell me more", "educate me", "school me",
+    ],
+    # User is stuck/frustrated
+    "stuck_signals": [
+        "i'm stuck", "don't know where to start", "overwhelmed",
+        "this is too big", "too complex", "can't figure out",
+        "what do i do first", "do first", "where do i begin",
+        "help me focus", "narrow this down",
+    ],
     # Minimum word count for meaningful analysis
     "min_words": 15,
     # Confidence threshold
@@ -1133,6 +1178,7 @@ def analyze_for_teachable_moment(
         "suggested_framework": None,
         "larry_might_say": None,
         "turn_count": turn_count,
+        "explicit_request": False,
     }
 
     # Only analyze every 3-7 turns
@@ -1147,7 +1193,30 @@ def analyze_for_teachable_moment(
 
     combined_text = " ".join(user_messages).lower()
 
-    # Skip if too short
+    # PRIORITY CHECK: Explicit teaching requests (instant yes)
+    explicit_requests = TEACHABLE_MOMENT_SIGNALS.get("explicit_teaching_requests", [])
+    for signal in explicit_requests:
+        if signal in combined_text:
+            result["should_offer_intervention"] = True
+            result["confidence"] = 1.0
+            result["detected_signals"] = [signal]
+            result["explicit_request"] = True
+            result["larry_might_say"] = "You asked for teaching — let me give you a cognitive intervention."
+            result["suggested_framework"] = "PWS Methodology"
+            return result  # Immediate return for explicit requests
+
+    # PRIORITY CHECK: Stuck signals (high priority)
+    stuck_signals = TEACHABLE_MOMENT_SIGNALS.get("stuck_signals", [])
+    for signal in stuck_signals:
+        if signal in combined_text:
+            result["should_offer_intervention"] = True
+            result["confidence"] = 0.8
+            result["detected_signals"] = [signal]
+            result["larry_might_say"] = "You seem stuck. Let me help reframe your thinking."
+            result["suggested_framework"] = "Problem Types Taxonomy"
+            return result  # Immediate return for stuck signals
+
+    # Skip if too short for deeper analysis
     if len(combined_text.split()) < TEACHABLE_MOMENT_SIGNALS["min_words"]:
         return result
 
@@ -1242,37 +1311,81 @@ def should_show_larry_button(
     cached_analysis: Optional[Dict] = None
 ) -> Tuple[bool, Optional[str]]:
     """
-    Quick check if Larry button should appear.
+    Quick check if Larry button should appear and whether to highlight it.
     Uses cached analysis if available, otherwise does instant check.
 
     Returns:
         (should_show, tooltip_hint)
+        - tooltip_hint starting with "💡" indicates button should be HIGHLIGHTED
     """
-    # Always show after turn 3
+    # Get recent user text for analysis
+    recent_text = " ".join([
+        m.get("content", "") for m in history[-3:]
+        if m.get("role") == "user"
+    ]).lower()
+
+    # PRIORITY 1: Check for EXPLICIT teaching requests (always highlight)
+    explicit_teaching_signals = [
+        "teach me", "give me a lecture", "explain this",
+        "help me understand", "break this down", "walk me through",
+        "show me how", "guide me", "mentor me", "coach me",
+        "go on teach", "tell me more", "educate me", "school me",
+        "what should i learn", "what do you think",
+    ]
+
+    for signal in explicit_teaching_signals:
+        if signal in recent_text:
+            return True, "💡 Click here for Larry's cognitive intervention!"
+
+    # PRIORITY 2: Check for "stuck" signals (highlight)
+    stuck_signals = [
+        "i'm stuck", "don't know where to start", "overwhelmed",
+        "this is too big", "too complex", "can't figure out",
+        "what do i do first", "do first", "where do i begin",
+        "help me focus", "narrow this down",
+    ]
+
+    for signal in stuck_signals:
+        if signal in recent_text:
+            return True, "💡 You seem stuck — Larry can help reframe your thinking"
+
+    # PRIORITY 3: Use cached background analysis if available
     if turn_count >= 3:
-        # If we have cached analysis showing opportunity
         if cached_analysis and cached_analysis.get("should_offer_intervention"):
             hint = cached_analysis.get("larry_might_say", "Larry can help push your thinking")
             return True, f"💡 {hint}"
 
-        # Quick instant check (no LLM)
-        recent_text = " ".join([
-            m.get("content", "") for m in history[-3:]
-            if m.get("role") == "user"
-        ]).lower()
-
-        # Quick signal check
+        # Quick signal check for other patterns
         quick_signals = [
-            "stuck", "confused", "not sure", "help",
-            "should i", "which is", "best way", "don't know",
+            "confused", "not sure", "help",
+            "should i", "which is", "best way",
             "problem is", "challenge", "struggling",
         ]
 
         if any(signal in recent_text for signal in quick_signals):
             return True, "💡 Larry can offer a cognitive intervention"
 
-    # Default: show button but without special tooltip
+    # Default: show button after turn 2, but without highlight
     if turn_count >= 2:
         return True, None
 
+    # Turn 1: Don't show yet
     return False, None
+
+
+def detect_explicit_teaching_request(message: str) -> bool:
+    """
+    Check if user is explicitly asking for teaching/lecture.
+    Used to potentially auto-trigger intervention.
+    """
+    message_lower = message.lower()
+
+    explicit_signals = [
+        "teach me", "give me a lecture", "lecture me",
+        "help me understand", "break this down for me",
+        "walk me through", "show me how", "guide me",
+        "go on teach", "educate me", "school me",
+        "can you explain", "explain to me",
+    ]
+
+    return any(signal in message_lower for signal in explicit_signals)

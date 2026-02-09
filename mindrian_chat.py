@@ -4882,10 +4882,13 @@ async def on_larry_teach_me(action: cl.Action):
             return
 
         # Get user's question history for repeat detection
-        user_history = [
+        # IMPORTANT: Exclude the current message to avoid comparing against itself
+        all_user_msgs = [
             msg.get("content", "") for msg in history
             if msg.get("role") == "user"
-        ][-5:]
+        ]
+        # Exclude last message (which is the query) - compare against PREVIOUS messages only
+        user_history = all_user_msgs[:-1][-5:] if len(all_user_msgs) > 1 else []
 
         # Show loading message with diagnosis steps
         loading_msg = cl.Message(content="""🎓 **Larry is diagnosing your thinking...**
