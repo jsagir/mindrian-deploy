@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-09 08:53*
+*Auto-generated: 2026-02-09 09:59*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,11 +13,11 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-09 | 3 |
+| 2026-02-09 | 4 |
 | 2026-02-08 | 20 |
 | 2026-02-06 | 17 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 5 |
+| 2026-02-04 | 4 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
@@ -31,13 +31,61 @@
 
 ### 2026-02-09
 
+#### ✨ feat: Add Idea Filtering + Swarm Orchestrator Skill
+
+- **Hash:** `0860d5d14cbcd9ca40270387a996f729b250132d`
+- **Short:** `0860d5d1`
+- **Parent:** `f5c6a54e`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-09 09:59:31
+- **Risk:** high
+- **Diff:** +1322 / -61
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `.claude/skills/skills-guide.md` | 27 | 0 |
+  | `.claude/skills/swarm.md` | 38 | 0 |
+  | `mindrian_chat.py` | 120 | 0 |
+  | `protocols/agent_registry.py` | 28 | 0 |
+  | `public/elements/IdeaCanvas.jsx` | 51 | 4 |
+  | `qa/2026-02-09/USER_FEEDBACK_ARONHIME_FEB9.md` | 32 | 0 |
+  | `skills/SKILLS_GUIDE.md` | 176 | 0 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 51 | 32 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 12 |
+
+  **File Operations:**
+  - ➕ Added: `.claude/skills/skills-guide.md`
+  - ➕ Added: `.claude/skills/swarm.md`
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `protocols/agent_registry.py`
+  - ✏️ Modified: `public/elements/IdeaCanvas.jsx`
+  - ✏️ Modified: `qa/2026-02-09/USER_FEEDBACK_ARONHIME_FEB9.md`
+  - ➕ Added: `skills/SKILLS_GUIDE.md`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/commit-expert/SKILL.md`
+  - ✏️ Modified: `skills/mindrian-stack/SKILL.md`
+  - ✏️ Modified: `skills/qa-consultant/SKILL.md`
+  - ✏️ Modified: `skills/rnd-consultant/SKILL.md`
+  - ➕ Added: `skills/swarm-orchestrator/SKILL.md`
+  - ➕ Added: `skills/swarm-orchestrator/references/strategy-guide.md`
+  - ➕ Added: `skills/swarm-orchestrator/references/workflow-catalog.md`
+
+- **Body:** Idea Filtering (Apply to AI):
+
+
 #### 🐛 fix: Address Lawrence Aronhime QA feedback
 
 - **Hash:** `f5c6a54e52c4c59cfb315fef28b5801592ee8cf4`
 - **Short:** `f5c6a54e`
 - **Parent:** `a3282c77`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 08:53:24
 - **Risk:** medium
@@ -84,7 +132,6 @@
 - **Short:** `a3282c77`
 - **Parent:** `c92c9d4b`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 08:39:30
 - **Risk:** high
@@ -1577,31 +1624,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** Genesis Engine multi-agent system from agents-midrian:
-
-
-#### 📝 docs: Add R&D/20_pws_thinking_streamer for future reference
-
-- **Hash:** `0ef801912a226e5eb79368a79b679943a05f6b8d`
-- **Short:** `0ef80191`
-- **Parent:** `ac991a2f`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 14:28:27
-- **Risk:** low
-- **Diff:** +204 / -21
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `R&D/20_pws_thinking_streamer/README.md` | 179 | 0 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 12 | 10 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 12 | 10 |
-
-  **File Operations:**
-  - ➕ Added: `R&D/20_pws_thinking_streamer/README.md`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** Documents the PWS-style thinking streamer pipeline:
 
