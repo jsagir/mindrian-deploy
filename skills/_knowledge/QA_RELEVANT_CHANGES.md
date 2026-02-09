@@ -1,6 +1,6 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-09 14:18*
+*Auto-generated: 2026-02-09 14:27*
 
 ---
 
@@ -465,15 +465,3 @@
   - skills/_knowledge/QA_RELEVANT_CHANGES.md
   - skills/_knowledge/RECENT_CHANGES.md
 - **Details:** CRITICAL FIX: Login page was stuck on "Checking session..." because
-
-### 🐛 fix: Add guest mode + session timeout for login page
-
-- **Commit:** `16079714`
-- **Author:** jsagir
-- **Files changed:** 5
-  - auth/supabase_auth.py
-  - public/login.html
-  - skills/mindrian-stack/SKILL.md
-  - skills/neo4j-schema-navigator/SKILL.md
-  - skills/qa-consultant/SKILL.md
-- **Details:** - Add 5-second timeout for Supabase session check (prevents infinite "Checking session...")

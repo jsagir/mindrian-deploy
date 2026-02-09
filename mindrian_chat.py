@@ -1986,7 +1986,10 @@ async def create_workshop_roadmap(profile: str) -> None:
         print(f"WorkshopRoadmap creation failed: {e}")
 
 
-def get_core_action_buttons(include_example: bool = True) -> list:
+def get_core_action_buttons(
+    include_example: bool = True,
+    larry_context: dict = None
+) -> list:
     """
     Build the core action buttons that should appear on most responses.
 
@@ -1995,6 +1998,10 @@ def get_core_action_buttons(include_example: bool = True) -> list:
 
     Args:
         include_example: Whether to include the Example button
+        larry_context: Optional dict with teachable moment analysis:
+            - show_larry: bool (True to show button)
+            - tooltip: str (custom tooltip if teachable moment detected)
+            - highlight: bool (True to highlight button)
 
     Returns:
         List of cl.Action objects
@@ -2048,13 +2055,26 @@ def get_core_action_buttons(include_example: bool = True) -> list:
             label="💡 Ideas",
             tooltip="View and manage extracted ideas from this conversation",
         ),
-        cl.Action(
+    ]
+
+    # Larry Teach Me button - contextual based on teachable moments
+    larry_context = larry_context or {}
+    show_larry = larry_context.get("show_larry", True)
+
+    if show_larry:
+        # Check if we detected a teachable moment (highlight the button)
+        has_teachable_moment = larry_context.get("highlight", False)
+        custom_tooltip = larry_context.get("tooltip")
+
+        larry_label = "🎓✨ Larry teach me" if has_teachable_moment else "🎓 Larry teach me"
+        larry_tooltip = custom_tooltip or "Get a cognitive intervention from Larry"
+
+        actions.append(cl.Action(
             name="larry_teach_me",
             payload={"action": "teach"},
-            label="🎓 Larry teach me",
-            tooltip="Generate a quick audio lecture based on your question",
-        ),
-    ]
+            label=larry_label,
+            tooltip=larry_tooltip,
+        ))
 
     if include_example:
         actions.append(cl.Action(
@@ -4844,9 +4864,9 @@ async def on_ma_full(action: cl.Action):
 
 @cl.action_callback("larry_teach_me")
 async def on_larry_teach_me(action: cl.Action):
-    """Generate a quick audio lecture based on conversation context."""
+    """Generate a cognitive intervention based on conversation context."""
     try:
-        from tools.quick_lecture import generate_quick_lecture
+        from tools.quick_lecture import larry_teach_me
 
         history = cl.user_session.get("history", [])
 
@@ -4858,61 +4878,101 @@ async def on_larry_teach_me(action: cl.Action):
                 break
 
         if not last_user_msg:
-            await cl.Message(content="I need a question or problem to create a lecture. What would you like me to teach you about?").send()
+            await cl.Message(content="I need a question or problem to work with. What's the real challenge you're wrestling with?").send()
             return
 
-        # Build context from conversation
-        context = "\n".join([
-            f"{msg.get('role', 'user')}: {msg.get('content', '')[:200]}"
-            for msg in history[-6:]
-        ])
+        # Get user's question history for repeat detection
+        user_history = [
+            msg.get("content", "") for msg in history
+            if msg.get("role") == "user"
+        ][-5:]
 
-        # Show loading message
-        loading_msg = cl.Message(content="🎓 **Larry is preparing a mini-lecture for you...**\n\n_Searching knowledge graph for frameworks... Querying course materials... Generating script... Converting to audio..._")
+        # Show loading message with diagnosis steps
+        loading_msg = cl.Message(content="""🎓 **Larry is diagnosing your thinking...**
+
+→ Classifying your problem type...
+→ Detecting thinking patterns...
+→ Selecting the right framework...
+→ Crafting your intervention...
+→ Converting to audio...""")
         await loading_msg.send()
 
-        # Generate the lecture
-        audio_bytes, script, metadata = await generate_quick_lecture(
-            question=last_user_msg,
-            context=context,
+        # Generate the cognitive intervention
+        result = await larry_teach_me(
+            query=last_user_msg,
+            user_history=user_history,
             include_audio=True
         )
 
-        # Build response
+        # Handle refusal
+        if result["status"] == "refused":
+            loading_msg.content = f"""🎓 **Larry says:**
+
+{result['refusal_response']}
+
+*Sometimes the most valuable intervention is the question itself.*"""
+            await loading_msg.update()
+            return
+
+        # Build response with diagnosis
+        diagnosis = result["diagnosis"]
         elements = []
-        if audio_bytes:
+        if result["audio_bytes"]:
             elements.append(cl.Audio(
-                content=audio_bytes,
+                content=result["audio_bytes"],
                 mime="audio/mpeg",
-                name="larry_lecture.mp3"
+                name="larry_intervention.mp3"
             ))
 
-        # Format metadata
-        frameworks_used = ", ".join(metadata.get("frameworks_found", [])) or "General PWS"
+        response = f"""🎓 **Larry's Cognitive Intervention**
 
-        response = f"""🎓 **Quick Lecture: Larry Teaches You**
-
-**Your Question:** {last_user_msg[:100]}{'...' if len(last_user_msg) > 100 else ''}
-
-**Frameworks Applied:** {frameworks_used}
-**Sources:** {'Neo4j ✓' if metadata.get('neo4j_used') else ''} {'FileSearch ✓' if metadata.get('filesearch_used') else ''} {'Claude ✓' if metadata.get('claude_used') else ''}
+**📋 Diagnosis:**
+• **Problem Type:** {diagnosis.get('problem_type', 'unknown').title()}
+• **Thinking Pattern:** {diagnosis.get('thinking_error', 'unknown').replace('_', ' ').title()}
+• **Framework Applied:** {diagnosis.get('framework_used', 'PWS Methodology')}
 
 ---
 
-{script}
+{result['transcript']}
 
 ---
-{'🎧 *Audio lecture generated - click play above*' if audio_bytes else '⚠️ *Audio generation unavailable*'}
-"""
 
-        # Update the loading message
+{'🎧 *Click play above to listen*' if result['audio_bytes'] else ''}
+
+**✏️ Your Next Move:** {result['cta']}"""
+
+        # Add rewrite button for tracking
+        actions = [
+            cl.Action(
+                name="rewrite_question",
+                payload={"original": last_user_msg[:200]},
+                label="✏️ Rewrite My Question",
+                tooltip="Reframe your question based on Larry's intervention",
+            )
+        ]
+
         loading_msg.content = response
         loading_msg.elements = elements
+        loading_msg.actions = actions
         await loading_msg.update()
 
     except Exception as e:
         logger.error(f"Larry teach me error: {e}")
-        await cl.Message(content=f"Sorry, I couldn't generate the lecture: {str(e)[:100]}").send()
+        await cl.Message(content=f"I couldn't generate the intervention: {str(e)[:100]}").send()
+
+
+@cl.action_callback("rewrite_question")
+async def on_rewrite_question(action: cl.Action):
+    """Handle rewrite question CTA - the key success metric."""
+    original = action.payload.get("original", "")
+    await cl.Message(content=f"""📝 **Time to rewrite your question.**
+
+Your original question was:
+> {original}
+
+Now, based on Larry's intervention, ask it differently. What's the question beneath your question?
+
+*Tip: If your new question makes you slightly uncomfortable, you're probably on the right track.*""").send()
 
 
 async def run_multi_agent_with_type(analysis_type: str):
@@ -13553,6 +13613,38 @@ The user expects you to be responsive to what they JUST said, not to lecture fro
                 tooltip="Auto-orchestrated multi-agent analysis to find opportunities",
             ))
 
+            # === Larry Teach Me: Contextual cognitive intervention button ===
+            # Appears with special highlight when teachable moment detected
+            try:
+                from tools.quick_lecture import should_show_larry_button
+                turn_count = cl.user_session.get("phase_turn_count", 0) + 1
+                cached_analysis = cl.user_session.get("teachable_moment_analysis")
+
+                show_larry, larry_tooltip = should_show_larry_button(
+                    history=history,
+                    turn_count=turn_count,
+                    cached_analysis=cached_analysis
+                )
+
+                if show_larry:
+                    has_teachable_moment = cached_analysis and cached_analysis.get("should_offer_intervention", False)
+                    larry_label = "🎓✨ Larry teach me" if has_teachable_moment else "🎓 Larry teach me"
+                    actions.append(cl.Action(
+                        name="larry_teach_me",
+                        payload={"action": "teach"},
+                        label=larry_label,
+                        tooltip=larry_tooltip or "Get a cognitive intervention from Larry",
+                    ))
+            except Exception as larry_err:
+                # Fallback: always show button without context
+                print(f"[LarryTeachMe] Context check error: {larry_err}")
+                actions.append(cl.Action(
+                    name="larry_teach_me",
+                    payload={"action": "teach"},
+                    label="🎓 Larry teach me",
+                    tooltip="Get a cognitive intervention from Larry",
+                ))
+
             # Deep Research (Gemini) — only in full/playground mode
             if not is_simple:
                 actions.append(cl.Action(
@@ -13687,6 +13779,28 @@ The user expects you to be responsive to what they JUST said, not to lecture fro
         if cl.user_session.get("context_handoff"):
             cl.user_session.set("context_handoff", None)
             cl.user_session.set("previous_bot", None)
+
+        # === Larry Teach Me: Background teachable moment detection ===
+        # Runs every 3-7 turns to detect when Larry can provide valuable intervention
+        turn_count = cl.user_session.get("phase_turn_count", 0) + 1
+        if turn_count >= 3 and turn_count % 2 == 1:  # Turns 3, 5, 7, 9...
+            try:
+                from tools.quick_lecture import background_teachable_moment_check
+                # Run analysis in background (don't block response)
+                async def run_teachable_analysis():
+                    analysis = await background_teachable_moment_check(
+                        session_id=session_id,
+                        history=history,
+                        turn_count=turn_count
+                    )
+                    if analysis:
+                        cl.user_session.set("teachable_moment_analysis", analysis)
+                        if analysis.get("should_offer_intervention"):
+                            print(f"[TeachableMoment] Detected at turn {turn_count}: {analysis.get('larry_might_say', '')[:50]}")
+
+                asyncio.create_task(run_teachable_analysis())
+            except Exception as tm_err:
+                print(f"[TeachableMoment] Background check error: {tm_err}")
 
         # === Triple-Mode: Extract topics and check semantic grounding ===
         if TRIPLE_MODE_ENABLED:

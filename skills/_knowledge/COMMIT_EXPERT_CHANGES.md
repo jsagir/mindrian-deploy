@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-09 14:18*
+*Auto-generated: 2026-02-09 14:27*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,15 +13,15 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-09 | 14 |
+| 2026-02-09 | 15 |
 | 2026-02-08 | 20 |
-| 2026-02-06 | 16 |
+| 2026-02-06 | 15 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 6 |
+| `mindrian_chat.py` | 7 |
 | `tools/opportunity_bank.py` | 3 |
 
 ---
@@ -30,13 +30,45 @@
 
 ### 2026-02-09
 
+#### ✨ feat: Add Quick Lecture feature with "Larry teach me" button
+
+- **Hash:** `1c11966de5866d4fcf0fb13ae39fc71c66102c0c`
+- **Short:** `1c11966d`
+- **Parent:** `d1bfd40f`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-09 14:27:26
+- **Risk:** high
+- **Diff:** +530 / -92
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 79 | 0 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 34 | 53 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 13 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 13 |
+  | `tools/quick_lecture.py` | 390 | 0 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+  - ➕ Added: `tools/quick_lecture.py`
+
+- **Body:** Creates mini audio lectures using:
+
+
 #### ✨ feat: Add /api/embed-opportunities endpoint
 
 - **Hash:** `d1bfd40fc73a989a175bfb760a03fe5ad9a9536e`
 - **Short:** `d1bfd40f`
 - **Parent:** `c23a38a4`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 14:18:40
 - **Risk:** high
@@ -66,7 +98,6 @@
 - **Short:** `c23a38a4`
 - **Parent:** `a194ecab`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 14:16:27
 - **Risk:** high
@@ -1571,33 +1602,4 @@
   - ➕ Added: `skills/context-manager/SKILL.md`
 
 - **Body:** Context Manager skill:
-
-
-#### 🐛 fix: Add guest mode + session timeout for login page
-
-- **Hash:** `160797144843c1a25b8893d0f40ba65861671d52`
-- **Short:** `16079714`
-- **Parent:** `f48e3f2a`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-06 09:20:46
-- **Risk:** medium
-- **Diff:** +110 / -7
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `auth/supabase_auth.py` | 24 | 4 |
-  | `public/login.html` | 45 | 3 |
-  | `skills/mindrian-stack/SKILL.md` | 11 | 0 |
-  | `skills/neo4j-schema-navigator/SKILL.md` | 20 | 0 |
-  | `skills/qa-consultant/SKILL.md` | 10 | 0 |
-
-  **File Operations:**
-  - ✏️ Modified: `auth/supabase_auth.py`
-  - ✏️ Modified: `public/login.html`
-  - ✏️ Modified: `skills/mindrian-stack/SKILL.md`
-  - ✏️ Modified: `skills/neo4j-schema-navigator/SKILL.md`
-  - ✏️ Modified: `skills/qa-consultant/SKILL.md`
-
-- **Body:** - Add 5-second timeout for Supabase session check (prevents infinite "Checking session...")
 

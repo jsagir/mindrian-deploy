@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-09 14:18*
+*Auto-generated: 2026-02-09 14:27*
 
 ---
 
 ## 2026-02-09
+
+### ✨ feat: Add Quick Lecture feature with "Larry teach me" button
+
+- **Commit:** `1c11966d`
+- **Author:** jsagir
+- **Files changed:** 6
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Creates mini audio lectures using:
 
 ### ✨ feat: Add /api/embed-opportunities endpoint
 
@@ -357,15 +369,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** Context Manager skill:
-
-### 🐛 fix: Add guest mode + session timeout for login page
-
-- **Commit:** `16079714`
-- **Author:** jsagir
-- **Files changed:** 5
-  - auth/supabase_auth.py
-  - public/login.html
-  - skills/mindrian-stack/SKILL.md
-  - skills/neo4j-schema-navigator/SKILL.md
-  - skills/qa-consultant/SKILL.md
-- **Details:** - Add 5-second timeout for Supabase session check (prevents infinite "Checking session...")
