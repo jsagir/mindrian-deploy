@@ -1,8 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-08 23:47*
+*Auto-generated: 2026-02-09 00:09*
 
 ---
+
+## 2026-02-09
+
+### ✨ feat: Wire UX features - Fork, Ideas, Agent Attribution
+
+- **Commit:** `c92c9d4b`
+- **Author:** jsagir
+- **Files changed:** 6
+  - mindrian_chat.py
+  - qa/2026-02-08/QA_TESTING_MEMO_FEB8.md
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+- **Details:** UX-001: Conversation Forking
 
 ## 2026-02-08
 

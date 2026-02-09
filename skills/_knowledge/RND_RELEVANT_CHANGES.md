@@ -1,8 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-08 23:47*
+*Auto-generated: 2026-02-09 00:09*
 
 ---
+
+## 2026-02-09
+
+### ✨ feat: Wire UX features - Fork, Ideas, Agent Attribution
+
+- **Commit:** `c92c9d4b`
+- **Author:** jsagir
+- **Files changed:** 6
+  - mindrian_chat.py
+  - qa/2026-02-08/QA_TESTING_MEMO_FEB8.md
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+- **Details:** UX-001: Conversation Forking
 
 ## 2026-02-08
 
@@ -306,15 +320,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** - Add PWS_THINKING_TOKENS with Larry-style vocabulary
-
-### ✨ feat: Add floating PWS Tools Panel with contextual tooltips
-
-- **Commit:** `e897e3ec`
-- **Author:** jsagir
-- **Files changed:** 5
-  - mindrian_chat.py
-  - public/elements/ToolsPanel.jsx
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** - Add ToolsPanel.jsx floating component (bottom-right) showing PWS methodology tools

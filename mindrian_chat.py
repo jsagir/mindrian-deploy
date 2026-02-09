@@ -10295,8 +10295,9 @@ async def on_deep_research(action: cl.Action):
     except Exception as e:
         # CRITICAL: Never let research errors destroy the session
         import traceback
+        error_traceback = traceback.format_exc()
         print(f"[RESEARCH] Critical callback error: {e}")
-        traceback.print_exc()
+        print(f"[RESEARCH] Full traceback:\n{error_traceback}")
 
         # Map technical errors to user-friendly messages
         error_msg = str(e).lower()
@@ -10310,8 +10311,11 @@ async def on_deep_research(action: cl.Action):
             user_message = "The research service is busy. Please wait a moment and try again."
         elif "none" in error_msg and "attribute" in error_msg:
             user_message = "Received an unexpected response from the search service. Please try again."
+        elif "tavily" in error_msg or "search" in error_msg:
+            user_message = "Web search service is temporarily unavailable. Please try again."
         else:
-            user_message = "An unexpected issue occurred. Your conversation is safe."
+            # Log the actual error for debugging
+            user_message = f"Research encountered an issue: {str(e)[:100]}"
 
         # Send graceful error message with action buttons preserved
         try:
@@ -13084,6 +13088,14 @@ The user expects you to be responsive to what they JUST said, not to lecture fro
                 payload={"action": "ideas"},
                 label="💡 Ideas",
                 tooltip="View and manage extracted ideas from this conversation",
+            ))
+
+            # Wave 4: Auto-Orchestration - Find the Breakthrough
+            actions.append(cl.Action(
+                name="find_breakthrough",
+                payload={"action": "breakthrough"},
+                label="🚀 Breakthrough",
+                tooltip="Auto-orchestrated multi-agent analysis to find opportunities",
             ))
 
             # Deep Research (Gemini) — only in full/playground mode
