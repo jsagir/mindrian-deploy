@@ -635,7 +635,7 @@ export default function IdeaCanvas() {
         </svg>
       </div>
 
-      {/* Footer with zoom controls */}
+      {/* Footer with zoom controls and Apply button */}
       <div
         style={{
           padding: "8px 16px",
@@ -648,9 +648,56 @@ export default function IdeaCanvas() {
           color: "#6b7280",
         }}
       >
-        <span>
-          Branch: {currentBranchId} • Drag nodes to reposition
-        </span>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <span>
+            Branch: {currentBranchId} • Drag nodes to reposition
+          </span>
+          {/* Apply to AI button - uses starred as focus, pruned as avoid */}
+          <button
+            onClick={() => {
+              const starredIds = nodes.filter(n => n.starred && !n.pruned).map(n => n.node_id);
+              const prunedIds = nodes.filter(n => n.pruned).map(n => n.node_id);
+
+              if (starredIds.length === 0 && prunedIds.length === 0) {
+                alert("Star ideas to focus on, or prune ideas to avoid. Then click Apply.");
+                return;
+              }
+
+              if (callAction) {
+                callAction({
+                  name: "apply_idea_context",
+                  payload: {
+                    starred_ids: starredIds,
+                    pruned_ids: prunedIds,
+                  },
+                });
+              }
+            }}
+            style={{
+              padding: "4px 12px",
+              borderRadius: "6px",
+              border: "1px solid #10b981",
+              backgroundColor: "#ecfdf5",
+              color: "#047857",
+              fontSize: "11px",
+              fontWeight: 600,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              transition: "all 0.15s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = "#d1fae5";
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = "#ecfdf5";
+            }}
+            title="Apply starred ideas as focus areas, pruned ideas as topics to avoid"
+          >
+            🎯 Apply to AI
+          </button>
+        </div>
         <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
           <button
             onClick={() => setCurrentZoom((z) => Math.max(0.5, z - 0.1))}

@@ -81,6 +81,7 @@ This skill works with:
 - `chainlit-consultant` - For UI-related fixes
 - `commit-expert` - For commit history, regression investigation, and deployment audits
 - `context-manager` - For auth/session isolation issues and context mixing bugs
+- `swarm-orchestrator` - Coordinates multi-agent workflows including Regression Hunt
 
 ## Auth & Context QA Checks
 

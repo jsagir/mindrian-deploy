@@ -198,3 +198,4 @@ This skill works with:
 - `commit-expert` - For recent code changes to the stack
 - `qa-consultant` - For tracking stack-related issues
 - `neo4j-schema-navigator` - Graph schema and queries
+- `swarm-orchestrator` - Coordinates Architecture Review workflows

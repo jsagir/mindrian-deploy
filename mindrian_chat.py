@@ -6159,6 +6159,101 @@ async def on_export_canvas(action: cl.Action):
     ).send()
 
 
+@cl.action_callback("apply_idea_context")
+async def on_apply_idea_context(action: cl.Action):
+    """
+    Apply starred/pruned ideas as focus areas and exclusions for AI responses.
+
+    Starred ideas → Focus areas (positive context injection)
+    Pruned ideas → Topics to avoid (negative prompt injection)
+
+    Implements swarm-recommended "Focus/Park" semantic framing.
+    """
+    starred_ids = action.payload.get("starred_ids", [])
+    pruned_ids = action.payload.get("pruned_ids", [])
+
+    canvas_state = cl.user_session.get("canvas_state")
+    if not canvas_state:
+        await cl.Message(content="No canvas state found. Extract ideas first!").send()
+        return
+
+    idea_nodes = canvas_state.get("idea_nodes", {})
+
+    # Extract content from starred ideas (limit to 10 for prompt size)
+    focus_ideas = []
+    for node_id in starred_ids[:10]:
+        node = idea_nodes.get(node_id)
+        if node:
+            focus_ideas.append({
+                "type": node.get("node_type", "idea"),
+                "content": node.get("content", "")[:200],
+            })
+
+    # Extract content from pruned ideas (limit to 10 for prompt size)
+    avoid_ideas = []
+    for node_id in pruned_ids[:10]:
+        node = idea_nodes.get(node_id)
+        if node:
+            avoid_ideas.append({
+                "type": node.get("node_type", "idea"),
+                "content": node.get("content", "")[:200],
+            })
+
+    # Store in session for injection into system prompt
+    cl.user_session.set("idea_focus_context", focus_ideas)
+    cl.user_session.set("idea_avoid_context", avoid_ideas)
+
+    # Build confirmation message
+    focus_summary = ""
+    if focus_ideas:
+        focus_items = [f"• **{i['type']}**: {i['content'][:60]}..." for i in focus_ideas[:5]]
+        focus_summary = "**🎯 Focus areas:**\n" + "\n".join(focus_items)
+        if len(focus_ideas) > 5:
+            focus_summary += f"\n*...and {len(focus_ideas) - 5} more*"
+
+    avoid_summary = ""
+    if avoid_ideas:
+        avoid_items = [f"• ~~{i['content'][:50]}...~~" for i in avoid_ideas[:3]]
+        avoid_summary = "**🚫 Avoiding:**\n" + "\n".join(avoid_items)
+        if len(avoid_ideas) > 3:
+            avoid_summary += f"\n*...and {len(avoid_ideas) - 3} more*"
+
+    message = "✅ **Idea Context Applied!**\n\n"
+    if focus_summary:
+        message += focus_summary + "\n\n"
+    if avoid_summary:
+        message += avoid_summary + "\n\n"
+    message += "*The AI will now prioritize your starred ideas and avoid pruned topics.*"
+
+    await cl.Message(
+        content=message,
+        actions=[
+            cl.Action(
+                name="clear_idea_context",
+                payload={},
+                label="🔄 Clear Context",
+                tooltip="Remove focus/avoid filters",
+            ),
+            cl.Action(
+                name="show_idea_canvas",
+                payload={"action": "ideas"},
+                label="🎨 View Canvas",
+            ),
+        ]
+    ).send()
+
+
+@cl.action_callback("clear_idea_context")
+async def on_clear_idea_context(action: cl.Action):
+    """Clear the applied idea focus/avoid context."""
+    cl.user_session.set("idea_focus_context", None)
+    cl.user_session.set("idea_avoid_context", None)
+
+    await cl.Message(
+        content="🔄 **Idea context cleared.**\n\nThe AI will no longer use starred/pruned ideas for filtering.",
+    ).send()
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # WAVE 4: Auto-Orchestration - "Find the Breakthrough"
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -13039,6 +13134,31 @@ CRITICAL RULES:
 """
             system_instruction += exclusion_prompt
             print(f"[EXCLUSIONS] Injected {len(excluded_topics)} exclusions into system prompt")
+
+        # === IDEA CONTEXT: Focus and Avoid from Canvas ===
+        # Starred ideas → positive context (focus on these)
+        # Pruned ideas → negative context (avoid these)
+        idea_focus_context = cl.user_session.get("idea_focus_context", [])
+        idea_avoid_context = cl.user_session.get("idea_avoid_context", [])
+
+        if idea_focus_context or idea_avoid_context:
+            idea_context_prompt = "\n[IDEA CONTEXT FROM CANVAS]\n"
+
+            if idea_focus_context:
+                idea_context_prompt += "\n**FOCUS AREAS** (user-starred ideas — prioritize these):\n"
+                for idea in idea_focus_context[:10]:
+                    idea_context_prompt += f"- [{idea['type']}] {idea['content']}\n"
+                idea_context_prompt += "\nPRIORITIZE responses that address or build upon these starred ideas.\n"
+
+            if idea_avoid_context:
+                idea_context_prompt += "\n**AVOID TOPICS** (user-pruned ideas — skip these):\n"
+                for idea in idea_avoid_context[:10]:
+                    idea_context_prompt += f"- [{idea['type']}] {idea['content']}\n"
+                idea_context_prompt += "\nDO NOT bring up or explore these pruned topics unless user explicitly asks.\n"
+
+            idea_context_prompt += "[END IDEA CONTEXT]\n"
+            system_instruction += idea_context_prompt
+            print(f"[IDEA_CONTEXT] Injected {len(idea_focus_context)} focus + {len(idea_avoid_context)} avoid ideas")
 
         context_handoff = cl.user_session.get("context_handoff")
         previous_bot = cl.user_session.get("previous_bot")

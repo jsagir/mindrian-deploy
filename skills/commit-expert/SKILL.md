@@ -140,6 +140,7 @@ This skill works with:
 - `mindrian-stack` - Maps changes to architecture components
 - `qa-analyzer` - Correlates code changes with reported issues
 - `context-manager` - Tracks auth/session isolation changes
+- `swarm-orchestrator` - Coordinates multi-agent workflows including Regression Hunt
 
 ## Auth-Critical File Patterns
 

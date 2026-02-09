@@ -704,6 +704,34 @@ register_agent(AgentConfig(
 ))
 
 register_agent(AgentConfig(
+    id="swarm_orchestrator",
+    name="Swarm Orchestrator",
+    description="Central coordination intelligence for multi-agent queries - selects agents, strategies, and synthesis patterns",
+    icon="🐝",
+    roles=[AgentRole.SERVICE, AgentRole.SUB_AGENT],
+    entry_points=[],
+    can_be_sub_agent=True,
+    service_mode=True,
+    called_by=["*"],
+    can_call=["*"],
+    capabilities=[
+        AgentCapability.GRAPHRAG,
+        AgentCapability.LANGEXTRACT,
+        AgentCapability.CONTEXT_STORE,
+        AgentCapability.FILE_SEARCH,
+        AgentCapability.RESEARCH,
+        AgentCapability.GRAPH_ROUTER,
+    ],
+    keywords=[
+        "swarm", "multi-agent", "multiple perspectives", "comprehensive analysis",
+        "all agents", "debate", "stress test", "full analysis", "team",
+        "what do the agents think", "get everyone's take",
+    ],
+    has_phases=False,
+    returns="SwarmReport",
+))
+
+register_agent(AgentConfig(
     id="pws_consultant",
     name="PWS Consultant",
     description="Structured problem diagnosis and framework-guided consulting with domain-specific expert panels",

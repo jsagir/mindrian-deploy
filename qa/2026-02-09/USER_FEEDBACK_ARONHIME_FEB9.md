@@ -178,5 +178,37 @@ pws_keywords = ["problem", "opportunity", "gap", "need", "pain point"]
 
 ---
 
+## Implementation Progress (Feb 9 Session 2)
+
+### Completed During This Session
+
+| Item | Status | Details |
+|------|--------|---------|
+| ✅ Limit ideas to top 10 with PWS filtering | **DONE** | Added `pws_score()` ranking algorithm |
+| ✅ Fix canvas toolbar contrast | **DONE** | Changed to dark theme (#1f2937) |
+| ✅ Add horizontal scroll to canvas | **DONE** | Changed overflow to "auto" |
+| ✅ Star/X button callbacks | **DONE** | Added error logging and try/except |
+
+### New Feature: Idea Filtering (Focus/Avoid)
+
+Per swarm recommendation, implemented "Apply to AI" feature:
+
+1. **UI**: Added "🎯 Apply to AI" button to IdeaCanvas footer
+2. **Callback**: `apply_idea_context` saves starred/pruned ideas to session
+3. **Prompt Injection**: Starred ideas become "Focus areas", pruned become "Avoid topics"
+4. **Clear**: "🔄 Clear Context" button removes filters
+
+**User Flow:**
+1. Star ideas worth exploring → Focus areas
+2. Prune ideas that are dead ends → Avoid topics
+3. Click "🎯 Apply to AI" → Context injected into system prompt
+4. AI now prioritizes starred ideas and avoids pruned ones
+
+**Files Modified:**
+- `public/elements/IdeaCanvas.jsx` (Apply button)
+- `mindrian_chat.py` (callbacks + prompt injection)
+
+---
+
 *Generated: February 9, 2026*
 *Based on: User testing session feedback*

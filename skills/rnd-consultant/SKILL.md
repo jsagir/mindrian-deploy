@@ -90,3 +90,4 @@ This skill works with:
 - `mindrian-stack` - For implementation details
 - `qa-consultant` - For tracking implementation issues
 - `neo4j-writer` - For knowledge graph changes
+- `swarm-orchestrator` - Coordinates Architecture Review workflows
