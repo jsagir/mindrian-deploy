@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-09 13:29*
+*Auto-generated: 2026-02-09 13:32*
 
 ---
 
 ## 2026-02-09
+
+### 🐛 fix: Add X-API-Key header to all LightRAG connections
+
+- **Commit:** `4576f32a`
+- **Author:** jsagir
+- **Files changed:** 7
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+  - tools/opportunity_bank.py
+- **Details:** LightRAG requires both OAuth2 Bearer token AND X-API-Key header.
 
 ### 🐛 fix: Update Claude opportunity attribution to 'CL-Mindrian'
 

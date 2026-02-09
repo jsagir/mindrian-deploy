@@ -102,6 +102,62 @@ class CronEndpointMiddleware(BaseHTTPMiddleware):
                 "supabase_anon_key": os.environ.get("SUPABASE_ANON_KEY", ""),
             })
 
+        # Handle /api/lightrag-health - test LightRAG connection
+        if request.url.path == "/api/lightrag-health":
+            import requests as req
+            lightrag_url = os.environ.get("LIGHTRAG_URL", "https://mondrian-ts.onrender.com")
+            lightrag_user = os.environ.get("LIGHTRAG_USERNAME", "jsagir")
+            lightrag_pass = os.environ.get("LIGHTRAG_PASSWORD")
+            lightrag_api_key = os.environ.get("LIGHTRAG_API_KEY", "JonathanSagir123")
+
+            result = {
+                "url": lightrag_url,
+                "username": lightrag_user,
+                "api_key_set": bool(lightrag_api_key),
+                "password_set": bool(lightrag_pass),
+                "login_status": "not_tested",
+                "token": None,
+                "error": None,
+            }
+
+            if not lightrag_pass:
+                result["error"] = "LIGHTRAG_PASSWORD not set"
+                return JSONResponse(content=result)
+
+            try:
+                # Test login with both API key and OAuth2
+                resp = req.post(
+                    f"{lightrag_url}/login",
+                    headers={"X-API-Key": lightrag_api_key},
+                    data={"username": lightrag_user, "password": lightrag_pass},
+                    timeout=10
+                )
+                if resp.status_code == 200:
+                    token_data = resp.json()
+                    result["login_status"] = "success"
+                    result["token"] = token_data.get("access_token", "")[:20] + "..." if token_data.get("access_token") else None
+
+                    # Test a simple query to verify full auth
+                    token = token_data.get("access_token")
+                    test_resp = req.post(
+                        f"{lightrag_url}/query",
+                        headers={
+                            "X-API-Key": lightrag_api_key,
+                            "Authorization": f"Bearer {token}"
+                        },
+                        json={"query": "test", "mode": "local"},
+                        timeout=10
+                    )
+                    result["query_test"] = "success" if test_resp.status_code == 200 else f"failed: {test_resp.status_code}"
+                else:
+                    result["login_status"] = f"failed: {resp.status_code}"
+                    result["error"] = resp.text[:200]
+            except Exception as e:
+                result["login_status"] = "error"
+                result["error"] = str(e)
+
+            return JSONResponse(content=result)
+
         # Handle /api/init-db - one-time database initialization
         if request.url.path == "/api/init-db":
             try:
@@ -273,7 +329,7 @@ class CronEndpointMiddleware(BaseHTTPMiddleware):
 # Add middleware BEFORE any routes
 # This middleware handles /api/* endpoints BEFORE Chainlit's auth kicks in
 fastapi_app.add_middleware(CronEndpointMiddleware)
-print("[API] Middleware registered: /api/health, /api/public-config, /api/daily-summary")
+print("[API] Middleware registered: /api/health, /api/public-config, /api/lightrag-health, /api/daily-summary")
 
 from google import genai
 from google.genai import types

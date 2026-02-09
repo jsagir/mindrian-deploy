@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-09 13:29*
+*Auto-generated: 2026-02-09 13:32*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,16 +13,17 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-09 | 9 |
+| 2026-02-09 | 10 |
 | 2026-02-08 | 20 |
 | 2026-02-06 | 17 |
-| 2026-02-05 | 4 |
+| 2026-02-05 | 3 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
 | `mindrian_chat.py` | 7 |
+| `tools/opportunity_bank.py` | 3 |
 
 ---
 
@@ -30,13 +31,47 @@
 
 ### 2026-02-09
 
+#### 🐛 fix: Add X-API-Key header to all LightRAG connections
+
+- **Hash:** `4576f32aa4fa1d8ec7f71ecf4dc1b32f9b72094a`
+- **Short:** `4576f32a`
+- **Parent:** `8bd2d7c3`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-09 13:32:27
+- **Risk:** medium
+- **Diff:** +113 / -78
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 35 | 37 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 1 |
+  | `tools/opportunity_bank.py` | 25 | 8 |
+  | `tools/opportunity_bank_lightrag.py` | 7 | 3 |
+  | `tools/user_lazygraph.py` | 7 | 3 |
+
+  **File Operations:**
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `tools/opportunity_bank.py`
+  - ✏️ Modified: `tools/opportunity_bank_lightrag.py`
+  - ✏️ Modified: `tools/user_lazygraph.py`
+
+- **Body:** LightRAG requires both OAuth2 Bearer token AND X-API-Key header.
+
+
 #### 🐛 fix: Update Claude opportunity attribution to 'CL-Mindrian'
 
 - **Hash:** `8bd2d7c312c472a4e21f59ebf46b8ab80a3804de`
 - **Short:** `8bd2d7c3`
 - **Parent:** `617331fd`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 13:29:30
 - **Risk:** medium
@@ -66,7 +101,6 @@
 - **Short:** `617331fd`
 - **Parent:** `4710da34`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 13:24:48
 - **Risk:** high
@@ -1580,31 +1614,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** - Panel title: "PWS Tools" -> "Agentic Actions"
-
-
-#### 🐛 fix: Attach ToolsPanel to welcome message instead of empty message
-
-- **Hash:** `072993dc6b90987b3a87b4ea3e3fdf256cc95142`
-- **Short:** `072993dc`
-- **Parent:** `db5a3b25`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-05 09:02:34
-- **Risk:** medium
-- **Diff:** +55 / -53
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `mindrian_chat.py` | 24 | 24 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 15 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 15 | 13 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 15 |
-
-  **File Operations:**
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** ToolsPanel was sent in cl.Message(content="") which Chainlit skips rendering.
 
