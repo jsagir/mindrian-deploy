@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-09 10:01*
+*Auto-generated: 2026-02-09 13:05*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,17 +13,17 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-09 | 5 |
+| 2026-02-09 | 6 |
 | 2026-02-08 | 20 |
 | 2026-02-06 | 17 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 3 |
+| 2026-02-04 | 2 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 7 |
+| `mindrian_chat.py` | 8 |
 
 ---
 
@@ -31,13 +31,43 @@
 
 ### 2026-02-09
 
+#### 🐛 fix: Research button 'stream_token' error - variable shadowing bug
+
+- **Hash:** `18745cb5973f5e08220413a6a52d144c5bd7002b`
+- **Short:** `18745cb5`
+- **Parent:** `2d47a9f3`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-09 13:05:56
+- **Risk:** medium
+- **Diff:** +77 / -76
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 3 | 3 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 35 | 46 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 13 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** The loop variable `msg` was overwriting the cl.Message object created at
+
+
 #### 📝 docs: Add QA Testing Memo for Feb 9 release
 
 - **Hash:** `2d47a9f39a17059500e0cca8dbaa61e408ba2e99`
 - **Short:** `2d47a9f3`
 - **Parent:** `0860d5d1`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 10:01:49
 - **Risk:** low
@@ -67,7 +97,6 @@
 - **Short:** `0860d5d1`
 - **Parent:** `f5c6a54e`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 09:59:31
 - **Risk:** high
@@ -1569,48 +1598,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** Genesis expert panel was missing genai.configure() call,
-
-
-#### ✨ feat: Add Genesis Expert Breakdown pipeline + UI improvements
-
-- **Hash:** `1500522c45d5385464c2588754b1b444154e6c83`
-- **Short:** `1500522c`
-- **Parent:** `376c18d8`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 15:21:30
-- **Risk:** high
-- **Diff:** +2619 / -199
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `intelligence/pipelines/__init__.py` | 28 | 0 |
-  | `intelligence/pipelines/genesis/__init__.py` | 53 | 0 |
-  | `intelligence/pipelines/genesis/decompose.py` | 204 | 0 |
-  | `intelligence/pipelines/genesis/domains.py` | 344 | 0 |
-  | `intelligence/pipelines/genesis/orchestrate.py` | 219 | 0 |
-  | `intelligence/pipelines/genesis/panel.py` | 333 | 0 |
-  | `intelligence/pipelines/genesis/personas.py` | 482 | 0 |
-  | `intelligence/pipelines/genesis/pipeline.py` | 398 | 0 |
-  | `intelligence/pipelines/genesis/synthesize.py` | 316 | 0 |
-  | `intelligence/pipelines/oracle_pipeline.py` | 16 | 6 |
-
-  **File Operations:**
-  - ✏️ Modified: `intelligence/pipelines/__init__.py`
-  - ➕ Added: `intelligence/pipelines/genesis/__init__.py`
-  - ➕ Added: `intelligence/pipelines/genesis/decompose.py`
-  - ➕ Added: `intelligence/pipelines/genesis/domains.py`
-  - ➕ Added: `intelligence/pipelines/genesis/orchestrate.py`
-  - ➕ Added: `intelligence/pipelines/genesis/panel.py`
-  - ➕ Added: `intelligence/pipelines/genesis/personas.py`
-  - ➕ Added: `intelligence/pipelines/genesis/pipeline.py`
-  - ➕ Added: `intelligence/pipelines/genesis/synthesize.py`
-  - ✏️ Modified: `intelligence/pipelines/oracle_pipeline.py`
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `public/elements/ToolsPanel.jsx`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** Genesis Pipeline (NEW):
 

@@ -10746,16 +10746,67 @@ async def on_deep_research(action: cl.Action):
 **Groups:** {', '.join(groups[:5])}{"..." if len(groups) > 5 else ""}"""
                     matrix_step.output = matrix_output
                 else:
-                    # Fallback to simple matrix
+                    # Fallback to simple matrix with ACTUAL queries from previous phases
+                    print(f"[RESEARCH] Matrix parse failed, building fallback from questions")
+                    from utils.minto_research import ResearchQuery
+
+                    # Build queries from Beautiful Questions
+                    bq = session.beautiful_questions
+                    why_qs = []
+                    what_if_qs = []
+                    how_qs = []
+
+                    if bq:
+                        for q in bq.why_questions[:2]:
+                            # Convert question to search query keywords
+                            keywords = q.replace("?", "").replace("Why ", "").replace("why ", "")
+                            why_qs.append(ResearchQuery(
+                                query=f"{keywords} research data 2024 2025",
+                                category="why",
+                                source_question=q,
+                                consolidation_group="general",
+                                priority=1
+                            ))
+                        for q in bq.what_if_questions[:2]:
+                            keywords = q.replace("?", "").replace("What if ", "").replace("what if ", "")
+                            what_if_qs.append(ResearchQuery(
+                                query=f"{keywords} alternatives possibilities",
+                                category="what_if",
+                                source_question=q,
+                                consolidation_group="general",
+                                priority=1
+                            ))
+                        for q in bq.how_questions[:2]:
+                            keywords = q.replace("?", "").replace("How ", "").replace("how ", "")
+                            how_qs.append(ResearchQuery(
+                                query=f"{keywords} implementation examples",
+                                category="how",
+                                source_question=q,
+                                consolidation_group="general",
+                                priority=1
+                            ))
+
+                    # Add one validation query from SCQA hypothesis
+                    val_qs = []
+                    if session.scqa and session.scqa.answer_hypothesis:
+                        val_qs.append(ResearchQuery(
+                            query=f"{session.scqa.question[:50]} evidence validation",
+                            category="validation",
+                            source_question=session.scqa.question,
+                            consolidation_group="general",
+                            priority=1
+                        ))
+
                     session.research_matrix = ResearchMatrix(
-                        why_queries=[],
-                        what_if_queries=[],
-                        how_queries=[],
-                        validation_queries=[],
+                        why_queries=why_qs,
+                        what_if_queries=what_if_qs,
+                        how_queries=how_qs,
+                        validation_queries=val_qs,
                         challenge_queries=[],
                         consolidation_groups={"general": "General research results"}
                     )
-                    matrix_step.output = "Using fallback research matrix..."
+                    total_fallback = len(why_qs) + len(what_if_qs) + len(how_qs) + len(val_qs)
+                    matrix_step.output = f"Using fallback research matrix... ({total_fallback} queries from Beautiful Questions)"
 
             # ═══════════════════════════════════════════════════════════════════
             # PHASE 5: EXECUTE MATRIX RESEARCH (12-20 queries)

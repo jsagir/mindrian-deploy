@@ -1,10 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-09 10:01*
+*Auto-generated: 2026-02-09 13:05*
 
 ---
 
 ## 2026-02-09
+
+### 🐛 fix: Research button 'stream_token' error - variable shadowing bug
+
+- **Commit:** `18745cb5`
+- **Author:** jsagir
+- **Files changed:** 5
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** The loop variable `msg` was overwriting the cl.Message object created at
 
 ### 📝 docs: Add QA Testing Memo for Feb 9 release
 
