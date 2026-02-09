@@ -2048,6 +2048,12 @@ def get_core_action_buttons(include_example: bool = True) -> list:
             label="💡 Ideas",
             tooltip="View and manage extracted ideas from this conversation",
         ),
+        cl.Action(
+            name="larry_teach_me",
+            payload={"action": "teach"},
+            label="🎓 Larry teach me",
+            tooltip="Generate a quick audio lecture based on your question",
+        ),
     ]
 
     if include_example:
@@ -4834,6 +4840,79 @@ async def on_ma_validate(action: cl.Action):
 @cl.action_callback("ma_full")
 async def on_ma_full(action: cl.Action):
     await run_multi_agent_with_type("full")
+
+
+@cl.action_callback("larry_teach_me")
+async def on_larry_teach_me(action: cl.Action):
+    """Generate a quick audio lecture based on conversation context."""
+    try:
+        from tools.quick_lecture import generate_quick_lecture
+
+        history = cl.user_session.get("history", [])
+
+        # Get the user's last question/message
+        last_user_msg = ""
+        for msg in reversed(history):
+            if msg.get("role") == "user":
+                last_user_msg = msg.get("content", "")
+                break
+
+        if not last_user_msg:
+            await cl.Message(content="I need a question or problem to create a lecture. What would you like me to teach you about?").send()
+            return
+
+        # Build context from conversation
+        context = "\n".join([
+            f"{msg.get('role', 'user')}: {msg.get('content', '')[:200]}"
+            for msg in history[-6:]
+        ])
+
+        # Show loading message
+        loading_msg = cl.Message(content="🎓 **Larry is preparing a mini-lecture for you...**\n\n_Searching knowledge graph for frameworks... Querying course materials... Generating script... Converting to audio..._")
+        await loading_msg.send()
+
+        # Generate the lecture
+        audio_bytes, script, metadata = await generate_quick_lecture(
+            question=last_user_msg,
+            context=context,
+            include_audio=True
+        )
+
+        # Build response
+        elements = []
+        if audio_bytes:
+            elements.append(cl.Audio(
+                content=audio_bytes,
+                mime="audio/mpeg",
+                name="larry_lecture.mp3"
+            ))
+
+        # Format metadata
+        frameworks_used = ", ".join(metadata.get("frameworks_found", [])) or "General PWS"
+
+        response = f"""🎓 **Quick Lecture: Larry Teaches You**
+
+**Your Question:** {last_user_msg[:100]}{'...' if len(last_user_msg) > 100 else ''}
+
+**Frameworks Applied:** {frameworks_used}
+**Sources:** {'Neo4j ✓' if metadata.get('neo4j_used') else ''} {'FileSearch ✓' if metadata.get('filesearch_used') else ''} {'Claude ✓' if metadata.get('claude_used') else ''}
+
+---
+
+{script}
+
+---
+{'🎧 *Audio lecture generated - click play above*' if audio_bytes else '⚠️ *Audio generation unavailable*'}
+"""
+
+        # Update the loading message
+        loading_msg.content = response
+        loading_msg.elements = elements
+        await loading_msg.update()
+
+    except Exception as e:
+        logger.error(f"Larry teach me error: {e}")
+        await cl.Message(content=f"Sorry, I couldn't generate the lecture: {str(e)[:100]}").send()
 
 
 async def run_multi_agent_with_type(analysis_type: str):

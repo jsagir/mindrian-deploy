@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-09 14:16*
+*Auto-generated: 2026-02-09 14:18*
 
 ---
 
 ## 2026-02-09
+
+### ✨ feat: Add /api/embed-opportunities endpoint
+
+- **Commit:** `d1bfd40f`
+- **Author:** jsagir
+- **Files changed:** 5
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Trigger opportunity embedding via API:
 
 ### ✨ feat: Add opportunity embedding script + fix daily_summary LightRAG auth
 
@@ -597,15 +609,3 @@
   - skills/neo4j-schema-navigator/SKILL.md
   - skills/qa-consultant/SKILL.md
 - **Details:** - Add 5-second timeout for Supabase session check (prevents infinite "Checking session...")
-
-### ✨ feat: Add Supabase Auth + Login Page + PWS Consultant + Context Fix
-
-- **Commit:** `f48e3f2a`
-- **Author:** jsagir
-- **Files changed:** 19
-  - auth/__init__.py
-  - auth/supabase_auth.py
-  - mindrian_chat.py
-  - prompts/__init__.py
-  - prompts/pws_consultant.py
-- **Details:** ## Supabase Authentication

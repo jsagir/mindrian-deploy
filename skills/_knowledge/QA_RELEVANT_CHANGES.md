@@ -1,6 +1,6 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-09 14:16*
+*Auto-generated: 2026-02-09 14:18*
 
 ---
 
@@ -477,15 +477,3 @@
   - skills/neo4j-schema-navigator/SKILL.md
   - skills/qa-consultant/SKILL.md
 - **Details:** - Add 5-second timeout for Supabase session check (prevents infinite "Checking session...")
-
-### ✨ feat: Add Supabase Auth + Login Page + PWS Consultant + Context Fix
-
-- **Commit:** `f48e3f2a`
-- **Author:** jsagir
-- **Files changed:** 19
-  - auth/__init__.py
-  - auth/supabase_auth.py
-  - mindrian_chat.py
-  - prompts/__init__.py
-  - prompts/pws_consultant.py
-- **Details:** ## Supabase Authentication

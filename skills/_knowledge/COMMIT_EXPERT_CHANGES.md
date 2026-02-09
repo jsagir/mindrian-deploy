@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-09 14:16*
+*Auto-generated: 2026-02-09 14:18*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,9 +13,9 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-09 | 13 |
+| 2026-02-09 | 14 |
 | 2026-02-08 | 20 |
-| 2026-02-06 | 17 |
+| 2026-02-06 | 16 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
@@ -30,13 +30,43 @@
 
 ### 2026-02-09
 
+#### ✨ feat: Add /api/embed-opportunities endpoint
+
+- **Hash:** `d1bfd40fc73a989a175bfb760a03fe5ad9a9536e`
+- **Short:** `d1bfd40f`
+- **Parent:** `c23a38a4`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-09 14:18:40
+- **Risk:** high
+- **Diff:** +108 / -65
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 33 | 1 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 36 | 35 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 14 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 14 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** Trigger opportunity embedding via API:
+
+
 #### ✨ feat: Add opportunity embedding script + fix daily_summary LightRAG auth
 
 - **Hash:** `c23a38a490333151de4dfd96862a07e43f50df7b`
 - **Short:** `c23a38a4`
 - **Parent:** `a194ecab`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 14:16:27
 - **Risk:** high
@@ -68,7 +98,6 @@
 - **Short:** `a194ecab`
 - **Parent:** `71833cc8`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 14:05:27
 - **Risk:** medium
@@ -1571,52 +1600,4 @@
   - ✏️ Modified: `skills/qa-consultant/SKILL.md`
 
 - **Body:** - Add 5-second timeout for Supabase session check (prevents infinite "Checking session...")
-
-
-#### ✨ feat: Add Supabase Auth + Login Page + PWS Consultant + Context Fix
-
-- **Hash:** `f48e3f2a00a36853931123608287e0b2a51014a1`
-- **Short:** `f48e3f2a`
-- **Parent:** `300c98dc`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-06 09:08:39
-- **Risk:** high
-- **Diff:** +4419 / -102
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `.chainlit/config.toml` | 14 | 0 |
-  | `.env.example` | 15 | 4 |
-  | `auth/__init__.py` | 12 | 0 |
-  | `auth/supabase_auth.py` | 528 | 0 |
-  | `mindrian_chat.py` | 905 | 66 |
-  | `prompts/__init__.py` | 30 | 0 |
-  | `prompts/pws_consultant.py` | 826 | 0 |
-  | `protocols/agent_registry.py` | 63 | 4 |
-  | `public/auth-bridge.js` | 72 | 0 |
-  | `public/elements/ChallengeIntro.jsx` | 201 | 0 |
-
-  **File Operations:**
-  - ✏️ Modified: `.chainlit/config.toml`
-  - ✏️ Modified: `.env.example`
-  - ➕ Added: `auth/__init__.py`
-  - ➕ Added: `auth/supabase_auth.py`
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `prompts/__init__.py`
-  - ➕ Added: `prompts/pws_consultant.py`
-  - ✏️ Modified: `protocols/agent_registry.py`
-  - ➕ Added: `public/auth-bridge.js`
-  - ➕ Added: `public/elements/ChallengeIntro.jsx`
-  - ➕ Added: `public/elements/DiagnosisResult.jsx`
-  - ➕ Added: `public/elements/DiagnosticFlow.jsx`
-  - ➕ Added: `public/elements/ExpertPanel.jsx`
-  - ➕ Added: `public/login.html`
-  - ✏️ Modified: `requirements.txt`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-  - ➕ Added: `tools/pws_consultant_pipeline.py`
-
-- **Body:** ## Supabase Authentication
 
