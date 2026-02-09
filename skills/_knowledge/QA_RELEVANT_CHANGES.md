@@ -1,10 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-09 14:42*
+*Auto-generated: 2026-02-09 14:55*
 
 ---
 
 ## 2026-02-09
+
+### 🐛 fix: Larry teach me refusal bug + add explicit teaching detection
+
+- **Commit:** `2e6b7a27`
+- **Author:** jsagir
+- **Files changed:** 6
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** BUG FIXES:
 
 ### ✨ feat: Add opportunity embedding script + fix daily_summary LightRAG auth
 

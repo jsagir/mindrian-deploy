@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-09 14:42*
+*Auto-generated: 2026-02-09 14:55*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,15 +13,16 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-09 | 16 |
+| 2026-02-09 | 17 |
 | 2026-02-08 | 20 |
-| 2026-02-06 | 14 |
+| 2026-02-06 | 13 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
 | `mindrian_chat.py` | 7 |
+| `tools/quick_lecture.py` | 3 |
 | `tools/opportunity_bank.py` | 3 |
 
 ---
@@ -30,13 +31,45 @@
 
 ### 2026-02-09
 
+#### 🐛 fix: Larry teach me refusal bug + add explicit teaching detection
+
+- **Hash:** `2e6b7a27ccf0d8b4dd09d19af0a54df039d52bd4`
+- **Short:** `2e6b7a27`
+- **Parent:** `41bc8cdd`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-09 14:55:21
+- **Risk:** medium
+- **Diff:** +200 / -96
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 5 | 2 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 36 | 48 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 13 |
+  | `tools/quick_lecture.py` | 132 | 19 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `tools/quick_lecture.py`
+
+- **Body:** BUG FIXES:
+
+
 #### ✨ feat: Upgrade "Larry teach me" to Cognitive Intervention Engine
 
 - **Hash:** `41bc8cdde5dee155780347e08dd7cb699694bbb3`
 - **Short:** `41bc8cdd`
 - **Parent:** `1c11966d`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 14:42:17
 - **Risk:** high
@@ -68,7 +101,6 @@
 - **Short:** `1c11966d`
 - **Parent:** `d1bfd40f`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 14:27:26
 - **Risk:** high
@@ -1559,35 +1591,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** Quick wins from AGENTS.md architecture analysis:
-
-
-#### ✨ feat: Add LangGraph-style PWS state management module
-
-- **Hash:** `783b3b542cdaedcc93d5b6d2473288debc2104d6`
-- **Short:** `783b3b54`
-- **Parent:** `83392ea1`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-06 09:28:27
-- **Risk:** high
-- **Diff:** +723 / -88
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `mindrian_chat.py` | 76 | 16 |
-  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 46 | 36 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 0 | 12 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 12 | 12 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 12 | 12 |
-  | `utils/pws_state.py` | 577 | 0 |
-
-  **File Operations:**
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-  - ➕ Added: `utils/pws_state.py`
-
-- **Body:** - Create utils/pws_state.py with formal TypedDict schema
 

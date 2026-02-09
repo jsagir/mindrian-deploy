@@ -1190,7 +1190,7 @@ async def store_opportunity_lightrag(opportunity: Opportunity) -> bool:
                 f"{LIGHTRAG_URL}/login",
                 headers=base_headers,
                 data={"username": LIGHTRAG_USERNAME, "password": LIGHTRAG_PASSWORD},
-                timeout=15
+                timeout=60
             )
             if resp.status_code == 200:
                 _lightrag_token = resp.json().get("access_token")
@@ -1262,7 +1262,7 @@ async def store_opportunity_lightrag(opportunity: Opportunity) -> bool:
             f"{LIGHTRAG_URL}/documents/text",
             headers=headers,
             json={"text": document_text},
-            timeout=30
+            timeout=60
         )
 
         if resp.status_code == 200:

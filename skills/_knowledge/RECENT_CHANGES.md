@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-09 14:42*
+*Auto-generated: 2026-02-09 14:55*
 
 ---
 
 ## 2026-02-09
+
+### 🐛 fix: Larry teach me refusal bug + add explicit teaching detection
+
+- **Commit:** `2e6b7a27`
+- **Author:** jsagir
+- **Files changed:** 6
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** BUG FIXES:
 
 ### ✨ feat: Upgrade "Larry teach me" to Cognitive Intervention Engine
 
@@ -597,15 +609,3 @@
   - skills/_knowledge/QA_RELEVANT_CHANGES.md
   - skills/_knowledge/RECENT_CHANGES.md
 - **Details:** Quick wins from AGENTS.md architecture analysis:
-
-### ✨ feat: Add LangGraph-style PWS state management module
-
-- **Commit:** `783b3b54`
-- **Author:** jsagir
-- **Files changed:** 6
-  - mindrian_chat.py
-  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** - Create utils/pws_state.py with formal TypedDict schema

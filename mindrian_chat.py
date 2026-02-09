@@ -4560,16 +4560,27 @@ async def on_chat_resume(thread: dict):
             phase_context={}  # Will be populated as history is restored
         )
 
-    # Restore conversation history from thread messages
+    # Restore conversation history - prefer persisted context over thread.steps
     history = []
-    for message in thread.get("steps", []):
-        msg_type = message.get("type", "")
-        output = message.get("output", "")
 
-        if msg_type == "user_message" and output:
-            history.append({"role": "user", "content": output})
-        elif msg_type == "assistant_message" and output:
-            history.append({"role": "model", "content": output})
+    # First try: Use persisted context from Supabase (most reliable)
+    if persisted_context and persisted_context.get("history"):
+        history = persisted_context.get("history", [])
+        logger.info(f"[PERSISTENCE] Using {len(history)} messages from Supabase context")
+    else:
+        # Fallback: Extract from thread.steps (Chainlit's native storage)
+        for message in thread.get("steps", []):
+            msg_type = message.get("type", "")
+            output = message.get("output", "")
+
+            # Handle both old and new Chainlit message type formats
+            if msg_type in ("user_message", "user") and output:
+                history.append({"role": "user", "content": output})
+            elif msg_type in ("assistant_message", "assistant") and output:
+                history.append({"role": "model", "content": output})
+
+        if history:
+            logger.info(f"[PERSISTENCE] Using {len(history)} messages from thread.steps fallback")
 
     cl.user_session.set("history", history)
 
@@ -4587,14 +4598,16 @@ async def on_chat_resume(thread: dict):
     # Re-initialize settings widgets
     await cl.ChatSettings(await get_settings_widgets()).send()
 
-    # Welcome back message
-    phase_info = ""
-    if phases and current_phase < len(phases):
-        phase_info = f"\n\n**Current phase:** {phases[current_phase]['name']} (Phase {current_phase + 1} of {len(phases)})"
+    # Welcome back message - only send once per session
+    if not cl.user_session.get("welcome_sent"):
+        phase_info = ""
+        if phases and current_phase < len(phases):
+            phase_info = f"\n\n**Current phase:** {phases[current_phase]['name']} (Phase {current_phase + 1} of {len(phases)})"
 
-    await cl.Message(
-        content=f"**Welcome back!** Your conversation has been restored.{phase_info}"
-    ).send()
+        await cl.Message(
+            content=f"**Welcome back!** Your conversation has been restored.{phase_info}"
+        ).send()
+        cl.user_session.set("welcome_sent", True)
 
 
 # === Stop Handler ===
@@ -6141,9 +6154,22 @@ async def on_star_idea(action: cl.Action):
 
         canvas_state = cl.user_session.get("canvas_state")
         if not canvas_state:
-            print("[STAR_IDEA] No canvas_state in session")
-            await cl.Message(content="No canvas state. Try extracting ideas first.").send()
-            return
+            # Try to initialize from stored data
+            try:
+                from tools.idea_canvas import init_canvas_state, load_canvas_state
+                session_id = str(cl.user_session.get("id", "anonymous"))
+
+                # Try loading from persistence first
+                canvas_state = await load_canvas_state(session_id)
+                if not canvas_state:
+                    canvas_state = init_canvas_state(session_id, "main")
+
+                cl.user_session.set("canvas_state", canvas_state)
+                print(f"[STAR_IDEA] Initialized canvas_state with {len(canvas_state.get('idea_nodes', {}))} nodes")
+            except Exception as e:
+                print(f"[STAR_IDEA] Failed to init canvas: {e}")
+                await cl.Message(content="No canvas state. Try extracting ideas first.").send()
+                return
 
         idea_nodes = canvas_state.get("idea_nodes", {})
         print(f"[STAR_IDEA] idea_nodes keys: {list(idea_nodes.keys())[:5]}...")
@@ -8082,6 +8108,7 @@ async def on_show_example(action: cl.Action):
 
     # --- Step 4: Tavily — fetch real-world sources for the example ---
     web_evidence = ""
+    web_sources = []  # Store sources with URLs for display
     try:
         if tavily_query:
             from tools.tavily_search import search_web
@@ -8091,8 +8118,10 @@ async def on_show_example(action: cl.Action):
                 title = r.get("title", "")
                 content = r.get("content", "")[:400]
                 url = r.get("url", "")
-                if content:
+                if content and url:
                     snippets.append(f"- {title}: {content} ({url})")
+                    # Store for clickable display
+                    web_sources.append({"title": title, "url": url})
             if snippets:
                 web_evidence = "\n".join(snippets)
     except Exception as e:
@@ -8115,38 +8144,53 @@ async def on_show_example(action: cl.Action):
             "Using ALL of the above (conversation, graph, PWS examples, web sources), "
             "write ONE specific, real-world example that directly parallels what the "
             "user is discussing.\n\n"
-            "Rules:\n"
-            "- Tell a STORY: specific names, dates, events, and outcomes\n"
+            "CRITICAL RULES:\n"
+            "- Write a COMPLETE paragraph (minimum 6-8 full sentences, 150-250 words)\n"
+            "- Tell a STORY: specific names, dates, places, events, and outcomes\n"
+            "- Include context: what was the situation, who was involved, what happened\n"
+            "- Include outcome: what was the result, what lessons were learned\n"
             "- Do NOT explain methodology or frameworks — only the example itself\n"
             "- If PWS knowledge base had a relevant example, USE it as a starting "
             "point but enrich it with web source details\n"
-            "- If web sources found real data, weave it into the story and cite the URL\n"
             "- Connect the example back to the user's topic in 1 final sentence\n"
-            "- Keep it to 4-8 sentences total\n\n"
-            "Format: **Title (Year/Era)**: The story..."
+            "- NEVER cut off mid-sentence — finish every thought completely\n\n"
+            "Format: **Title (Year/Era)**: The complete story in one full paragraph..."
         )
 
-        # BUG FIX: Increased max_output_tokens from 600 to 800 to prevent example truncation
+        # Increased max_output_tokens to 1200 to ensure complete paragraph generation
         response = client.models.generate_content(
             model="gemini-2.5-flash",
             contents=synthesis_prompt,
-            config=types.GenerateContentConfig(temperature=0.7, max_output_tokens=800),
+            config=types.GenerateContentConfig(temperature=0.7, max_output_tokens=1200),
         )
 
         if response.text and len(response.text.strip()) > 30:
-            # Source attribution
+            # Source attribution with clickable links
             sources_used = []
             if graph_hint:
                 sources_used.append("knowledge graph")
             if rag_examples:
                 sources_used.append("PWS knowledge base")
-            if web_evidence:
+            if web_sources:
                 sources_used.append("web research")
+
             source_note = ""
             if sources_used:
                 source_note = f"\n\n*Sourced from: {', '.join(sources_used)}.*"
 
-            await msg.stream_token(response.text.strip() + source_note)
+            # Add clickable source links if we have web sources
+            source_links = ""
+            if web_sources:
+                links = []
+                for src in web_sources[:3]:  # Max 3 sources
+                    title = src.get("title", "Source")[:50]  # Truncate long titles
+                    url = src.get("url", "")
+                    if url:
+                        links.append(f"- [{title}]({url})")
+                if links:
+                    source_links = "\n\n**📚 Sources:**\n" + "\n".join(links)
+
+            await msg.stream_token(response.text.strip() + source_note + source_links)
             # Add core action buttons so user can continue
             msg.actions = get_core_action_buttons(include_example=True)
             await msg.update()
@@ -15159,7 +15203,7 @@ async def on_view_opportunities(action: cl.Action):
         user_id = session_id
 
         # Get opportunities for this user
-        opportunities = await get_opportunities_from_table(user_id=user_id, limit=20)
+        opportunities = await get_opportunities_from_table(created_by=user_id, limit=20)
 
         if not opportunities:
             await cl.Message(
@@ -15242,7 +15286,7 @@ async def on_explore_opportunity(action: cl.Action):
 
         # Fetch the full opportunity details
         session_id = str(cl.user_session.get("id", "anonymous"))
-        opportunities = await get_opportunities_from_table(user_id=session_id, limit=50)
+        opportunities = await get_opportunities_from_table(created_by=session_id, limit=50)
 
         # Find the specific opportunity
         opportunity = None

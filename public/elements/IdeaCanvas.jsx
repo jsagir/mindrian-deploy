@@ -331,12 +331,12 @@ export default function IdeaCanvas() {
           );
         })}
 
-        {/* Node card */}
+        {/* Node card - wider and taller for better text display */}
         <rect
-          x={-80}
-          y={-30}
-          width={160}
-          height={60}
+          x={-100}
+          y={-40}
+          width={200}
+          height={80}
           rx={8}
           fill={style.bg}
           stroke={isSelected ? "#000" : isDragTarget ? "#6366f1" : style.border}
@@ -345,62 +345,81 @@ export default function IdeaCanvas() {
             filter: isHovered
               ? "drop-shadow(0 4px 6px rgba(0,0,0,0.1))"
               : "none",
+            cursor: "pointer",
           }}
         />
 
+        {/* Tooltip - shows full content on hover */}
+        <title>{node.content}</title>
+
         {/* Type icon */}
         <text
-          x={-70}
-          y={-10}
+          x={-90}
+          y={-20}
           fontSize={14}
           dominantBaseline="middle"
         >
           {style.icon}
         </text>
 
-        {/* Content (truncated) */}
+        {/* Content line 1 - expanded from 20 to 28 chars */}
         <text
-          x={-55}
-          y={-10}
+          x={-72}
+          y={-20}
           fontSize={11}
           fill={style.text}
           dominantBaseline="middle"
           style={{ pointerEvents: "none" }}
         >
-          {node.content.length > 20
-            ? node.content.substring(0, 20) + "..."
+          {node.content.length > 28
+            ? node.content.substring(0, 28) + "..."
             : node.content}
         </text>
 
-        {/* Second line of content */}
-        {node.content.length > 20 && (
+        {/* Content line 2 - expanded range */}
+        {node.content.length > 28 && (
           <text
-            x={-70}
-            y={8}
+            x={-90}
+            y={0}
             fontSize={10}
             fill="#6b7280"
             dominantBaseline="middle"
             style={{ pointerEvents: "none" }}
           >
-            {node.content.substring(20, 45)}
-            {node.content.length > 45 ? "..." : ""}
+            {node.content.substring(28, 60)}
+            {node.content.length > 60 ? "..." : ""}
           </text>
         )}
 
-        {/* Star indicator */}
+        {/* Content line 3 - new line for longer ideas */}
+        {node.content.length > 60 && (
+          <text
+            x={-90}
+            y={18}
+            fontSize={10}
+            fill="#9ca3af"
+            dominantBaseline="middle"
+            style={{ pointerEvents: "none" }}
+          >
+            {node.content.substring(60, 90)}
+            {node.content.length > 90 ? "..." : ""}
+          </text>
+        )}
+
+        {/* Star indicator - repositioned for larger box */}
         {node.starred && (
-          <text x={55} y={-20} fontSize={14}>
+          <text x={75} y={-30} fontSize={14}>
             ⭐
           </text>
         )}
 
-        {/* Action buttons (on hover) */}
+        {/* Action buttons (on hover) - repositioned for larger box */}
         {(isHovered || isSelected) && editable && (
           <>
             <circle
-              cx={50}
-              cy={20}
-              r={10}
+              cx={65}
+              cy={28}
+              r={12}
               fill="#fff"
               stroke={node.starred ? "#eab308" : "#d1d5db"}
               strokeWidth={1}
@@ -408,9 +427,9 @@ export default function IdeaCanvas() {
               style={{ cursor: "pointer" }}
             />
             <text
-              x={50}
-              y={24}
-              fontSize={10}
+              x={65}
+              y={32}
+              fontSize={12}
               textAnchor="middle"
               style={{ pointerEvents: "none" }}
             >
@@ -418,9 +437,9 @@ export default function IdeaCanvas() {
             </text>
 
             <circle
-              cx={70}
-              cy={20}
-              r={10}
+              cx={90}
+              cy={28}
+              r={12}
               fill="#fff"
               stroke="#ef4444"
               strokeWidth={1}
@@ -428,9 +447,9 @@ export default function IdeaCanvas() {
               style={{ cursor: "pointer" }}
             />
             <text
-              x={70}
-              y={24}
-              fontSize={10}
+              x={90}
+              y={32}
+              fontSize={12}
               textAnchor="middle"
               fill="#ef4444"
               style={{ pointerEvents: "none" }}
