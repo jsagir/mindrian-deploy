@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-09 13:08*
+*Auto-generated: 2026-02-09 13:24*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,11 +13,10 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-09 | 7 |
+| 2026-02-09 | 8 |
 | 2026-02-08 | 20 |
 | 2026-02-06 | 17 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 1 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
@@ -31,13 +30,53 @@
 
 ### 2026-02-09
 
+#### ✨ feat: Add Hybrid LLM Router + Claude for Bank of Opportunities
+
+- **Hash:** `617331fd406c2fde52ceb985b53ef456e20c7e6d`
+- **Short:** `617331fd`
+- **Parent:** `4710da34`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-09 13:24:48
+- **Risk:** high
+- **Diff:** +2581 / -64
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 32 | 0 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 34 | 32 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 12 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 12 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 1 |
+  | `tools/opportunity_bank.py` | 198 | 6 |
+  | `utils/__init__.py` | 62 | 1 |
+  | `utils/journey_nodes.py` | 566 | 0 |
+  | `utils/journey_state.py` | 623 | 0 |
+  | `utils/llm_router.py` | 1027 | 0 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `tools/opportunity_bank.py`
+  - ✏️ Modified: `utils/__init__.py`
+  - ➕ Added: `utils/journey_nodes.py`
+  - ➕ Added: `utils/journey_state.py`
+  - ➕ Added: `utils/llm_router.py`
+
+- **Body:** Implements the hybrid LLM strategy:
+
+
 #### 🐛 fix: Deep Research fallback now generates actual queries
 
 - **Hash:** `4710da341f5f6960e7425985094d643288ef7dad`
 - **Short:** `4710da34`
 - **Parent:** `18745cb5`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 13:08:18
 - **Risk:** medium
@@ -67,7 +106,6 @@
 - **Short:** `18745cb5`
 - **Parent:** `2d47a9f3`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 13:05:56
 - **Risk:** medium
@@ -1571,33 +1609,4 @@
   - ✏️ Modified: `utils/email_sender.py`
 
 - **Body:** - panel.py: Replace old google.generativeai with google-genai SDK (lazy client init)
-
-
-### 2026-02-04
-
-#### 📝 docs: Add QA Testing Memo for Feb 4, 2026 release
-
-- **Hash:** `b7a74bbf8347c631b2d6df88407bef243c90caba`
-- **Short:** `b7a74bbf`
-- **Parent:** `e2b79845`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 15:24:42
-- **Risk:** low
-- **Diff:** +258 / -25
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `docs/QA_TESTING_MEMO_FEB4.md` | 233 | 0 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 12 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 12 | 12 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 12 |
-
-  **File Operations:**
-  - ➕ Added: `docs/QA_TESTING_MEMO_FEB4.md`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** Covers all changes from last 18 hours including Genesis pipeline,
 

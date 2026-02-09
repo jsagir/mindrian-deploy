@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-09 13:08*
+*Auto-generated: 2026-02-09 13:24*
 
 ---
 
 ## 2026-02-09
+
+### ✨ feat: Add Hybrid LLM Router + Claude for Bank of Opportunities
+
+- **Commit:** `617331fd`
+- **Author:** jsagir
+- **Files changed:** 10
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Implements the hybrid LLM strategy:
 
 ### 🐛 fix: Deep Research fallback now generates actual queries
 
@@ -333,16 +345,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** - Query LightRAG knowledge graph for full Bank of Opportunities
-
-## 2026-02-04
-
-### 📝 docs: Add QA Testing Memo for Feb 4, 2026 release
-
-- **Commit:** `b7a74bbf`
-- **Author:** jsagir
-- **Files changed:** 4
-  - docs/QA_TESTING_MEMO_FEB4.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** Covers all changes from last 18 hours including Genesis pipeline,

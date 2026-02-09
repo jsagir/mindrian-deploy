@@ -638,7 +638,7 @@ async def extract_opportunities_with_claude(
                 source_snippet=raw.get("source_snippet", ""),
                 conversation_id=conversation_id,
                 user_id=user_id,
-                created_by=created_by or "claude_opus",
+                created_by=created_by or "CL-Mindrian",
                 created_by_type="ai_agent",
                 domain=raw.get("domain", ""),
                 subdomain=raw.get("subdomain", ""),
