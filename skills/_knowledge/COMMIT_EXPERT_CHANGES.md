@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-09 13:05*
+*Auto-generated: 2026-02-09 13:08*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,11 +13,11 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-09 | 6 |
+| 2026-02-09 | 7 |
 | 2026-02-08 | 20 |
 | 2026-02-06 | 17 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 2 |
+| 2026-02-04 | 1 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
@@ -31,13 +31,43 @@
 
 ### 2026-02-09
 
+#### 🐛 fix: Deep Research fallback now generates actual queries
+
+- **Hash:** `4710da341f5f6960e7425985094d643288ef7dad`
+- **Short:** `4710da34`
+- **Parent:** `18745cb5`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-09 13:08:18
+- **Risk:** medium
+- **Diff:** +131 / -83
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 57 | 6 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 35 | 50 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 13 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** When the LLM fails to produce valid JSON for the research matrix,
+
+
 #### 🐛 fix: Research button 'stream_token' error - variable shadowing bug
 
 - **Hash:** `18745cb5973f5e08220413a6a52d144c5bd7002b`
 - **Short:** `18745cb5`
 - **Parent:** `2d47a9f3`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 13:05:56
 - **Risk:** medium
@@ -67,7 +97,6 @@
 - **Short:** `2d47a9f3`
 - **Parent:** `0860d5d1`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 10:01:49
 - **Risk:** low
@@ -1571,31 +1600,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** Covers all changes from last 18 hours including Genesis pipeline,
-
-
-#### 🐛 fix: Configure Gemini API key in Genesis panel.py
-
-- **Hash:** `e2b7984591553f9599235af2034245897ff58b56`
-- **Short:** `e2b79845`
-- **Parent:** `1500522c`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 15:23:12
-- **Risk:** medium
-- **Diff:** +33 / -27
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `intelligence/pipelines/genesis/panel.py` | 6 | 0 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 13 |
-
-  **File Operations:**
-  - ✏️ Modified: `intelligence/pipelines/genesis/panel.py`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** Genesis expert panel was missing genai.configure() call,
 

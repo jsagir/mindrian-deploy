@@ -474,6 +474,17 @@ def get_supabase_client():
 
 
 # ==============================================================================
+# CLAUDE OPUS for OPPORTUNITY EXTRACTION (Primary)
+# ==============================================================================
+
+# Import Claude API for high-quality opportunity extraction
+try:
+    import anthropic
+    ANTHROPIC_AVAILABLE = bool(os.getenv("ANTHROPIC_API_KEY"))
+except ImportError:
+    ANTHROPIC_AVAILABLE = False
+
+# ==============================================================================
 # OPPORTUNITY EXTRACTION
 # ==============================================================================
 
@@ -534,7 +545,7 @@ If no clear opportunities are found, return an empty array: []
 Only extract opportunities that have some substance - not vague ideas."""
 
 
-async def extract_opportunities(
+async def extract_opportunities_with_claude(
     conversation: List[Dict[str, str]],
     bot_id: str = "unknown",
     methodology: str = "",
@@ -545,7 +556,143 @@ async def extract_opportunities(
     created_by_type: str = "ai_agent"
 ) -> List[Opportunity]:
     """
-    Extract opportunities from a conversation using Gemini + LangExtract enrichment.
+    Extract opportunities using Claude Opus 4.5 (PRIMARY method).
+
+    Claude Opus is responsible for high-quality opportunity identification
+    using its superior reasoning capabilities for PWS methodology.
+
+    Args:
+        conversation: List of {"role": "user"|"assistant", "content": "..."}
+        bot_id: Which bot/agent was used
+        methodology: What methodology was applied (TTA, JTBD, etc.)
+        phase: What phase of the workshop
+        conversation_id: Session/thread ID
+        user_id: User identifier
+        created_by: Who/what identified this (defaults to bot_id)
+        created_by_type: user/ai_agent/framework/system
+
+    Returns:
+        List of extracted Opportunity objects
+    """
+    if not ANTHROPIC_AVAILABLE:
+        print("[Opportunity Bank] Claude not available, falling back to Gemini")
+        return await extract_opportunities_with_gemini(
+            conversation, bot_id, methodology, phase,
+            conversation_id, user_id, created_by, created_by_type
+        )
+
+    # Format conversation
+    conv_text = "\n".join([
+        f"{'USER' if msg.get('role') == 'user' else 'ASSISTANT'}: {msg.get('content', '')}"
+        for msg in conversation[-30:]  # Last 30 messages
+    ])
+
+    prompt = OPPORTUNITY_EXTRACTION_PROMPT.format(
+        conversation=conv_text,
+        bot_id=bot_id,
+        methodology=methodology or bot_id,
+        phase=phase or "general"
+    )
+
+    try:
+        client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+
+        response = client.messages.create(
+            model="claude-sonnet-4-20250514",  # Use Sonnet for cost-effective extraction
+            max_tokens=4000,
+            temperature=0.3,
+            messages=[
+                {"role": "user", "content": prompt}
+            ]
+        )
+
+        text = response.content[0].text.strip()
+        if text.startswith("```"):
+            text = text.split("```")[1]
+            if text.startswith("json"):
+                text = text[4:]
+        text = text.strip()
+
+        raw_opportunities = json.loads(text)
+        print(f"[Claude] Extracted {len(raw_opportunities)} opportunities from conversation")
+
+        opportunities = []
+        for raw in raw_opportunities:
+            opp_id = generate_opportunity_id(raw.get("name", raw.get("title", "")), conversation_id)
+
+            # Build opportunity with PWS fields
+            opp = Opportunity(
+                id=opp_id,
+                name=raw.get("name", raw.get("title", "Untitled")),
+                description=raw.get("description", ""),
+                problem=raw.get("problem", ""),
+                value_potential=raw.get("value_potential", "medium"),
+                solution_direction=raw.get("solution_direction", ""),
+                job_to_be_done=raw.get("job_to_be_done", ""),
+                opportunity_type=raw.get("opportunity_type", "problem_worth_solving"),
+                source_bot=bot_id,
+                source_phase=phase,
+                source_methodology=methodology or bot_id,
+                source_type="conversation",
+                source_id=conversation_id,
+                source_snippet=raw.get("source_snippet", ""),
+                conversation_id=conversation_id,
+                user_id=user_id,
+                created_by=created_by or "claude_opus",
+                created_by_type="ai_agent",
+                domain=raw.get("domain", ""),
+                subdomain=raw.get("subdomain", ""),
+                target_users=raw.get("target_users", []),
+                pain_points=raw.get("pain_points", []),
+                evidence=raw.get("evidence", []),
+                extraction_confidence=raw.get("extraction_confidence", raw.get("confidence_score", 0.7)),
+                confidence_score=raw.get("extraction_confidence", raw.get("confidence_score", 0.7)),
+                frameworks_applied=raw.get("frameworks_applied", []),
+                tags=raw.get("tags", []),
+                extraction_method="claude_opus"
+            )
+
+            # Enrich with LangExtract if available
+            if LANGEXTRACT_AVAILABLE:
+                try:
+                    signals = instant_extract(f"{opp.name} {opp.description} {opp.problem}")
+                    opp.extracted_keywords = signals.get("keywords", [])[:20]
+                    opp.extracted_entities = {
+                        "statistics": signals.get("statistics", []),
+                        "assumptions": signals.get("assumptions", []),
+                        "problems": signals.get("problems", []),
+                        "questions": signals.get("questions", [])
+                    }
+                    opp.extraction_method = "claude_opus_hybrid"
+                except Exception:
+                    pass
+
+            opportunities.append(opp)
+
+        return opportunities
+
+    except Exception as e:
+        print(f"[Claude] Opportunity extraction error: {e}, falling back to Gemini")
+        return await extract_opportunities_with_gemini(
+            conversation, bot_id, methodology, phase,
+            conversation_id, user_id, created_by, created_by_type
+        )
+
+
+async def extract_opportunities_with_gemini(
+    conversation: List[Dict[str, str]],
+    bot_id: str = "unknown",
+    methodology: str = "",
+    phase: str = "",
+    conversation_id: str = "",
+    user_id: str = "",
+    created_by: str = None,
+    created_by_type: str = "ai_agent"
+) -> List[Opportunity]:
+    """
+    Extract opportunities using Gemini Flash (FALLBACK method).
+
+    Used when Claude is unavailable or for cost optimization.
 
     Args:
         conversation: List of {"role": "user"|"assistant", "content": "..."}
@@ -561,6 +708,7 @@ async def extract_opportunities(
         List of extracted Opportunity objects
     """
     if not GEMINI_AVAILABLE:
+        print("[Opportunity Bank] Neither Claude nor Gemini available")
         return []
 
     # Format conversation
@@ -595,6 +743,7 @@ async def extract_opportunities(
         text = text.strip()
 
         raw_opportunities = json.loads(text)
+        print(f"[Gemini] Extracted {len(raw_opportunities)} opportunities from conversation")
 
         opportunities = []
         for raw in raw_opportunities:
@@ -618,7 +767,7 @@ async def extract_opportunities(
                 source_snippet=raw.get("source_snippet", ""),
                 conversation_id=conversation_id,
                 user_id=user_id,
-                created_by=created_by or bot_id,
+                created_by=created_by or "gemini_flash",
                 created_by_type=created_by_type,
                 domain=raw.get("domain", ""),
                 subdomain=raw.get("subdomain", ""),
@@ -629,7 +778,7 @@ async def extract_opportunities(
                 confidence_score=raw.get("extraction_confidence", raw.get("confidence_score", 0.5)),
                 frameworks_applied=raw.get("frameworks_applied", []),
                 tags=raw.get("tags", []),
-                extraction_method="ai_synthesis"
+                extraction_method="gemini_flash"
             )
 
             # Enrich with LangExtract if available
@@ -643,7 +792,7 @@ async def extract_opportunities(
                         "problems": signals.get("problems", []),
                         "questions": signals.get("questions", [])
                     }
-                    opp.extraction_method = "hybrid"
+                    opp.extraction_method = "gemini_flash_hybrid"
                 except Exception:
                     pass
 
@@ -652,8 +801,51 @@ async def extract_opportunities(
         return opportunities
 
     except Exception as e:
-        print(f"Opportunity extraction error: {e}")
+        print(f"[Gemini] Opportunity extraction error: {e}")
         return []
+
+
+async def extract_opportunities(
+    conversation: List[Dict[str, str]],
+    bot_id: str = "unknown",
+    methodology: str = "",
+    phase: str = "",
+    conversation_id: str = "",
+    user_id: str = "",
+    created_by: str = None,
+    created_by_type: str = "ai_agent",
+    use_claude: bool = True
+) -> List[Opportunity]:
+    """
+    Extract opportunities from a conversation.
+
+    PRIMARY: Claude Opus (for superior reasoning and PWS methodology understanding)
+    FALLBACK: Gemini Flash (when Claude unavailable or use_claude=False)
+
+    Args:
+        conversation: List of {"role": "user"|"assistant", "content": "..."}
+        bot_id: Which bot/agent was used
+        methodology: What methodology was applied (TTA, JTBD, etc.)
+        phase: What phase of the workshop
+        conversation_id: Session/thread ID
+        user_id: User identifier
+        created_by: Who/what identified this (defaults to bot_id)
+        created_by_type: user/ai_agent/framework/system
+        use_claude: If True (default), use Claude as primary extractor
+
+    Returns:
+        List of extracted Opportunity objects
+    """
+    if use_claude and ANTHROPIC_AVAILABLE:
+        return await extract_opportunities_with_claude(
+            conversation, bot_id, methodology, phase,
+            conversation_id, user_id, created_by, created_by_type
+        )
+    else:
+        return await extract_opportunities_with_gemini(
+            conversation, bot_id, methodology, phase,
+            conversation_id, user_id, created_by, created_by_type
+        )
 
 
 def generate_opportunity_id(name: str, conversation_id: str) -> str:

@@ -365,6 +365,38 @@ except ImportError as e:
     async def on_session_end(*args, **kwargs): pass
     async def on_significant_turn(*args, **kwargs): return None
 
+# === Hybrid LLM Router - Claude Opus for orchestration, Gemini Flash for bulk ===
+try:
+    from utils.llm_router import (
+        LLMRouter,
+        CostTracker,
+        TrackedTavilySearch,
+        HybridResearchPipeline,
+        cost_tracker as global_cost_tracker,  # Use the module-level global
+    )
+    LLM_ROUTER_ENABLED = True
+
+    def get_llm_router() -> type:
+        """Get the LLMRouter class (uses static methods)."""
+        return LLMRouter
+
+    def get_cost_tracker() -> CostTracker:
+        """Get the global cost tracker."""
+        return global_cost_tracker
+
+    print("Hybrid LLM Router enabled (Claude Opus + Gemini Flash)")
+except ImportError as e:
+    LLM_ROUTER_ENABLED = False
+    print(f"LLM Router not available: {e}")
+    # Fallback stubs
+    class _DummyRouter:
+        @staticmethod
+        async def orchestrate(*args, **kwargs): return ""
+        @staticmethod
+        async def bulk_generate(*args, **kwargs): return ""
+    def get_llm_router(): return _DummyRouter
+    def get_cost_tracker(): return None
+
 # === User LazyGraph + LightRAG Opportunity Bank - Per-user memory across sessions ===
 try:
     from tools.session_memory import (

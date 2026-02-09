@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-09 13:05*
+*Auto-generated: 2026-02-09 13:08*
 
 ---
 
 ## 2026-02-09
+
+### 🐛 fix: Deep Research fallback now generates actual queries
+
+- **Commit:** `4710da34`
+- **Author:** jsagir
+- **Files changed:** 5
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** When the LLM fails to produce valid JSON for the research matrix,
 
 ### 🐛 fix: Research button 'stream_token' error - variable shadowing bug
 
