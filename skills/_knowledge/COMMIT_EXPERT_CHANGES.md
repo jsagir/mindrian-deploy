@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-09 14:55*
+*Auto-generated: 2026-02-09 22:01*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,17 +13,17 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-09 | 17 |
+| 2026-02-09 | 18 |
 | 2026-02-08 | 20 |
-| 2026-02-06 | 13 |
+| 2026-02-06 | 12 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
 | `mindrian_chat.py` | 7 |
-| `tools/quick_lecture.py` | 3 |
 | `tools/opportunity_bank.py` | 3 |
+| `tools/quick_lecture.py` | 3 |
 
 ---
 
@@ -31,13 +31,49 @@
 
 ### 2026-02-09
 
+#### 🐛 fix: Demo-critical bugs for University of Sao Paolo presentation
+
+- **Hash:** `99c6262e12c73a971b58cd1695eb5df80f073e92`
+- **Short:** `99c6262e`
+- **Parent:** `2e6b7a27`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-09 22:01:09
+- **Risk:** medium
+- **Diff:** +309 / -129
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 75 | 31 |
+  | `public/elements/IdeaCanvas.jsx` | 52 | 33 |
+  | `qa/2026-02-09/USER_FEEDBACK_ARONHIME_FEB9_V2.md` | 104 | 0 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 37 | 36 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 13 |
+  | `tools/opportunity_bank.py` | 2 | 2 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `public/elements/IdeaCanvas.jsx`
+  - ➕ Added: `qa/2026-02-09/USER_FEEDBACK_ARONHIME_FEB9_V2.md`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `tools/opportunity_bank.py`
+
+- **Body:** BUG-001: Session Restore Spam
+
+
 #### 🐛 fix: Larry teach me refusal bug + add explicit teaching detection
 
 - **Hash:** `2e6b7a27ccf0d8b4dd09d19af0a54df039d52bd4`
 - **Short:** `2e6b7a27`
 - **Parent:** `41bc8cdd`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 14:55:21
 - **Risk:** medium
@@ -69,7 +105,6 @@
 - **Short:** `41bc8cdd`
 - **Parent:** `1c11966d`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 14:42:17
 - **Risk:** high
@@ -1560,35 +1595,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** CRITICAL FIX: Login page was stuck on "Checking session..." because
-
-
-#### ✨ feat: Wire two-stage classifier (Cynefin + PWS) to PWS Consultant
-
-- **Hash:** `4bcbdf4524095501342c5936430ffa94f7081152`
-- **Short:** `4bcbdf45`
-- **Parent:** `783b3b54`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-06 09:40:50
-- **Risk:** high
-- **Diff:** +206 / -88
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `R&D/10_agents_md_architecture/README.md` | 77 | 0 |
-  | `mindrian_chat.py` | 65 | 1 |
-  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 37 | 60 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 13 |
-
-  **File Operations:**
-  - ➕ Added: `R&D/10_agents_md_architecture/README.md`
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** Quick wins from AGENTS.md architecture analysis:
 

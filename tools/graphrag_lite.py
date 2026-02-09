@@ -277,6 +277,102 @@ def lazy_community_context(concept_name: str, limit: int = 8) -> Dict:
     return {}
 
 
+def find_creative_leaps(
+    concept_name: str,
+    limit: int = 5,
+    min_community_distance: int = 2,
+    min_substance: int = 3
+) -> Dict:
+    """
+    Find unexpected cross-community connections for innovation.
+
+    Based on Austin Granmoe's research: interclass edges (connections between
+    different modularity classes) reveal non-obvious, creative connections.
+
+    Unlike lazy_community_context (which returns most related/highest weight),
+    this returns most DISTANT but still connected concepts - the "creative leaps"
+    that drive innovation.
+
+    Scoring formula: leap_score = (1/weight) × community_distance × log(substance)
+    Higher score = more surprising/creative connection
+
+    Args:
+        concept_name: The source concept to find leaps from
+        limit: Max number of leaps to return
+        min_community_distance: Minimum community_id difference (filters noise)
+        min_substance: Minimum chunk_count for target concepts
+
+    Returns:
+        {
+            "source_concept": str,
+            "source_community": int,
+            "leaps": [{name, community, community_distance, weight, leap_score, freq}],
+            "innovation_questions": [str]  # Generated "What if" prompts
+        }
+    """
+    driver = _get_neo4j()
+    if not driver:
+        return {"source_concept": concept_name, "source_community": None, "leaps": [], "innovation_questions": []}
+
+    try:
+        t0 = time.monotonic()
+        with driver.session() as session:
+            # Key insight from Granmoe: low weight + high distance = creative leap
+            result = session.run("""
+                MATCH (c:LazyGraphConcept {name: $name})-[r:CO_OCCURS]-(neighbor:LazyGraphConcept)
+                WHERE c.community_id IS NOT NULL
+                  AND neighbor.community_id IS NOT NULL
+                  AND c.community_id <> neighbor.community_id
+                  AND neighbor.chunk_count >= $min_substance
+                WITH c, neighbor, r,
+                     abs(c.community_id - neighbor.community_id) AS community_distance
+                WHERE community_distance >= $min_community_distance
+                WITH neighbor, r.weight AS weight, c.community_id AS src_community,
+                     community_distance,
+                     neighbor.chunk_count AS freq,
+                     // Creative Leap Score: inverse weight × distance × substance
+                     (1.0 / (r.weight + 0.1)) * community_distance * log(neighbor.chunk_count + 1) AS leap_score
+                ORDER BY leap_score DESC
+                LIMIT $limit
+                RETURN collect({
+                    name: neighbor.name,
+                    weight: weight,
+                    community: neighbor.community_id,
+                    leap_score: leap_score,
+                    community_distance: community_distance,
+                    freq: freq
+                }) AS creative_leaps,
+                src_community AS source_community
+            """, name=concept_name, limit=limit, min_substance=min_substance, min_community_distance=min_community_distance)
+
+            elapsed = time.monotonic() - t0
+            if elapsed > _NEO4J_TIMEOUT:
+                logger.warning("Creative leaps slow: '%s' took %.1fs", concept_name, elapsed)
+
+            record = result.single()
+            if record and record["creative_leaps"]:
+                leaps = record["creative_leaps"]
+                src_community = record["source_community"]
+
+                # Generate "What If" innovation questions
+                innovation_questions = []
+                for leap in leaps[:3]:
+                    q = f"What if principles from **{leap['name']}** could be applied to **{concept_name}**?"
+                    innovation_questions.append(q)
+
+                return {
+                    "source_concept": concept_name,
+                    "source_community": src_community,
+                    "leaps": leaps,
+                    "innovation_questions": innovation_questions,
+                }
+
+    except Exception as e:
+        logger.error("Creative leaps error for '%s': %s", concept_name, e)
+
+    return {"source_concept": concept_name, "source_community": None, "leaps": [], "innovation_questions": []}
+
+
 def lazy_multi_concept_context(keywords: List[str]) -> tuple:
     """
     Given keywords from user message, find matching LazyGraphConcepts

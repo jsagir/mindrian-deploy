@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-09 14:55*
+*Auto-generated: 2026-02-09 22:01*
 
 ---
 
 ## 2026-02-09
+
+### 🐛 fix: Demo-critical bugs for University of Sao Paolo presentation
+
+- **Commit:** `99c6262e`
+- **Author:** jsagir
+- **Files changed:** 8
+  - mindrian_chat.py
+  - public/elements/IdeaCanvas.jsx
+  - qa/2026-02-09/USER_FEEDBACK_ARONHIME_FEB9_V2.md
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+- **Details:** BUG-001: Session Restore Spam
 
 ### 🐛 fix: Larry teach me refusal bug + add explicit teaching detection
 
@@ -597,15 +609,3 @@
   - skills/_knowledge/QA_RELEVANT_CHANGES.md
   - skills/_knowledge/RECENT_CHANGES.md
 - **Details:** CRITICAL FIX: Login page was stuck on "Checking session..." because
-
-### ✨ feat: Wire two-stage classifier (Cynefin + PWS) to PWS Consultant
-
-- **Commit:** `4bcbdf45`
-- **Author:** jsagir
-- **Files changed:** 6
-  - R&D/10_agents_md_architecture/README.md
-  - mindrian_chat.py
-  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-- **Details:** Quick wins from AGENTS.md architecture analysis:

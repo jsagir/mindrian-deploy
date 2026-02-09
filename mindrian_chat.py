@@ -1316,6 +1316,12 @@ AGENT_TRIGGERS = {
                       "expert panel", "domain experts"],
         "description": "Structured problem diagnosis & guided consulting"
     },
+    "pws_navigator": {
+        "keywords": ["cross-domain", "bridge", "unexpected connection", "different field", "analogy",
+                      "combine domains", "interdisciplinary", "cross-pollinate", "navigate knowledge",
+                      "knowledge graph", "explore domains", "innovation bridge"],
+        "description": "Cross-domain bridge detection & innovation discovery"
+    },
 }
 
 # === Data Persistence Setup with Native Feedback System ===
@@ -2054,6 +2060,18 @@ def get_core_action_buttons(
             payload={"action": "ideas"},
             label="💡 Ideas",
             tooltip="View and manage extracted ideas from this conversation",
+        ),
+        cl.Action(
+            name="creative_leaps",
+            payload={"action": "leaps"},
+            label="🔗 Creative Leaps",
+            tooltip="Find unexpected cross-domain connections for innovation (Granmoe method)",
+        ),
+        cl.Action(
+            name="pws_navigate",
+            payload={"action": "navigate"},
+            label="🧭 PWS Navigator",
+            tooltip="Discover cross-domain bridges and innovation opportunities using knowledge graph",
         ),
     ]
 
@@ -6452,6 +6470,122 @@ async def on_export_canvas(action: cl.Action):
     await cl.Message(
         content="📥 **Canvas Exported**\n\nDownload your idea canvas as markdown.",
         elements=[file_elem] if file_elem else []
+    ).send()
+
+
+@cl.action_callback("creative_leaps")
+async def on_creative_leaps(action: cl.Action):
+    """
+    Find unexpected cross-domain connections for innovation.
+
+    Based on Austin Granmoe's research: interclass edges between different
+    modularity classes reveal non-obvious connections that drive innovation.
+    """
+    from tools.graphrag_lite import find_creative_leaps, _extract_keywords
+
+    # Get concept from payload or extract from recent conversation
+    concept = action.payload.get("concept", "")
+
+    if not concept:
+        history = cl.user_session.get("history", [])
+        if history:
+            # Extract keywords from last few messages
+            recent_text = " ".join([
+                m.get("content", "") for m in history[-3:]
+                if m.get("role") == "user"
+            ])[:500]
+            keywords = _extract_keywords(recent_text)
+            if keywords:
+                concept = keywords[0].title()
+
+    if not concept:
+        await cl.Message(
+            content="💡 **No topic detected.**\n\nTry discussing a specific concept first, then click Creative Leaps to find unexpected connections."
+        ).send()
+        return
+
+    # Show thinking step
+    async with cl.Step(name="Finding Creative Leaps", type="tool") as step:
+        step.input = f"Searching for unexpected connections from: {concept}"
+        leaps_result = find_creative_leaps(concept, limit=5, min_community_distance=2)
+        step.output = f"Found {len(leaps_result.get('leaps', []))} creative connections"
+
+    leaps = leaps_result.get("leaps", [])
+    src_community = leaps_result.get("source_community")
+
+    if not leaps:
+        await cl.Message(
+            content=f"💡 **No strong cross-domain connections found for \"{concept}\".**\n\n"
+                    f"This topic may be well-contained within its domain, or try a more specific concept."
+        ).send()
+        return
+
+    # Build rich response with innovation questions
+    lines = [
+        f"## 💡 Creative Leaps from \"{concept}\"",
+        "",
+        f"*Your topic is in Community {src_community}. Here are connections to distant domains:*",
+        ""
+    ]
+
+    actions = []
+    for i, leap in enumerate(leaps[:3], 1):
+        lines.append(f"### {i}. {leap['name']} (Community {leap['community']})")
+        lines.append(f"- **Distance:** {leap['community_distance']} communities away")
+        lines.append(f"- **Connection strength:** {leap['weight']:.1f} co-occurrences")
+        lines.append(f"- **Leap score:** {leap['leap_score']:.1f} (higher = more surprising)")
+        lines.append("")
+
+        # Add explore button for each leap
+        actions.append(cl.Action(
+            name="explore_creative_leap",
+            payload={"source": concept, "target": leap["name"]},
+            label=f"🔍 Explore {leap['name'][:15]}...",
+        ))
+
+    # Add innovation questions
+    innovation_qs = leaps_result.get("innovation_questions", [])
+    if innovation_qs:
+        lines.append("---")
+        lines.append("### 🤔 Innovation Questions")
+        for q in innovation_qs[:3]:
+            lines.append(f"> {q}")
+        lines.append("")
+
+    lines.append("*Based on Austin Granmoe's research on interclass edges in knowledge networks.*")
+
+    await cl.Message(
+        content="\n".join(lines),
+        actions=actions
+    ).send()
+
+
+@cl.action_callback("explore_creative_leap")
+async def on_explore_creative_leap(action: cl.Action):
+    """Explore the connection between two concepts from a creative leap."""
+    source = action.payload.get("source", "")
+    target = action.payload.get("target", "")
+
+    if not source or not target:
+        await cl.Message(content="Missing concepts to explore.").send()
+        return
+
+    # Inject as a question to Larry
+    exploration_prompt = (
+        f"I found a creative connection between **{source}** and **{target}** - "
+        f"two concepts from very different domains. Help me explore: "
+        f"What principles or patterns from {target} could be applied to {source}? "
+        f"What unexpected insights might emerge from this cross-domain connection?"
+    )
+
+    history = cl.user_session.get("history", [])
+    history.append({"role": "user", "content": exploration_prompt})
+    cl.user_session.set("history", history)
+
+    # Trigger the main message handler by sending as user message
+    await cl.Message(
+        content=f"🔗 **Exploring creative leap:** {source} ↔ {target}\n\n{exploration_prompt}",
+        author="user"
     ).send()
 
 
