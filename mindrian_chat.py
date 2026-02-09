@@ -130,28 +130,36 @@ class CronEndpointMiddleware(BaseHTTPMiddleware):
                     f"{lightrag_url}/login",
                     headers={"X-API-Key": lightrag_api_key},
                     data={"username": lightrag_user, "password": lightrag_pass},
-                    timeout=10
+                    timeout=30  # Longer timeout for cold start
                 )
                 if resp.status_code == 200:
                     token_data = resp.json()
                     result["login_status"] = "success"
                     result["token"] = token_data.get("access_token", "")[:20] + "..." if token_data.get("access_token") else None
 
-                    # Test a simple query to verify full auth
+                    # Test a simple query to verify full auth (separate try block)
                     token = token_data.get("access_token")
-                    test_resp = req.post(
-                        f"{lightrag_url}/query",
-                        headers={
-                            "X-API-Key": lightrag_api_key,
-                            "Authorization": f"Bearer {token}"
-                        },
-                        json={"query": "test", "mode": "local"},
-                        timeout=10
-                    )
-                    result["query_test"] = "success" if test_resp.status_code == 200 else f"failed: {test_resp.status_code}"
+                    try:
+                        test_resp = req.post(
+                            f"{lightrag_url}/query",
+                            headers={
+                                "X-API-Key": lightrag_api_key,
+                                "Authorization": f"Bearer {token}"
+                            },
+                            json={"query": "test connection", "mode": "local"},
+                            timeout=30  # Longer timeout for cold start
+                        )
+                        result["query_test"] = "success" if test_resp.status_code == 200 else f"failed: {test_resp.status_code}"
+                    except req.exceptions.Timeout:
+                        result["query_test"] = "timeout (server may be waking up)"
+                    except Exception as qe:
+                        result["query_test"] = f"error: {str(qe)[:50]}"
                 else:
                     result["login_status"] = f"failed: {resp.status_code}"
                     result["error"] = resp.text[:200]
+            except req.exceptions.Timeout:
+                result["login_status"] = "timeout"
+                result["error"] = "Server may be waking up from sleep. Try again in 30s."
             except Exception as e:
                 result["login_status"] = "error"
                 result["error"] = str(e)

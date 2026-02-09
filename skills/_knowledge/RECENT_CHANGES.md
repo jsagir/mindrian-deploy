@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-09 13:32*
+*Auto-generated: 2026-02-09 13:59*
 
 ---
 
 ## 2026-02-09
+
+### ✨ feat: Add /api/lightrag-health endpoint
+
+- **Commit:** `71833cc8`
+- **Author:** jsagir
+- **Files changed:** 5
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Tests LightRAG connection with:
 
 ### 🐛 fix: Add X-API-Key header to all LightRAG connections
 
@@ -597,14 +609,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** - Query LightRAG knowledge graph for full Bank of Opportunities
-
-### 🐛 fix: Rename Tools Panel to Agentic Actions with robot icon
-
-- **Commit:** `0984b021`
-- **Author:** jsagir
-- **Files changed:** 4
-  - public/elements/ToolsPanel.jsx
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** - Panel title: "PWS Tools" -> "Agentic Actions"
