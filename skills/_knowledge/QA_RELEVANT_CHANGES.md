@@ -1,10 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-09 09:59*
+*Auto-generated: 2026-02-09 10:01*
 
 ---
 
 ## 2026-02-09
+
+### 📝 docs: Add QA Testing Memo for Feb 9 release
+
+- **Commit:** `2d47a9f3`
+- **Author:** jsagir
+- **Files changed:** 5
+  - qa/2026-02-09/QA_TESTING_MEMO_FEB9.md
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Comprehensive testing guide for Adam & Austin covering:
 
 ### ✨ feat: Add Idea Filtering + Swarm Orchestrator Skill
 

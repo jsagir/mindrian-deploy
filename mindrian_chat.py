@@ -10245,9 +10245,9 @@ async def _research_sources_first(recent_context: str, bot_name: str, search_dep
     # First, find the last substantive user message (not just "go" or "yes")
 
     last_user_topic = ""
-    for msg in reversed(history):
-        if msg.get("role") == "user":
-            content = msg.get("content", "").strip()
+    for hist_item in reversed(history):
+        if hist_item.get("role") == "user":
+            content = hist_item.get("content", "").strip()
             # Skip trivial messages
             if len(content) > 5 and content.lower() not in ["go", "yes", "ok", "next", "continue"]:
                 last_user_topic = content[:200]

@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-09 09:59*
+*Auto-generated: 2026-02-09 10:01*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,17 +13,17 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-09 | 4 |
+| 2026-02-09 | 5 |
 | 2026-02-08 | 20 |
 | 2026-02-06 | 17 |
 | 2026-02-05 | 5 |
-| 2026-02-04 | 4 |
+| 2026-02-04 | 3 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 8 |
+| `mindrian_chat.py` | 7 |
 
 ---
 
@@ -31,13 +31,43 @@
 
 ### 2026-02-09
 
+#### 📝 docs: Add QA Testing Memo for Feb 9 release
+
+- **Hash:** `2d47a9f39a17059500e0cca8dbaa61e408ba2e99`
+- **Short:** `2d47a9f3`
+- **Parent:** `0860d5d1`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-09 10:01:49
+- **Risk:** low
+- **Diff:** +353 / -57
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `qa/2026-02-09/QA_TESTING_MEMO_FEB9.md` | 262 | 0 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 52 | 32 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 12 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 12 |
+
+  **File Operations:**
+  - ➕ Added: `qa/2026-02-09/QA_TESTING_MEMO_FEB9.md`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** Comprehensive testing guide for Adam & Austin covering:
+
+
 #### ✨ feat: Add Idea Filtering + Swarm Orchestrator Skill
 
 - **Hash:** `0860d5d14cbcd9ca40270387a996f729b250132d`
 - **Short:** `0860d5d1`
 - **Parent:** `f5c6a54e`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 09:59:31
 - **Risk:** high
@@ -85,7 +115,6 @@
 - **Short:** `f5c6a54e`
 - **Parent:** `a3282c77`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 08:53:24
 - **Risk:** medium
@@ -1584,44 +1613,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** Genesis Pipeline (NEW):
-
-
-#### 📝 docs: Add R&D/21_genesis_expert_breakdown for Swarm+LangGraph integration
-
-- **Hash:** `376c18d80ac926f929155731207104a03e747f75`
-- **Short:** `376c18d8`
-- **Parent:** `0ef80191`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-04 14:38:53
-- **Risk:** low
-- **Diff:** +3938 / -21
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `R&D/21_genesis_expert_breakdown/README.md` | 437 | 0 |
-  | `R&D/21_genesis_expert_breakdown/SKILL.md` | 226 | 0 |
-  | `R&D/21_genesis_expert_breakdown/agent_config.py` | 688 | 0 |
-  | `R&D/21_genesis_expert_breakdown/decompose_context.py` | 404 | 0 |
-  | `R&D/21_genesis_expert_breakdown/generate_personas.py` | 612 | 0 |
-  | `R&D/21_genesis_expert_breakdown/identify_domains.py` | 530 | 0 |
-  | `R&D/21_genesis_expert_breakdown/orchestrate_research.py` | 545 | 0 |
-  | `R&D/21_genesis_expert_breakdown/synthesize_breakthroughs.py` | 471 | 0 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 12 | 10 |
-
-  **File Operations:**
-  - ➕ Added: `R&D/21_genesis_expert_breakdown/README.md`
-  - ➕ Added: `R&D/21_genesis_expert_breakdown/SKILL.md`
-  - ➕ Added: `R&D/21_genesis_expert_breakdown/agent_config.py`
-  - ➕ Added: `R&D/21_genesis_expert_breakdown/decompose_context.py`
-  - ➕ Added: `R&D/21_genesis_expert_breakdown/generate_personas.py`
-  - ➕ Added: `R&D/21_genesis_expert_breakdown/identify_domains.py`
-  - ➕ Added: `R&D/21_genesis_expert_breakdown/orchestrate_research.py`
-  - ➕ Added: `R&D/21_genesis_expert_breakdown/synthesize_breakthroughs.py`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** Genesis Engine multi-agent system from agents-midrian:
 
