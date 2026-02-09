@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-09 14:05*
+*Auto-generated: 2026-02-09 14:16*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,16 +13,15 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-09 | 12 |
+| 2026-02-09 | 13 |
 | 2026-02-08 | 20 |
 | 2026-02-06 | 17 |
-| 2026-02-05 | 1 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 7 |
+| `mindrian_chat.py` | 6 |
 | `tools/opportunity_bank.py` | 3 |
 
 ---
@@ -31,13 +30,45 @@
 
 ### 2026-02-09
 
+#### ✨ feat: Add opportunity embedding script + fix daily_summary LightRAG auth
+
+- **Hash:** `c23a38a490333151de4dfd96862a07e43f50df7b`
+- **Short:** `c23a38a4`
+- **Parent:** `a194ecab`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-09 14:16:27
+- **Risk:** high
+- **Diff:** +188 / -61
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `scripts/daily_summary.py` | 9 | 4 |
+  | `scripts/embed_all_opportunities.py` | 118 | 0 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 34 | 32 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 12 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 12 |
+
+  **File Operations:**
+  - ✏️ Modified: `scripts/daily_summary.py`
+  - ➕ Added: `scripts/embed_all_opportunities.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** 1. scripts/embed_all_opportunities.py - NEW
+
+
 #### 🐛 fix: Increase LightRAG health check timeout to 30s
 
 - **Hash:** `a194ecab9f66eca70be3bc2a6fcd3d79d71c5a84`
 - **Short:** `a194ecab`
 - **Parent:** `71833cc8`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 14:05:27
 - **Risk:** medium
@@ -67,7 +98,6 @@
 - **Short:** `71833cc8`
 - **Parent:** `4576f32a`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 13:59:07
 - **Risk:** high
@@ -1589,33 +1619,4 @@
   - ➕ Added: `tools/pws_consultant_pipeline.py`
 
 - **Body:** ## Supabase Authentication
-
-
-### 2026-02-05
-
-#### ✨ feat: Add Neo4j PWS methodology consultant to daily summary email
-
-- **Hash:** `300c98dc28256c98b714bed927704b8b4f71a56a`
-- **Short:** `300c98dc`
-- **Parent:** `5cbb0576`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-05 09:20:27
-- **Risk:** high
-- **Diff:** +205 / -53
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `scripts/daily_summary.py` | 178 | 28 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 12 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 12 | 12 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 14 | 1 |
-
-  **File Operations:**
-  - ✏️ Modified: `scripts/daily_summary.py`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** Query Neo4j knowledge graph for PWS methodology context (Opportunity
 

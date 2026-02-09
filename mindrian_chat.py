@@ -288,6 +288,38 @@ class CronEndpointMiddleware(BaseHTTPMiddleware):
                     "traceback": traceback.format_exc()
                 })
 
+        # Handle /api/embed-opportunities - Generate embeddings for all opportunities
+        if request.url.path == "/api/embed-opportunities":
+            force = request.query_params.get("force", "false").lower() == "true"
+
+            try:
+                args = [sys.executable, "scripts/embed_all_opportunities.py"]
+                if force:
+                    args.append("--force")
+
+                result = subprocess.run(
+                    args,
+                    capture_output=True, text=True, timeout=600,  # 10 min timeout
+                    cwd=os.path.dirname(os.path.abspath(__file__))
+                )
+
+                return JSONResponse(content={
+                    "success": result.returncode == 0,
+                    "force_mode": force,
+                    "output": result.stdout[-2000:] if result.stdout else "",
+                    "errors": result.stderr[-500:] if result.stderr else ""
+                })
+            except subprocess.TimeoutExpired:
+                return JSONResponse(status_code=504, content={
+                    "success": False,
+                    "error": "Embedding timed out after 10 minutes"
+                })
+            except Exception as e:
+                return JSONResponse(status_code=500, content={
+                    "success": False,
+                    "error": str(e)
+                })
+
         if request.url.path == "/api/daily-summary":
             # Handle cron endpoint
             secret = request.query_params.get("secret", "")
@@ -337,7 +369,7 @@ class CronEndpointMiddleware(BaseHTTPMiddleware):
 # Add middleware BEFORE any routes
 # This middleware handles /api/* endpoints BEFORE Chainlit's auth kicks in
 fastapi_app.add_middleware(CronEndpointMiddleware)
-print("[API] Middleware registered: /api/health, /api/public-config, /api/lightrag-health, /api/daily-summary")
+print("[API] Middleware registered: /api/health, /api/public-config, /api/lightrag-health, /api/embed-opportunities, /api/daily-summary")
 
 from google import genai
 from google.genai import types

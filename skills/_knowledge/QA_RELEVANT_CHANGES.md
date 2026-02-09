@@ -1,10 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-09 14:05*
+*Auto-generated: 2026-02-09 14:16*
 
 ---
 
 ## 2026-02-09
+
+### ✨ feat: Add opportunity embedding script + fix daily_summary LightRAG auth
+
+- **Commit:** `c23a38a4`
+- **Author:** jsagir
+- **Files changed:** 6
+  - scripts/daily_summary.py
+  - scripts/embed_all_opportunities.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+- **Details:** 1. scripts/embed_all_opportunities.py - NEW
 
 ### 🐛 fix: Increase LightRAG health check timeout to 30s
 

@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-09 14:05*
+*Auto-generated: 2026-02-09 14:16*
 
 ---
 
 ## 2026-02-09
+
+### ✨ feat: Add opportunity embedding script + fix daily_summary LightRAG auth
+
+- **Commit:** `c23a38a4`
+- **Author:** jsagir
+- **Files changed:** 6
+  - scripts/daily_summary.py
+  - scripts/embed_all_opportunities.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+- **Details:** 1. scripts/embed_all_opportunities.py - NEW
 
 ### ✨ feat: Add /api/lightrag-health endpoint
 
@@ -357,16 +369,3 @@
   - prompts/__init__.py
   - prompts/pws_consultant.py
 - **Details:** ## Supabase Authentication
-
-## 2026-02-05
-
-### ✨ feat: Add Neo4j PWS methodology consultant to daily summary email
-
-- **Commit:** `300c98dc`
-- **Author:** jsagir
-- **Files changed:** 4
-  - scripts/daily_summary.py
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** Query Neo4j knowledge graph for PWS methodology context (Opportunity
