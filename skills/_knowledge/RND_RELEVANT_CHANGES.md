@@ -1,6 +1,6 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-09 13:59*
+*Auto-generated: 2026-02-09 14:05*
 
 ---
 
@@ -370,14 +370,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** Query Neo4j knowledge graph for PWS methodology context (Opportunity
-
-### ✨ feat: Add LightRAG opportunity bank review to daily summary email
-
-- **Commit:** `5cbb0576`
-- **Author:** jsagir
-- **Files changed:** 4
-  - scripts/daily_summary.py
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** - Query LightRAG knowledge graph for full Bank of Opportunities

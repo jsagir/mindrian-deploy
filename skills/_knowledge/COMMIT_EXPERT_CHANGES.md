@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-09 13:59*
+*Auto-generated: 2026-02-09 14:05*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,10 +13,10 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-09 | 11 |
+| 2026-02-09 | 12 |
 | 2026-02-08 | 20 |
 | 2026-02-06 | 17 |
-| 2026-02-05 | 2 |
+| 2026-02-05 | 1 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
@@ -31,13 +31,43 @@
 
 ### 2026-02-09
 
+#### 🐛 fix: Increase LightRAG health check timeout to 30s
+
+- **Hash:** `a194ecab9f66eca70be3bc2a6fcd3d79d71c5a84`
+- **Short:** `a194ecab`
+- **Parent:** `71833cc8`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-09 14:05:27
+- **Risk:** medium
+- **Diff:** +81 / -71
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 20 | 12 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 34 | 32 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 14 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 12 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 1 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** Handle cold start timeouts gracefully - login and query
+
+
 #### ✨ feat: Add /api/lightrag-health endpoint
 
 - **Hash:** `71833cc881a90d0434656da17b56ba29391d5343`
 - **Short:** `71833cc8`
 - **Parent:** `4576f32a`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 13:59:07
 - **Risk:** high
@@ -67,7 +97,6 @@
 - **Short:** `4576f32a`
 - **Parent:** `8bd2d7c3`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 13:32:27
 - **Risk:** medium
@@ -1589,31 +1618,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** Query Neo4j knowledge graph for PWS methodology context (Opportunity
-
-
-#### ✨ feat: Add LightRAG opportunity bank review to daily summary email
-
-- **Hash:** `5cbb0576f6e3e0d92806d22e5ce29ee5be3dee3f`
-- **Short:** `5cbb0576`
-- **Parent:** `0984b021`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-05 09:14:22
-- **Risk:** high
-- **Diff:** +285 / -34
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `scripts/daily_summary.py` | 260 | 7 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 12 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 12 | 13 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 13 |
-
-  **File Operations:**
-  - ✏️ Modified: `scripts/daily_summary.py`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** - Query LightRAG knowledge graph for full Bank of Opportunities
 

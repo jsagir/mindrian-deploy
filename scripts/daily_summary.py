@@ -46,6 +46,7 @@ SUPABASE_BUCKET = os.getenv("SUPABASE_BUCKET", "mindrian-files")
 LIGHTRAG_URL = os.getenv("LIGHTRAG_URL", "https://mondrian-ts.onrender.com")
 LIGHTRAG_USERNAME = os.getenv("LIGHTRAG_USERNAME", "jsagir")
 LIGHTRAG_PASSWORD = os.getenv("LIGHTRAG_PASSWORD")
+LIGHTRAG_API_KEY = os.getenv("LIGHTRAG_API_KEY", "JonathanSagir123")
 
 # Neo4j configuration (PWS methodology consultant)
 NEO4J_URI = os.getenv("NEO4J_URI", "")
@@ -60,22 +61,27 @@ _lightrag_token = None
 
 
 def get_lightrag_session():
-    """Get authenticated LightRAG session."""
+    """Get authenticated LightRAG session with X-API-Key + Bearer token."""
     global _lightrag_token
     import requests
 
     if not LIGHTRAG_PASSWORD:
         return None
 
+    session = requests.Session()
+    # Always include API key
+    session.headers.update({"X-API-Key": LIGHTRAG_API_KEY})
+
     if _lightrag_token is None:
         try:
-            resp = requests.post(
+            resp = session.post(
                 f"{LIGHTRAG_URL}/login",
                 data={"username": LIGHTRAG_USERNAME, "password": LIGHTRAG_PASSWORD},
-                timeout=30
+                timeout=60
             )
             if resp.status_code == 200:
                 _lightrag_token = resp.json().get("access_token")
+                print(f"[LightRAG] Login successful")
             else:
                 log_error(f"LightRAG login failed: {resp.status_code}")
                 return None
@@ -83,7 +89,6 @@ def get_lightrag_session():
             log_error(f"LightRAG login error: {e}")
             return None
 
-    session = requests.Session()
     session.headers.update({"Authorization": f"Bearer {_lightrag_token}"})
     return session
 

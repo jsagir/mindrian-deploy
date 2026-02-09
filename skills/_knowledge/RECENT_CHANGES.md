@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-09 13:59*
+*Auto-generated: 2026-02-09 14:05*
 
 ---
 
 ## 2026-02-09
+
+### 🐛 fix: Increase LightRAG health check timeout to 30s
+
+- **Commit:** `a194ecab`
+- **Author:** jsagir
+- **Files changed:** 5
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Handle cold start timeouts gracefully - login and query
 
 ### ✨ feat: Add /api/lightrag-health endpoint
 
@@ -598,14 +610,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** Query Neo4j knowledge graph for PWS methodology context (Opportunity
-
-### ✨ feat: Add LightRAG opportunity bank review to daily summary email
-
-- **Commit:** `5cbb0576`
-- **Author:** jsagir
-- **Files changed:** 4
-  - scripts/daily_summary.py
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** - Query LightRAG knowledge graph for full Bank of Opportunities

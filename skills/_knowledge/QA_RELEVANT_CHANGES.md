@@ -1,10 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-09 13:59*
+*Auto-generated: 2026-02-09 14:05*
 
 ---
 
 ## 2026-02-09
+
+### 🐛 fix: Increase LightRAG health check timeout to 30s
+
+- **Commit:** `a194ecab`
+- **Author:** jsagir
+- **Files changed:** 5
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Handle cold start timeouts gracefully - login and query
 
 ### 🐛 fix: Add X-API-Key header to all LightRAG connections
 
