@@ -39,6 +39,7 @@ logger = logging.getLogger("user_lazygraph")
 LIGHTRAG_URL = os.getenv("LIGHTRAG_URL", "https://mondrian-ts.onrender.com")
 LIGHTRAG_USERNAME = os.getenv("LIGHTRAG_USERNAME", "jsagir")
 LIGHTRAG_PASSWORD = os.getenv("LIGHTRAG_PASSWORD")  # Required - no default
+LIGHTRAG_API_KEY = os.getenv("LIGHTRAG_API_KEY", "JonathanSagir123")  # X-API-Key header
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 # Cache settings (LazyGraph pattern)
@@ -224,22 +225,25 @@ def _get_neo4j():
 _lightrag_token = None
 
 def _get_lightrag_session() -> Optional[requests.Session]:
-    """Get authenticated LightRAG session."""
+    """Get authenticated LightRAG session with API key + Bearer token."""
     global _lightrag_token
 
     try:
         session = requests.Session()
+        # Always include API key
+        session.headers.update({"X-API-Key": LIGHTRAG_API_KEY})
 
         if not _lightrag_token:
-            resp = requests.post(
+            resp = session.post(
                 f"{LIGHTRAG_URL}/login",
                 data={"username": LIGHTRAG_USERNAME, "password": LIGHTRAG_PASSWORD},
                 timeout=15
             )
             if resp.status_code == 200:
                 _lightrag_token = resp.json().get("access_token")
+                logger.info("[LightRAG] Login successful")
             else:
-                logger.warning(f"LightRAG login failed: {resp.status_code}")
+                logger.warning(f"LightRAG login failed: {resp.status_code} - {resp.text[:100]}")
                 return None
 
         session.headers.update({"Authorization": f"Bearer {_lightrag_token}"})

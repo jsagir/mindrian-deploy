@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-09 13:24*
+*Auto-generated: 2026-02-09 13:29*
 
 ---
 
 ## 2026-02-09
+
+### 🐛 fix: Update Claude opportunity attribution to 'CL-Mindrian'
+
+- **Commit:** `8bd2d7c3`
+- **Author:** jsagir
+- **Files changed:** 5
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+  - tools/opportunity_bank.py
+- **Details:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 
 ### ✨ feat: Add Hybrid LLM Router + Claude for Bank of Opportunities
 
@@ -595,15 +607,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** ToolsPanel was sent in cl.Message(content="") which Chainlit skips rendering.
-
-### 🐛 fix: Migrate to google-genai SDK + fix SendGrid sender email
-
-- **Commit:** `db5a3b25`
-- **Author:** jsagir
-- **Files changed:** 6
-  - intelligence/pipelines/genesis/panel.py
-  - scripts/daily_summary.py
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** - panel.py: Replace old google.generativeai with google-genai SDK (lazy client init)

@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-09 13:24*
+*Auto-generated: 2026-02-09 13:29*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,16 +13,16 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-09 | 8 |
+| 2026-02-09 | 9 |
 | 2026-02-08 | 20 |
 | 2026-02-06 | 17 |
-| 2026-02-05 | 5 |
+| 2026-02-05 | 4 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 8 |
+| `mindrian_chat.py` | 7 |
 
 ---
 
@@ -30,13 +30,43 @@
 
 ### 2026-02-09
 
+#### 🐛 fix: Update Claude opportunity attribution to 'CL-Mindrian'
+
+- **Hash:** `8bd2d7c312c472a4e21f59ebf46b8ab80a3804de`
+- **Short:** `8bd2d7c3`
+- **Parent:** `617331fd`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-09 13:29:30
+- **Risk:** medium
+- **Diff:** +71 / -77
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 43 | 34 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 14 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 14 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 14 |
+  | `tools/opportunity_bank.py` | 1 | 1 |
+
+  **File Operations:**
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `tools/opportunity_bank.py`
+
+- **Body:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+
+
 #### ✨ feat: Add Hybrid LLM Router + Claude for Bank of Opportunities
 
 - **Hash:** `617331fd406c2fde52ceb985b53ef456e20c7e6d`
 - **Short:** `617331fd`
 - **Parent:** `4710da34`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 13:24:48
 - **Risk:** high
@@ -76,7 +106,6 @@
 - **Short:** `4710da34`
 - **Parent:** `18745cb5`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 13:08:18
 - **Risk:** medium
@@ -1578,35 +1607,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** ToolsPanel was sent in cl.Message(content="") which Chainlit skips rendering.
-
-
-#### 🐛 fix: Migrate to google-genai SDK + fix SendGrid sender email
-
-- **Hash:** `db5a3b25aecdde144f494722af6465b63179afcc`
-- **Short:** `db5a3b25`
-- **Parent:** `b7a74bbf`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-05 08:59:02
-- **Risk:** medium
-- **Diff:** +63 / -43
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `intelligence/pipelines/genesis/panel.py` | 19 | 12 |
-  | `scripts/daily_summary.py` | 7 | 5 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 12 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 12 | 12 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 12 | 12 |
-  | `utils/email_sender.py` | 1 | 1 |
-
-  **File Operations:**
-  - ✏️ Modified: `intelligence/pipelines/genesis/panel.py`
-  - ✏️ Modified: `scripts/daily_summary.py`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `utils/email_sender.py`
-
-- **Body:** - panel.py: Replace old google.generativeai with google-genai SDK (lazy client init)
 

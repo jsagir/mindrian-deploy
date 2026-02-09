@@ -57,7 +57,8 @@ except ImportError:
 LIGHTRAG_URL = os.getenv("LIGHTRAG_URL", "https://mondrian-ts.onrender.com")
 LIGHTRAG_USERNAME = os.getenv("LIGHTRAG_USERNAME", "jsagir")
 LIGHTRAG_PASSWORD = os.getenv("LIGHTRAG_PASSWORD")  # Required - no default
-LIGHTRAG_AVAILABLE = bool(LIGHTRAG_URL)
+LIGHTRAG_API_KEY = os.getenv("LIGHTRAG_API_KEY", "JonathanSagir123")  # X-API-Key header
+LIGHTRAG_AVAILABLE = bool(LIGHTRAG_URL and LIGHTRAG_PASSWORD)
 
 # Supabase for persistence
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -1167,27 +1168,35 @@ async def store_opportunity_lightrag(opportunity: Opportunity) -> bool:
     - Build relationships via its knowledge graph
     - Create embeddings for hybrid RAG queries
 
+    Auth: Uses both X-API-Key header AND OAuth2 Bearer token.
+
     Returns True if successful.
     """
     global _lightrag_token
 
     if not LIGHTRAG_AVAILABLE:
+        print("[LightRAG] Not available - missing LIGHTRAG_PASSWORD")
         return False
 
     try:
         import requests
 
-        # Login if needed
+        # Base headers with API key
+        base_headers = {"X-API-Key": LIGHTRAG_API_KEY}
+
+        # Login if needed (OAuth2 password flow)
         if not _lightrag_token:
             resp = requests.post(
                 f"{LIGHTRAG_URL}/login",
+                headers=base_headers,
                 data={"username": LIGHTRAG_USERNAME, "password": LIGHTRAG_PASSWORD},
                 timeout=15
             )
             if resp.status_code == 200:
                 _lightrag_token = resp.json().get("access_token")
+                print(f"[LightRAG] Login successful")
             else:
-                print(f"[LightRAG] Login failed: {resp.status_code}")
+                print(f"[LightRAG] Login failed: {resp.status_code} - {resp.text[:100]}")
                 return False
 
         # Format opportunity as rich document (same format as push script)
@@ -1238,14 +1247,17 @@ async def store_opportunity_lightrag(opportunity: Opportunity) -> bool:
         doc_parts.extend([
             "## Metadata",
             f"- Created: {opportunity.created_at}",
-            f"- Created by: {opportunity.created_by or 'AI'}",
+            f"- Created by: {opportunity.created_by or 'CL-Mindrian'}",
             f"- Frameworks: {', '.join(opportunity.frameworks_applied) if opportunity.frameworks_applied else 'None'}",
         ])
 
         document_text = "\n".join(doc_parts)
 
-        # Push to LightRAG
-        headers = {"Authorization": f"Bearer {_lightrag_token}"}
+        # Push to LightRAG with both API key and Bearer token
+        headers = {
+            "X-API-Key": LIGHTRAG_API_KEY,
+            "Authorization": f"Bearer {_lightrag_token}",
+        }
         resp = requests.post(
             f"{LIGHTRAG_URL}/documents/text",
             headers=headers,
@@ -1255,10 +1267,15 @@ async def store_opportunity_lightrag(opportunity: Opportunity) -> bool:
 
         if resp.status_code == 200:
             result = resp.json()
-            print(f"[LightRAG] Pushed opportunity '{opportunity.name}' (track: {result.get('status', 'ok')})")
+            print(f"[LightRAG] Pushed opportunity '{opportunity.name}' (status: {result.get('status', 'ok')})")
             return True
+        elif resp.status_code == 401:
+            # Token expired, clear and retry
+            print("[LightRAG] Token expired, retrying login...")
+            _lightrag_token = None
+            return await store_opportunity_lightrag(opportunity)
         else:
-            print(f"[LightRAG] Push failed: {resp.status_code} - {resp.text[:100]}")
+            print(f"[LightRAG] Push failed: {resp.status_code} - {resp.text[:200]}")
             return False
 
     except Exception as e:
