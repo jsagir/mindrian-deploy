@@ -42,7 +42,12 @@ async def get_shared_checkpointer():
             return _shared_checkpointer
 
         # Create PostgreSQL checkpointer
-        _shared_checkpointer = AsyncPostgresSaver.from_conn_string(database_url)
+        # Disable prepared statements for PgBouncer compatibility (Render uses transaction mode)
+        if "?" in database_url:
+            conn_string = database_url + "&prepared_statements=disable"
+        else:
+            conn_string = database_url + "?prepared_statements=disable"
+        _shared_checkpointer = AsyncPostgresSaver.from_conn_string(conn_string)
         await _shared_checkpointer.setup()
 
         logger.info("✅ Shared PostgreSQL checkpointer initialized")

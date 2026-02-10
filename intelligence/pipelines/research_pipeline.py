@@ -53,6 +53,7 @@ class DeepResearchState(TypedDict, total=False):
     error: str                   # Error state for graceful handling
     findings: list               # Structured findings for display
     sources_display: list        # Sources formatted for display
+    graph_write_status: str      # "pending" / "success" / "failed" / "skipped"
 
 
 # ============================================================================
@@ -757,8 +758,9 @@ def create_research_pipeline(checkpointer=None):
     graph.add_node("evaluate", evaluate_node)
     graph.add_node("reflect", reflect_node)
     graph.add_node("synthesize", synthesize_node)
+    graph.add_node("research_to_graph", research_to_graph_node)
 
-    # Edges: plan → search → evaluate → reflect → (search | synthesize)
+    # Edges: plan → search → evaluate → reflect → (search | synthesize) → research_to_graph → END
     graph.set_entry_point("plan")
     graph.add_edge("plan", "search")
     graph.add_edge("search", "evaluate")
@@ -774,7 +776,8 @@ def create_research_pipeline(checkpointer=None):
         },
     )
 
-    graph.add_edge("synthesize", END)
+    graph.add_edge("synthesize", "research_to_graph")
+    graph.add_edge("research_to_graph", END)
 
     # Compile
     compile_kwargs = {}
@@ -838,7 +841,22 @@ async def run_deep_research(
         "sources_display": [],
     }
 
-    config = {"configurable": {"thread_id": thread_id or "research_default"}}
+    # Generate per-user thread_id to prevent shared state between users
+    if not thread_id:
+        try:
+            from memory.checkpointer import create_thread_id
+            import hashlib
+            # Use query hash as session scope — each unique research gets its own checkpoint
+            query_hash = hashlib.md5(query[:200].encode()).hexdigest()[:12]
+            thread_id = create_thread_id(
+                user_id=bot_id,
+                pipeline="research",
+                session_id=query_hash,
+            )
+        except Exception:
+            thread_id = f"research_{bot_id}_{id(query) % 100000}"
+
+    config = {"configurable": {"thread_id": thread_id}}
 
     try:
         result = await pipeline.ainvoke(initial_state, config)
@@ -852,16 +870,8 @@ async def run_deep_research(
             "evidence_gaps": result.get("evidence_gaps", []),
             "evaluated_sources": result.get("evaluated_sources", []),
             "search_results": result.get("search_results", []),
+            "graph_write_status": result.get("graph_write_status", "skipped"),
         }
-
-        # Store insights in LightRAG (fire-and-forget, non-blocking)
-        asyncio.ensure_future(_store_research_in_lightrag(
-            query=query,
-            findings=output.get("findings", []),
-            evaluated_sources=output.get("evaluated_sources", []),
-            evidence_gaps=output.get("evidence_gaps", []),
-            bot_id=bot_id,
-        ))
 
         return output
 
@@ -1037,6 +1047,38 @@ def _parse_json(text: str) -> Optional[dict]:
             pass
 
     return None
+
+
+# ============================================================================
+# Graph Write Node — Checkpointed LightRAG storage (replaces fire-and-forget)
+# ============================================================================
+
+async def research_to_graph_node(state: DeepResearchState) -> dict:
+    """
+    LangGraph node: store research insights in LightRAG.
+    Checkpointed — if it fails, LangGraph can retry from synthesize checkpoint.
+    """
+    findings = state.get("findings", [])
+    evaluated_sources = state.get("evaluated_sources", [])
+    evidence_gaps = state.get("evidence_gaps", [])
+    query = state.get("original_query", "")
+    bot_id = state.get("bot_id", "lawrence")
+
+    if not findings and not evaluated_sources:
+        return {"graph_write_status": "skipped"}
+
+    try:
+        await _store_research_in_lightrag(
+            query=query,
+            findings=findings,
+            evaluated_sources=evaluated_sources,
+            evidence_gaps=evidence_gaps,
+            bot_id=bot_id,
+        )
+        return {"graph_write_status": "success"}
+    except Exception as e:
+        logger.warning("research_to_graph failed: %s", e)
+        return {"graph_write_status": "failed"}
 
 
 # ============================================================================
