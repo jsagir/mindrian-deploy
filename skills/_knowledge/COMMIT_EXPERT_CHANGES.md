@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-10 15:26*
+*Auto-generated: 2026-02-10 15:54*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,10 +13,10 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-10 | 9 |
+| 2026-02-10 | 10 |
 | 2026-02-09 | 19 |
 | 2026-02-08 | 20 |
-| 2026-02-06 | 2 |
+| 2026-02-06 | 1 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
@@ -30,13 +30,47 @@
 
 ### 2026-02-10
 
+#### ✨ feat: Add invisible agent routing, Larry v2.0 unified prompt, and research error fix
+
+- **Hash:** `53f9058b7639c42ea49e7de844f0fad8188ca04d`
+- **Short:** `53f9058b`
+- **Parent:** `2837fdc8`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-10 15:54:45
+- **Risk:** high
+- **Diff:** +866 / -179
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `agents/invisible_router.py` | 609 | 0 |
+  | `mindrian_chat.py` | 78 | 5 |
+  | `prompts/larry_core.py` | 106 | 113 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 34 | 34 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 1 |
+
+  **File Operations:**
+  - ➕ Added: `agents/invisible_router.py`
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `prompts/larry_core.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** - agents/invisible_router.py (NEW): LangGraph StateGraph for invisible methodology
+
+
 #### 🐛 fix: Add defensive error handling to Research and Breakthrough buttons
 
 - **Hash:** `2837fdc805dd74104eff25125aaed04098b5fb99`
 - **Short:** `2837fdc8`
 - **Parent:** `14f80253`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-10 15:26:16
 - **Risk:** medium
@@ -66,7 +100,6 @@
 - **Short:** `14f80253`
 - **Parent:** `36171c35`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-10 15:15:32
 - **Risk:** medium
@@ -1594,33 +1627,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** Shows database connection status, env var configuration.
-
-
-#### 🐛 fix: Remove password_auth_callback to prevent double login screen
-
-- **Hash:** `0fd727109e075697f6af35fffd8fad2dbfbd96ce`
-- **Short:** `0fd72710`
-- **Parent:** `4d9f675c`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-06 16:03:13
-- **Risk:** medium
-- **Diff:** +65 / -136
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `mindrian_chat.py` | 4 | 82 |
-  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 34 | 31 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 11 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 11 |
-
-  **File Operations:**
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** Chainlit was showing its built-in login screen because @cl.password_auth_callback
 

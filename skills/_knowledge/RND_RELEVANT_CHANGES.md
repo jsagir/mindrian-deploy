@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-10 15:26*
+*Auto-generated: 2026-02-10 15:54*
 
 ---
 
 ## 2026-02-10
+
+### ✨ feat: Add invisible agent routing, Larry v2.0 unified prompt, and research error fix
+
+- **Commit:** `53f9058b`
+- **Author:** jsagir
+- **Files changed:** 7
+  - agents/invisible_router.py
+  - mindrian_chat.py
+  - prompts/larry_core.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+- **Details:** - agents/invisible_router.py (NEW): LangGraph StateGraph for invisible methodology
 
 ### 🐛 fix: Add defensive error handling to Research and Breakthrough buttons
 

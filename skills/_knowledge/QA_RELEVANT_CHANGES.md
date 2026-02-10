@@ -1,10 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-10 15:26*
+*Auto-generated: 2026-02-10 15:54*
 
 ---
 
 ## 2026-02-10
+
+### ✨ feat: Add invisible agent routing, Larry v2.0 unified prompt, and research error fix
+
+- **Commit:** `53f9058b`
+- **Author:** jsagir
+- **Files changed:** 7
+  - agents/invisible_router.py
+  - mindrian_chat.py
+  - prompts/larry_core.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+- **Details:** - agents/invisible_router.py (NEW): LangGraph StateGraph for invisible methodology
 
 ### 🐛 fix: Add defensive error handling to Research and Breakthrough buttons
 
@@ -424,15 +436,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** Shows database connection status, env var configuration.
-
-### 🐛 fix: Remove password_auth_callback to prevent double login screen
-
-- **Commit:** `0fd72710`
-- **Author:** jsagir
-- **Files changed:** 5
-  - mindrian_chat.py
-  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** Chainlit was showing its built-in login screen because @cl.password_auth_callback
