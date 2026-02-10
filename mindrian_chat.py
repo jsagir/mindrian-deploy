@@ -6864,8 +6864,13 @@ async def on_clear_idea_context(action: cl.Action):
 @cl.action_callback("find_breakthrough")
 async def on_find_breakthrough(action: cl.Action):
     """Trigger auto-orchestration workflow for breakthrough discovery."""
-    from protocols.auto_orchestrator import AutoOrchestrator, OrchestratorStatus
-    from protocols.intent_classifier import classify_intent, get_workflow_description
+    try:
+        from protocols.auto_orchestrator import AutoOrchestrator, OrchestratorStatus
+        from protocols.intent_classifier import classify_intent, get_workflow_description
+    except Exception as import_err:
+        print(f"[BREAKTHROUGH] Import error: {import_err}")
+        await cl.Message(content=f"⚠️ Breakthrough feature is temporarily unavailable: {str(import_err)[:100]}").send()
+        return
 
     # Get the query - either from payload or from recent history
     query = action.payload.get("query", "")
@@ -6883,9 +6888,14 @@ async def on_find_breakthrough(action: cl.Action):
         ).send()
         return
 
-    # Classify intent to determine workflow
-    classification = classify_intent(query)
-    workflow_desc = get_workflow_description(classification.workflow_type)
+    try:
+        # Classify intent to determine workflow
+        classification = classify_intent(query)
+        workflow_desc = get_workflow_description(classification.workflow_type)
+    except Exception as classify_err:
+        print(f"[BREAKTHROUGH] Classification error: {classify_err}")
+        await cl.Message(content=f"⚠️ Could not classify intent: {str(classify_err)[:100]}").send()
+        return
 
     # Show initial message with workflow selection
     await cl.Message(
@@ -10931,7 +10941,17 @@ async def _research_sources_first(recent_context: str, bot_name: str, search_dep
     4. Claude Sonnet for reflection/gap analysis (depth-dependent)
     5. Gemini Flash for synthesis with PWS methodology framing
     """
-    from intelligence.pipelines.research_pipeline import run_deep_research
+    try:
+        from intelligence.pipelines.research_pipeline import run_deep_research
+    except Exception as import_err:
+        print(f"[RESEARCH] Import error: {import_err}")
+        import traceback
+        traceback.print_exc()
+        await cl.Message(
+            content=f"⚠️ Research pipeline unavailable: {str(import_err)[:150]}\n\nPlease try again or refresh the page.",
+            actions=get_core_action_buttons(include_example=True),
+        ).send()
+        return
 
     msg = cl.Message(content="")
     await msg.send()

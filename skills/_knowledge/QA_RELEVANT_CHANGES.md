@@ -1,10 +1,18 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-10 14:56*
+*Auto-generated: 2026-02-10 15:15*
 
 ---
 
 ## 2026-02-10
+
+### 🐛 fix: Context bleed, Clear Context, and truncated examples
+
+- **Commit:** `14f80253`
+- **Author:** jsagir
+- **Files changed:** 1
+  - mindrian_chat.py
+- **Details:** 1. Fix context bleed into new conversations:
 
 ### 🐛 fix: Resolve 3 known issues — thread_id security, PgBouncer crash, graph write node
 
@@ -428,27 +436,3 @@
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
   - utils/data_layer.py
 - **Details:** Render internal database URLs (dpg-xxx-a without .render.com) don't
-
-### 🐛 fix: Rename supabase variable to sbClient to avoid SDK conflict (v6)
-
-- **Commit:** `fc8ed89a`
-- **Author:** jsagir
-- **Files changed:** 5
-  - public/login.html
-  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** The Supabase CDN + jsDelivr was declaring a global 'supabase' variable,
-
-### 🐛 fix: Switch back to sync SDK loading (v5)
-
-- **Commit:** `f0d50869`
-- **Author:** jsagir
-- **Files changed:** 5
-  - public/login.html
-  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** The async loading was causing timing issues where window.supabase

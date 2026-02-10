@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-10 14:56*
+*Auto-generated: 2026-02-10 15:15*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,17 +13,16 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-10 | 6 |
+| 2026-02-10 | 8 |
 | 2026-02-09 | 19 |
 | 2026-02-08 | 20 |
-| 2026-02-06 | 5 |
+| 2026-02-06 | 3 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 6 |
-| `tools/quick_lecture.py` | 3 |
+| `mindrian_chat.py` | 5 |
 
 ---
 
@@ -31,13 +30,62 @@
 
 ### 2026-02-10
 
+#### 🐛 fix: Context bleed, Clear Context, and truncated examples
+
+- **Hash:** `14f802535e2b43afb5a0e09716da73cd37f42418`
+- **Short:** `14f80253`
+- **Parent:** `36171c35`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-10 15:15:32
+- **Risk:** medium
+- **Diff:** +31 / -14
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 31 | 14 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+
+- **Body:** 1. Fix context bleed into new conversations:
+
+
+#### 🔧 chore: Update skill knowledge base after commit 3513891
+
+- **Hash:** `36171c35af4978acc96877bca5b441539d486868`
+- **Short:** `36171c35`
+- **Parent:** `35138915`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-10 14:56:09
+- **Risk:** medium
+- **Diff:** +94 / -127
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 54 | 64 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 10 | 25 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 20 | 25 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 10 | 13 |
+
+  **File Operations:**
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+
 #### 🐛 fix: Resolve 3 known issues — thread_id security, PgBouncer crash, graph write node
 
 - **Hash:** `35138915dfa9ae7414375a68eac6e725508dc148`
 - **Short:** `35138915`
 - **Parent:** `e82cb192`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-10 14:55:59
 - **Risk:** medium
@@ -163,7 +211,6 @@
 - **Short:** `628f3db3`
 - **Parent:** `32e86d7c`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-10 14:11:17
 - **Risk:** high
@@ -1576,62 +1623,4 @@
   - ✏️ Modified: `utils/data_layer.py`
 
 - **Body:** Render internal database URLs (dpg-xxx-a without .render.com) don't
-
-
-#### 🐛 fix: Rename supabase variable to sbClient to avoid SDK conflict (v6)
-
-- **Hash:** `fc8ed89a3185ca7c00686422db439968877f244b`
-- **Short:** `fc8ed89a`
-- **Parent:** `f0d50869`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-06 15:16:47
-- **Risk:** medium
-- **Diff:** +87 / -85
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `public/login.html` | 25 | 31 |
-  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 35 | 31 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 11 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 11 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 1 |
-
-  **File Operations:**
-  - ✏️ Modified: `public/login.html`
-  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** The Supabase CDN + jsDelivr was declaring a global 'supabase' variable,
-
-
-#### 🐛 fix: Switch back to sync SDK loading (v5)
-
-- **Hash:** `f0d508695aec25e825c13b39c90b91b34875659d`
-- **Short:** `f0d50869`
-- **Parent:** `08043165`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-06 15:13:16
-- **Risk:** medium
-- **Diff:** +102 / -138
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `public/login.html` | 29 | 84 |
-  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 34 | 40 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 12 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 1 |
-
-  **File Operations:**
-  - ✏️ Modified: `public/login.html`
-  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** The async loading was causing timing issues where window.supabase
 
