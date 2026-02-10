@@ -401,6 +401,10 @@ After adding a new agent, verify:
 - [ ] "Switch to [Bot]" button works from other bots
 - [ ] Videos play (if URLs configured)
 - [ ] Audio chapters available (if URLs configured)
+- [ ] Creative leaps fire every 4th turn (check logs for "Creative leap injected")
+- [ ] Convergence: "Give me your answer" button appears and delivers direct answer
+- [ ] System prompt includes convergence awareness and creative leaps integration sections
+- [ ] Saturation detection triggers after 8+ turns of circular conversation
 
 ---
 

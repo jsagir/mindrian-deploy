@@ -215,11 +215,22 @@ class MindrianDataLayer(SQLAlchemyDataLayer):
         Returns:
             feedback.id
         """
-        # First, call parent to store in PostgreSQL
+        # First, try to store in PostgreSQL via parent.
+        # FIX: The parent may fail with "no object found" if the message/step
+        # wasn't persisted to the database. We catch this and still store feedback
+        # in our CSV/Supabase fallback so user feedback is never lost.
+        parent_stored = False
         try:
             await super().upsert_feedback(feedback)
+            parent_stored = True
         except Exception as e:
-            print(f"⚠️ Parent feedback storage error: {e}")
+            error_str = str(e).lower()
+            if "not found" in error_str or "no object" in error_str or "does not exist" in error_str:
+                print(f"⚠️ Feedback target message not found in DB (step {feedback.for_id[:8]}...). "
+                      f"Storing in CSV/Supabase fallback only.")
+            else:
+                print(f"⚠️ Parent feedback storage error: {e}")
+            # Continue to store in CSV/Supabase regardless
 
         # Extract feedback details
         try:

@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-10 13:02*
+*Auto-generated: 2026-02-10 14:11*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,16 +13,16 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-10 | 1 |
+| 2026-02-10 | 2 |
 | 2026-02-09 | 19 |
 | 2026-02-08 | 20 |
-| 2026-02-06 | 10 |
+| 2026-02-06 | 9 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 9 |
+| `mindrian_chat.py` | 8 |
 | `tools/quick_lecture.py` | 3 |
 
 ---
@@ -31,13 +31,64 @@
 
 ### 2026-02-10
 
+#### ✨ feat: Add 4 new skills, ERIC orchestration R&D, and v4 plan files
+
+- **Hash:** `628f3db3c5753b29735646e16a972dc565041cb8`
+- **Short:** `628f3db3`
+- **Parent:** `32e86d7c`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-10 14:11:17
+- **Risk:** high
+- **Diff:** +2773 / -65
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `.claude/skills/conversation-reviewer.md` | 28 | 0 |
+  | `.claude/skills/eric-orchestrator.md` | 32 | 0 |
+  | `.claude/skills/platform-scout.md` | 33 | 0 |
+  | `.claude/skills/research.md` | 23 | 0 |
+  | `R&D/26_eric_orchestration/README.md` | 136 | 0 |
+  | `R&D/26_eric_orchestration/eric.sh` | 1205 | 0 |
+  | `plans/mindrian-v4/00-team-meeting-brief.md` | 154 | 0 |
+  | `plans/mindrian-v4/01-lazy-graph-idea-engine.md` | 56 | 0 |
+  | `plans/mindrian-v4/02-agentic-tool-selection.md` | 62 | 0 |
+  | `plans/mindrian-v4/03-intent-understanding.md` | 56 | 0 |
+
+  **File Operations:**
+  - ➕ Added: `.claude/skills/conversation-reviewer.md`
+  - ➕ Added: `.claude/skills/eric-orchestrator.md`
+  - ➕ Added: `.claude/skills/platform-scout.md`
+  - ➕ Added: `.claude/skills/research.md`
+  - ➕ Added: `R&D/26_eric_orchestration/README.md`
+  - ➕ Added: `R&D/26_eric_orchestration/eric.sh`
+  - ➕ Added: `plans/mindrian-v4/00-team-meeting-brief.md`
+  - ➕ Added: `plans/mindrian-v4/01-lazy-graph-idea-engine.md`
+  - ➕ Added: `plans/mindrian-v4/02-agentic-tool-selection.md`
+  - ➕ Added: `plans/mindrian-v4/03-intent-understanding.md`
+  - ➕ Added: `plans/mindrian-v4/04-wow-factor-interactions.md`
+  - ➕ Added: `plans/mindrian-v4/05-integration-testing.md`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+  - ➕ Added: `skills/conversation-reviewer/SKILL.md`
+  - ➕ Added: `skills/eric-orchestrator/SKILL.md`
+  - ➕ Added: `skills/platform-scout/SKILL.md`
+  - ➕ Added: `skills/research-pipeline/SKILL.md`
+  - ✏️ Modified: `skills/swarm-orchestrator/SKILL.md`
+
+- **Body:** New skills (18 total):
+
+
 #### ✨ feat: Add LangGraph deep research pipeline — Claude plans, Tavily searches, Gemini synthesizes
 
 - **Hash:** `32e86d7c74ba835d6fcc6e8ccd73f5ffad5ab0ef`
 - **Short:** `32e86d7c`
 - **Parent:** `40b52641`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-10 13:02:43
 - **Risk:** high
@@ -80,7 +131,6 @@
 - **Short:** `40b52641`
 - **Parent:** `99c6262e`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 23:29:39
 - **Risk:** high
@@ -1575,33 +1625,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** - Remove async config fetch (was causing issues with Chainlit routing)
-
-
-#### 🐛 fix: Add proper timeout and safety fallback to login page
-
-- **Hash:** `e4e69043445360771b348bc148072ffc41776318`
-- **Short:** `e4e69043`
-- **Parent:** `771a4648`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-06 12:14:45
-- **Risk:** medium
-- **Diff:** +101 / -74
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `public/login.html` | 36 | 5 |
-  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 38 | 33 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 12 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 12 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 12 |
-
-  **File Operations:**
-  - ✏️ Modified: `public/login.html`
-  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** - Use AbortController for proper fetch timeout (2s)
 

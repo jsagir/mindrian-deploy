@@ -1,8 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-10 13:02*
+*Auto-generated: 2026-02-10 14:11*
 
 ---
+
+## 2026-02-10
+
+### ✨ feat: Add 4 new skills, ERIC orchestration R&D, and v4 plan files
+
+- **Commit:** `628f3db3`
+- **Author:** jsagir
+- **Files changed:** 21
+  - R&D/26_eric_orchestration/README.md
+  - R&D/26_eric_orchestration/eric.sh
+  - plans/mindrian-v4/00-team-meeting-brief.md
+  - plans/mindrian-v4/01-lazy-graph-idea-engine.md
+  - plans/mindrian-v4/02-agentic-tool-selection.md
+- **Details:** New skills (18 total):
 
 ## 2026-02-09
 
@@ -465,15 +479,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** - Remove async config fetch (was causing issues with Chainlit routing)
-
-### 🐛 fix: Add proper timeout and safety fallback to login page
-
-- **Commit:** `e4e69043`
-- **Author:** jsagir
-- **Files changed:** 5
-  - public/login.html
-  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** - Use AbortController for proper fetch timeout (2s)

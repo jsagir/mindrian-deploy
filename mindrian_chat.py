@@ -952,6 +952,10 @@ if OAUTH_ENABLED:
 # === Stop Event for Cancellation ===
 stop_events: Dict[str, asyncio.Event] = {}
 
+# === Resume Welcome Guard ===
+# Module-level set prevents "Welcome back!" spam on WebSocket reconnects
+_resumed_threads: set = set()
+
 # === Extended Thinking UI ===
 # Captures and visualizes LLM reasoning steps
 
@@ -2072,6 +2076,12 @@ def get_core_action_buttons(
             payload={"action": "navigate"},
             label="🧭 PWS Navigator",
             tooltip="Discover cross-domain bridges and innovation opportunities using knowledge graph",
+        ),
+        cl.Action(
+            name="converge_answer",
+            payload={"action": "converge"},
+            label="🎯 Give me your answer",
+            tooltip="Stop exploring and give me a direct, synthesized answer to my question",
         ),
     ]
 
@@ -4616,14 +4626,51 @@ async def on_chat_resume(thread: dict):
     # Re-initialize settings widgets
     await cl.ChatSettings(await get_settings_widgets()).send()
 
-    # Welcome back message - only send once per session
-    if not cl.user_session.get("welcome_sent"):
+    # Welcome back message - module-level guard prevents spam on reconnects
+    thread_id = thread.get("id", "")
+    if thread_id and thread_id not in _resumed_threads:
+        _resumed_threads.add(thread_id)
+        # Cap set size to prevent memory leak
+        if len(_resumed_threads) > 500:
+            _resumed_threads.clear()
+
         phase_info = ""
         if phases and current_phase < len(phases):
             phase_info = f"\n\n**Current phase:** {phases[current_phase]['name']} (Phase {current_phase + 1} of {len(phases)})"
 
+        # Generate a concise Minto-structured recap via Gemini
+        recap = ""
+        if history and len(history) >= 4:
+            try:
+                # Take last 8 messages max, truncate for cost
+                recent = history[-8:]
+                digest = "\n".join([
+                    f"{'User' if m.get('role')=='user' else 'Larry'}: {m['content'][:200]}"
+                    for m in recent
+                ])
+                recap_resp = client.models.generate_content(
+                    model="gemini-2.0-flash",
+                    contents=f"""Summarize this conversation so the user can continue where they left off.
+Write 2-4 sentences in a warm, conversational tone (like a coach catching someone up).
+Structure: What we discussed → Where we got to → What's next.
+Do NOT use framework names or jargon. Be concise.
+
+Conversation:
+{digest}""",
+                    config={"max_output_tokens": 150, "temperature": 0.3},
+                )
+                recap_text = recap_resp.text.strip() if recap_resp.text else ""
+                if recap_text:
+                    recap = f"\n\n{recap_text}"
+            except Exception as e:
+                # Fallback: simple last-message recap
+                user_msgs = [m["content"][:100] for m in history if m.get("role") == "user"][-2:]
+                if user_msgs:
+                    recap = "\n\n**Where we left off:** " + " → ".join(user_msgs)
+                logger.debug("Resume recap generation failed: %s", e)
+
         await cl.Message(
-            content=f"**Welcome back!** Your conversation has been restored.{phase_info}"
+            content=f"**Welcome back!**{phase_info}{recap}"
         ).send()
         cl.user_session.set("welcome_sent", True)
 
@@ -9777,6 +9824,75 @@ async def on_export_summary(action: cl.Action):
         await cl.Message(content=f"Export error: {str(e)}").send()
 
 
+@cl.action_callback("converge_answer")
+async def on_converge_answer(action: cl.Action):
+    """Stop exploring and give a direct, synthesized answer. The convergence mechanism."""
+    history = cl.user_session.get("history", [])
+    bot = cl.user_session.get("bot", BOTS["lawrence"])
+
+    if len(history) < 4:
+        await cl.Message(content="Let's explore a bit more before I give you a definitive answer.").send()
+        return
+
+    # Build the user's original question from early history
+    user_messages = [m["content"] for m in history if m.get("role") == "user"]
+    original_question = user_messages[0] if user_messages else "the topic we discussed"
+    recent_context = "\n".join([
+        f"{'User' if m.get('role') == 'user' else 'Larry'}: {m.get('content', '')[:300]}"
+        for m in history[-10:]
+    ])
+
+    convergence_prompt = f"""The user has pressed "Give me your answer". They want you to STOP asking questions and DELIVER a direct, actionable answer.
+
+ORIGINAL QUESTION: {original_question}
+
+FULL CONVERSATION CONTEXT (last 10 messages):
+{recent_context}
+
+RULES:
+1. DO NOT ask any more questions
+2. Give a DIRECT answer — "Here's what I think..."
+3. Structure it as: Answer → Evidence from our conversation → 3 concrete next steps
+4. Be opinionated — take a position based on what you've learned
+5. Keep it under 300 words
+6. End with "If you want to explore further, just keep talking."
+
+Use Larry's voice: conversational, direct, provocative."""
+
+    try:
+        msg = cl.Message(content="", actions=get_core_action_buttons(include_example=False))
+        await msg.send()
+
+        model_name = "gemini-2.5-flash"
+        response = client.models.generate_content(
+            model=model_name,
+            contents=[
+                {"role": m.get("role", "user"), "parts": [{"text": m.get("content", "")}]}
+                for m in history[-10:]
+            ] + [{"role": "user", "parts": [{"text": convergence_prompt}]}],
+            config=types.GenerateContentConfig(
+                system_instruction=bot.get("system_prompt", ""),
+                temperature=0.7,
+                max_output_tokens=1500,
+            )
+        )
+
+        if response and response.text:
+            msg.content = response.text
+            await msg.update()
+
+            # Add to history
+            history.append({"role": "user", "content": "[User pressed: Give me your answer]"})
+            history.append({"role": "assistant", "content": response.text})
+            cl.user_session.set("history", history)
+        else:
+            msg.content = "I couldn't generate a convergent answer. Let me try a different approach — what specific question would you like me to answer directly?"
+            await msg.update()
+
+    except Exception as e:
+        await cl.Message(content=f"Convergence error: {str(e)}").send()
+
+
 @cl.action_callback("synthesize_conversation")
 async def on_synthesize_conversation(action: cl.Action):
     """Synthesize the entire conversation using Larry's voice and style, then export as MD file."""
@@ -13460,6 +13576,17 @@ Your insights help us improve Mindrian!"""
                 print(f"GraphRAG enriched ({bot_id}): {graphrag_hint[:100]}...")
         except Exception as e:
             print(f"GraphRAG error (non-fatal): {e}")
+
+    # === Saturation Detection: nudge Larry toward convergence ===
+    # Pure Python heuristics — zero latency cost (no LLM call)
+    if turn_count >= 8:
+        try:
+            from tools.smart_phase_tracker import detect_saturation
+            sat = detect_saturation(history)
+            if sat.get("saturated"):
+                full_user_message += f"\n\n[System: Conversation saturation detected ({sat['signal']}). Consider suggesting the user press 🎯 Give me your answer if they seem ready for closure.]"
+        except Exception:
+            pass
 
     # === LangExtract: Shape response based on conversation signals ===
     if extraction_signals and not extraction_signals.get("empty"):

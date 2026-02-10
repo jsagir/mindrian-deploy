@@ -237,7 +237,7 @@ def _get_lightrag_session() -> Optional[requests.Session]:
             resp = session.post(
                 f"{LIGHTRAG_URL}/login",
                 data={"username": LIGHTRAG_USERNAME, "password": LIGHTRAG_PASSWORD},
-                timeout=15
+                timeout=60
             )
             if resp.status_code == 200:
                 _lightrag_token = resp.json().get("access_token")

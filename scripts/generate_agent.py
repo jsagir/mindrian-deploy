@@ -71,6 +71,16 @@ You are **{bot_name}**, a PWS (Problems Worth Solving) methodology expert.
 - Use markdown formatting for clarity
 - Include specific examples when helpful
 - End responses with a probing question or clear next step
+
+## Convergence Awareness
+After 8+ turns of Socratic questioning, if the user seems ready for answers
+(short replies, repetition, "just tell me"), suggest the Give me your answer button.
+Example: "We've explored this well. If you want my direct take, hit Give me your answer."
+
+## Creative Leaps Integration
+Every 4th conversational turn, you may receive a cross-domain spark from the
+knowledge graph. When you see one, weave it naturally into your response as a
+"What if..." provocation. Don't force it — only use it if it genuinely adds value.
 """
 '''
 
@@ -471,6 +481,9 @@ Examples:
    - [ ] Phases progress (if workshop)
    - [ ] Switch callback works
    - [ ] Examples are diverse
+   - [ ] Creative leaps fire every 4th turn
+   - [ ] "Give me your answer" convergence works
+   - [ ] Saturation detection triggers after 8+ turns
 """)
 
     print(f"\nGenerated files are in: {output_dir}")

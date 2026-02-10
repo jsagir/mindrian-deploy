@@ -847,6 +847,22 @@ def enrich_for_bot(
         elapsed = time.monotonic() - t0
 
         if hint:
+            # Creative Leaps: inject cross-domain sparks every 4th turn
+            # Zero-latency impact: single bounded Neo4j query (~100-200ms)
+            if turn_count > 0 and turn_count % 4 == 0:
+                try:
+                    lazy_trace = trace.get("lazy_trace") or {}
+                    matched = lazy_trace.get("matched_concepts", [])
+                    if matched:
+                        leaps = find_creative_leaps(matched[0], limit=3)
+                        questions = leaps.get("innovation_questions", [])
+                        if questions:
+                            spark = questions[0]  # Top innovation question
+                            hint += f" | Cross-domain spark: {spark}"
+                            logger.info("Creative leap injected for '%s' (turn %d)", matched[0], turn_count)
+                except Exception as e:
+                    logger.debug("Creative leap skipped: %s", e)
+
             # BUG-001 FIX: Filter out excluded topics from hint
             if excluded_topics:
                 original_hint = hint

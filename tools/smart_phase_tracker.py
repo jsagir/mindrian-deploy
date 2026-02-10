@@ -511,6 +511,87 @@ def get_smart_phase_message(state: WorkshopState, include_buttons: bool = True) 
     return msg
 
 
+def detect_saturation(
+    conversation_history: List[Dict[str, str]],
+    window: int = 6
+) -> Dict[str, Any]:
+    """
+    Detect conversation saturation — when the user is going in circles.
+
+    Uses lightweight heuristics (NO LLM call = zero latency cost):
+    1. Repetition: Are the last N messages rehashing the same concepts?
+    2. Short turns: Are user messages getting shorter (losing engagement)?
+    3. Turn count: Has the conversation gone 10+ turns on the same topic?
+
+    Args:
+        conversation_history: Full message history
+        window: Number of recent messages to analyze
+
+    Returns:
+        {
+            "saturated": bool,
+            "confidence": float (0-1),
+            "signal": str ("repetition"|"fatigue"|"length"|"none"),
+            "suggestion": str (what to tell the user)
+        }
+    """
+    if len(conversation_history) < window:
+        return {"saturated": False, "confidence": 0.0, "signal": "none", "suggestion": ""}
+
+    recent = conversation_history[-window:]
+    user_msgs = [m["content"] for m in recent if m.get("role") == "user"]
+
+    if len(user_msgs) < 3:
+        return {"saturated": False, "confidence": 0.0, "signal": "none", "suggestion": ""}
+
+    # Signal 1: Word overlap between recent user messages (repetition)
+    def _words(text: str) -> set:
+        return set(w.lower().strip(".,!?;:") for w in text.split() if len(w) > 3)
+
+    word_sets = [_words(m) for m in user_msgs]
+    overlaps = []
+    for i in range(len(word_sets) - 1):
+        if word_sets[i] and word_sets[i + 1]:
+            overlap = len(word_sets[i] & word_sets[i + 1]) / max(len(word_sets[i] | word_sets[i + 1]), 1)
+            overlaps.append(overlap)
+
+    avg_overlap = sum(overlaps) / len(overlaps) if overlaps else 0
+
+    # Signal 2: Shrinking message length (fatigue)
+    lengths = [len(m) for m in user_msgs]
+    shrinking = all(lengths[i] >= lengths[i + 1] for i in range(len(lengths) - 1)) and lengths[-1] < 50
+
+    # Signal 3: High turn count without synthesis
+    high_turns = len(conversation_history) >= 16
+
+    # Combine signals
+    if avg_overlap > 0.5:
+        return {
+            "saturated": True,
+            "confidence": min(avg_overlap, 0.95),
+            "signal": "repetition",
+            "suggestion": "We seem to be circling the same ideas. Ready for me to pull it all together?"
+        }
+
+    if shrinking and high_turns:
+        return {
+            "saturated": True,
+            "confidence": 0.7,
+            "signal": "fatigue",
+            "suggestion": "We've covered a lot of ground. Want me to synthesize the key insights?"
+        }
+
+    if high_turns and avg_overlap > 0.3:
+        return {
+            "saturated": True,
+            "confidence": 0.6,
+            "signal": "length",
+            "suggestion": "This is a rich conversation. Good time to capture what we've built so far?"
+        }
+
+    return {"saturated": False, "confidence": avg_overlap, "signal": "none", "suggestion": ""}
+
+
 def extract_phase_context(state: WorkshopState) -> Dict[str, Any]:
     """
     Extract context that should be persisted about phase progress.

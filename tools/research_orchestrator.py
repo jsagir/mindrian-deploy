@@ -103,15 +103,20 @@ QUERY_DECOMPOSITION_PROMPT = """Decompose this research question into 3-5 atomic
 
 **Research Question:** {question}
 
+**User's Original Words:** {original_query}
+
 **User Context:** {user_context}
 
 **PWS Context (from knowledge graph):** {pws_context}
 
-Rules for query formulation:
+CRITICAL RULES for query formulation:
 1. Think like a search engine - use keywords, not natural questions
 2. Each query should focus on ONE concept
-3. Include temporal markers (2024, 2025) for recent information
+3. Include temporal markers (2024, 2025, 2026) for recent information
 4. Use entity + attribute pattern for specific facts
+5. **MOST IMPORTANT: Every query MUST include at least one key term from the user's original words above.**
+6. Do NOT substitute the user's terms with synonyms or related topics.
+7. If the user said "project-based curricula", your queries must contain "project-based curricula", NOT "Project 2025" or "project management".
 
 Return JSON:
 ```json
@@ -131,10 +136,12 @@ async def decompose_query(
     question: str,
     user_context: str = "",
     bot_id: str = "lawrence",
+    original_query: str = "",
 ) -> List[AtomicQuery]:
     """
     Decompose a complex question into atomic, searchable queries.
     Uses GraphRAG to enrich with PWS context.
+    Anchors on the user's original words to prevent semantic drift.
     """
     # Get PWS context from GraphRAG
     pws_context = await _get_pws_context(question)
@@ -147,7 +154,8 @@ async def decompose_query(
 
     prompt = QUERY_DECOMPOSITION_PROMPT.format(
         question=question,
-        user_context=user_context[:500],
+        original_query=original_query or question,
+        user_context=user_context[:800],
         pws_context=pws_context,
     )
 
@@ -821,23 +829,25 @@ async def run_research_workflow(
     user_context: str = "",
     bot_id: str = "lawrence",
     depth: str = "standard",  # quick, standard, deep
+    original_query: str = "",
 ) -> ResearchReport:
     """
     Execute the full 5-phase research workflow.
 
     Args:
-        question: The research question
+        question: The research question (cleaned up)
         user_context: Additional context about what user is working on
         bot_id: Current bot for PWS framing
         depth: Research depth (quick=2 queries, standard=5, deep=8+)
+        original_query: The user's raw original message (for fidelity anchoring)
 
     Returns:
         Complete ResearchReport with findings, synthesis, and recommendations
     """
     logger.info("Starting research workflow: '%s' (depth=%s)", question[:50], depth)
 
-    # Phase 1: Query Decomposition
-    queries = await decompose_query(question, user_context, bot_id)
+    # Phase 1: Query Decomposition - pass original_query for anchoring
+    queries = await decompose_query(question, user_context, bot_id, original_query=original_query)
 
     # Limit queries based on depth
     max_queries = {"quick": 2, "standard": 5, "deep": 8}.get(depth, 5)

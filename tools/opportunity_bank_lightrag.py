@@ -76,7 +76,7 @@ def _get_lightrag_session() -> Optional[requests.Session]:
             resp = _lightrag_session.post(
                 f"{LIGHTRAG_URL}/login",
                 data={"username": LIGHTRAG_USERNAME, "password": LIGHTRAG_PASSWORD},
-                timeout=15
+                timeout=60
             )
             if resp.status_code == 200:
                 _lightrag_token = resp.json().get("access_token")
@@ -127,7 +127,7 @@ def push_opportunity_to_lightrag(opportunity: Opportunity) -> bool:
         resp = session.post(
             f"{LIGHTRAG_URL}/graph/entity/create",
             json=entity_data,
-            timeout=15
+            timeout=60
         )
 
         if resp.status_code not in [200, 409]:  # 409 = already exists
@@ -143,7 +143,7 @@ def push_opportunity_to_lightrag(opportunity: Opportunity) -> bool:
                     "entity_name": opportunity.domain,
                     "entity_data": {"entity_type": "DOMAIN", "description": f"Domain: {opportunity.domain}"}
                 },
-                timeout=10
+                timeout=60
             )
 
             # Create IN_DOMAIN relationship
@@ -158,7 +158,7 @@ def push_opportunity_to_lightrag(opportunity: Opportunity) -> bool:
                         "weight": 1.0,
                     }
                 },
-                timeout=10
+                timeout=60
             )
 
         # Create Framework relationships
@@ -169,7 +169,7 @@ def push_opportunity_to_lightrag(opportunity: Opportunity) -> bool:
                     "entity_name": framework,
                     "entity_data": {"entity_type": "FRAMEWORK", "description": f"PWS Framework: {framework}"}
                 },
-                timeout=10
+                timeout=60
             )
 
             session.post(
@@ -183,7 +183,7 @@ def push_opportunity_to_lightrag(opportunity: Opportunity) -> bool:
                         "weight": 0.8,
                     }
                 },
-                timeout=10
+                timeout=60
             )
 
         logger.info(f"LightRAG: Pushed opportunity '{opportunity.name}' with domain '{opportunity.domain}'")
@@ -216,7 +216,7 @@ def link_opportunities_in_lightrag(opp1_name: str, opp2_name: str, relevancy: fl
                     "weight": relevancy,
                 }
             },
-            timeout=10
+            timeout=60
         )
 
         return resp.status_code in [200, 409]
@@ -241,7 +241,7 @@ def query_related_opportunities_lightrag(opportunity_name: str, limit: int = 5) 
         resp = session.get(
             f"{LIGHTRAG_URL}/graph/entity/neighbors",
             params={"entity_name": opportunity_name, "limit": limit},
-            timeout=10
+            timeout=60
         )
 
         if resp.status_code != 200:
@@ -276,7 +276,7 @@ def query_opportunities_by_domain_lightrag(domain: str, limit: int = 10) -> List
                 "query": f"opportunities in {domain} domain",
                 "mode": "local",  # Fast local search
             },
-            timeout=15
+            timeout=60
         )
 
         if resp.status_code != 200:
@@ -446,7 +446,7 @@ async def store_opportunity_with_lightrag(
                         "entity_name": topic,
                         "entity_data": {"entity_type": "TOPIC", "description": f"Topic: {topic}"}
                     },
-                    timeout=10
+                    timeout=60
                 )
 
                 # Create RELEVANT_TO relationship
@@ -461,7 +461,7 @@ async def store_opportunity_with_lightrag(
                             "weight": 0.7,
                         }
                     },
-                    timeout=10
+                    timeout=60
                 )
 
                 if resp.status_code in [200, 409]:
