@@ -321,30 +321,24 @@ async def research_matrix(state: MintoPyramidState) -> dict:
     Searches multiple categories in parallel.
     """
     try:
-        from tools.tavily_search import search_web
+        from intelligence.pipelines.research_pipeline import quick_pipeline_research
 
         questions = state.get("beautiful_questions", [])
         query = state["query"]
 
         # Build search queries for each category
-        search_tasks = []
-
-        # Category: Why (challenge assumptions)
         why_queries = [q for q in questions if "why" in q.lower()][:2]
         if not why_queries:
             why_queries = [f"why {query} challenges assumptions"]
 
-        # Category: What If (possibilities)
         whatif_queries = [q for q in questions if "what if" in q.lower()][:2]
         if not whatif_queries:
             whatif_queries = [f"what if {query} future scenarios"]
 
-        # Category: How (practical steps)
         how_queries = [q for q in questions if "how" in q.lower()][:2]
         if not how_queries:
             how_queries = [f"how to {query} implementation"]
 
-        # Execute searches
         results = {
             "why": [],
             "what_if": [],
@@ -353,28 +347,32 @@ async def research_matrix(state: MintoPyramidState) -> dict:
             "trends": []
         }
 
+        # Execute via quick_pipeline_research (Claude plans each query)
+        import asyncio
+
+        async def _research_category(q: str) -> list:
+            r = await quick_pipeline_research(q, max_results=3)
+            return r.get("sources", [])
+
         # Why searches
         for q in why_queries[:2]:
-            r = search_web(q, search_depth="advanced", max_results=3)
-            results["why"].extend(r.get("results", []))
+            results["why"].extend(await _research_category(q))
 
         # What If searches
         for q in whatif_queries[:2]:
-            r = search_web(q, search_depth="advanced", max_results=3)
-            results["what_if"].extend(r.get("results", []))
+            results["what_if"].extend(await _research_category(q))
 
         # How searches
         for q in how_queries[:2]:
-            r = search_web(q, search_depth="advanced", max_results=3)
-            results["how"].extend(r.get("results", []))
+            results["how"].extend(await _research_category(q))
 
         # Validation search
-        r = search_web(f"{query} evidence data statistics", search_depth="advanced", max_results=5)
-        results["validation"] = r.get("results", [])
+        val_r = await quick_pipeline_research(f"{query} evidence data statistics", max_results=5)
+        results["validation"] = val_r.get("sources", [])
 
         # Trends search
-        r = search_web(f"{query} trends forecast 2025", search_depth="basic", max_results=3)
-        results["trends"] = r.get("results", [])
+        trend_r = await quick_pipeline_research(f"{query} trends forecast 2025", max_results=3)
+        results["trends"] = trend_r.get("sources", [])
 
         return {
             "research_results": results,

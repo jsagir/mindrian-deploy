@@ -337,21 +337,20 @@ async def search_cross_domain(state: ReverseSalientState) -> dict:
     Runs searches in PARALLEL for efficiency.
     """
     try:
-        from tools.tavily_search import search_web
+        from intelligence.pipelines.research_pipeline import quick_pipeline_research
 
         domains = state.get("abstracted_domains", [])
 
         async def search_domain(domain: dict) -> tuple:
-            """Search a single domain."""
+            """Search a single domain via quick pipeline (Claude-planned queries)."""
             query = domain.get("search_query", domain.get("domain", ""))
-            results = search_web(
+            result = await quick_pipeline_research(
                 query=f"{query} solution innovation breakthrough",
-                search_depth="advanced",
-                max_results=5
+                max_results=5,
             )
-            return (domain.get("domain", ""), results.get("results", []))
+            return (domain.get("domain", ""), result.get("sources", []))
 
-        # Search all domains (note: Tavily is sync, so we run sequentially)
+        # Search all domains
         cross_domain_results = {}
         for domain in domains:
             domain_name, results = await search_domain(domain)

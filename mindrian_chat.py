@@ -3255,9 +3255,9 @@ async def get_settings_widgets():
         Select(
             id="research_depth",
             label="Research Depth",
-            values=["basic", "advanced"],
+            values=["basic", "advanced", "deep"],
             initial_value="basic",
-            description="How thorough should web research be?",
+            description="How thorough should web research be? Deep = iterative with reflection loops",
         ),
         Switch(
             id="show_examples",
@@ -4931,9 +4931,10 @@ async def on_larry_teach_me(action: cl.Action):
 → Converting to audio...""")
         await loading_msg.send()
 
-        # Generate the cognitive intervention
+        # Generate the cognitive intervention with FULL conversation history
         result = await larry_teach_me(
             query=last_user_msg,
+            conversation_history=history,
             user_history=user_history,
             include_audio=True
         )
@@ -5022,10 +5023,10 @@ async def run_multi_agent_with_type(analysis_type: str):
 
     history = cl.user_session.get("history", [])
 
-    # Build context from recent conversation
+    # Build context from recent conversation - use more context for better analysis
     recent_context = "\n".join([
-        f"{msg.get('role', 'user')}: {msg.get('content', '')[:300]}"
-        for msg in history[-6:]
+        f"{msg.get('role', 'user')}: {msg.get('content', '')[:800]}"
+        for msg in history[-10:]
     ])
 
     if not recent_context:
@@ -6120,6 +6121,132 @@ async def on_merge_branches(action: cl.Action):
     except Exception as e:
         print(f"Merge error: {e}")
         await cl.Message(content=f"Unable to merge branches: {str(e)[:100]}").send()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PWS Navigator - Cross-Domain Bridge Detection
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@cl.action_callback("pws_navigate")
+async def on_pws_navigate(action: cl.Action):
+    """PWS Navigator: Cross-domain bridge detection and innovation discovery."""
+    history = cl.user_session.get("history", [])
+
+    # Extract query from conversation or use a default
+    query = ""
+    for msg in reversed(history):
+        if msg.get("role") == "user" and len(msg.get("content", "")) > 5:
+            query = msg["content"][:200]
+            break
+
+    if not query:
+        await cl.Message(
+            content="Start a conversation first, then click PWS Navigator to discover cross-domain connections."
+        ).send()
+        return
+
+    try:
+        async with cl.Step(name="PWS Navigator", type="tool") as nav_step:
+            nav_step.input = f"Exploring cross-domain bridges for: {query[:100]}..."
+
+            from tools.pws_navigator import (
+                cross_domain_discovery,
+                format_discovery_as_markdown,
+                discovery_to_mermaid,
+            )
+
+            discovery = cross_domain_discovery(query)
+            markdown = format_discovery_as_markdown(discovery)
+            mermaid_code = discovery_to_mermaid(discovery)
+
+            nav_step.output = f"Found {len(discovery.get('cross_domain_bridges', []))} cross-domain connections"
+
+        # Send results
+        elements = []
+        if mermaid_code:
+            try:
+                from utils.diagrams import create_mermaid_element
+                diagram = await create_mermaid_element(mermaid_code, title="Cross-Domain Map")
+                elements.append(diagram)
+            except Exception:
+                pass
+
+        # Add explore buttons for discovered domains
+        actions = []
+        for xd in discovery.get("cross_domain_bridges", [])[:3]:
+            target = xd.get("target_domain", {})
+            label = target.get("label", "Unknown")
+            actions.append(cl.Action(
+                name="pws_explore_bridge",
+                payload={"domain": label, "community": target.get("community", 0)},
+                label=f"Explore: {label[:25]}",
+                tooltip=f"Deep-dive into bridges with {label}",
+            ))
+
+        await cl.Message(content=markdown, elements=elements, actions=actions).send()
+
+    except Exception as e:
+        logger.error("PWS Navigator error: %s", e)
+        await cl.Message(content=f"PWS Navigator encountered an error: {e}").send()
+
+
+@cl.action_callback("pws_explore_bridge")
+async def on_pws_explore_bridge(action: cl.Action):
+    """Deep-dive into a specific cross-domain bridge."""
+    domain_name = action.payload.get("domain", "")
+    history = cl.user_session.get("history", [])
+
+    # Get original query
+    query = ""
+    for msg in reversed(history):
+        if msg.get("role") == "user" and len(msg.get("content", "")) > 5:
+            query = msg["content"][:200]
+            break
+
+    if not query or not domain_name:
+        return
+
+    try:
+        async with cl.Step(name=f"Bridge Analysis: {domain_name}", type="tool") as step:
+            from tools.pws_navigator import find_bridges_by_name
+            result = find_bridges_by_name(query, domain_name)
+
+            bridges = result.get("bridges", [])
+            step.output = f"Found {len(bridges)} bridge concepts"
+
+        # Format output
+        lines = [f"## Bridge Analysis: {query[:50]} <> {domain_name}", ""]
+
+        d1 = result.get("domain1", {})
+        d2 = result.get("domain2", {})
+        if d1.get("top_concepts"):
+            lines.append(f"**Domain 1**: {', '.join(d1['top_concepts'][:4])}")
+        if d2.get("top_concepts"):
+            lines.append(f"**Domain 2**: {', '.join(d2['top_concepts'][:4])}")
+        lines.append("")
+
+        if bridges and isinstance(bridges[0], dict) and bridges[0].get("note"):
+            lines.append(bridges[0]["note"])
+        elif bridges:
+            lines.append("### Bridge Concepts")
+            for b in bridges[:5]:
+                c1 = b.get("c1_connections", [])
+                c2 = b.get("c2_connections", [])
+                lines.append(f"- **{b['name']}** (score: {b.get('bridge_score', 0):.0f}) "
+                             f"connects {', '.join(c1[:2])} with {', '.join(c2[:2])}")
+            lines.append("")
+
+        prompts = result.get("innovation_prompts", [])
+        if prompts:
+            lines.append("### Innovation Questions")
+            for p in prompts:
+                lines.append(f"> {p}")
+
+        await cl.Message(content="\n".join(lines)).send()
+
+    except Exception as e:
+        logger.error("Bridge exploration error: %s", e)
+        await cl.Message(content=f"Bridge analysis error: {e}").send()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -10662,20 +10789,16 @@ def _extract_json(text: str) -> dict:
 
 async def _research_sources_first(recent_context: str, bot_name: str, search_depth: str, history: list):
     """
-    Advanced research workflow: multi-phase research with AI synthesis.
+    Deep research pipeline: Claude plans, Tavily searches, Gemini synthesizes.
 
-    Uses the Research Orchestrator for:
-    1. Query decomposition (multiple targeted queries)
-    2. Source evaluation (authority scoring)
-    3. Deep extraction from high-quality sources
-    4. Gap analysis (identify missing information)
-    5. Synthesis with PWS methodology framing
+    Uses the LangGraph-based research pipeline with:
+    1. Claude Sonnet for query planning (preserves user's exact terms)
+    2. Tavily parallel search execution
+    3. Python-based source evaluation (authority scoring)
+    4. Claude Sonnet for reflection/gap analysis (depth-dependent)
+    5. Gemini Flash for synthesis with PWS methodology framing
     """
-    from tools.research_orchestrator import (
-        run_research_workflow,
-        quick_research,
-        format_research_report,
-    )
+    from intelligence.pipelines.research_pipeline import run_deep_research
 
     msg = cl.Message(content="")
     await msg.send()
@@ -10684,152 +10807,116 @@ async def _research_sources_first(recent_context: str, bot_name: str, search_dep
     bot = cl.user_session.get("bot", BOTS["lawrence"])
     chat_profile = cl.user_session.get("chat_profile", "lawrence")
 
-    # Determine research depth based on mode
-    is_simple = bot.get("simple_mode", False)
-    research_depth = "quick" if is_simple else ("standard" if search_depth == "basic" else "deep")
+    # Map settings to pipeline depth — deep is available everywhere
+    # basic setting → basic pipeline (fast, no reflection)
+    # advanced setting → standard pipeline (1 reflection round)
+    # deep setting (playground OR Lawrence) → deep pipeline (up to 3 reflections)
+    if search_depth == "deep":
+        research_depth = "deep"
+    elif search_depth == "advanced":
+        research_depth = "standard"
+    else:
+        research_depth = "basic"
 
     # Extract the main question from context
-    # BUG FIX: Prioritize the USER's topic, not the bot's question back to them
-    # First, find the last substantive user message (not just "go" or "yes")
-
+    # Prioritize the USER's topic, not the bot's question back to them
     last_user_topic = ""
     for hist_item in reversed(history):
         if hist_item.get("role") == "user":
             content = hist_item.get("content", "").strip()
             # Skip trivial messages
-            if len(content) > 5 and content.lower() not in ["go", "yes", "ok", "next", "continue"]:
-                last_user_topic = content[:200]
+            if len(content) > 5 and content.lower() not in ["go", "yes", "ok", "next", "continue",
+                                                              "sure", "yeah", "no", "nah", "thanks"]:
+                last_user_topic = content[:1000]
                 break
 
-    try:
-        query_response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=(
-                f"Extract a RESEARCH TOPIC from this conversation.\n\n"
-                f"IMPORTANT: Focus on the USER'S topic, not the assistant's questions.\n"
-                f"USER'S MAIN TOPIC: {last_user_topic}\n\n"
-                f"Return a clear, specific research question about '{last_user_topic}' (max 50 words).\n"
-                f"If the user mentioned a specific subject (like 'printed houseplants'), research THAT subject.\n"
-                f"DO NOT return generic phrases like 'What about' or 'Tell me more'.\n\n"
-                f"Recent context:\n{recent_context[:1500]}"
-            ),
-            config=types.GenerateContentConfig(temperature=0.2, max_output_tokens=150),
-        )
-        research_question = query_response.text.strip().strip('"').strip("'")
+    if not last_user_topic or len(last_user_topic) < 5:
+        # Try extracting from recent_context
+        last_user_topic = recent_context.split("user:")[-1][:300].strip() if "user:" in recent_context else recent_context[:300]
 
-        # Validate: reject if it's a generic question fragment
-        if research_question.lower().startswith(("what about", "tell me", "how about", "can you")):
-            research_question = last_user_topic if last_user_topic else research_question
-    except Exception:
-        # Fallback: use last user topic directly
-        research_question = last_user_topic if last_user_topic else recent_context.split("user:")[-1][:150].strip()
-
-    if not research_question or len(research_question) < 5:
+    if not last_user_topic or len(last_user_topic) < 5:
         await msg.stream_token("Could not determine what to research. Try asking a more specific question.")
         await msg.update()
         return
 
     # Show research progress
-    await msg.stream_token(f"## 🔬 Research Workflow\n\n")
-    await msg.stream_token(f"**Question:** {research_question}\n\n")
-    await msg.stream_token(f"**Depth:** {research_depth.title()}\n\n")
+    depth_labels = {"basic": "Basic", "standard": "Standard", "deep": "Deep (Iterative)"}
+    await msg.stream_token(f"## 🔬 Deep Research Pipeline\n\n")
+    await msg.stream_token(f"**Question:** {last_user_topic[:200]}\n\n")
+    await msg.stream_token(f"**Depth:** {depth_labels.get(research_depth, research_depth.title())}\n")
+    await msg.stream_token(f"**Strategy:** Claude plans → Tavily searches → Gemini synthesizes\n\n")
     await msg.stream_token("---\n\n")
 
-    # Phase indicators
-    phases = ["🎯 Query Decomposition", "🔍 Discovery Search", "📊 Source Evaluation",
-              "📖 Deep Extraction", "🔎 Gap Analysis", "✨ Synthesis"]
+    # Phase indicators based on depth
+    if research_depth == "basic":
+        phases = ["🎯 Claude planning queries", "🔍 Tavily searching", "📊 Evaluating sources", "✨ Gemini synthesizing"]
+    else:
+        phases = ["🎯 Claude planning queries", "🔍 Tavily searching", "📊 Evaluating sources",
+                  "🔎 Claude reflecting on gaps", "✨ Gemini synthesizing"]
 
     try:
-        # Run the full research workflow
-        async with cl.Step(name="🔬 Research Workflow", type="run") as research_step:
-            research_step.input = f"Researching: {research_question}"
+        async with cl.Step(name="🔬 Deep Research Pipeline", type="run") as research_step:
+            research_step.input = f"Researching: {last_user_topic[:200]}"
 
             # Show phase progress
-            for i, phase in enumerate(phases[:3 if research_depth == "quick" else len(phases)]):
+            for phase in phases:
                 await msg.stream_token(f"- {phase}...\n")
 
-            # Execute research
-            report = await run_research_workflow(
-                question=research_question,
-                user_context=recent_context[:500],
+            await msg.stream_token("\n")
+
+            # Execute the LangGraph pipeline
+            result = await run_deep_research(
+                query=last_user_topic,
+                conversation_history=history,
                 bot_id=chat_profile,
                 depth=research_depth,
             )
 
-            research_step.output = f"Found {len(report.findings)} findings from {report.sources_evaluated} sources"
+            research_step.output = (
+                f"Found {len(result.get('findings', []))} findings from "
+                f"{len(result.get('sources', []))} sources in "
+                f"{result.get('iterations', 1)} round(s)"
+            )
 
-        # Format and display results
+        # Display synthesis (the main output from Gemini)
         await msg.stream_token("\n---\n\n")
 
-        # Show synthesis first (most important)
-        if report.synthesis:
-            await msg.stream_token(f"### 💡 Key Insights\n\n{report.synthesis}\n\n")
+        synthesis = result.get("synthesis", "")
+        if synthesis:
+            await msg.stream_token(synthesis)
+            await msg.stream_token("\n\n")
 
-        # Show top findings with RICH CONTEXT explaining WHY each source is relevant
-        if report.findings:
-            await msg.stream_token(f"### 📚 Research Findings ({len(report.findings)} sources)\n\n")
-            for i, finding in enumerate(report.findings[:5], 1):
-                confidence_icon = {"high": "🟢", "medium": "🟡", "low": "🟠"}.get(finding.confidence, "⚪")
-                source_url = finding.sources[0] if finding.sources else ""
-
-                # Full finding with paragraph context
-                await msg.stream_token(f"#### {i}. {confidence_icon} {finding.category.title() if finding.category else 'Finding'}\n\n")
-
-                # Show the full finding (not truncated)
-                await msg.stream_token(f"{finding.fact}\n\n")
-
-                # Explain WHY this is relevant using pws_relevance
-                if finding.pws_relevance:
-                    await msg.stream_token(f"**Why this matters:** {finding.pws_relevance}\n\n")
-
-                # Confidence explanation
-                confidence_reason = {
-                    "high": "Multiple sources confirm this finding",
-                    "medium": "Some supporting evidence available",
-                    "low": "Limited sources - verify independently"
-                }.get(finding.confidence, "")
-                if confidence_reason:
-                    await msg.stream_token(f"*Confidence: {finding.confidence} — {confidence_reason}*\n")
-
-                # Source link
-                if source_url:
-                    await msg.stream_token(f"📎 [View Source]({source_url})\n")
-                await msg.stream_token("\n---\n\n")
-
-        # PWS Implications
-        if report.pws_implications:
-            await msg.stream_token(f"### 🎯 PWS Implications\n\n{report.pws_implications}\n\n")
-
-        # Recommended actions
-        if report.recommended_actions:
-            await msg.stream_token("### ✅ Recommended Next Steps\n\n")
-            for action in report.recommended_actions[:3]:
-                await msg.stream_token(f"- {action}\n")
+        # Show evidence gaps if any remain
+        evidence_gaps = result.get("evidence_gaps", [])
+        if evidence_gaps:
+            await msg.stream_token("### ❓ Remaining Questions\n\n")
+            for gap in evidence_gaps[:3]:
+                await msg.stream_token(f"- {gap}\n")
             await msg.stream_token("\n")
 
-        # Evidence gaps (questions to explore)
-        if report.evidence_gaps:
-            await msg.stream_token("### ❓ Questions to Explore\n\n")
-            for gap in report.evidence_gaps[:3]:
-                await msg.stream_token(f"- {gap}\n")
-
-        # Metadata
-        metadata = report.metadata
-        await msg.stream_token(f"\n---\n*{report.queries_executed} queries | ")
-        await msg.stream_token(f"{metadata.get('primary_sources', 0)} primary sources | ")
-        await msg.stream_token(f"{metadata.get('secondary_sources', 0)} secondary sources*\n")
+        # Cost summary in collapsed step
+        cost = result.get("cost_summary", {})
+        if cost and cost.get("total", 0) > 0:
+            async with cl.Step(name="💰 Cost Summary", type="tool") as cost_step:
+                cost_step.output = (
+                    f"Claude: ${cost.get('claude', 0):.4f} | "
+                    f"Tavily: ${cost.get('tavily', 0):.4f} | "
+                    f"Gemini: ${cost.get('gemini', 0):.4f} | "
+                    f"**Total: ${cost.get('total', 0):.4f}** | "
+                    f"Iterations: {result.get('iterations', 1)}"
+                )
 
     except Exception as e:
-        print(f"[RESEARCH] Orchestrator error: {e}")
+        print(f"[RESEARCH] Pipeline error: {e}")
         import traceback
         traceback.print_exc()
 
         # Fallback to simple search
-        await msg.stream_token(f"\n⚠️ Advanced research failed, using simple search...\n\n")
+        await msg.stream_token(f"\n⚠️ Research pipeline failed, using simple search...\n\n")
         from tools.tavily_search import search_web
 
         try:
-            results = search_web(research_question, search_depth=search_depth, max_results=8)
+            results = search_web(last_user_topic, search_depth=search_depth, max_results=8)
             sources = results.get("results", [])
 
             if sources:
@@ -10844,9 +10931,8 @@ async def _research_sources_first(recent_context: str, bot_name: str, search_dep
         except Exception as e2:
             await msg.stream_token(f"Search failed: {e2}")
 
-    # Add action buttons - include core buttons so user can continue
+    # Add action buttons
     msg.actions = get_core_action_buttons(include_example=True)
-    # Add deep analyze as extra option
     msg.actions.insert(0, cl.Action(
         name="deep_research_full",
         payload={"action": "deep_research_full"},
@@ -10856,7 +10942,7 @@ async def _research_sources_first(recent_context: str, bot_name: str, search_dep
     await msg.update()
 
     # Inject into history
-    history.append({"role": "model", "content": f"[Research completed for: {research_question}]"})
+    history.append({"role": "model", "content": f"[Research completed for: {last_user_topic[:200]}]"})
     cl.user_session.set("history", history)
 
 
@@ -10899,11 +10985,11 @@ async def on_deep_research(action: cl.Action):
         search_depth = settings.get("research_depth", "basic")
         is_simple = bot.get("simple_mode", False)
 
-        # Build context from recent conversation
+        # Build context from recent conversation - use more context for accuracy
         recent_context = ""
-        for msg in history[-8:]:
+        for msg in history[-10:]:
             role = msg.get("role", "user")
-            content = msg.get("content", "")[:600]
+            content = msg.get("content", "")[:800]
             recent_context += f"{role}: {content}\n"
 
         # ─── Sources-First Mode (ALL bots) ───

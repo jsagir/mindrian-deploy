@@ -1,6 +1,6 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-09 22:01*
+*Auto-generated: 2026-02-09 23:29*
 
 ---
 
@@ -477,15 +477,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** - Use AbortController for proper fetch timeout (2s)
-
-### 🐛 fix: Update stale Supabase anon key + add env-based config injection
-
-- **Commit:** `47130a8b`
-- **Author:** jsagir
-- **Files changed:** 6
-  - mindrian_chat.py
-  - public/login.html
-  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-- **Details:** CRITICAL FIX: Login page was stuck on "Checking session..." because

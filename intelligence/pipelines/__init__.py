@@ -102,6 +102,13 @@ from .genesis import (
     DOMAIN_PATTERNS,
 )
 
+from .research_pipeline import (
+    DeepResearchState,
+    create_research_pipeline,
+    run_deep_research,
+    quick_pipeline_research,
+)
+
 __all__ = [
     # Minto Pyramid (deep_research_full)
     "MintoPyramidState",
@@ -162,4 +169,9 @@ __all__ = [
     "run_expert_panel",
     "synthesize_breakthroughs",
     "DOMAIN_PATTERNS",
+    # Deep Research Pipeline (Claude Plans, Tavily Searches, Gemini Synthesizes)
+    "DeepResearchState",
+    "create_research_pipeline",
+    "run_deep_research",
+    "quick_pipeline_research",
 ]

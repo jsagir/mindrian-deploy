@@ -174,16 +174,32 @@ async def run_research_agent(
         print(result["output"])
     """
     if not LANGCHAIN_AVAILABLE:
-        # Fallback to basic search
-        from tools.tavily_search import search_web
-        results = search_web(query, search_depth="advanced", max_results=5)
-        return {
-            "output": f"Basic search results for: {query}\n\n" +
-                      "\n".join([f"- {r.get('title')}: {r.get('content', '')[:200]}"
-                                for r in results.get("results", [])]),
-            "intermediate_steps": [],
-            "tools_used": ["search_web (fallback)"]
-        }
+        # Fallback to quick pipeline research (Claude-planned queries)
+        try:
+            from intelligence.pipelines.research_pipeline import quick_pipeline_research
+            import asyncio
+            result = await quick_pipeline_research(query, max_results=5)
+            sources = result.get("sources", [])
+            return {
+                "output": f"Research results for: {query}\n\n" +
+                          (result.get("answer", "") + "\n\n" if result.get("answer") else "") +
+                          "\n".join([f"- {r.get('title')}: {r.get('content', '')[:200]}"
+                                    for r in sources]),
+                "intermediate_steps": [],
+                "tools_used": ["quick_pipeline_research (fallback)"],
+                "queries_planned": result.get("planned_queries", []),
+            }
+        except Exception:
+            # Ultimate fallback to raw search
+            from tools.tavily_search import search_web
+            results = search_web(query, search_depth="advanced", max_results=5)
+            return {
+                "output": f"Basic search results for: {query}\n\n" +
+                          "\n".join([f"- {r.get('title')}: {r.get('content', '')[:200]}"
+                                    for r in results.get("results", [])]),
+                "intermediate_steps": [],
+                "tools_used": ["search_web (fallback)"]
+            }
 
     try:
         # Create agent

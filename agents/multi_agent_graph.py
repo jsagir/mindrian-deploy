@@ -635,83 +635,64 @@ class ResearchAgent(BackgroundAgent):
         )
 
     async def run(self, query: str, context: dict = None) -> dict:
-        """Execute research workflow."""
-        from tools.tavily_search import search_web
-
-        # Step 1: Plan research queries
-        planning_prompt = f"""Create 3 specific search queries to research this topic:
-{query}
-
-Format as:
-1. [query]
-2. [query]
-3. [query]"""
-
+        """Execute research workflow via quick_pipeline_research (Claude plans queries)."""
         try:
-            plan_response = client.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=planning_prompt,
-                config=types.GenerateContentConfig(temperature=0.3, max_output_tokens=200)
-            )
+            from intelligence.pipelines.research_pipeline import quick_pipeline_research
 
-            # Extract queries
-            queries = []
-            for line in plan_response.text.split('\n'):
-                line = line.strip()
-                if line and line[0].isdigit():
-                    query_text = line.split('.', 1)[-1].strip().strip('[]')
-                    if len(query_text) > 10:
-                        queries.append(query_text)
+            result = await quick_pipeline_research(query, max_results=3)
 
-            if not queries:
-                queries = [query]  # Fallback to original query
+            sources = []
+            for f in result.get("findings", []):
+                sources.append({
+                    "title": f.get("title", ""),
+                    "url": f.get("url", ""),
+                    "content": f.get("content", "")[:200],
+                })
 
-            # Step 2: Execute searches
-            all_results = []
-            for q in queries[:3]:
-                result = search_web(q, search_depth="advanced", max_results=3)
-                if result.get("results"):
-                    all_results.append({
-                        "query": q,
-                        "results": result["results"],
-                        "answer": result.get("answer", "")
-                    })
+            answer = result.get("answer", "")
+            planned = result.get("planned_queries", [])
 
-            # Step 3: Synthesize findings
-            if all_results:
-                findings = []
-                sources = []
-                for item in all_results:
-                    if item.get("answer"):
-                        findings.append(f"**{item['query']}:** {item['answer']}")
-                    for r in item.get("results", []):
-                        sources.append({
-                            "title": r.get("title", ""),
-                            "url": r.get("url", ""),
-                            "content": r.get("content", "")[:200]
-                        })
+            # Format findings text
+            findings_parts = []
+            if answer:
+                findings_parts.append(answer)
+            for f in result.get("findings", [])[:5]:
+                if f.get("title") and f.get("content"):
+                    findings_parts.append(f"**{f['title']}:** {f['content'][:200]}")
 
-                return {
-                    "success": True,
-                    "findings": "\n\n".join(findings),
-                    "sources": sources[:10],
-                    "queries_executed": len(all_results)
-                }
-            else:
-                return {
-                    "success": False,
-                    "error": "No results found",
-                    "findings": "",
-                    "sources": []
-                }
+            return {
+                "success": True,
+                "findings": "\n\n".join(findings_parts) if findings_parts else "",
+                "sources": sources[:10],
+                "queries_executed": result.get("queries_executed", 0),
+                "queries_planned": planned,
+            }
 
         except Exception as e:
-            return {
-                "success": False,
-                "error": str(e),
-                "findings": "",
-                "sources": []
-            }
+            # Fallback to raw Tavily search
+            try:
+                from tools.tavily_search import search_web
+                result = search_web(query, search_depth="advanced", max_results=3)
+                sources = []
+                for r in result.get("results", []):
+                    sources.append({
+                        "title": r.get("title", ""),
+                        "url": r.get("url", ""),
+                        "content": r.get("content", "")[:200],
+                    })
+                return {
+                    "success": bool(sources),
+                    "findings": result.get("answer", ""),
+                    "sources": sources,
+                    "queries_executed": 1,
+                }
+            except Exception as e2:
+                return {
+                    "success": False,
+                    "error": str(e2),
+                    "findings": "",
+                    "sources": [],
+                }
 
 
 class ValidationAgent(BackgroundAgent):
