@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-10 14:11*
+*Auto-generated: 2026-02-10 14:44*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,17 +13,17 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-10 | 2 |
+| 2026-02-10 | 3 |
 | 2026-02-09 | 19 |
 | 2026-02-08 | 20 |
-| 2026-02-06 | 9 |
+| 2026-02-06 | 8 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
 | `mindrian_chat.py` | 8 |
-| `tools/quick_lecture.py` | 3 |
+| `tools/quick_lecture.py` | 4 |
 
 ---
 
@@ -31,13 +31,64 @@
 
 ### 2026-02-10
 
+#### ✨ feat: Add creative leaps, convergence, background ERIC, resume fix, and updated READMEs
+
+- **Hash:** `81faad9c31d70d902c5efeb453dd0b0e3e74daf5`
+- **Short:** `81faad9c`
+- **Parent:** `628f3db3`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-10 14:44:20
+- **Risk:** high
+- **Diff:** +2605 / -1333
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `CLAUDE.md` | 4 | 0 |
+  | `README.md` | 209 | 205 |
+  | `backups/filesearch/store_manifest.json` | 1 | 1 |
+  | `chainlit.md` | 122 | 17 |
+  | `docs/DEMO_PWS_NAVIGATOR.md` | 155 | 0 |
+  | `mindrian_chat.py` | 130 | 3 |
+  | `prompts/larry_core.py` | 3 | 0 |
+  | `scripts/background_eric.py` | 431 | 0 |
+  | `scripts/generate_agent.py` | 13 | 0 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 56 | 35 |
+
+  **File Operations:**
+  - ✏️ Modified: `CLAUDE.md`
+  - ✏️ Modified: `README.md`
+  - ✏️ Modified: `backups/filesearch/store_manifest.json`
+  - ✏️ Modified: `chainlit.md`
+  - ➕ Added: `docs/DEMO_PWS_NAVIGATOR.md`
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `prompts/larry_core.py`
+  - ➕ Added: `scripts/background_eric.py`
+  - ✏️ Modified: `scripts/generate_agent.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `tools/graphrag_lite.py`
+  - ✏️ Modified: `tools/opportunity_bank_lightrag.py`
+  - ➕ Added: `tools/pws_navigator.py`
+  - ✏️ Modified: `tools/quick_lecture.py`
+  - ✏️ Modified: `tools/research_orchestrator.py`
+  - ✏️ Modified: `tools/smart_phase_tracker.py`
+  - ✏️ Modified: `tools/user_lazygraph.py`
+  - ✏️ Modified: `utils/data_layer.py`
+
+- **Body:** - Creative leaps auto-injection every 4th turn via Neo4j cross-domain sparks
+
+
 #### ✨ feat: Add 4 new skills, ERIC orchestration R&D, and v4 plan files
 
 - **Hash:** `628f3db3c5753b29735646e16a972dc565041cb8`
 - **Short:** `628f3db3`
 - **Parent:** `32e86d7c`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-10 14:11:17
 - **Risk:** high
@@ -88,7 +139,6 @@
 - **Short:** `32e86d7c`
 - **Parent:** `40b52641`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-10 13:02:43
 - **Risk:** high
@@ -1596,33 +1646,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** The auth state listener was being registered unconditionally, which
-
-
-#### 🐛 fix: Simplify login page - remove config fetch, use direct initialization
-
-- **Hash:** `4d144d94961720b0c2f6c778bd0101192e4d5bb3`
-- **Short:** `4d144d94`
-- **Parent:** `e4e69043`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-06 12:26:24
-- **Risk:** medium
-- **Diff:** +94 / -121
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `public/login.html` | 20 | 59 |
-  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 35 | 35 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 13 |
-
-  **File Operations:**
-  - ✏️ Modified: `public/login.html`
-  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** - Remove async config fetch (was causing issues with Chainlit routing)
 
