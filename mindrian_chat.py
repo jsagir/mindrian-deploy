@@ -3880,15 +3880,11 @@ async def start():
             cl.user_session.set("phases", [p.copy() for p in preserved_phases])
             cl.user_session.set("current_phase", preserved_current_phase)
     else:
-        # Fresh start OR server restart with persisted context
-        cl.user_session.set("history", preserved_history.copy() if preserved_history else [])
+        # Fresh start — do NOT load old history into new conversations
+        # Server restart resume is handled by on_chat_resume, not here
+        cl.user_session.set("history", [])
         cl.user_session.set("previous_bot", None)
         cl.user_session.set("context_handoff", None)
-
-        # Restore phases if we have them from persistence (server restart case)
-        if preserved_phases and preserved_context.get("last_bot_id") == chat_profile:
-            cl.user_session.set("phases", [p.copy() for p in preserved_phases])
-            cl.user_session.set("current_phase", preserved_current_phase)
 
     cl.user_session.set("bot", bot)
     cl.user_session.set("bot_id", chat_profile or "lawrence")
@@ -5182,27 +5178,30 @@ async def run_multi_agent_with_type(analysis_type: str):
 
 @cl.action_callback("clear_context")
 async def on_clear_context(action: cl.Action):
-    """Clear preserved context and start fresh."""
+    """Clear ALL preserved context and start completely fresh."""
     from utils.context_persistence import clear_cross_bot_context
 
     context_key = get_context_key()
 
-    # Clear the stored context (in-memory)
+    # Clear in-memory context
     if context_key in context_store:
         del context_store[context_key]
 
     # Clear from persistent storage (Supabase)
     await clear_cross_bot_context(context_key)
 
-    # Clear session history
+    # Clear ALL session state that could carry old context
     cl.user_session.set("history", [])
     cl.user_session.set("previous_bot", None)
     cl.user_session.set("context_handoff", None)
+    cl.user_session.set("excluded_topics", [])
+    cl.user_session.set("turn_count", 0)
 
     bot = cl.user_session.get("bot", BOTS["lawrence"])
+    bot_name = bot.get("name", "Larry")
 
     await cl.Message(
-        content=f"**Context cleared.** Starting fresh with {bot.get('name', 'Larry')}.\n\n{bot.get('welcome', 'How can I help?')}"
+        content=f"**Context cleared.** Fresh start with {bot_name}. What's on your mind?"
     ).send()
 
 
@@ -8472,7 +8471,25 @@ async def on_show_example(action: cl.Action):
             config=types.GenerateContentConfig(temperature=0.7, max_output_tokens=1200),
         )
 
-        if response.text and len(response.text.strip()) > 30:
+        example_text = (response.text or "").strip()
+
+        # If synthesis is too short (truncated/incomplete), retry with simpler prompt
+        if example_text and len(example_text) < 200:
+            retry_response = client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=(
+                    f"Write a complete 150-250 word paragraph about a real-world example "
+                    f"related to: {recent_context[:300]}\n\n"
+                    f"Include: specific names, dates, outcomes. "
+                    f"Format: **Title (Year)**: Full story paragraph. "
+                    f"Do NOT stop mid-sentence."
+                ),
+                config=types.GenerateContentConfig(temperature=0.7, max_output_tokens=1500),
+            )
+            if retry_response.text and len(retry_response.text.strip()) > len(example_text):
+                example_text = retry_response.text.strip()
+
+        if example_text and len(example_text) > 30:
             # Source attribution with clickable links
             sources_used = []
             if graph_hint:
@@ -8498,13 +8515,13 @@ async def on_show_example(action: cl.Action):
                 if links:
                     source_links = "\n\n**📚 Sources:**\n" + "\n".join(links)
 
-            await msg.stream_token(response.text.strip() + source_note + source_links)
+            await msg.stream_token(example_text + source_note + source_links)
             # Add core action buttons so user can continue
             msg.actions = get_core_action_buttons(include_example=True)
             await msg.update()
 
             # Inject into history so the bot can reference it
-            history.append({"role": "model", "content": f"[Example shown]\n{response.text.strip()}"})
+            history.append({"role": "model", "content": f"[Example shown]\n{example_text}"})
             cl.user_session.set("history", history)
             return
 
