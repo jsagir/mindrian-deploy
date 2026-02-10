@@ -50,7 +50,9 @@ class CostTracker:
     PRICING = {
         # Claude models
         "claude-opus-4-5-20250514": {"input": 0.015, "output": 0.075},
+        "claude-sonnet-4-5-20250929": {"input": 0.003, "output": 0.015},
         "claude-sonnet-4-20250514": {"input": 0.003, "output": 0.015},
+        "claude-haiku-4-5-20251001": {"input": 0.0008, "output": 0.004},
         "claude-haiku-3-5-20250514": {"input": 0.0008, "output": 0.004},
 
         # Gemini models
@@ -277,7 +279,7 @@ class LLMRouter:
 
     # Model selection
     ORCHESTRATION_MODEL = "claude-opus-4-5-20250514"
-    ROUTING_MODEL = "claude-sonnet-4-20250514"
+    ROUTING_MODEL = "claude-sonnet-4-5-20250929"
     BULK_MODEL = "gemini-2.5-flash"
 
     @staticmethod

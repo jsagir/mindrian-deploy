@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-10 15:54*
+*Auto-generated: 2026-02-10 16:01*
 
 ---
 
 ## 2026-02-10
+
+### ✨ feat: Upgrade Larry prompt v2.1 — intelligent pedagogical arc
+
+- **Commit:** `eb23e56a`
+- **Author:** jsagir
+- **Files changed:** 5
+  - prompts/larry_core.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Transform the one-liner pedagogical arc into an intelligent conversational
 
 ### ✨ feat: Add invisible agent routing, Larry v2.0 unified prompt, and research error fix
 
@@ -390,17 +402,3 @@
   - protocols/__init__.py
   - protocols/auto_orchestrator.py
 - **Details:** Wave 2 - Conversation Forking:
-
-## 2026-02-06
-
-### ✨ feat: Add /api/health endpoint for debugging
-
-- **Commit:** `e50607aa`
-- **Author:** jsagir
-- **Files changed:** 5
-  - mindrian_chat.py
-  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** Shows database connection status, env var configuration.

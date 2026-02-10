@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-10 15:54*
+*Auto-generated: 2026-02-10 16:01*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,16 +13,16 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-10 | 10 |
+| 2026-02-10 | 11 |
 | 2026-02-09 | 19 |
 | 2026-02-08 | 20 |
-| 2026-02-06 | 1 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 5 |
+| `mindrian_chat.py` | 4 |
+| `prompts/larry_core.py` | 3 |
 
 ---
 
@@ -30,13 +30,43 @@
 
 ### 2026-02-10
 
+#### ✨ feat: Upgrade Larry prompt v2.1 — intelligent pedagogical arc
+
+- **Hash:** `eb23e56a888f89e7cd6053da042ccdbe9964a752`
+- **Short:** `eb23e56a`
+- **Parent:** `53f9058b`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-10 16:01:00
+- **Risk:** high
+- **Diff:** +141 / -88
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `prompts/larry_core.py` | 64 | 27 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 38 | 34 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 1 |
+
+  **File Operations:**
+  - ✏️ Modified: `prompts/larry_core.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** Transform the one-liner pedagogical arc into an intelligent conversational
+
+
 #### ✨ feat: Add invisible agent routing, Larry v2.0 unified prompt, and research error fix
 
 - **Hash:** `53f9058b7639c42ea49e7de844f0fad8188ca04d`
 - **Short:** `53f9058b`
 - **Parent:** `2837fdc8`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-10 15:54:45
 - **Risk:** high
@@ -70,7 +100,6 @@
 - **Short:** `2837fdc8`
 - **Parent:** `14f80253`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-10 15:26:16
 - **Risk:** medium
@@ -1596,35 +1625,4 @@
   - ➕ Added: `utils/forking_utils.py`
 
 - **Body:** Wave 2 - Conversation Forking:
-
-
-### 2026-02-06
-
-#### ✨ feat: Add /api/health endpoint for debugging
-
-- **Hash:** `e50607aa33e07cf6883e5a08d57db3f1677b76ac`
-- **Short:** `e50607aa`
-- **Parent:** `0fd72710`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-06 16:05:51
-- **Risk:** high
-- **Diff:** +99 / -58
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `mindrian_chat.py` | 37 | 0 |
-  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 35 | 33 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 12 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 12 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 1 |
-
-  **File Operations:**
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** Shows database connection status, env var configuration.
 

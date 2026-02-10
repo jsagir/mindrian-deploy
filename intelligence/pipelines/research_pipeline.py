@@ -154,7 +154,7 @@ async def plan_node(state: DeepResearchState) -> dict:
         start = time.time()
 
         response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-sonnet-4-5-20250929",
             max_tokens=800,
             temperature=0.2,
             system="You are a research strategist. Return only valid JSON.",
@@ -163,7 +163,7 @@ async def plan_node(state: DeepResearchState) -> dict:
 
         latency = int((time.time() - start) * 1000)
         cost = cost_tracker.record_call(
-            model="claude-sonnet-4-20250514",
+            model="claude-sonnet-4-5-20250929",
             provider="anthropic",
             task_type="research_planning",
             input_tokens=response.usage.input_tokens,
@@ -460,7 +460,7 @@ async def reflect_node(state: DeepResearchState) -> dict:
         start = time.time()
 
         response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-sonnet-4-5-20250929",
             max_tokens=600,
             temperature=0.2,
             system="You are a research quality reviewer. Return only valid JSON.",
@@ -469,7 +469,7 @@ async def reflect_node(state: DeepResearchState) -> dict:
 
         latency = int((time.time() - start) * 1000)
         cost = cost_tracker.record_call(
-            model="claude-sonnet-4-20250514",
+            model="claude-sonnet-4-5-20250929",
             provider="anthropic",
             task_type="research_reflection",
             input_tokens=response.usage.input_tokens,
@@ -921,7 +921,7 @@ async def quick_pipeline_research(
         start = time.time()
 
         response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-sonnet-4-5-20250929",
             max_tokens=400,
             temperature=0.2,
             system="You are a search strategist. Return only valid JSON.",
@@ -935,7 +935,7 @@ async def quick_pipeline_research(
 
         latency = int((time.time() - start) * 1000)
         cost = cost_tracker.record_call(
-            model="claude-sonnet-4-20250514",
+            model="claude-sonnet-4-5-20250929",
             provider="anthropic",
             task_type="quick_research_planning",
             input_tokens=response.usage.input_tokens,
