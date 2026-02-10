@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-09 23:29*
+*Auto-generated: 2026-02-10 13:02*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,20 +13,64 @@
 
 | Date | Commits |
 |------|---------|
+| 2026-02-10 | 1 |
 | 2026-02-09 | 19 |
 | 2026-02-08 | 20 |
-| 2026-02-06 | 11 |
+| 2026-02-06 | 10 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 8 |
+| `mindrian_chat.py` | 9 |
 | `tools/quick_lecture.py` | 3 |
 
 ---
 
 ## Enriched Commit Log
+
+### 2026-02-10
+
+#### ✨ feat: Add LangGraph deep research pipeline — Claude plans, Tavily searches, Gemini synthesizes
+
+- **Hash:** `32e86d7c74ba835d6fcc6e8ccd73f5ffad5ab0ef`
+- **Short:** `32e86d7c`
+- **Parent:** `40b52641`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-10 13:02:43
+- **Risk:** high
+- **Diff:** +1583 / -304
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `agents/multi_agent_graph.py` | 46 | 65 |
+  | `intelligence/agents/research_agent.py` | 26 | 10 |
+  | `intelligence/pipelines/__init__.py` | 12 | 0 |
+  | `intelligence/pipelines/minto_pyramid.py` | 15 | 17 |
+  | `intelligence/pipelines/research_pipeline.py` | 1200 | 0 |
+  | `intelligence/pipelines/reverse_salient.py` | 6 | 7 |
+  | `mindrian_chat.py` | 215 | 129 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 36 | 37 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 13 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
+
+  **File Operations:**
+  - ✏️ Modified: `agents/multi_agent_graph.py`
+  - ✏️ Modified: `intelligence/agents/research_agent.py`
+  - ✏️ Modified: `intelligence/pipelines/__init__.py`
+  - ✏️ Modified: `intelligence/pipelines/minto_pyramid.py`
+  - ➕ Added: `intelligence/pipelines/research_pipeline.py`
+  - ✏️ Modified: `intelligence/pipelines/reverse_salient.py`
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** Replace the Gemini-only research orchestrator with a proper LangGraph StateGraph
+
 
 ### 2026-02-09
 
@@ -36,7 +80,7 @@
 - **Short:** `40b52641`
 - **Parent:** `99c6262e`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 23:29:39
 - **Risk:** high
@@ -103,7 +147,6 @@
 - **Short:** `2e6b7a27`
 - **Parent:** `41bc8cdd`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-09 14:55:21
 - **Risk:** medium
@@ -1561,37 +1604,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** - Use AbortController for proper fetch timeout (2s)
-
-
-#### ✨ feat: Implement AGENTS.md patterns for PWS Consultant
-
-- **Hash:** `771a4648a21078518bea44aecdd08242a0e0a9d6`
-- **Short:** `771a4648`
-- **Parent:** `47130a8b`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-06 09:53:59
-- **Risk:** high
-- **Diff:** +970 / -74
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `mindrian_chat.py` | 275 | 0 |
-  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 37 | 35 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 13 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 13 |
-  | `utils/pws_state.py` | 220 | 0 |
-  | `utils/pws_validation.py` | 399 | 0 |
-
-  **File Operations:**
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `utils/pws_state.py`
-  - ➕ Added: `utils/pws_validation.py`
-
-- **Body:** Complete implementation of A2A architecture patterns for the PWS Consultant:
 

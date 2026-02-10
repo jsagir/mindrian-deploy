@@ -187,6 +187,67 @@ This skill coordinates with:
 - `qa-consultant` - For quality assurance pipelines
 - `rnd-consultant` - For Architecture Review workflows
 - `mindrian-stack` - For technical stack decisions
+- `eric-orchestrator` - For multi-step plan orchestration (outer loop)
+- `research-pipeline` - For deep research with Claude plans + Tavily searches
+- `platform-scout` - For evaluating alternative frontends/MCP shells
+- `conversation-reviewer` - For extracting action items from meetings/testing
+
+## ERIC Loop Integration (Outer-Loop Orchestration)
+
+The Swarm Orchestrator can operate as the **inner loop** within the ERIC (Execute, Review, Iterate, Commit) orchestration pattern. ERIC drives numbered plan files through AI harnesses, while the Swarm coordinates agents for each step.
+
+### Architecture
+
+```
+eric.sh (outer loop — drives plan files sequentially)
+  │
+  ├── Step 1 plan file
+  │   └── Swarm Orchestrator (inner loop)
+  │       ├── commit-expert → validates changes
+  │       ├── qa-consultant → runs quality gate
+  │       ├── research-pipeline → gathers evidence
+  │       └── mindrian-stack → provides tech context
+  │
+  ├── Step 2 plan file
+  │   └── Swarm Orchestrator
+  │       └── ... (agent mix varies per step)
+  │
+  └── Review Phase
+      └── Swarm Orchestrator (Full Swarm for comprehensive review)
+```
+
+### Skill Roles in ERIC Loop
+
+| Skill | ERIC Role | Phase |
+|-------|-----------|-------|
+| **swarm-orchestrator** | Step coordinator — selects agents per step | Every step |
+| **commit-expert** | Change validator — reviews diffs | After each step |
+| **qa-consultant** | Quality gate — runs verification | Validation phase |
+| **rnd-consultant** | Progress tracker — tracks R&D impact | Before/after |
+| **mindrian-stack** | Tech reference — provides stack context | During execution |
+| **research-pipeline** | Evidence gatherer — searches when needed | When step needs data |
+| **pws-consultant** | Problem framing — for methodology changes | User-facing steps |
+| **neo4j-writer** | Knowledge storage — stores patterns | After implementation |
+| **chainlit-consultant** | UI validation — for frontend steps | UI-related steps |
+
+### Usage
+
+```bash
+# Run ERIC loop with Claude, Swarm as inner coordinator
+./R&D/26_eric_orchestration/eric.sh plans/mindrian-v4 \
+  -H claude \
+  --validation-cmd "python3 scripts/health_check.py" \
+  --review-harness claude \
+  --project-name "Mindrian v4"
+```
+
+### Key Insight
+ERIC handles the **what** (sequencing, git, state, validation), while the Swarm handles the **how** (agent selection, execution strategy, synthesis). This separation means:
+- Plan files define the work
+- eric.sh ensures steps complete and commit
+- Swarm ensures each step gets the right agent expertise
+
+See `R&D/26_eric_orchestration/README.md` for full documentation.
 
 ## Anti-Patterns
 
@@ -195,9 +256,11 @@ This skill coordinates with:
 - Skip research for unknown domains (agents hallucinate)
 - Ignore Red Team dissent (that's the point)
 - Mix unrelated agents (JTBD + S-Curve for a bug fix)
+- Use ERIC for single-step tasks (just use Swarm directly)
 
 **Do:**
 - Match strategy to query type
 - Let router pick when unsure
 - Include Red Team for decisions
 - Start quick, escalate if needed
+- Use ERIC for multi-step features that need git commits between steps

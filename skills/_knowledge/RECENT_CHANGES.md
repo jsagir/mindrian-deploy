@@ -1,8 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-09 23:29*
+*Auto-generated: 2026-02-10 13:02*
 
 ---
+
+## 2026-02-10
+
+### ✨ feat: Add LangGraph deep research pipeline — Claude plans, Tavily searches, Gemini synthesizes
+
+- **Commit:** `32e86d7c`
+- **Author:** jsagir
+- **Files changed:** 11
+  - agents/multi_agent_graph.py
+  - intelligence/agents/research_agent.py
+  - intelligence/pipelines/__init__.py
+  - intelligence/pipelines/minto_pyramid.py
+  - intelligence/pipelines/research_pipeline.py
+- **Details:** Replace the Gemini-only research orchestrator with a proper LangGraph StateGraph
 
 ## 2026-02-09
 
@@ -597,15 +611,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** - Use AbortController for proper fetch timeout (2s)
-
-### ✨ feat: Implement AGENTS.md patterns for PWS Consultant
-
-- **Commit:** `771a4648`
-- **Author:** jsagir
-- **Files changed:** 7
-  - mindrian_chat.py
-  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** Complete implementation of A2A architecture patterns for the PWS Consultant:
