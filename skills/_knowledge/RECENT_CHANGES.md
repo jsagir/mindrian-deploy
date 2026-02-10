@@ -6,6 +6,17 @@
 
 ## 2026-02-10
 
+### 🔧 chore: Update skill knowledge base after commit 81faad9
+
+- **Commit:** `e8e9f3de`
+- **Author:** jsagir
+- **Files changed:** 4
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
 ### ✨ feat: Add creative leaps, convergence, background ERIC, resume fix, and updated READMEs
 
 - **Commit:** `81faad9c`
@@ -599,15 +610,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** - Load Supabase SDK with async to prevent page blocking
-
-### 🐛 fix: Guard onAuthStateChange against null supabase client
-
-- **Commit:** `52269a0a`
-- **Author:** jsagir
-- **Files changed:** 5
-  - public/login.html
-  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** The auth state listener was being registered unconditionally, which
