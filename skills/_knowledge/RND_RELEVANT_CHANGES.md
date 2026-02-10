@@ -1,10 +1,19 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-10 14:44*
+*Auto-generated: 2026-02-10 14:56*
 
 ---
 
 ## 2026-02-10
+
+### 🐛 fix: Resolve 3 known issues — thread_id security, PgBouncer crash, graph write node
+
+- **Commit:** `35138915`
+- **Author:** jsagir
+- **Files changed:** 2
+  - intelligence/pipelines/research_pipeline.py
+  - memory/checkpointer.py
+- **Details:** 1. Fix shared "research_default" thread_id (P2 security):
 
 ### ✨ feat: Add creative leaps, convergence, background ERIC, resume fix, and updated READMEs
 
@@ -371,15 +380,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** Shows database connection status, env var configuration.
-
-### 🐛 fix: Add null checks to all auth handlers + improve SDK loading (v4)
-
-- **Commit:** `08043165`
-- **Author:** jsagir
-- **Files changed:** 5
-  - public/login.html
-  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** - Add requireSupabase() helper with user-friendly error message

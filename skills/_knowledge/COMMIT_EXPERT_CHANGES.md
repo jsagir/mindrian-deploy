@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-10 14:44*
+*Auto-generated: 2026-02-10 14:56*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,17 +13,17 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-10 | 4 |
+| 2026-02-10 | 6 |
 | 2026-02-09 | 19 |
 | 2026-02-08 | 20 |
-| 2026-02-06 | 7 |
+| 2026-02-06 | 5 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 8 |
-| `tools/quick_lecture.py` | 4 |
+| `mindrian_chat.py` | 6 |
+| `tools/quick_lecture.py` | 3 |
 
 ---
 
@@ -31,13 +31,61 @@
 
 ### 2026-02-10
 
+#### 🐛 fix: Resolve 3 known issues — thread_id security, PgBouncer crash, graph write node
+
+- **Hash:** `35138915dfa9ae7414375a68eac6e725508dc148`
+- **Short:** `35138915`
+- **Parent:** `e82cb192`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-10 14:55:59
+- **Risk:** medium
+- **Diff:** +60 / -13
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `intelligence/pipelines/research_pipeline.py` | 54 | 12 |
+  | `memory/checkpointer.py` | 6 | 1 |
+
+  **File Operations:**
+  - ✏️ Modified: `intelligence/pipelines/research_pipeline.py`
+  - ✏️ Modified: `memory/checkpointer.py`
+
+- **Body:** 1. Fix shared "research_default" thread_id (P2 security):
+
+
+#### 🔧 chore: Update skill knowledge base after commit e8e9f3d
+
+- **Hash:** `e82cb19222ec69103cb07e8a1373f588a11bd6c7`
+- **Short:** `e82cb192`
+- **Parent:** `e8e9f3de`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Author:** jsagir
+- **Date:** 2026-02-10 14:44:49
+- **Risk:** medium
+- **Diff:** +41 / -56
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 30 | 32 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 0 | 12 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 11 | 12 |
+
+  **File Operations:**
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+
+- **Body:** Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+
 #### 🔧 chore: Update skill knowledge base after commit 81faad9
 
 - **Hash:** `e8e9f3de19a7f877dcd5e590aaf42440a9edcd53`
 - **Short:** `e8e9f3de`
 - **Parent:** `81faad9c`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-10 14:44:37
 - **Risk:** medium
@@ -1586,62 +1634,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** The async loading was causing timing issues where window.supabase
-
-
-#### 🐛 fix: Add null checks to all auth handlers + improve SDK loading (v4)
-
-- **Hash:** `08043165576e29d68f0f401e69dd2597e6a3e1d4`
-- **Short:** `08043165`
-- **Parent:** `59435d56`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-06 15:00:55
-- **Risk:** medium
-- **Diff:** +113 / -56
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `public/login.html` | 51 | 15 |
-  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 35 | 29 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 10 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 1 |
-
-  **File Operations:**
-  - ✏️ Modified: `public/login.html`
-  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** - Add requireSupabase() helper with user-friendly error message
-
-
-#### 🐛 fix: Make Supabase script async + robust initialization
-
-- **Hash:** `59435d5600983cd1902f3087ab4c0ed494fa0088`
-- **Short:** `59435d56`
-- **Parent:** `52269a0a`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-06 12:46:16
-- **Risk:** medium
-- **Diff:** +127 / -69
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `public/login.html` | 65 | 23 |
-  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 35 | 27 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 9 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 9 |
-
-  **File Operations:**
-  - ✏️ Modified: `public/login.html`
-  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** - Load Supabase SDK with async to prevent page blocking
 
