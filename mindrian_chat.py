@@ -3934,6 +3934,11 @@ async def start():
     cl.user_session.set("show_branch_selector", False)
     cl.user_session.set("pending_merge", None)
 
+    # === Invisible Router: Initialize routing state ===
+    cl.user_session.set("mindrian_mode", "working")  # "working" = invisible routing, "classroom" = agent dropdown
+    cl.user_session.set("methodology_cooldowns", {})
+    cl.user_session.set("methodology_history", [])
+
     # === Wave 3: Idea Canvas - Initialize canvas state ===
     try:
         from tools.idea_canvas import init_canvas_state, load_canvas_state
@@ -11025,11 +11030,28 @@ async def _research_sources_first(recent_context: str, bot_name: str, search_dep
                 depth=research_depth,
             )
 
-            research_step.output = (
-                f"Found {len(result.get('findings', []))} findings from "
-                f"{len(result.get('sources', []))} sources in "
-                f"{result.get('iterations', 1)} round(s)"
-            )
+            # Check for pipeline errors before displaying results
+            if result.get("error"):
+                error_msg = result["error"]
+                print(f"[RESEARCH] Pipeline returned error: {error_msg}")
+                await msg.stream_token(f"\n⚠️ Research encountered an issue: {str(error_msg)[:200]}\n\n")
+                await msg.stream_token("Falling back to simple search...\n\n")
+                # Fallback to simple Tavily search
+                from tools.tavily_search import search_web
+                try:
+                    fallback = search_web(last_user_topic, search_depth=search_depth, max_results=8)
+                    for i, src in enumerate(fallback.get("results", [])[:5], 1):
+                        await msg.stream_token(f"**{i}. [{src.get('title', 'Untitled')}]({src.get('url', '')})**\n")
+                        await msg.stream_token(f"   {src.get('content', '')[:200]}...\n\n")
+                except Exception as fb_err:
+                    await msg.stream_token(f"Fallback search also failed: {fb_err}\n")
+                research_step.output = f"Error: {str(error_msg)[:100]}"
+            else:
+                research_step.output = (
+                    f"Found {len(result.get('findings', []))} findings from "
+                    f"{len(result.get('sources', []))} sources in "
+                    f"{result.get('iterations', 1)} round(s)"
+                )
 
         # Display synthesis (the main output from Gemini)
         await msg.stream_token("\n---\n\n")
@@ -13841,6 +13863,34 @@ Your insights help us improve Mindrian!"""
         language_enforcement = "\n\n[LANGUAGE RULE: ALWAYS respond in English regardless of user's browser locale or system settings. Never respond in Chinese, Japanese, or other languages unless explicitly requested.]\n"
         system_instruction = bot["system_prompt"] + language_enforcement
 
+        # === INVISIBLE ROUTING: Detect and inject methodology ===
+        routing_result = None
+        try:
+            from agents.invisible_router import route_and_inject
+            mindrian_mode = cl.user_session.get("mindrian_mode", "working")
+            turn_count = len(history) // 2
+            routing_result = await route_and_inject(
+                user_message=message.content,
+                conversation_history=history,
+                turn_count=turn_count,
+                base_bot_id=bot_id,
+                mode=mindrian_mode,
+                methodology_cooldowns=cl.user_session.get("methodology_cooldowns", {}),
+                methodology_history=cl.user_session.get("methodology_history", []),
+            )
+            # Inject methodology into system prompt
+            methodology_injection = routing_result.get("methodology_injection", "")
+            if methodology_injection:
+                system_instruction += f"\n\n{methodology_injection}\n"
+                print(f"[INVISIBLE_ROUTER] Injected: {routing_result.get('detected_methodology')} "
+                      f"(confidence: {routing_result.get('methodology_confidence', 0):.2f}, "
+                      f"latency: {routing_result.get('router_latency_ms', 0)}ms)")
+            # Persist routing state back to session
+            cl.user_session.set("methodology_cooldowns", routing_result.get("methodology_cooldowns", {}))
+            cl.user_session.set("methodology_history", routing_result.get("methodology_history", []))
+        except Exception as router_err:
+            print(f"[INVISIBLE_ROUTER] Error (non-fatal): {router_err}")
+
         # === QUICK MODE: Append speed-focused instructions ===
         quick_mode = cl.user_session.get("quick_mode", False)
         if quick_mode:
@@ -14150,6 +14200,29 @@ The user expects you to be responsive to what they JUST said, not to lecture fro
                         label="👥 Multi-Agent",
                         tooltip="Get perspectives from multiple PWS experts",
                     ))
+
+        # === INVISIBLE ROUTING: 3-tier attribution ===
+        if routing_result and routing_result.get("detected_methodology"):
+            confidence = routing_result.get("methodology_confidence", 0)
+            label = routing_result.get("methodology_label", "")
+            should_suggest = routing_result.get("should_suggest", False)
+
+            if should_suggest and label:
+                # Tier 3: Low confidence (<0.7) — show suggestion button
+                actions.append(cl.Action(
+                    name="accept_methodology_suggestion",
+                    payload={
+                        "methodology": routing_result["detected_methodology"],
+                        "label": label,
+                    },
+                    label=f"💡 Want me to try {label}?",
+                    tooltip=f"Apply {label} methodology to this conversation",
+                ))
+            elif confidence >= 0.7 and confidence < 0.85 and label:
+                # Tier 2: Medium confidence — subtle footer
+                msg.content = full_response + f"\n\n---\n*{label}*"
+
+            # Tier 1: High confidence (>=0.85) — silent, no attribution shown
 
         # Add dynamic agent suggestions based on conversation context
         if not stopped and len(history) >= 2:

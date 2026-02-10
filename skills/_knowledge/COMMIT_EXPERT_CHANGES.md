@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-10 15:15*
+*Auto-generated: 2026-02-10 15:26*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,10 +13,10 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-10 | 8 |
+| 2026-02-10 | 9 |
 | 2026-02-09 | 19 |
 | 2026-02-08 | 20 |
-| 2026-02-06 | 3 |
+| 2026-02-06 | 2 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
@@ -30,13 +30,43 @@
 
 ### 2026-02-10
 
+#### 🐛 fix: Add defensive error handling to Research and Breakthrough buttons
+
+- **Hash:** `2837fdc805dd74104eff25125aaed04098b5fb99`
+- **Short:** `2837fdc8`
+- **Parent:** `14f80253`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-10 15:26:16
+- **Risk:** medium
+- **Diff:** +110 / -122
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 26 | 6 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 54 | 65 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 9 | 25 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 20 | 25 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 1 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** Research button: wrap import in try/except with user-facing error message
+
+
 #### 🐛 fix: Context bleed, Clear Context, and truncated examples
 
 - **Hash:** `14f802535e2b43afb5a0e09716da73cd37f42418`
 - **Short:** `14f80253`
 - **Parent:** `36171c35`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-10 15:15:32
 - **Risk:** medium
@@ -58,7 +88,6 @@
 - **Short:** `36171c35`
 - **Parent:** `35138915`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-10 14:56:09
 - **Risk:** medium
@@ -1594,33 +1623,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** Chainlit was showing its built-in login screen because @cl.password_auth_callback
-
-
-#### 🐛 fix: Disable SSL for Render internal database connections
-
-- **Hash:** `4d9f675cc12516cb0832d23e246c6d3f7d58faf0`
-- **Short:** `4d9f675c`
-- **Parent:** `fc8ed89a`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-06 15:53:12
-- **Risk:** medium
-- **Diff:** +74 / -43
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 36 | 30 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 10 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 1 |
-  | `utils/data_layer.py` | 11 | 1 |
-
-  **File Operations:**
-  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `utils/data_layer.py`
-
-- **Body:** Render internal database URLs (dpg-xxx-a without .render.com) don't
 

@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-10 15:15*
+*Auto-generated: 2026-02-10 15:26*
 
 ---
 
 ## 2026-02-10
+
+### 🐛 fix: Add defensive error handling to Research and Breakthrough buttons
+
+- **Commit:** `2837fdc8`
+- **Author:** jsagir
+- **Files changed:** 5
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Research button: wrap import in try/except with user-facing error message
 
 ### 🐛 fix: Resolve 3 known issues — thread_id security, PgBouncer crash, graph write node
 

@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-10 15:15*
+*Auto-generated: 2026-02-10 15:26*
 
 ---
 
 ## 2026-02-10
+
+### 🐛 fix: Add defensive error handling to Research and Breakthrough buttons
+
+- **Commit:** `2837fdc8`
+- **Author:** jsagir
+- **Files changed:** 5
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Research button: wrap import in try/except with user-facing error message
 
 ### 🐛 fix: Context bleed, Clear Context, and truncated examples
 
@@ -588,15 +600,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** Chainlit was showing its built-in login screen because @cl.password_auth_callback
-
-### 🐛 fix: Disable SSL for Render internal database connections
-
-- **Commit:** `4d9f675c`
-- **Author:** jsagir
-- **Files changed:** 5
-  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-  - utils/data_layer.py
-- **Details:** Render internal database URLs (dpg-xxx-a without .render.com) don't
