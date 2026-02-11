@@ -1,10 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-11 11:00*
+*Auto-generated: 2026-02-11 11:01*
 
 ---
 
 ## 2026-02-11
+
+### 🐛 fix: Defensive error handler + natural language summarize detection
+
+- **Commit:** `d27afb52`
+- **Author:** jsagir
+- **Files changed:** 5
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** BUG-2 (P0): Main error handler now wraps msg.update() in try/except
 
 ### 🐛 fix: Normalize history role format — "assistant" → "model" for Gemini API
 
@@ -412,15 +424,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** These endpoints were being blocked by Chainlit's auth. Moving them to
-
-### 🐛 fix: Data layer registration + MIME types for file upload
-
-- **Commit:** `41f14e01`
-- **Author:** jsagir
-- **Files changed:** 6
-  - mindrian_chat.py
-  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** Data Layer:

@@ -161,6 +161,39 @@ from .auto_orchestrator import (
     run_orchestration,
 )
 
+# === Unified Registry (UI Layer) ===
+from .unified_registry import (
+    UIAgentConfig,
+    register_ui_agent,
+    get_ui_config,
+    get_all_ui_agents,
+    generate_bots_dict,
+    generate_agent_triggers,
+    generate_multi_agent_dict,
+    generate_chat_profiles,
+    generate_starters,
+    handle_generic_switch,
+    get_agent_display_name,
+    get_agents_for_orchestration_tag,
+    get_agent_role_description,
+)
+
+# Import agent definitions to trigger registration
+import protocols.agent_definitions  # noqa: F401
+
+# === WAVE 5: Orchestration Middleware (Button-less Detection) ===
+from .orchestration_middleware import (
+    ORCHESTRATION_MIDDLEWARE_ENABLED,
+    MiddlewareDecision,
+    MiddlewareResult,
+    evaluate_message,
+    record_orchestration_run,
+    record_orchestration_dismissed,
+    cleanup_session,
+    get_recommendation_message,
+    get_suggestion_message,
+)
+
 __all__ = [
     # Context Manager (Artifacts vs Frames)
     'Artifact',
@@ -285,4 +318,28 @@ __all__ = [
     'OrchestratorState',
     'AutoOrchestrator',
     'run_orchestration',
+    # Unified Registry
+    'UIAgentConfig',
+    'register_ui_agent',
+    'get_ui_config',
+    'get_all_ui_agents',
+    'generate_bots_dict',
+    'generate_agent_triggers',
+    'generate_multi_agent_dict',
+    'generate_chat_profiles',
+    'generate_starters',
+    'handle_generic_switch',
+    'get_agent_display_name',
+    'get_agents_for_orchestration_tag',
+    'get_agent_role_description',
+    # Wave 5: Orchestration Middleware
+    'ORCHESTRATION_MIDDLEWARE_ENABLED',
+    'MiddlewareDecision',
+    'MiddlewareResult',
+    'evaluate_message',
+    'record_orchestration_run',
+    'record_orchestration_dismissed',
+    'cleanup_session',
+    'get_recommendation_message',
+    'get_suggestion_message',
 ]

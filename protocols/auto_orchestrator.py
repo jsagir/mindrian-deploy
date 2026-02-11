@@ -349,7 +349,17 @@ Provide a concise, actionable response (2-4 paragraphs max)."""
             return {"error": str(e), "agent_id": agent_id}
 
     def _get_agent_description(self, agent_id: str) -> str:
-        """Get description for an agent."""
+        """Get description for an agent — reads from unified registry first, falls back to hardcoded."""
+        # Try unified registry
+        try:
+            from .unified_registry import get_agent_role_description
+            desc = get_agent_role_description(agent_id)
+            if desc and desc != f"Expert agent: {agent_id}":
+                return desc
+        except Exception:
+            pass
+
+        # Fallback descriptions
         descriptions = {
             "tta": "Trending to the Absurd - explore extreme future scenarios and emerging trends",
             "jtbd": "Jobs to Be Done - identify customer jobs and unmet needs",

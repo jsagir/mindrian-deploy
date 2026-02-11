@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-11 11:00*
+*Auto-generated: 2026-02-11 11:01*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,16 +13,16 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-11 | 2 |
+| 2026-02-11 | 3 |
 | 2026-02-10 | 12 |
 | 2026-02-09 | 19 |
-| 2026-02-08 | 17 |
+| 2026-02-08 | 16 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 5 |
+| `mindrian_chat.py` | 6 |
 
 ---
 
@@ -30,13 +30,43 @@
 
 ### 2026-02-11
 
+#### 🐛 fix: Defensive error handler + natural language summarize detection
+
+- **Hash:** `d27afb520c14790481818665cb14ca9636711af7`
+- **Short:** `d27afb52`
+- **Parent:** `59b6b064`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-11 11:01:38
+- **Risk:** medium
+- **Diff:** +88 / -80
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 26 | 2 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 35 | 39 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 13 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** BUG-2 (P0): Main error handler now wraps msg.update() in try/except
+
+
 #### 🐛 fix: Normalize history role format — "assistant" → "model" for Gemini API
 
 - **Hash:** `59b6b064eb238ffe326183a31b6b6a15fd241a1d`
 - **Short:** `59b6b064`
 - **Parent:** `81f9743a`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-11 11:00:29
 - **Risk:** medium
@@ -66,7 +96,6 @@
 - **Short:** `81f9743a`
 - **Parent:** `f6fcc653`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-11 10:58:59
 - **Risk:** medium
@@ -1577,35 +1606,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** These endpoints were being blocked by Chainlit's auth. Moving them to
-
-
-#### 🐛 fix: Data layer registration + MIME types for file upload
-
-- **Hash:** `41f14e019c5df1c32015703860eb82d2fdbd80fa`
-- **Short:** `41f14e01`
-- **Parent:** `1749e0ac`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-08 12:41:33
-- **Risk:** medium
-- **Diff:** +96 / -73
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `.chainlit/config.toml` | 1 | 1 |
-  | `mindrian_chat.py` | 17 | 8 |
-  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 39 | 37 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 13 |
-
-  **File Operations:**
-  - ✏️ Modified: `.chainlit/config.toml`
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** Data Layer:
 

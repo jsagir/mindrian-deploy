@@ -81,6 +81,21 @@ from .agent_generator_meta import (
     validate_agent_config,
 )
 
+from .macro_changes import (
+    MACRO_CHANGES_PROMPT,
+    MACRO_CHANGES_PHASES,
+)
+
+from .dominant_designs import (
+    DOMINANT_DESIGNS_PROMPT,
+    DOMINANT_DESIGNS_PHASES,
+)
+
+from .user_needs import (
+    USER_NEEDS_PROMPT,
+    USER_NEEDS_PHASES,
+)
+
 from .pws_consultant import (
     PWS_CONSULTANT_PROMPT,
     PWS_CONSULTANT_PHASES,
@@ -167,4 +182,13 @@ __all__ = [
     "pws_get_recommended_tools",
     "pws_get_recommended_agents",
     "pws_build_expert_specs",
+    # Macro-Changes Analysis
+    "MACRO_CHANGES_PROMPT",
+    "MACRO_CHANGES_PHASES",
+    # Dominant Designs
+    "DOMINANT_DESIGNS_PROMPT",
+    "DOMINANT_DESIGNS_PHASES",
+    # Understanding User Needs
+    "USER_NEEDS_PROMPT",
+    "USER_NEEDS_PHASES",
 ]

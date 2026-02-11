@@ -27,6 +27,20 @@ from typing import Optional, Dict, Any
 
 load_dotenv()
 
+# === Sentry Error Monitoring ===
+_sentry_dsn = os.getenv("SENTRY_DSN")
+if _sentry_dsn:
+    try:
+        import sentry_sdk
+        sentry_sdk.init(
+            dsn=_sentry_dsn,
+            traces_sample_rate=0.1,
+            environment=os.getenv("SENTRY_ENVIRONMENT", "production"),
+        )
+        logging.getLogger("mindrian").info("[SENTRY] Error monitoring initialized")
+    except ImportError:
+        logging.getLogger("mindrian").warning("[SENTRY] sentry-sdk not installed - error monitoring disabled")
+
 # === Triple-Mode Architecture ===
 # Entry point routing, mode management, and grounding logic (v2 - LangExtract powered)
 try:
@@ -108,7 +122,9 @@ class CronEndpointMiddleware(BaseHTTPMiddleware):
             lightrag_url = os.environ.get("LIGHTRAG_URL", "https://mondrian-ts.onrender.com")
             lightrag_user = os.environ.get("LIGHTRAG_USERNAME", "jsagir")
             lightrag_pass = os.environ.get("LIGHTRAG_PASSWORD")
-            lightrag_api_key = os.environ.get("LIGHTRAG_API_KEY", "JonathanSagir123")
+            lightrag_api_key = os.environ.get("LIGHTRAG_API_KEY")
+            if not lightrag_api_key:
+                logger.warning("[SECURITY] LIGHTRAG_API_KEY not set - LightRAG health check will fail")
 
             result = {
                 "url": lightrag_url,
@@ -166,8 +182,11 @@ class CronEndpointMiddleware(BaseHTTPMiddleware):
 
             return JSONResponse(content=result)
 
-        # Handle /api/init-db - one-time database initialization
+        # Handle /api/init-db - one-time database initialization (auth required)
         if request.url.path == "/api/init-db":
+            secret = request.query_params.get("secret", "")
+            if CRON_SECRET and secret != CRON_SECRET:
+                return JSONResponse(status_code=403, content={"error": "Invalid secret", "success": False})
             try:
                 database_url = os.environ.get("DATABASE_URL")
                 if not database_url:
@@ -185,20 +204,14 @@ class CronEndpointMiddleware(BaseHTTPMiddleware):
                 # Raw SQL to create Chainlit tables - matching Chainlit's expected schema
                 # Chainlit uses TEXT for IDs and timestamps, not UUID/TIMESTAMP
                 CREATE_STATEMENTS = [
-                    # Drop old tables if they have wrong schema
-                    """DROP TABLE IF EXISTS feedbacks CASCADE""",
-                    """DROP TABLE IF EXISTS elements CASCADE""",
-                    """DROP TABLE IF EXISTS steps CASCADE""",
-                    """DROP TABLE IF EXISTS threads CASCADE""",
-                    """DROP TABLE IF EXISTS users CASCADE""",
-                    # Create with correct Chainlit schema
-                    """CREATE TABLE users (
+                    # Idempotent DDL - only creates if not exists
+                    """CREATE TABLE IF NOT EXISTS users (
                         "id" TEXT PRIMARY KEY,
                         "identifier" TEXT NOT NULL UNIQUE,
                         "createdAt" TEXT,
                         "metadata" JSONB NOT NULL DEFAULT '{}'::jsonb
                     )""",
-                    """CREATE TABLE threads (
+                    """CREATE TABLE IF NOT EXISTS threads (
                         "id" TEXT PRIMARY KEY,
                         "createdAt" TEXT,
                         "name" TEXT,
@@ -207,7 +220,7 @@ class CronEndpointMiddleware(BaseHTTPMiddleware):
                         "tags" TEXT[],
                         "metadata" JSONB NOT NULL DEFAULT '{}'::jsonb
                     )""",
-                    """CREATE TABLE steps (
+                    """CREATE TABLE IF NOT EXISTS steps (
                         "id" TEXT PRIMARY KEY,
                         "name" TEXT NOT NULL,
                         "type" TEXT NOT NULL,
@@ -227,7 +240,7 @@ class CronEndpointMiddleware(BaseHTTPMiddleware):
                         "showInput" TEXT,
                         "language" TEXT
                     )""",
-                    """CREATE TABLE elements (
+                    """CREATE TABLE IF NOT EXISTS elements (
                         "id" TEXT PRIMARY KEY,
                         "threadId" TEXT REFERENCES threads("id") ON DELETE CASCADE,
                         "type" TEXT NOT NULL,
@@ -245,7 +258,7 @@ class CronEndpointMiddleware(BaseHTTPMiddleware):
                         "autoPlay" BOOLEAN,
                         "playerConfig" JSONB
                     )""",
-                    """CREATE TABLE feedbacks (
+                    """CREATE TABLE IF NOT EXISTS feedbacks (
                         "id" TEXT PRIMARY KEY,
                         "forId" TEXT NOT NULL,
                         "threadId" TEXT REFERENCES threads("id") ON DELETE CASCADE,
@@ -834,9 +847,9 @@ elif os.getenv("CHAINLIT_AUTH_SECRET"):
         env_key = f"MINDRIAN_USER_{name}_PASSWORD"
         expected_password = os.getenv(env_key)
 
-        # Also check for a default demo user
+        # Also check for a default demo user (password MUST be set via env var)
         if not expected_password and username.lower() == "demo":
-            expected_password = os.getenv("MINDRIAN_DEMO_PASSWORD", "demo")
+            expected_password = os.getenv("MINDRIAN_DEMO_PASSWORD")
 
         if expected_password and password == expected_password:
             logger.info(f"[AUTH] Simple auth succeeded: {username}")
@@ -1192,6 +1205,28 @@ async def capture_reasoning_steps(user_message: str, bot_id: str, history: list 
 # === Context Preservation for Profile Switching ===
 # Store conversation history by user/thread to persist across bot switches
 context_store: Dict[str, Dict[str, Any]] = {}
+
+
+async def _persist_context_async(context_key: str):
+    """Write-through: persist context_store entry to Supabase (fire-and-forget)."""
+    data = context_store.get(context_key)
+    if not data:
+        return
+    try:
+        from utils.context_persistence import save_cross_bot_context
+        bot_id = data.get("bot_id", "lawrence")
+        await save_cross_bot_context(
+            user_key=context_key,
+            history=data.get("history", []),
+            bot_id=bot_id,
+            bot_name=BOTS.get(bot_id, {}).get("name", bot_id),
+            phases=data.get("phases", []),
+            current_phase=data.get("current_phase", 0),
+            excluded_topics=data.get("excluded_topics", []),
+        )
+    except Exception as e:
+        logger.debug(f"[PERSIST] Background persist failed for {context_key}: {e}")
+
 
 # === PWS Consultant State Management ===
 # LangGraph-style TypedDict state with context_store integration
@@ -1556,6 +1591,30 @@ WORKSHOP_PHASES = {
     # pws_consultant: REMOVED — uses CONSULTANT_STAGES state machine, not workshop phases
     # See prompts/pws_consultant.py PWS_CONSULTANT_PHASES for documentation only
     # Note: grading is one-shot, not a phased workshop
+    "macro_changes": [
+        {"name": "Domain Selection", "status": "ready"},
+        {"name": "Macro-Changes Mapping", "status": "pending"},
+        {"name": "PEST Systems Analysis", "status": "pending"},
+        {"name": "Destruction & Discontinuity", "status": "pending"},
+        {"name": "Multi-Order Consequences", "status": "pending"},
+        {"name": "Problems Worth Solving", "status": "pending"},
+    ],
+    "dominant_designs": [
+        {"name": "Domain Selection", "status": "ready"},
+        {"name": "Dominant Design Identification", "status": "pending"},
+        {"name": "Discontinuity Analysis", "status": "pending"},
+        {"name": "S-Curve & Limits Analysis", "status": "pending"},
+        {"name": "Destruction & Opportunity", "status": "pending"},
+        {"name": "New Design & PWS", "status": "pending"},
+    ],
+    "user_needs": [
+        {"name": "Domain Selection", "status": "ready"},
+        {"name": "Process Identification & Mapping", "status": "pending"},
+        {"name": "Importance-Satisfaction Rating", "status": "pending"},
+        {"name": "Gap Analysis & Root Causes", "status": "pending"},
+        {"name": "Barrier Identification", "status": "pending"},
+        {"name": "Opportunity Synthesis", "status": "pending"},
+    ],
 }
 
 # === PWS Consultant Stage Machine ===
@@ -1955,6 +2014,31 @@ Don't worry about being precise — that's what we'll work on together."""
     }
 }
 
+# === WAVE 5: Unified Registry Bridge ===
+# Registry-generated BOTS/AGENT_TRIGGERS override inline definitions.
+# This ensures new agents added to agent_definitions.py automatically appear everywhere.
+try:
+    from protocols.unified_registry import (
+        generate_bots_dict as _gen_bots,
+        generate_agent_triggers as _gen_triggers,
+    )
+    _registry_bots = _gen_bots()
+    _registry_triggers = _gen_triggers()
+
+    # Merge: registry values override inline values for matching keys;
+    # inline values preserved for keys not in registry.
+    for _k, _v in _registry_bots.items():
+        BOTS[_k] = _v
+
+    for _k, _v in _registry_triggers.items():
+        AGENT_TRIGGERS[_k] = _v
+
+    logger.info(f"[REGISTRY] Merged {len(_registry_bots)} bots, {len(_registry_triggers)} triggers from unified registry")
+except ImportError as _reg_err:
+    logger.debug(f"[REGISTRY] Unified registry not available: {_reg_err}")
+except Exception as _reg_err:
+    logger.warning(f"[REGISTRY] Bridge error (non-fatal): {_reg_err}")
+
 
 def _get_phases_for_bot(bot_id: str) -> Optional[list]:
     """
@@ -2085,6 +2169,12 @@ def get_core_action_buttons(
             payload={"action": "converge"},
             label="🎯 Give me your answer",
             tooltip="Stop exploring and give me a direct, synthesized answer to my question",
+        ),
+        cl.Action(
+            name="assess_progress",
+            payload={"action": "assess"},
+            label="📋 Assess My Progress",
+            tooltip="Get an AI-powered assessment of your understanding and progress",
         ),
     ]
 
@@ -2344,11 +2434,12 @@ async def on_jump_to_phase(action: cl.Action):
         cl.user_session.set("phases", phases)
         cl.user_session.set("current_phase", target_phase)
 
-        # Sync to context_store
+        # Sync to context_store + persist
         context_key = get_context_key()
         if context_key in context_store:
             context_store[context_key]["phases"] = [p.copy() for p in phases]
             context_store[context_key]["current_phase"] = target_phase
+            asyncio.create_task(_persist_context_async(context_key))
 
         # Update the roadmap
         phase_context = cl.user_session.get("phase_context", {})
@@ -2740,100 +2831,42 @@ async def update_sidebar_phase(current_phase: int):
 
 @cl.set_chat_profiles
 async def chat_profiles():
-    """Define available bot profiles."""
-    return [
-        cl.ChatProfile(
-            name="lawrence",
-            markdown_description=BOTS["lawrence"]["description"],
-            icon=BOTS["lawrence"]["icon"],
-            default=True,
-        ),
-        cl.ChatProfile(
-            name="larry_playground",
-            markdown_description=BOTS["larry_playground"]["description"],
-            icon=BOTS["larry_playground"]["icon"],
-        ),
-        cl.ChatProfile(
-            name="tta",
-            markdown_description=BOTS["tta"]["description"],
-            icon=BOTS["tta"]["icon"],
-        ),
-        cl.ChatProfile(
-            name="jtbd",
-            markdown_description=BOTS["jtbd"]["description"],
-            icon=BOTS["jtbd"]["icon"],
-        ),
-        cl.ChatProfile(
-            name="scurve",
-            markdown_description=BOTS["scurve"]["description"],
-            icon=BOTS["scurve"]["icon"],
-        ),
-        cl.ChatProfile(
-            name="redteam",
-            markdown_description=BOTS["redteam"]["description"],
-            icon=BOTS["redteam"]["icon"],
-        ),
-        cl.ChatProfile(
-            name="ackoff",
-            markdown_description=BOTS["ackoff"]["description"],
-            icon=BOTS["ackoff"]["icon"],
-        ),
-        cl.ChatProfile(
-            name="bono",
-            markdown_description=BOTS["bono"]["description"],
-            icon=BOTS["bono"]["icon"],
-        ),
-        cl.ChatProfile(
-            name="knowns",
-            markdown_description=BOTS["knowns"]["description"],
-            icon=BOTS["knowns"]["icon"],
-        ),
-        cl.ChatProfile(
-            name="nested_hierarchies",
-            markdown_description=BOTS["nested_hierarchies"]["description"],
-            icon=BOTS["nested_hierarchies"]["icon"],
-        ),
-        cl.ChatProfile(
-            name="domain",
-            markdown_description=BOTS["domain"]["description"],
-            icon=BOTS["domain"]["icon"],
-        ),
-        cl.ChatProfile(
-            name="investment",
-            markdown_description=BOTS["investment"]["description"],
-            icon=BOTS["investment"]["icon"],
-        ),
-        cl.ChatProfile(
-            name="scenario",
-            markdown_description=BOTS["scenario"]["description"],
-            icon=BOTS["scenario"]["icon"],
-        ),
-        cl.ChatProfile(
-            name="validation",
-            markdown_description=BOTS["validation"]["description"],
-            icon=BOTS["validation"]["icon"],
-        ),
-        cl.ChatProfile(
-            name="beautiful_question",
-            markdown_description=BOTS["beautiful_question"]["description"],
-            icon=BOTS["beautiful_question"]["icon"],
-        ),
-        cl.ChatProfile(
-            name="grading",
-            markdown_description=BOTS["grading"]["description"],
-            icon=BOTS["grading"]["icon"],
-        ),
-        cl.ChatProfile(
-            name="minto",
-            markdown_description=BOTS["minto"]["description"],
-            icon=BOTS["minto"]["icon"],
-        ),
-        cl.ChatProfile(
-            name="pws_consultant",
-            markdown_description=BOTS["pws_consultant"]["description"],
-            icon=BOTS["pws_consultant"]["icon"],
-        ),
-    ]
+    """Define available bot profiles — dynamically generated from BOTS dict.
+
+    Any agent registered via protocols/agent_definitions.py and merged into BOTS
+    automatically appears in the dropdown. No manual editing needed.
+
+    Profile ordering uses unified_registry.profile_order when available;
+    falls back to the insertion order of BOTS dict.
+    """
+    # Build ordered list: use profile_order from UI registry if available
+    try:
+        from protocols.unified_registry import get_ui_config as _get_ui
+    except ImportError:
+        _get_ui = None
+
+    _PROFILE_ORDER_FALLBACK = 100
+
+    def _order_key(bot_id):
+        if _get_ui:
+            ui = _get_ui(bot_id)
+            if ui:
+                return ui.profile_order
+        return _PROFILE_ORDER_FALLBACK
+
+    profiles = []
+    for bot_id in sorted(BOTS.keys(), key=_order_key):
+        bot_config = BOTS[bot_id]
+        if not bot_config.get("system_prompt"):
+            continue
+        profiles.append(cl.ChatProfile(
+            name=bot_id,
+            markdown_description=bot_config.get("description", ""),
+            icon=bot_config.get("icon", "/public/icons/explore.svg"),
+            default=(bot_id == "lawrence"),
+        ))
+
+    return profiles
 
 
 # === Conversation Starters ===
@@ -3214,12 +3247,30 @@ STARTERS = {
     ],
 }
 
+# --- Registry bridge: merge starters from unified registry ---
+try:
+    from protocols.unified_registry import generate_starters as _gen_starters
+    _registry_starters = _gen_starters()
+    for _k, _starter_list in _registry_starters.items():
+        if _k not in STARTERS:
+            STARTERS[_k] = [
+                cl.Starter(
+                    label=s.get("label", ""),
+                    message=s.get("message", ""),
+                    icon=s.get("icon", "/public/icons/explore.svg"),
+                )
+                for s in _starter_list
+            ]
+    logger.info(f"[REGISTRY] Merged {len(_registry_starters)} starter sets from registry")
+except Exception as _starters_err:
+    logger.debug(f"[REGISTRY] Starters merge skipped: {_starters_err}")
+
 
 @cl.set_starters
 async def set_starters():
     """Return conversation starters based on selected chat profile."""
     profile = cl.user_session.get("chat_profile")
-    return STARTERS.get(profile, STARTERS["lawrence"])
+    return STARTERS.get(profile, STARTERS.get("lawrence", []))
 
 
 # === Chat Settings (Input Widgets) ===
@@ -3809,14 +3860,23 @@ def get_context_key() -> str:
     This caused complete conversation history bleed across all unauthenticated users.
 
     Priority order:
-    1. Authenticated user identifier (persistent across sessions)
+    1. Authenticated user identifier + thread (persistent, thread-isolated)
     2. Chainlit session ID (unique per browser tab, but lost on refresh)
     3. Random UUID (last resort, prevents mixing but no persistence)
     """
+    # Get thread_id for multi-thread isolation
+    thread_id = None
+    try:
+        thread_id = cl.user_session.get("thread_id") or cl.user_session.get("id")
+    except Exception:
+        pass
+
     try:
         # Priority 1: Authenticated user - stable key across sessions
         user = cl.user_session.get("user")
         if user and hasattr(user, "identifier") and user.identifier:
+            if thread_id:
+                return f"user_{user.identifier}_{thread_id}"
             return f"user_{user.identifier}"
     except Exception as e:
         logger.debug("Could not get user identifier for context key: %s", e)
@@ -3990,6 +4050,18 @@ async def start():
                 print(f"[SESSION_MEMORY] Returning user: {user_context[:100]}...")
         except Exception as e:
             print(f"[SESSION_MEMORY] Start error: {e}")
+
+    # === A2A Protocol: Initialize orchestration session ===
+    try:
+        from protocols import A2A_ORCHESTRATION_ENABLED, init_a2a_session
+        if A2A_ORCHESTRATION_ENABLED and session_id:
+            orchestrator = await init_a2a_session(session_id)
+            cl.user_session.set("a2a_orchestrator", orchestrator)
+            logger.info(f"[A2A] Orchestration session initialized for {session_id}")
+    except ImportError:
+        logger.debug("[A2A] Protocol module not available")
+    except Exception as e:
+        logger.debug(f"[A2A] Init error (non-fatal): {e}")
 
     # Only set current_phase to 0 if not already restored
     if cl.user_session.get("current_phase") is None:
@@ -5253,10 +5325,11 @@ async def on_clear_exclusions(action: cl.Action):
     # Clear the list
     cl.user_session.set("excluded_topics", [])
 
-    # Update context store
+    # Update context store + persist
     context_key = get_context_key()
     if context_key in context_store:
         context_store[context_key]["excluded_topics"] = []
+        asyncio.create_task(_persist_context_async(context_key))
 
     await cl.Message(
         content=f"**All topic exclusions cleared.** I've removed {count} topic{'s' if count != 1 else ''} from the exclusion list. I'm now free to discuss any topic."
@@ -6866,6 +6939,113 @@ async def on_clear_idea_context(action: cl.Action):
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════════════════════
+# WAVE 5: Orchestration Middleware — Accept/Dismiss callbacks
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@cl.action_callback("accept_orchestration")
+async def on_accept_orchestration(action: cl.Action):
+    """User confirmed orchestration recommendation — run the workflow."""
+    try:
+        from protocols.auto_orchestrator import AutoOrchestrator, OrchestratorStatus
+        from protocols.orchestration_middleware import record_orchestration_run
+    except ImportError as e:
+        await cl.Message(content=f"Orchestration unavailable: {e}").send()
+        return
+
+    workflow_type = action.payload.get("workflow_type", "full_analysis")
+    agents = action.payload.get("agents", [])
+    query = action.payload.get("query", "")
+
+    if not query:
+        history = cl.user_session.get("history", [])
+        for msg_item in reversed(history):
+            if msg_item.get("role") == "user":
+                query = msg_item.get("content", "")
+                break
+
+    if not query:
+        await cl.Message(content="Please describe what you're working on first.").send()
+        return
+
+    session_id = cl.user_session.get("id", "")
+    history = cl.user_session.get("history", [])
+    turn_count = len(history)
+
+    # Record that orchestration is running (for cooldown)
+    record_orchestration_run(str(session_id), turn_count)
+
+    # Show progress
+    progress_msg = await cl.Message(
+        content=f"🚀 **Running {workflow_type.replace('_', ' ').title()} Analysis**\n\n"
+                f"Agents: {', '.join(agents[:4])}\n\n"
+                f"*This may take 1-3 minutes...*"
+    ).send()
+
+    # Run orchestration
+    async def progress_callback(info):
+        stage = info.get("stage", 0) + 1
+        total = info.get("total", 1)
+        task = info.get("task", "Processing")
+        current_agents = info.get("agents", [])
+        try:
+            progress_msg.content = (
+                f"🚀 **Running {workflow_type.replace('_', ' ').title()} Analysis**\n\n"
+                f"Stage {stage}/{total}: {task}\n"
+                f"Agents: {', '.join(current_agents)}\n\n"
+                f"{'█' * stage}{'░' * (total - stage)} {stage}/{total}"
+            )
+            await progress_msg.update()
+        except Exception:
+            pass
+
+    orchestrator = AutoOrchestrator(
+        session_id=str(session_id),
+        progress_callback=progress_callback,
+    )
+    state = await orchestrator.run(query, workflow_override=workflow_type, history=history)
+
+    # Show results
+    if state.synthesis and isinstance(state.synthesis, dict):
+        synthesis_content = state.synthesis.get("content", "No synthesis generated.")
+        agents_used = state.synthesis.get("agents_used", agents)
+        duration_ms = state.synthesis.get("total_duration_ms", 0)
+
+        result_msg = f"## 🎯 Multi-Agent Analysis Complete\n\n"
+        result_msg += f"**Workflow:** {state.workflow_name}\n"
+        result_msg += f"**Agents:** {', '.join(agents_used)}\n"
+        if duration_ms:
+            result_msg += f"**Duration:** {duration_ms / 1000:.1f}s\n"
+        result_msg += f"\n---\n\n{synthesis_content}"
+
+        await cl.Message(
+            content=result_msg,
+            actions=[
+                cl.Action(
+                    name="find_breakthrough",
+                    payload={"query": query},
+                    label="🔄 Run Again",
+                    tooltip="Re-run with different parameters",
+                ),
+            ],
+        ).send()
+    else:
+        error = state.error or "Unknown error"
+        await cl.Message(content=f"Analysis encountered an issue: {error}").send()
+
+
+@cl.action_callback("dismiss_orchestration")
+async def on_dismiss_orchestration(action: cl.Action):
+    """User declined orchestration recommendation."""
+    try:
+        from protocols.orchestration_middleware import record_orchestration_dismissed
+        session_id = cl.user_session.get("id", "")
+        record_orchestration_dismissed(str(session_id))
+    except Exception:
+        pass
+    # No message needed — the normal response continues
+
+
 # WAVE 4: Auto-Orchestration - "Find the Breakthrough"
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -7199,6 +7379,30 @@ async def on_switch_to_beautiful_question(action: cl.Action):
 @cl.action_callback("switch_to_pws_consultant")
 async def on_switch_to_pws_consultant(action: cl.Action):
     await handle_agent_switch("pws_consultant")
+
+
+# --- Dynamic switch callback registration for registry-added agents ---
+# Any agent in BOTS that doesn't have a hardcoded switch_to_* callback above
+# gets one auto-registered here. This makes new agents fully switchable.
+_HARDCODED_SWITCHES = {
+    "tta", "jtbd", "scurve", "redteam", "ackoff", "lawrence",
+    "bono", "knowns", "nested_hierarchies", "domain", "investment",
+    "scenario", "validation", "beautiful_question", "pws_consultant",
+    "larry_playground", "grading", "minto",
+}
+
+def _make_switch_handler(agent_id):
+    """Create a switch handler closure for the given agent."""
+    async def handler(action):
+        await handle_agent_switch(agent_id)
+    handler.__name__ = f"on_switch_to_{agent_id}"
+    return handler
+
+for _bid in BOTS:
+    if _bid not in _HARDCODED_SWITCHES:
+        _handler = _make_switch_handler(_bid)
+        cl.action_callback(f"switch_to_{_bid}")(_handler)
+        logger.info(f"[REGISTRY] Auto-registered switch callback for '{_bid}'")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -8144,6 +8348,29 @@ async def handle_agent_switch(new_agent_id: str):
     handoff = f"[CONTEXT HANDOFF: User switched from {old_bot.get('name')} to {new_bot.get('name')}. Previous conversation preserved.]"
     cl.user_session.set("context_handoff", handoff)
 
+    # === A2A Protocol: Create structured handoff ===
+    try:
+        from protocols import A2A_ORCHESTRATION_ENABLED, create_switch_handoff, inject_handoff_context
+        if A2A_ORCHESTRATION_ENABLED:
+            session_id = cl.user_session.get("id", "")
+            a2a_handoff = await create_switch_handoff(
+                from_agent=current_bot_id,
+                to_agent=new_agent_id,
+                session_id=session_id,
+                history=history,
+                current_phase=cl.user_session.get("current_phase", 0),
+                phases=cl.user_session.get("phases"),
+            )
+            # Inject handoff context into the new bot's system prompt
+            enriched_prompt = inject_handoff_context(a2a_handoff, new_bot.get("system_prompt", ""))
+            cl.user_session.set("a2a_enriched_prompt", enriched_prompt)
+            cl.user_session.set("a2a_last_handoff", a2a_handoff)
+            logger.info(f"[A2A] Handoff created: {current_bot_id} -> {new_agent_id}")
+    except ImportError:
+        pass
+    except Exception as e:
+        logger.debug(f"[A2A] Handoff creation failed (non-fatal): {e}")
+
     # === Recursive Intelligence: Log agent switch event ===
     if SESSION_LOGGER_ENABLED:
         session_id = cl.user_session.get("id")
@@ -8893,11 +9120,12 @@ async def on_prev_phase(action: cl.Action):
             phase_context=phase_insights
         )
 
-        # Sync to context_store
+        # Sync to context_store + persist
         context_key = get_context_key()
         if context_key in context_store:
             context_store[context_key]["phases"] = [p.copy() for p in phases]
             context_store[context_key]["current_phase"] = current_phase_idx - 1
+            asyncio.create_task(_persist_context_async(context_key))
 
         # Soft transition message (non-disruptive)
         phase_name = phases[current_phase_idx - 1]["name"]
@@ -9857,6 +10085,76 @@ async def on_export_summary(action: cl.Action):
         ).send()
     except Exception as e:
         await cl.Message(content=f"Export error: {str(e)}").send()
+
+
+@cl.action_callback("assess_progress")
+async def on_assess_progress(action: cl.Action):
+    """Run the assessment engine on current conversation to evaluate user's progress."""
+    history = cl.user_session.get("history", [])
+    bot_id = cl.user_session.get("bot_id", "lawrence")
+    bot = cl.user_session.get("bot", BOTS.get(bot_id, BOTS["lawrence"]))
+
+    if len(history) < 4:
+        await cl.Message(
+            content="**Need more conversation first.** Continue chatting for a few more turns, then I can assess your progress.",
+            actions=get_core_action_buttons(include_example=False),
+        ).send()
+        return
+
+    msg = cl.Message(content="")
+    await msg.send()
+    await msg.stream_token("**Analyzing your progress...**\n\n")
+
+    try:
+        from tools.assessment_engine import run_full_assessment
+
+        session_id = str(cl.user_session.get("id", "anonymous"))
+
+        assessment = await run_full_assessment(
+            content="\n".join(
+                f"{'User' if m['role'] == 'user' else 'Assistant'}: {m['content'][:500]}"
+                for m in history[-20:]
+            ),
+            user_id=session_id,
+            session_id=session_id,
+        )
+
+        if assessment and assessment.get("report"):
+            await msg.stream_token(assessment["report"])
+        elif assessment and assessment.get("overall_score") is not None:
+            score = assessment["overall_score"]
+            await msg.stream_token(f"**Overall Score: {score}/100**\n\n")
+            for module_name, module_result in assessment.get("modules", {}).items():
+                module_score = module_result.get("score", "N/A")
+                feedback = module_result.get("feedback", "")
+                await msg.stream_token(f"- **{module_name}**: {module_score}/100 - {feedback}\n")
+        else:
+            await msg.stream_token("Assessment completed but no detailed report was generated. Keep engaging with the material!")
+
+        # Display as GradeReveal custom element if available
+        try:
+            if assessment and assessment.get("overall_score") is not None:
+                grade_element = cl.CustomElement(
+                    name="GradeReveal",
+                    props={
+                        "score": assessment.get("overall_score", 0),
+                        "grade": assessment.get("grade", ""),
+                        "feedback": assessment.get("report", ""),
+                        "botName": bot.get("name", "Assessment"),
+                    },
+                    display="inline",
+                )
+                await cl.Message(content="", elements=[grade_element]).send()
+        except Exception:
+            pass
+
+    except ImportError:
+        await msg.stream_token("The assessment engine is not available. Please check your installation.")
+    except Exception as e:
+        logger.error(f"[ASSESSMENT] Error: {e}")
+        await msg.stream_token(f"Assessment encountered an error: {str(e)[:200]}")
+
+    await msg.update()
 
 
 @cl.action_callback("converge_answer")
@@ -12622,10 +12920,11 @@ Your insights help us improve Mindrian!"""
                 ]
             ).send()
 
-            # Persist exclusions to context store
+            # Persist exclusions to context store + Supabase
             context_key = get_context_key()
             if context_key in context_store:
                 context_store[context_key]["excluded_topics"] = excluded_topics
+                asyncio.create_task(_persist_context_async(context_key))
         else:
             await cl.Message(
                 content=f"I'm already avoiding **{excluded_topic}**."
@@ -12844,7 +13143,7 @@ Your insights help us improve Mindrian!"""
                 await msg.stream_token(f"I'm having trouble with that. Let's try again. ({e})")
                 await msg.update()
 
-            # Sync to context store (including PWS state)
+            # Sync to context store (including PWS state) + persist
             context_key = get_context_key()
             context_store[context_key] = {
                 "bot_id": bot_id,
@@ -12852,6 +13151,7 @@ Your insights help us improve Mindrian!"""
                 "phases": [],
                 "current_phase": 0,
             }
+            asyncio.create_task(_persist_context_async(context_key))
 
             # Sync PWS-specific state for cross-bot persistence
             if PWS_STATE_ENABLED:
@@ -13792,6 +14092,64 @@ Your insights help us improve Mindrian!"""
             await cl.Message(content=f"Validation workflow error: {str(e)}. Falling back to normal response.").send()
             # Fall through to normal response
 
+    # ═══════════════════════════════════════════════════════════════════════════
+    # WAVE 5: Orchestration Middleware — Detect multi-agent opportunity
+    # ═══════════════════════════════════════════════════════════════════════════
+    orchestration_suggestion = None  # Stored for SUGGEST (shown AFTER normal response)
+    try:
+        from protocols.orchestration_middleware import (
+            evaluate_message as _evaluate_orchestration,
+            MiddlewareDecision,
+            get_recommendation_message,
+            get_suggestion_message,
+            record_orchestration_dismissed,
+        )
+
+        middleware_result = await _evaluate_orchestration(
+            message=message.content,
+            history=history,
+            session_id=str(session_id) if session_id else "",
+            bot_id=bot_id,
+            turn_count=turn_count,
+            has_document=bool(file_context),
+        )
+
+        if middleware_result.decision == MiddlewareDecision.RECOMMEND:
+            # HIGH confidence — show recommendation BEFORE normal response
+            rec_text = get_recommendation_message(middleware_result)
+            await cl.Message(
+                content=f"🧠 {rec_text}",
+                actions=[
+                    cl.Action(
+                        name="accept_orchestration",
+                        payload={
+                            "workflow_type": middleware_result.workflow_type,
+                            "agents": middleware_result.suggested_agents,
+                            "query": message.content,
+                        },
+                        label="▶ Run Analysis",
+                        tooltip=f"Run {middleware_result.workflow_name} (~{max(1, middleware_result.estimated_seconds // 60)} min)",
+                    ),
+                    cl.Action(
+                        name="dismiss_orchestration",
+                        payload={},
+                        label="Continue normally",
+                        tooltip="Skip multi-agent analysis, get a regular response",
+                    ),
+                ],
+            ).send()
+            logger.info(f"[MIDDLEWARE] Showed RECOMMEND for {middleware_result.workflow_type} "
+                        f"(confidence={middleware_result.confidence:.2f})")
+
+        elif middleware_result.decision == MiddlewareDecision.SUGGEST:
+            # MEDIUM confidence — store for showing AFTER normal response
+            orchestration_suggestion = middleware_result
+
+    except ImportError:
+        pass
+    except Exception as mw_err:
+        logger.debug(f"[MIDDLEWARE] Evaluation error (non-fatal): {mw_err}")
+
     # Build multimodal content (supports images + text)
     user_parts = []
     if image_parts:
@@ -13904,14 +14262,59 @@ Your insights help us improve Mindrian!"""
             methodology_injection = routing_result.get("methodology_injection", "")
             if methodology_injection:
                 system_instruction += f"\n\n{methodology_injection}\n"
-                print(f"[INVISIBLE_ROUTER] Injected: {routing_result.get('detected_methodology')} "
+                logger.info(f"[INVISIBLE_ROUTER] Injected: {routing_result.get('detected_methodology')} "
                       f"(confidence: {routing_result.get('methodology_confidence', 0):.2f}, "
                       f"latency: {routing_result.get('router_latency_ms', 0)}ms)")
+
+            # Show subtle methodology attribution as a Step
+            attribution_tag = routing_result.get("methodology_attribution_tag", "")
+            if attribution_tag:
+                async with cl.Step(name="Methodology", type="tool", show_input=False) as step:
+                    step.output = f"Drawing on: {attribution_tag}"
+
             # Persist routing state back to session
             cl.user_session.set("methodology_cooldowns", routing_result.get("methodology_cooldowns", {}))
             cl.user_session.set("methodology_history", routing_result.get("methodology_history", []))
+
+            # Persist routing state to context store
+            context_key = get_context_key()
+            if context_key and context_key in context_store:
+                context_store[context_key]["routing_state"] = {
+                    "methodology_cooldowns": routing_result.get("methodology_cooldowns", {}),
+                    "methodology_history": routing_result.get("methodology_history", []),
+                }
+        except ImportError:
+            logger.debug("[INVISIBLE_ROUTER] Module not available")
+        except (ValueError, KeyError, TypeError) as router_err:
+            logger.warning(f"[INVISIBLE_ROUTER] Data error: {type(router_err).__name__}: {router_err}")
         except Exception as router_err:
-            print(f"[INVISIBLE_ROUTER] Error (non-fatal): {router_err}")
+            logger.error(f"[INVISIBLE_ROUTER] Unexpected error: {type(router_err).__name__}: {router_err}")
+            try:
+                import sentry_sdk
+                sentry_sdk.capture_exception(router_err)
+            except ImportError:
+                pass
+
+        # === A2A Protocol: Pre-process message for classification ===
+        a2a_pre_result = None
+        try:
+            from protocols import A2A_ORCHESTRATION_ENABLED, pre_process_message
+            orchestrator = cl.user_session.get("a2a_orchestrator")
+            if A2A_ORCHESTRATION_ENABLED and orchestrator:
+                a2a_pre_result = await pre_process_message(
+                    message=message.content,
+                    orchestrator=orchestrator,
+                    bot_id=bot_id,
+                )
+                # Use enriched system prompt from handoff if available
+                enriched_prompt = cl.user_session.get("a2a_enriched_prompt")
+                if enriched_prompt:
+                    system_instruction = enriched_prompt + language_enforcement
+                    cl.user_session.set("a2a_enriched_prompt", None)  # Use once
+        except ImportError:
+            pass
+        except Exception as e:
+            logger.debug(f"[A2A] Pre-process error (non-fatal): {e}")
 
         # === QUICK MODE: Append speed-focused instructions ===
         quick_mode = cl.user_session.get("quick_mode", False)
@@ -14278,6 +14681,31 @@ The user expects you to be responsive to what they JUST said, not to lecture fro
 
         await msg.update()
 
+        # === WAVE 5: Show orchestration SUGGESTION after normal response ===
+        if orchestration_suggestion:
+            try:
+                from protocols.orchestration_middleware import get_suggestion_message
+                sug_text = get_suggestion_message(orchestration_suggestion)
+                await cl.Message(
+                    content=f"💡 {sug_text}",
+                    actions=[
+                        cl.Action(
+                            name="accept_orchestration",
+                            payload={
+                                "workflow_type": orchestration_suggestion.workflow_type,
+                                "agents": orchestration_suggestion.suggested_agents,
+                                "query": message.content,
+                            },
+                            label="Run deeper analysis",
+                            tooltip=f"Run {orchestration_suggestion.workflow_name}",
+                        ),
+                    ],
+                ).send()
+                logger.info(f"[MIDDLEWARE] Showed SUGGEST for {orchestration_suggestion.workflow_type} "
+                            f"(confidence={orchestration_suggestion.confidence:.2f})")
+            except Exception as sug_err:
+                logger.debug(f"[MIDDLEWARE] Suggestion display error: {sug_err}")
+
         # Update history with bounded sliding window (prevents memory leaks)
         history = add_to_history(history, "user", message.content)
         history = add_to_history(history, "model", full_response)
@@ -14418,6 +14846,26 @@ The user expects you to be responsive to what they JUST said, not to lecture fro
                 )
             except Exception:
                 pass
+
+        # === A2A Protocol: Post-process response ===
+        try:
+            from protocols import A2A_ORCHESTRATION_ENABLED, post_process_response
+            orchestrator = cl.user_session.get("a2a_orchestrator")
+            if A2A_ORCHESTRATION_ENABLED and orchestrator and response_text:
+                a2a_post = await post_process_response(
+                    response=response_text,
+                    orchestrator=orchestrator,
+                    bot_id=cl.user_session.get("bot_id", "lawrence"),
+                )
+                # If A2A suggests a transition, show as subtle suggestion
+                suggested = a2a_post.get("suggested_transition") if a2a_post else None
+                if suggested and suggested != cl.user_session.get("bot_id"):
+                    suggested_name = BOTS.get(suggested, {}).get("name", suggested)
+                    logger.info(f"[A2A] Suggested transition to: {suggested_name}")
+        except ImportError:
+            pass
+        except Exception as e:
+            logger.debug(f"[A2A] Post-process error (non-fatal): {e}")
 
         # Sync history + phases to context store for preservation across bot switches
         context_key = get_context_key()
@@ -14777,7 +15225,7 @@ async def process_voice_transcript(transcript: str, track_id: str):
         history.append({"role": "model", "content": response_text})
         cl.user_session.set("history", history)
 
-        # Sync context store
+        # Sync context store + persist
         context_key = get_context_key()
         if context_key:
             bot_id = cl.user_session.get("bot_id", "lawrence")
@@ -14785,6 +15233,7 @@ async def process_voice_transcript(transcript: str, track_id: str):
                 "bot_id": bot_id,
                 "history": history.copy(),
             }
+            asyncio.create_task(_persist_context_async(context_key))
 
 
 def pcm16_to_wav(pcm_data: bytes, sample_rate: int = 24000, channels: int = 1) -> bytes:

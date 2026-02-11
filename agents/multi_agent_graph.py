@@ -83,6 +83,16 @@ AGENTS = {
     },
 }
 
+# --- Registry bridge: merge any agents registered via unified_registry ---
+try:
+    from protocols.unified_registry import generate_multi_agent_dict as _gen_agents
+    _registry_agents = _gen_agents()
+    for _k, _v in _registry_agents.items():
+        if _k not in AGENTS:
+            AGENTS[_k] = _v
+except Exception:
+    pass  # Registry not available — use inline definitions
+
 
 # === State Definition ===
 class MultiAgentState(TypedDict):
