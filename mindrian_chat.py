@@ -7369,7 +7369,7 @@ Reasoning: {classification.get('reasoning', 'N/A')}
             system_instruction=system_prompt
         )
         bridge_prompt = f"I've completed the diagnostic. My problem has been classified as: {primary.get('name', '')}. Now give me the bridge message explaining what this means for my specific situation."
-        history.append({"role": "user", "parts": [bridge_prompt]})
+        history.append({"role": "user", "content": bridge_prompt})
 
         response = await model.generate_content_async(
             history,
@@ -7382,7 +7382,7 @@ Reasoning: {classification.get('reasoning', 'N/A')}
                 full_response += chunk.text
         await msg.update()
 
-        history.append({"role": "model", "parts": [full_response]})
+        history.append({"role": "model", "content": full_response})
         cl.user_session.set("history", history)
     except Exception as e:
         await msg.stream_token(f"Let me think about this differently... ({e})")
@@ -9940,10 +9940,13 @@ async def on_synthesize_conversation(action: cl.Action):
         return
 
     # Build conversation transcript for Larry to synthesize
+    # Support both "content" (standard) and "parts" (legacy) history formats
     transcript = ""
     for msg in history:
         role = msg.get("role", "user")
-        content = msg.get("content", "")
+        content = msg.get("content") or (msg["parts"][0] if isinstance(msg.get("parts"), list) and msg["parts"] else "")
+        if not content:
+            continue
         if role == "user":
             transcript += f"**User:** {content}\n\n"
         else:
@@ -9972,7 +9975,7 @@ Your synthesis should:
 - Conversational, not academic
 - Provocative, not condescending
 - Warm but demanding
-- Use signature phrases like "Very simply...", "Here's what everyone misses...", "Think about it like this..."
+- Use micro-tics like trailing thoughts ("And that's where this starts to..."), self-correction, implied judgment
 
 **Format as a clean Markdown document suitable for download.**
 
@@ -11053,33 +11056,33 @@ async def _research_sources_first(recent_context: str, bot_name: str, search_dep
                     f"{result.get('iterations', 1)} round(s)"
                 )
 
-        # Display synthesis (the main output from Gemini)
-        await msg.stream_token("\n---\n\n")
+                # Display synthesis (the main output from Gemini) — only on success
+                await msg.stream_token("\n---\n\n")
 
-        synthesis = result.get("synthesis", "")
-        if synthesis:
-            await msg.stream_token(synthesis)
-            await msg.stream_token("\n\n")
+                synthesis = result.get("synthesis", "")
+                if synthesis:
+                    await msg.stream_token(synthesis)
+                    await msg.stream_token("\n\n")
 
-        # Show evidence gaps if any remain
-        evidence_gaps = result.get("evidence_gaps", [])
-        if evidence_gaps:
-            await msg.stream_token("### ❓ Remaining Questions\n\n")
-            for gap in evidence_gaps[:3]:
-                await msg.stream_token(f"- {gap}\n")
-            await msg.stream_token("\n")
+                # Show evidence gaps if any remain
+                evidence_gaps = result.get("evidence_gaps", [])
+                if evidence_gaps:
+                    await msg.stream_token("### ❓ Remaining Questions\n\n")
+                    for gap in evidence_gaps[:3]:
+                        await msg.stream_token(f"- {gap}\n")
+                    await msg.stream_token("\n")
 
-        # Cost summary in collapsed step
-        cost = result.get("cost_summary", {})
-        if cost and cost.get("total", 0) > 0:
-            async with cl.Step(name="💰 Cost Summary", type="tool") as cost_step:
-                cost_step.output = (
-                    f"Claude: ${cost.get('claude', 0):.4f} | "
-                    f"Tavily: ${cost.get('tavily', 0):.4f} | "
-                    f"Gemini: ${cost.get('gemini', 0):.4f} | "
-                    f"**Total: ${cost.get('total', 0):.4f}** | "
-                    f"Iterations: {result.get('iterations', 1)}"
-                )
+                # Cost summary in collapsed step
+                cost = result.get("cost_summary", {})
+                if cost and cost.get("total", 0) > 0:
+                    async with cl.Step(name="💰 Cost Summary", type="tool") as cost_step:
+                        cost_step.output = (
+                            f"Claude: ${cost.get('claude', 0):.4f} | "
+                            f"Tavily: ${cost.get('tavily', 0):.4f} | "
+                            f"Gemini: ${cost.get('gemini', 0):.4f} | "
+                            f"**Total: ${cost.get('total', 0):.4f}** | "
+                            f"Iterations: {result.get('iterations', 1)}"
+                        )
 
     except Exception as e:
         print(f"[RESEARCH] Pipeline error: {e}")
@@ -12676,7 +12679,7 @@ Your insights help us improve Mindrian!"""
                         print(f"[PWS] classification launch error: {e}")
 
             # Add user message to history
-            history.append({"role": "user", "parts": [message.content]})
+            history.append({"role": "user", "content": message.content})
             cl.user_session.set("history", history)
 
             # Generate Larry's intro response (probing, not classifying)
@@ -12702,7 +12705,7 @@ Your insights help us improve Mindrian!"""
                         full_response += chunk.text
                 await msg.update()
 
-                history.append({"role": "model", "parts": [full_response]})
+                history.append({"role": "model", "content": full_response})
                 cl.user_session.set("history", history)
             except Exception as e:
                 await msg.stream_token(f"I'm having trouble processing that. Could you try again? ({e})")
@@ -12713,7 +12716,7 @@ Your insights help us improve Mindrian!"""
         elif pws_stage == "diagnostic":
             # During diagnostic, MCQ is handled by action callbacks.
             # Any free text here gets a gentle redirect.
-            history.append({"role": "user", "parts": [message.content]})
+            history.append({"role": "user", "content": message.content})
             cl.user_session.set("history", history)
 
             redirect = ("I see you're typing — but the diagnostic questions above need your click to continue. "
@@ -12721,7 +12724,7 @@ Your insights help us improve Mindrian!"""
                         "If none of the options feel right, pick the closest one — we can always reclassify later.")
             await cl.Message(content=redirect).send()
 
-            history.append({"role": "model", "parts": [redirect]})
+            history.append({"role": "model", "content": redirect})
             cl.user_session.set("history", history)
             return  # Handled
 
@@ -12757,7 +12760,7 @@ Your insights help us improve Mindrian!"""
                                   "'We've covered a lot of ground. Would you like me to synthesize what we've discussed?']")
 
             # Add user message to history
-            history.append({"role": "user", "parts": [message.content]})
+            history.append({"role": "user", "content": message.content})
             cl.user_session.set("history", history)
 
             # Stream response
@@ -12780,7 +12783,7 @@ Your insights help us improve Mindrian!"""
                         full_response += chunk.text
                 await msg.update()
 
-                history.append({"role": "model", "parts": [full_response]})
+                history.append({"role": "model", "content": full_response})
                 cl.user_session.set("history", history)
 
                 # === Red Team Validation (AGENTS.md pattern) ===
@@ -13582,10 +13585,13 @@ Your insights help us improve Mindrian!"""
     # Build contents for Gemini
     contents = []
     for msg in history:
-        contents.append(types.Content(
-            role=msg["role"],
-            parts=[types.Part(text=msg["content"])]
-        ))
+        # Support both "content" (standard) and "parts" (legacy) format
+        text = msg.get("content") or (msg["parts"][0] if isinstance(msg.get("parts"), list) and msg["parts"] else "")
+        if text:
+            contents.append(types.Content(
+                role=msg["role"],
+                parts=[types.Part(text=text)]
+            ))
 
     # Add phase context for workshop bots
     phase_context = ""
@@ -14313,11 +14319,18 @@ The user expects you to be responsive to what they JUST said, not to lecture fro
             # Extract topics and update progress (uses LangExtract)
             signals = await extract_and_update_progress(message.content)
 
-            # Check for semantic grounding (only in brainstorming)
+            # Check for semantic grounding (only in brainstorming, with cooldown)
             if entry_point == "brainstorming" and signals:
                 grounding_reason = check_semantic_grounding(signals)
                 if grounding_reason:
-                    await show_grounding_prompt(grounding_reason)
+                    last_grounding = cl.user_session.get("last_grounding_reason")
+                    last_grounding_turn = cl.user_session.get("last_grounding_turn", 0)
+                    current_turn = len(history) // 2
+                    # Don't show same grounding prompt within 3 turns
+                    if grounding_reason != last_grounding or current_turn - last_grounding_turn >= 3:
+                        cl.user_session.set("last_grounding_reason", grounding_reason)
+                        cl.user_session.set("last_grounding_turn", current_turn)
+                        await show_grounding_prompt(grounding_reason)
 
         # === DISABLED: Auto-detect phase progression ===
         # BUG FIX: Removed auto-advancement based on LLM response keywords.

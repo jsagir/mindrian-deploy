@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-10 16:01*
+*Auto-generated: 2026-02-10 16:04*
 
 ---
 
 ## 2026-02-10
+
+### ✨ feat: Upgrade research pipeline to Claude Sonnet 4.5
+
+- **Commit:** `f6fcc653`
+- **Author:** jsagir
+- **Files changed:** 6
+  - intelligence/pipelines/research_pipeline.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Switch all 6 Claude calls in research_pipeline.py and the routing
 
 ### ✨ feat: Upgrade Larry prompt v2.1 — intelligent pedagogical arc
 
@@ -390,15 +402,3 @@
   - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
   - skills/_knowledge/QA_RELEVANT_CHANGES.md
 - **Details:** - text2cypher.py: Lazy-initialize genai.Client to avoid import-time
-
-### ✨ feat: Implement Waves 2, 3, 4 - Forking, Canvas, Auto-Orchestration
-
-- **Commit:** `93cf83bc`
-- **Author:** jsagir
-- **Files changed:** 15
-  - docs/WAVE2_FORKING_DESIGN.md
-  - docs/WAVE3_CANVAS_DESIGN.md
-  - docs/WAVE4_ORCHESTRATION_DESIGN.md
-  - protocols/__init__.py
-  - protocols/auto_orchestrator.py
-- **Details:** Wave 2 - Conversation Forking:

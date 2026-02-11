@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-10 16:01*
+*Auto-generated: 2026-02-10 16:04*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,9 +13,9 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-10 | 11 |
+| 2026-02-10 | 12 |
 | 2026-02-09 | 19 |
-| 2026-02-08 | 20 |
+| 2026-02-08 | 19 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
@@ -30,13 +30,45 @@
 
 ### 2026-02-10
 
+#### ✨ feat: Upgrade research pipeline to Claude Sonnet 4.5
+
+- **Hash:** `f6fcc6531536abfca5099a59b2a1b1047deed2ac`
+- **Short:** `f6fcc653`
+- **Parent:** `eb23e56a`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-10 16:04:34
+- **Risk:** high
+- **Diff:** +71 / -89
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `intelligence/pipelines/research_pipeline.py` | 6 | 6 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 35 | 37 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 15 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 15 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 15 |
+  | `utils/llm_router.py` | 3 | 1 |
+
+  **File Operations:**
+  - ✏️ Modified: `intelligence/pipelines/research_pipeline.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `utils/llm_router.py`
+
+- **Body:** Switch all 6 Claude calls in research_pipeline.py and the routing
+
+
 #### ✨ feat: Upgrade Larry prompt v2.1 — intelligent pedagogical arc
 
 - **Hash:** `eb23e56a888f89e7cd6053da042ccdbe9964a752`
 - **Short:** `eb23e56a`
 - **Parent:** `53f9058b`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-10 16:01:00
 - **Risk:** high
@@ -66,7 +98,6 @@
 - **Short:** `53f9058b`
 - **Parent:** `2837fdc8`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-10 15:54:45
 - **Risk:** high
@@ -1581,48 +1612,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** - Add Supabase password_auth_callback (when SUPABASE_AUTH_ENABLED)
-
-
-#### ✨ feat: Implement Waves 2, 3, 4 - Forking, Canvas, Auto-Orchestration
-
-- **Hash:** `93cf83bc249a6732c4c543d993f0721d69596d91`
-- **Short:** `93cf83bc`
-- **Parent:** `e50607aa`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-08 12:15:54
-- **Risk:** high
-- **Diff:** +8749 / -2
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `docs/WAVE2_FORKING_DESIGN.md` | 1233 | 0 |
-  | `docs/WAVE3_CANVAS_DESIGN.md` | 1235 | 0 |
-  | `docs/WAVE4_ORCHESTRATION_DESIGN.md` | 2095 | 0 |
-  | `protocols/__init__.py` | 45 | 0 |
-  | `protocols/auto_orchestrator.py` | 502 | 0 |
-  | `protocols/intent_classifier.py` | 375 | 0 |
-  | `protocols/workflow_recipes.py` | 375 | 0 |
-  | `public/elements/BranchSelector.jsx` | 347 | 0 |
-  | `public/elements/CommandCenter.jsx` | 454 | 0 |
-  | `public/elements/IdeaCanvas.jsx` | 683 | 0 |
-
-  **File Operations:**
-  - ➕ Added: `docs/WAVE2_FORKING_DESIGN.md`
-  - ➕ Added: `docs/WAVE3_CANVAS_DESIGN.md`
-  - ➕ Added: `docs/WAVE4_ORCHESTRATION_DESIGN.md`
-  - ✏️ Modified: `protocols/__init__.py`
-  - ➕ Added: `protocols/auto_orchestrator.py`
-  - ➕ Added: `protocols/intent_classifier.py`
-  - ➕ Added: `protocols/workflow_recipes.py`
-  - ➕ Added: `public/elements/BranchSelector.jsx`
-  - ➕ Added: `public/elements/CommandCenter.jsx`
-  - ➕ Added: `public/elements/IdeaCanvas.jsx`
-  - ➕ Added: `tools/idea_canvas.py`
-  - ✏️ Modified: `utils/context_persistence.py`
-  - ➕ Added: `utils/forking_merge.py`
-  - ➕ Added: `utils/forking_types.py`
-  - ➕ Added: `utils/forking_utils.py`
-
-- **Body:** Wave 2 - Conversation Forking:
 
