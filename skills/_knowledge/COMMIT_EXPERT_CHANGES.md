@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-10 16:04*
+*Auto-generated: 2026-02-11 10:58*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,20 +13,52 @@
 
 | Date | Commits |
 |------|---------|
+| 2026-02-11 | 1 |
 | 2026-02-10 | 12 |
 | 2026-02-09 | 19 |
-| 2026-02-08 | 19 |
+| 2026-02-08 | 18 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
 | `mindrian_chat.py` | 4 |
-| `prompts/larry_core.py` | 3 |
 
 ---
 
 ## Enriched Commit Log
+
+### 2026-02-11
+
+#### 🐛 fix: 5 bugs from Lawrence QA — history format, grounding spam, research freeze, synthesize
+
+- **Hash:** `81f9743ada95ad688f6fb6479971d1a2108fb0e6`
+- **Short:** `81f9743a`
+- **Parent:** `f6fcc653`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-11 10:58:59
+- **Risk:** medium
+- **Diff:** +119 / -119
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 56 | 43 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 36 | 49 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 13 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** BUG-1: GroundingPrompt appearing twice — add 3-turn cooldown per reason
+
 
 ### 2026-02-10
 
@@ -36,7 +68,7 @@
 - **Short:** `f6fcc653`
 - **Parent:** `eb23e56a`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-10 16:04:34
 - **Risk:** high
@@ -68,7 +100,6 @@
 - **Short:** `eb23e56a`
 - **Parent:** `53f9058b`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-10 16:01:00
 - **Risk:** high
@@ -1581,35 +1612,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** - text2cypher.py: Lazy-initialize genai.Client to avoid import-time
-
-
-#### 🐛 fix: Auth - use Chainlit native password auth, disable auth-bridge
-
-- **Hash:** `224b729df4b385ecfa6821ad97c0c813b25e4038`
-- **Short:** `224b729d`
-- **Parent:** `93cf83bc`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-08 12:16:21
-- **Risk:** medium
-- **Diff:** +1851 / -237
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `.chainlit/config.toml` | 2 | 1 |
-  | `mindrian_chat.py` | 1700 | 146 |
-  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 82 | 56 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 27 | 21 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 27 | 12 |
-
-  **File Operations:**
-  - ✏️ Modified: `.chainlit/config.toml`
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** - Add Supabase password_auth_callback (when SUPABASE_AUTH_ENABLED)
 

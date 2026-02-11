@@ -1,8 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-10 16:04*
+*Auto-generated: 2026-02-11 10:58*
 
 ---
+
+## 2026-02-11
+
+### 🐛 fix: 5 bugs from Lawrence QA — history format, grounding spam, research freeze, synthesize
+
+- **Commit:** `81f9743a`
+- **Author:** jsagir
+- **Files changed:** 5
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** BUG-1: GroundingPrompt appearing twice — add 3-turn cooldown per reason
 
 ## 2026-02-10
 
@@ -586,15 +600,3 @@
   - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
   - skills/_knowledge/QA_RELEVANT_CHANGES.md
 - **Details:** - text2cypher.py: Lazy-initialize genai.Client to avoid import-time
-
-### 🐛 fix: Auth - use Chainlit native password auth, disable auth-bridge
-
-- **Commit:** `224b729d`
-- **Author:** jsagir
-- **Files changed:** 6
-  - mindrian_chat.py
-  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** - Add Supabase password_auth_callback (when SUPABASE_AUTH_ENABLED)

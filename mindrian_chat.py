@@ -583,6 +583,9 @@ except ImportError as e:
     # Fallback stubs
     MAX_HISTORY_LENGTH = 50
     def add_to_history(history, role, content, **kwargs):
+        # Normalize role: Gemini expects "user" or "model", never "assistant"
+        if role == "assistant":
+            role = "model"
         history.append({"role": role, "content": content})
         return history[-MAX_HISTORY_LENGTH:]
     def get_bounded_history(history, **kwargs):
@@ -7638,7 +7641,7 @@ End by asking what the user wants to explore next."""
             await msg.update()
 
             history.append({"role": "user", "content": f"[Consulted {role} ({subdomain})]"})
-            history.append({"role": "assistant", "content": full_response})
+            history.append({"role": "model", "content": full_response})
             cl.user_session.set("history", history)
 
             # === AGENTS.md Pattern: Store expert response as Frame (not Artifact) ===
@@ -9915,7 +9918,7 @@ Use Larry's voice: conversational, direct, provocative."""
 
             # Add to history
             history.append({"role": "user", "content": "[User pressed: Give me your answer]"})
-            history.append({"role": "assistant", "content": response.text})
+            history.append({"role": "model", "content": response.text})
             cl.user_session.set("history", history)
         else:
             msg.content = "I couldn't generate a convergent answer. Let me try a different approach — what specific question would you like me to answer directly?"
@@ -13587,9 +13590,13 @@ Your insights help us improve Mindrian!"""
     for msg in history:
         # Support both "content" (standard) and "parts" (legacy) format
         text = msg.get("content") or (msg["parts"][0] if isinstance(msg.get("parts"), list) and msg["parts"] else "")
+        # Normalize role: Gemini expects "user" or "model", never "assistant"
+        role = msg.get("role", "user")
+        if role == "assistant":
+            role = "model"
         if text:
             contents.append(types.Content(
-                role=msg["role"],
+                role=role,
                 parts=[types.Part(text=text)]
             ))
 
