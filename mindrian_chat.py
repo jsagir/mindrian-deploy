@@ -376,13 +376,70 @@ class CronEndpointMiddleware(BaseHTTPMiddleware):
             except Exception as e:
                 return JSONResponse(status_code=500, content={"success": False, "error": str(e)})
 
+        # Handle /api/qa-feedback - admin review of QA feedback submissions
+        if request.url.path == "/api/qa-feedback":
+            try:
+                from supabase import create_client
+                sb_url = os.getenv("SUPABASE_URL")
+                sb_key = os.getenv("SUPABASE_SERVICE_KEY")
+                sb_bucket = os.getenv("SUPABASE_BUCKET", "mindrian-files")
+                if not sb_url or not sb_key:
+                    return JSONResponse(status_code=503, content={"error": "Supabase not configured"})
+
+                date_filter = request.query_params.get("date", None)
+                prefix = f"qa_feedback/{date_filter}" if date_filter else "qa_feedback"
+
+                sb_client = create_client(sb_url, sb_key)
+                files = sb_client.storage.from_(sb_bucket).list(prefix)
+                feedback_items = []
+
+                # List files — Supabase returns folders at top level, files inside date folders
+                if date_filter:
+                    # Direct file list for a specific date
+                    for f in (files or []):
+                        if f.get("name", "").endswith(".json"):
+                            try:
+                                data = sb_client.storage.from_(sb_bucket).download(f"{prefix}/{f['name']}")
+                                feedback_items.append(json.loads(data.decode("utf-8")))
+                            except Exception:
+                                pass
+                else:
+                    # List date folders, then files in each
+                    for folder in (files or []):
+                        folder_name = folder.get("name", "")
+                        if not folder_name:
+                            continue
+                        try:
+                            inner_files = sb_client.storage.from_(sb_bucket).list(f"qa_feedback/{folder_name}")
+                            for f in (inner_files or []):
+                                if f.get("name", "").endswith(".json"):
+                                    try:
+                                        data = sb_client.storage.from_(sb_bucket).download(
+                                            f"qa_feedback/{folder_name}/{f['name']}"
+                                        )
+                                        feedback_items.append(json.loads(data.decode("utf-8")))
+                                    except Exception:
+                                        pass
+                        except Exception:
+                            pass
+
+                return JSONResponse(content={
+                    "total": len(feedback_items),
+                    "date_filter": date_filter,
+                    "feedback": feedback_items,
+                })
+            except ImportError:
+                return JSONResponse(status_code=503, content={"error": "supabase package not installed"})
+            except Exception as e:
+                return JSONResponse(status_code=500, content={"error": str(e)})
+
         # Not our endpoint, continue to Chainlit
         return await call_next(request)
 
 # Add middleware BEFORE any routes
 # This middleware handles /api/* endpoints BEFORE Chainlit's auth kicks in
 fastapi_app.add_middleware(CronEndpointMiddleware)
-print("[API] Middleware registered: /api/health, /api/public-config, /api/lightrag-health, /api/embed-opportunities, /api/daily-summary")
+print("[API] Middleware registered: /api/health, /api/public-config, /api/lightrag-health, /api/embed-opportunities, /api/daily-summary, /api/qa-feedback")
 
 from google import genai
 from google.genai import types
@@ -4363,6 +4420,15 @@ async def start():
         label="💾 Save Conversation",
         description="Save your progress to cloud storage",
         tooltip="💾 Create a checkpoint - your conversation will persist across server restarts"
+    ))
+
+    # Add "Rate Session" button for ALL bots - QA feedback
+    actions.append(cl.Action(
+        name="rate_session",
+        payload={"action": "rate_session"},
+        label="📋 Rate Session",
+        description="Give QA feedback on this session",
+        tooltip="📋 Fill out a QA feedback form to help improve Mindrian"
     ))
 
     # Full-mode-only: Extract Insights, Generate Image, Analytics
@@ -16805,3 +16871,245 @@ async def on_run_genesis_analysis(action: cl.Action):
         await msg.stream_token(f"\n\n❌ Error: {str(e)[:200]}")
         await msg.update()
         print(f"[Genesis] Pipeline error: {e}")
+
+
+# ============================================================
+# QA Feedback Form — Interactive In-Chat Testing Survey
+# ============================================================
+
+@cl.action_callback("rate_session")
+async def on_rate_session(action: cl.Action):
+    """Build and display a contextual QA feedback form based on session state."""
+    # --- Gather session state ---
+    bot_id = cl.user_session.get("bot_id", cl.user_session.get("chat_profile", "unknown"))
+    bot = cl.user_session.get("bot", BOTS.get(bot_id, {}))
+    history = cl.user_session.get("history", [])
+    turn_count = len(history)
+    phases = cl.user_session.get("phases", [])
+    current_phase = cl.user_session.get("current_phase", 0)
+    has_phases = bot.get("has_phases", False)
+
+    # Detect orchestration usage — check history for orchestration markers
+    orchestration_used = any(
+        "[orchestrat" in (m.get("content", "") or "").lower()
+        or "multi-agent" in (m.get("content", "") or "").lower()
+        or "breakthrough" in (m.get("content", "") or "").lower()
+        for m in history if m.get("role") == "model"
+    )
+
+    # Detect features used
+    features_used = []
+    if has_phases:
+        features_used.append("phases")
+    if any("research" in (m.get("content", "") or "").lower() for m in history if m.get("role") == "model"):
+        features_used.append("research")
+    if orchestration_used:
+        features_used.append("orchestration")
+
+    # Build session info
+    session_info = {
+        "agent": bot.get("name", bot_id),
+        "phases_completed": current_phase if has_phases else None,
+        "total_phases": len(phases) if has_phases else None,
+        "turn_count": turn_count,
+        "orchestration_seen": orchestration_used,
+        "features_used": features_used,
+    }
+
+    # --- Build contextual sections ---
+    yes_somewhat_no = [
+        {"value": "yes", "label": "Yes"},
+        {"value": "somewhat", "label": "Somewhat"},
+        {"value": "no", "label": "No"},
+    ]
+
+    sections = []
+
+    # Section 1: General (always shown)
+    sections.append({
+        "title": "General Experience",
+        "visible": True,
+        "fields": [
+            {"key": "overall_score", "label": "Overall session quality", "type": "rating", "required": True},
+            {"key": "agent_helpful", "label": "Was the agent helpful?", "type": "select",
+             "options": yes_somewhat_no},
+            {"key": "general_comments", "label": "General comments", "type": "textarea", "rows": 3,
+             "placeholder": "What stood out? Any suggestions?"},
+        ]
+    })
+
+    # Section 2: Workshop Experience (only for phase-based bots)
+    if has_phases:
+        sections.append({
+            "title": "Workshop Experience",
+            "visible": True,
+            "fields": [
+                {"key": "workshop_score", "label": "Overall workshop quality", "type": "rating", "required": True},
+                {"key": "workshop_structured", "label": "Did the workshop feel structured but not robotic?",
+                 "type": "select", "options": yes_somewhat_no},
+                {"key": "workshop_socratic", "label": "Were questions Socratic (made you think)?",
+                 "type": "select", "options": yes_somewhat_no},
+                {"key": "workshop_discovery", "label": "Did you discover something new?",
+                 "type": "select", "options": yes_somewhat_no},
+                {"key": "workshop_comments", "label": "Workshop comments", "type": "textarea", "rows": 3,
+                 "placeholder": "How was the phase progression? Any awkward transitions?"},
+            ]
+        })
+
+    # Section 3: Orchestration (only if orchestration was triggered)
+    if orchestration_used:
+        sections.append({
+            "title": "Orchestration",
+            "visible": True,
+            "fields": [
+                {"key": "orchestration_score", "label": "Orchestration quality", "type": "rating"},
+                {"key": "orchestration_timing", "label": "Was the recommendation well-timed?",
+                 "type": "select", "options": yes_somewhat_no},
+                {"key": "orchestration_relevant", "label": "Was the orchestration recommendation relevant?",
+                 "type": "select", "options": yes_somewhat_no},
+                {"key": "orchestration_comments", "label": "Orchestration comments", "type": "textarea", "rows": 2,
+                 "placeholder": "Any issues with orchestration flow?"},
+            ]
+        })
+
+    # Section 4: Bugs & Issues (always shown)
+    sections.append({
+        "title": "Bugs & Issues",
+        "visible": True,
+        "fields": [
+            {"key": "any_crashes", "label": "Did you experience any crashes or errors?",
+             "type": "select", "options": [
+                 {"value": "none", "label": "None"},
+                 {"value": "minor", "label": "Minor issues"},
+                 {"value": "major", "label": "Major issues / crashes"},
+             ]},
+            {"key": "bug_description", "label": "Describe any bugs encountered", "type": "textarea", "rows": 3,
+             "placeholder": "What happened? Steps to reproduce?"},
+        ]
+    })
+
+    # --- Send the form ---
+    form_element = cl.CustomElement(
+        name="QAFeedbackForm",
+        props={
+            "title": "QA Feedback — Feb 11, 2026 Release",
+            "description": "Help us improve Mindrian by sharing your testing experience.",
+            "sessionInfo": session_info,
+            "sections": sections,
+            "submitLabel": "Submit Feedback",
+            "actionName": "qa_feedback_submit",
+        },
+        display="inline",
+    )
+    await cl.Message(content="", elements=[form_element]).send()
+
+
+@cl.action_callback("qa_feedback_submit")
+async def on_qa_feedback_submit(action: cl.Action):
+    """Handle QA feedback form submission — save to Supabase Storage + CSV."""
+    from pathlib import Path
+
+    form_data = action.payload or {}
+
+    # --- Gather enrichment metadata ---
+    session_id = cl.user_session.get("id", "unknown")
+    try:
+        user = cl.user_session.get("user")
+        user_id = user.identifier if user else "anonymous"
+    except Exception:
+        user_id = "anonymous"
+
+    bot_id = cl.user_session.get("bot_id", cl.user_session.get("chat_profile", "unknown"))
+    bot = cl.user_session.get("bot", BOTS.get(bot_id, {}))
+    history = cl.user_session.get("history", [])
+    turn_count = len(history)
+    phases = cl.user_session.get("phases", [])
+    current_phase = cl.user_session.get("current_phase", 0)
+    has_phases = bot.get("has_phases", False)
+
+    now = datetime.utcnow()
+    date_str = now.strftime("%Y-%m-%d")
+
+    feedback = {
+        "submitted_at": now.isoformat(),
+        "session_id": str(session_id),
+        "user_id": user_id,
+        "bot_id": bot_id,
+        "agent_name": bot.get("name", bot_id),
+        "turn_count": turn_count,
+        "phases_completed": current_phase if has_phases else None,
+        "total_phases": len(phases) if has_phases else None,
+        "release": "2026-02-11",
+        "responses": form_data,
+    }
+
+    # --- Save to Supabase Storage ---
+    try:
+        sb_url = os.getenv("SUPABASE_URL")
+        sb_key = os.getenv("SUPABASE_SERVICE_KEY")
+        sb_bucket = os.getenv("SUPABASE_BUCKET", "mindrian-files")
+        if sb_url and sb_key:
+            from supabase import create_client
+            sb_client = create_client(sb_url, sb_key)
+            file_path = f"qa_feedback/{date_str}/{session_id}.json"
+            json_bytes = json.dumps(feedback, indent=2).encode("utf-8")
+            try:
+                sb_client.storage.from_(sb_bucket).upload(
+                    path=file_path,
+                    file=json_bytes,
+                    file_options={"content-type": "application/json", "upsert": "true"}
+                )
+            except Exception as upload_err:
+                if "Duplicate" in str(upload_err) or "already exists" in str(upload_err).lower():
+                    sb_client.storage.from_(sb_bucket).update(
+                        path=file_path,
+                        file=json_bytes,
+                        file_options={"content-type": "application/json"}
+                    )
+            print(f"[QA_FEEDBACK] Saved to Supabase: {file_path}")
+    except Exception as e:
+        print(f"[QA_FEEDBACK] Supabase save error: {e}")
+
+    # --- Append to local CSV ---
+    try:
+        csv_dir = Path("analytics")
+        csv_dir.mkdir(exist_ok=True)
+        csv_path = csv_dir / "qa_feedback.csv"
+        file_exists = csv_path.exists()
+
+        fieldnames = [
+            "timestamp", "session_id", "user_id", "bot_id", "agent_name",
+            "turn_count", "phases_completed", "overall_score", "workshop_score",
+            "orchestration_score", "bugs_reported", "comments",
+        ]
+
+        import csv
+        row = {
+            "timestamp": now.isoformat(),
+            "session_id": str(session_id),
+            "user_id": user_id,
+            "bot_id": bot_id,
+            "agent_name": bot.get("name", bot_id),
+            "turn_count": turn_count,
+            "phases_completed": current_phase if has_phases else "",
+            "overall_score": form_data.get("overall_score", ""),
+            "workshop_score": form_data.get("workshop_score", ""),
+            "orchestration_score": form_data.get("orchestration_score", ""),
+            "bugs_reported": form_data.get("any_crashes", "none"),
+            "comments": form_data.get("general_comments", ""),
+        }
+
+        with open(csv_path, "a", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            if not file_exists:
+                writer.writeheader()
+            writer.writerow(row)
+
+        print(f"[QA_FEEDBACK] Appended to CSV: {csv_path}")
+    except Exception as e:
+        print(f"[QA_FEEDBACK] CSV save error: {e}")
+
+    # --- Confirmation message ---
+    await cl.Message(
+        content="**Thank you for your feedback!** Your responses have been recorded and will help improve Mindrian."
+    ).send()
