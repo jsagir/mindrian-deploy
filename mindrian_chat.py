@@ -13585,6 +13585,15 @@ Your insights help us improve Mindrian!"""
         # If no substantial content, just respond with instructions
         # (handled by normal conversation flow below)
 
+    # === ESCAPE HATCH: Detect "summarize" intent → trigger structured synthesis ===
+    msg_lower = message.content.strip().lower()
+    summarize_triggers = ["summarize", "summary so far", "sum up", "wrap up",
+                          "what have we discussed", "recap the conversation"]
+    if any(trigger in msg_lower for trigger in summarize_triggers) and len(history) >= 4:
+        action = cl.Action(name="synthesize_conversation", payload={"action": "synthesize"})
+        await on_synthesize_conversation(action)
+        return
+
     # Build contents for Gemini
     contents = []
     for msg in history:
@@ -14505,8 +14514,23 @@ The user expects you to be responsive to what they JUST said, not to lecture fro
             print(f"Metadata save warning: {meta_err}")
 
     except Exception as e:
-        await msg.stream_token(f"\n\nError: {str(e)}")
-        await msg.update()
+        print(f"[MAIN_HANDLER] Error: {e}")
+        import traceback
+        traceback.print_exc()
+        try:
+            if msg:
+                msg.content = msg.content + f"\n\nI encountered an issue: {str(e)[:200]}"
+                msg.actions = get_core_action_buttons(include_example=True)
+                await msg.update()
+        except Exception:
+            # Last resort: send a NEW message so UI doesn't freeze
+            try:
+                await cl.Message(
+                    content=f"Something went wrong: {str(e)[:200]}\n\nYour conversation is preserved. Please try again.",
+                    actions=get_core_action_buttons(include_example=True)
+                ).send()
+            except Exception:
+                pass  # Chainlit will recover on next user message
 
 
 # === Audio Stream Handlers (Voice Assistant) ===

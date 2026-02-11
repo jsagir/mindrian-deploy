@@ -1,10 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-11 10:58*
+*Auto-generated: 2026-02-11 11:00*
 
 ---
 
 ## 2026-02-11
+
+### 🐛 fix: Normalize history role format — "assistant" → "model" for Gemini API
+
+- **Commit:** `59b6b064`
+- **Author:** jsagir
+- **Files changed:** 5
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Gemini expects role="user" or role="model" but 2 places appended with
 
 ### 🐛 fix: 5 bugs from Lawrence QA — history format, grounding spam, research freeze, synthesize
 
@@ -412,15 +424,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** Data Layer:
-
-### 🐛 fix: Resolve pipeline import issues (Minto/Oracle/Genesis)
-
-- **Commit:** `1749e0ac`
-- **Author:** jsagir
-- **Files changed:** 7
-  - intelligence/__init__.py
-  - intelligence/agents/research_agent.py
-  - intelligence/tools/text2cypher.py
-  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-- **Details:** - text2cypher.py: Lazy-initialize genai.Client to avoid import-time

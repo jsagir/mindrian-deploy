@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-11 10:58*
+*Auto-generated: 2026-02-11 11:00*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,16 +13,16 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-11 | 1 |
+| 2026-02-11 | 2 |
 | 2026-02-10 | 12 |
 | 2026-02-09 | 19 |
-| 2026-02-08 | 18 |
+| 2026-02-08 | 17 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 4 |
+| `mindrian_chat.py` | 5 |
 
 ---
 
@@ -30,13 +30,43 @@
 
 ### 2026-02-11
 
+#### 🐛 fix: Normalize history role format — "assistant" → "model" for Gemini API
+
+- **Hash:** `59b6b064eb238ffe326183a31b6b6a15fd241a1d`
+- **Short:** `59b6b064`
+- **Parent:** `81f9743a`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-11 11:00:29
+- **Risk:** medium
+- **Diff:** +91 / -66
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 10 | 3 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 36 | 36 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 15 | 13 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 15 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 15 | 1 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** Gemini expects role="user" or role="model" but 2 places appended with
+
+
 #### 🐛 fix: 5 bugs from Lawrence QA — history format, grounding spam, research freeze, synthesize
 
 - **Hash:** `81f9743ada95ad688f6fb6479971d1a2108fb0e6`
 - **Short:** `81f9743a`
 - **Parent:** `f6fcc653`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-11 10:58:59
 - **Risk:** medium
@@ -68,7 +98,6 @@
 - **Short:** `f6fcc653`
 - **Parent:** `eb23e56a`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-10 16:04:34
 - **Risk:** high
@@ -1579,37 +1608,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** Data Layer:
-
-
-#### 🐛 fix: Resolve pipeline import issues (Minto/Oracle/Genesis)
-
-- **Hash:** `1749e0acbc387e4b8d59a77909937ddfb0a43b23`
-- **Short:** `1749e0ac`
-- **Parent:** `224b729d`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-08 12:33:49
-- **Risk:** medium
-- **Diff:** +95 / -73
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `intelligence/__init__.py` | 14 | 4 |
-  | `intelligence/agents/research_agent.py` | 1 | 1 |
-  | `intelligence/tools/text2cypher.py` | 14 | 3 |
-  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 37 | 38 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 15 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 13 |
-
-  **File Operations:**
-  - ✏️ Modified: `intelligence/__init__.py`
-  - ✏️ Modified: `intelligence/agents/research_agent.py`
-  - ✏️ Modified: `intelligence/tools/text2cypher.py`
-  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** - text2cypher.py: Lazy-initialize genai.Client to avoid import-time
 

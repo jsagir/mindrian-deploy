@@ -1,6 +1,6 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-11 10:58*
+*Auto-generated: 2026-02-11 11:00*
 
 ---
 
@@ -404,15 +404,3 @@
   - skills/_knowledge/QA_RELEVANT_CHANGES.md
   - skills/_knowledge/RECENT_CHANGES.md
 - **Details:** The PostgreSQL database was empty - Chainlit's users, threads, steps,
-
-### 🐛 fix: Resolve pipeline import issues (Minto/Oracle/Genesis)
-
-- **Commit:** `1749e0ac`
-- **Author:** jsagir
-- **Files changed:** 7
-  - intelligence/__init__.py
-  - intelligence/agents/research_agent.py
-  - intelligence/tools/text2cypher.py
-  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-- **Details:** - text2cypher.py: Lazy-initialize genai.Client to avoid import-time
