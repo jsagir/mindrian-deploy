@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-11 11:01*
+*Auto-generated: 2026-02-11 16:21*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,16 +13,16 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-11 | 3 |
+| 2026-02-11 | 5 |
 | 2026-02-10 | 12 |
 | 2026-02-09 | 19 |
-| 2026-02-08 | 16 |
+| 2026-02-08 | 14 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 6 |
+| `mindrian_chat.py` | 8 |
 
 ---
 
@@ -30,13 +30,83 @@
 
 ### 2026-02-11
 
+#### ✨ feat: Add interactive QA feedback form with contextual questions
+
+- **Hash:** `1bd5c0456a0d3f484b5a7dcf9bde0ccab76001bc`
+- **Short:** `1bd5c045`
+- **Parent:** `fe50f946`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-11 16:21:50
+- **Risk:** high
+- **Diff:** +598 / -2
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 310 | 2 |
+  | `public/elements/QAFeedbackForm.jsx` | 288 | 0 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ➕ Added: `public/elements/QAFeedbackForm.jsx`
+
+- **Body:** Add "Rate Session" button that opens a contextual QA survey adapted to
+
+
+#### ✨ feat: Button-less orchestration + unified registry + 3 new workshop agents
+
+- **Hash:** `fe50f94619008f09dd7e32d285856897e5352385`
+- **Short:** `fe50f946`
+- **Parent:** `d27afb52`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-11 15:14:54
+- **Risk:** high
+- **Diff:** +4845 / -185
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `agents/multi_agent_graph.py` | 10 | 0 |
+  | `mindrian_chat.py` | 569 | 120 |
+  | `prompts/__init__.py` | 24 | 0 |
+  | `prompts/dominant_designs.py` | 671 | 0 |
+  | `prompts/macro_changes.py` | 650 | 0 |
+  | `prompts/user_needs.py` | 799 | 0 |
+  | `protocols/__init__.py` | 57 | 0 |
+  | `protocols/agent_definitions.py` | 839 | 0 |
+  | `protocols/auto_orchestrator.py` | 11 | 1 |
+  | `protocols/orchestration_middleware.py` | 317 | 0 |
+
+  **File Operations:**
+  - ✏️ Modified: `agents/multi_agent_graph.py`
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `prompts/__init__.py`
+  - ➕ Added: `prompts/dominant_designs.py`
+  - ➕ Added: `prompts/macro_changes.py`
+  - ➕ Added: `prompts/user_needs.py`
+  - ✏️ Modified: `protocols/__init__.py`
+  - ➕ Added: `protocols/agent_definitions.py`
+  - ✏️ Modified: `protocols/auto_orchestrator.py`
+  - ➕ Added: `protocols/orchestration_middleware.py`
+  - ➕ Added: `protocols/unified_registry.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+  - ➕ Added: `tests/test_orchestration_middleware.py`
+  - ➕ Added: `tests/test_unified_registry.py`
+
+- **Body:** Adds human-in-the-loop orchestration detection (DETECT → RECOMMEND → CONFIRM → EXECUTE),
+
+
 #### 🐛 fix: Defensive error handler + natural language summarize detection
 
 - **Hash:** `d27afb520c14790481818665cb14ca9636711af7`
 - **Short:** `d27afb52`
 - **Parent:** `59b6b064`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-11 11:01:38
 - **Risk:** medium
@@ -66,7 +136,6 @@
 - **Short:** `59b6b064`
 - **Parent:** `81f9743a`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-11 11:00:29
 - **Risk:** medium
@@ -1548,62 +1617,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** 1. Fix click handler to use window.Chainlit.callAction (not global)
-
-
-#### 🐛 fix: Use sync function for @cl.data_layer decorator
-
-- **Hash:** `306188c3d56f68f1b3c713fc07e1eaafef26cf63`
-- **Short:** `306188c3`
-- **Parent:** `2f08c187`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-08 12:53:58
-- **Risk:** medium
-- **Diff:** +63 / -46
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `mindrian_chat.py` | 1 | 1 |
-  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 35 | 32 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 11 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 1 |
-
-  **File Operations:**
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-
-
-#### 🐛 fix: Move /api/health and /api/public-config to middleware
-
-- **Hash:** `2f08c187e54ada6dafd7ab5ddf5de55239d6f452`
-- **Short:** `2f08c187`
-- **Parent:** `41f14e01`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-08 12:47:28
-- **Risk:** medium
-- **Diff:** +97 / -113
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `mindrian_chat.py` | 32 | 50 |
-  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 38 | 36 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 13 |
-
-  **File Operations:**
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** These endpoints were being blocked by Chainlit's auth. Moving them to
 

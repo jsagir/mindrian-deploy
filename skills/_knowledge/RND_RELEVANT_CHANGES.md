@@ -1,10 +1,31 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-11 11:01*
+*Auto-generated: 2026-02-11 16:21*
 
 ---
 
 ## 2026-02-11
+
+### ✨ feat: Add interactive QA feedback form with contextual questions
+
+- **Commit:** `1bd5c045`
+- **Author:** jsagir
+- **Files changed:** 2
+  - mindrian_chat.py
+  - public/elements/QAFeedbackForm.jsx
+- **Details:** Add "Rate Session" button that opens a contextual QA survey adapted to
+
+### ✨ feat: Button-less orchestration + unified registry + 3 new workshop agents
+
+- **Commit:** `fe50f946`
+- **Author:** jsagir
+- **Files changed:** 17
+  - agents/multi_agent_graph.py
+  - mindrian_chat.py
+  - prompts/__init__.py
+  - prompts/dominant_designs.py
+  - prompts/macro_changes.py
+- **Details:** Adds human-in-the-loop orchestration detection (DETECT → RECOMMEND → CONFIRM → EXECUTE),
 
 ### 🐛 fix: 5 bugs from Lawrence QA — history format, grounding spam, research freeze, synthesize
 

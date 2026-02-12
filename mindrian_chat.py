@@ -7637,19 +7637,19 @@ Reasoning: {classification.get('reasoning', 'N/A')}
     await msg.send()
 
     try:
-        model = genai.GenerativeModel(
-            MAIN_MODEL,
-            system_instruction=system_prompt
-        )
         bridge_prompt = f"I've completed the diagnostic. My problem has been classified as: {primary.get('name', '')}. Now give me the bridge message explaining what this means for my specific situation."
         history.append({"role": "user", "content": bridge_prompt})
 
-        response = await model.generate_content_async(
-            history,
-            stream=True
+        config = types.GenerateContentConfig(
+            system_instruction=system_prompt,
+        )
+        response_stream = client.models.generate_content_stream(
+            model="gemini-3-flash-preview",
+            contents=history,
+            config=config,
         )
         full_response = ""
-        async for chunk in response:
+        for chunk in response_stream:
             if chunk.text:
                 await msg.stream_token(chunk.text)
                 full_response += chunk.text
@@ -13058,16 +13058,16 @@ Your insights help us improve Mindrian!"""
             await msg.send()
 
             try:
-                model = genai.GenerativeModel(
-                    MAIN_MODEL,
-                    system_instruction=system_prompt
+                config = types.GenerateContentConfig(
+                    system_instruction=system_prompt,
                 )
-                response = await model.generate_content_async(
-                    history,
-                    stream=True
+                response_stream = client.models.generate_content_stream(
+                    model="gemini-3-flash-preview",
+                    contents=history,
+                    config=config,
                 )
                 full_response = ""
-                async for chunk in response:
+                for chunk in response_stream:
                     if chunk.text:
                         await msg.stream_token(chunk.text)
                         full_response += chunk.text
@@ -13136,16 +13136,16 @@ Your insights help us improve Mindrian!"""
             await msg.send()
 
             try:
-                model = genai.GenerativeModel(
-                    MAIN_MODEL,
-                    system_instruction=system_prompt
+                config = types.GenerateContentConfig(
+                    system_instruction=system_prompt,
                 )
-                response = await model.generate_content_async(
-                    history,
-                    stream=True
+                response_stream = client.models.generate_content_stream(
+                    model="gemini-3-flash-preview",
+                    contents=history,
+                    config=config,
                 )
                 full_response = ""
-                async for chunk in response:
+                for chunk in response_stream:
                     if chunk.text:
                         await msg.stream_token(chunk.text)
                         full_response += chunk.text

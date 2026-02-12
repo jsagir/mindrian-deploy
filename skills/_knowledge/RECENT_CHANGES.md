@@ -1,10 +1,31 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-11 11:01*
+*Auto-generated: 2026-02-11 16:21*
 
 ---
 
 ## 2026-02-11
+
+### ✨ feat: Add interactive QA feedback form with contextual questions
+
+- **Commit:** `1bd5c045`
+- **Author:** jsagir
+- **Files changed:** 2
+  - mindrian_chat.py
+  - public/elements/QAFeedbackForm.jsx
+- **Details:** Add "Rate Session" button that opens a contextual QA survey adapted to
+
+### ✨ feat: Button-less orchestration + unified registry + 3 new workshop agents
+
+- **Commit:** `fe50f946`
+- **Author:** jsagir
+- **Files changed:** 17
+  - agents/multi_agent_graph.py
+  - mindrian_chat.py
+  - prompts/__init__.py
+  - prompts/dominant_designs.py
+  - prompts/macro_changes.py
+- **Details:** Adds human-in-the-loop orchestration detection (DETECT → RECOMMEND → CONFIRM → EXECUTE),
 
 ### 🐛 fix: Defensive error handler + natural language summarize detection
 
@@ -576,27 +597,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** 1. Fix click handler to use window.Chainlit.callAction (not global)
-
-### 🐛 fix: Use sync function for @cl.data_layer decorator
-
-- **Commit:** `306188c3`
-- **Author:** jsagir
-- **Files changed:** 5
-  - mindrian_chat.py
-  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-
-### 🐛 fix: Move /api/health and /api/public-config to middleware
-
-- **Commit:** `2f08c187`
-- **Author:** jsagir
-- **Files changed:** 5
-  - mindrian_chat.py
-  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** These endpoints were being blocked by Chainlit's auth. Moving them to
