@@ -454,6 +454,15 @@ except ImportError:
     GRAPHRAG_ENABLED = False
     print("GraphRAG Lite not available (Neo4j not configured)")
 
+# === Context Engine - Budget-aware context assembly with KG-RAG patterns ===
+try:
+    from tools.context_engine import assemble_context as ce_assemble_context, classify_query_intent
+    CONTEXT_ENGINE_ENABLED = True
+    print("Context Engine enabled (KG-RAG patterns + context engineering)")
+except ImportError:
+    CONTEXT_ENGINE_ENABLED = False
+    print("Context Engine not available")
+
 # === Smart Phase Tracker - LLM-based phase detection ===
 try:
     from tools.smart_phase_tracker import (
@@ -8432,6 +8441,17 @@ async def handle_agent_switch(new_agent_id: str):
             cl.user_session.set("a2a_enriched_prompt", enriched_prompt)
             cl.user_session.set("a2a_last_handoff", a2a_handoff)
             logger.info(f"[A2A] Handoff created: {current_bot_id} -> {new_agent_id}")
+
+            # Carry context engine state across handoff
+            if CONTEXT_ENGINE_ENABLED:
+                try:
+                    last_strategy = cl.user_session.get("_ce_last_strategy", "")
+                    if last_strategy:
+                        handoff_ce_note = f"\n[Context Engine: Previous bot used strategy={last_strategy}]"
+                        cl.user_session.set("a2a_enriched_prompt",
+                            enriched_prompt + handoff_ce_note)
+                except Exception:
+                    pass
     except ImportError:
         pass
     except Exception as e:
@@ -14018,34 +14038,13 @@ Your insights help us improve Mindrian!"""
                 message.content, turn_count, bot_id=bot_id, excluded_topics=excluded_topics
             )
             if graphrag_hint:
-                # Add as invisible context hint - not shown to user
-                full_user_message += f"\n\n{graphrag_hint}"
                 print(f"GraphRAG enriched ({bot_id}): {graphrag_hint[:100]}...")
         except Exception as e:
             print(f"GraphRAG error (non-fatal): {e}")
 
-    # === Saturation Detection: nudge Larry toward convergence ===
-    # Pure Python heuristics — zero latency cost (no LLM call)
-    if turn_count >= 8:
-        try:
-            from tools.smart_phase_tracker import detect_saturation
-            sat = detect_saturation(history)
-            if sat.get("saturated"):
-                full_user_message += f"\n\n[System: Conversation saturation detected ({sat['signal']}). Consider suggesting the user press 🎯 Give me your answer if they seem ready for closure.]"
-        except Exception:
-            pass
-
-    # === LangExtract: Shape response based on conversation signals ===
-    if extraction_signals and not extraction_signals.get("empty"):
-        try:
-            extraction_hint = get_extraction_hint(extraction_signals, turn_count)
-            if extraction_hint:
-                full_user_message += f"\n\n{extraction_hint}"
-        except Exception:
-            pass
-
     # === JOURNEY MEMORY: Conductor-style persistent context ===
     # Loads user's PWS journey for cross-session continuity
+    journey_context_str = None
     try:
         from memory import JourneyStore
         from memory.user_journey import create_journey_context_injection
@@ -14074,18 +14073,78 @@ Your insights help us improve Mindrian!"""
                 journey_store._current_journey = journey
                 cl.user_session.set("journey_store", journey_store)
 
-        # Inject journey context if available
+        # Get journey context for context engine
         if journey_store._current_journey:
-            journey_context = await journey_store.get_journey_context()
-            if journey_context:
-                context_injection = create_journey_context_injection(journey_context)
-                full_user_message += f"\n\n{context_injection}"
-                print(f"[JOURNEY] Injected context from journey {journey_store._current_journey.id}")
+            jctx = await journey_store.get_journey_context()
+            if jctx:
+                journey_context_str = create_journey_context_injection(jctx)
+                print(f"[JOURNEY] Loaded context from journey {journey_store._current_journey.id}")
 
     except ImportError:
         pass  # Memory module not available
     except Exception as e:
         print(f"[JOURNEY] Error (non-fatal): {e}")
+
+    # === CONTEXT ENGINE: Budget-aware layered context assembly ===
+    # Replaces scattered context injection with unified, priority-based assembly.
+    # Implements KG-RAG retrieval patterns: vector-first + graph expansion,
+    # definition-aware retrieval, dynamic strategy selection, and session deduplication.
+    if CONTEXT_ENGINE_ENABLED:
+        try:
+            context_result = ce_assemble_context(
+                user_message=message.content,
+                history=history,
+                turn_count=turn_count,
+                bot_id=cl.user_session.get("bot_id", "lawrence"),
+                excluded_topics=cl.user_session.get("excluded_topics", []),
+                graphrag_hint=graphrag_hint,
+                extraction_signals=extraction_signals,
+                journey_context=journey_context_str,
+            )
+            # Context engine returns enriched_message = user_message + context layers
+            # Extract just the appended context layers
+            ce_layers = context_result.enriched_message[len(message.content):]
+            # Append context layers to the full_user_message (which already has
+            # file_context, phase_context, and detail_instruction from earlier)
+            full_user_message += ce_layers
+            # Store system addendum for later injection into system_instruction
+            cl.user_session.set("_ce_system_addendum", context_result.system_addendum)
+            cl.user_session.set("_ce_last_strategy", context_result.retrieval_strategy)
+            print(f"[CONTEXT_ENGINE] Assembled: layers={context_result.layers_used}, "
+                  f"tokens={context_result.total_tokens_injected}, "
+                  f"strategy={context_result.retrieval_strategy}, "
+                  f"latency={context_result.latency_ms}ms")
+        except Exception as e:
+            print(f"[CONTEXT_ENGINE] Error (falling back to direct injection): {e}")
+            # Fallback: inject directly as before
+            if graphrag_hint:
+                full_user_message += f"\n\n{graphrag_hint}"
+            if journey_context_str:
+                full_user_message += f"\n\n{journey_context_str}"
+    else:
+        # Legacy path: direct injection without budget management
+        if graphrag_hint:
+            full_user_message += f"\n\n{graphrag_hint}"
+        # Saturation detection
+        if turn_count >= 8:
+            try:
+                from tools.smart_phase_tracker import detect_saturation
+                sat = detect_saturation(history)
+                if sat.get("saturated"):
+                    full_user_message += f"\n\n[System: Conversation saturation detected ({sat['signal']}). Consider suggesting the user press 🎯 Give me your answer if they seem ready for closure.]"
+            except Exception:
+                pass
+        # LangExtract signals
+        if extraction_signals and not extraction_signals.get("empty"):
+            try:
+                extraction_hint = get_extraction_hint(extraction_signals, turn_count)
+                if extraction_hint:
+                    full_user_message += f"\n\n{extraction_hint}"
+            except Exception:
+                pass
+        # Journey context
+        if journey_context_str:
+            full_user_message += f"\n\n{journey_context_str}"
 
     # === AGENTIC VALIDATION WORKFLOW ===
     # When validation bot receives a substantive request, run the full workflow automatically
@@ -14332,6 +14391,12 @@ Your insights help us improve Mindrian!"""
                       f"(confidence: {routing_result.get('methodology_confidence', 0):.2f}, "
                       f"latency: {routing_result.get('router_latency_ms', 0)}ms)")
 
+            # === CONTEXT ENGINE: Inject system-level addendum (KG-RAG patterns) ===
+            ce_addendum = cl.user_session.get("_ce_system_addendum", "")
+            if ce_addendum:
+                system_instruction += ce_addendum
+                cl.user_session.set("_ce_system_addendum", "")  # consume once
+
             # Show subtle methodology attribution as a Step
             attribution_tag = routing_result.get("methodology_attribution_tag", "")
             if attribution_tag:
@@ -14377,6 +14442,29 @@ Your insights help us improve Mindrian!"""
                 if enriched_prompt:
                     system_instruction = enriched_prompt + language_enforcement
                     cl.user_session.set("a2a_enriched_prompt", None)  # Use once
+
+                # === CONTEXT ENGINE + A2A: Inject A2A classification into context ===
+                # Second-pass: A2A classification is now available, feed it back
+                if CONTEXT_ENGINE_ENABLED and a2a_pre_result and a2a_pre_result.get("enabled"):
+                    a2a_parts = []
+                    classification = a2a_pre_result.get("classification", {})
+                    if classification:
+                        cynefin = classification.get("cynefin", "")
+                        pws = classification.get("pws", "")
+                        if cynefin or pws:
+                            a2a_parts.append(f"[A2A: Cynefin={cynefin}, PWS={pws}]")
+                    a2a_phase = a2a_pre_result.get("current_phase", "")
+                    if a2a_phase:
+                        a2a_parts.append(f"[A2A Phase: {a2a_phase}]")
+                    context_hint = a2a_pre_result.get("context_hint", "")
+                    if context_hint:
+                        a2a_parts.append(context_hint)
+                    suggested = a2a_pre_result.get("suggested_agent", "")
+                    if suggested and suggested != bot_id:
+                        a2a_parts.append(f"[A2A: {suggested} may offer a better lens here]")
+                    if a2a_parts:
+                        system_instruction += "\n\n" + " ".join(a2a_parts)
+                        logger.info(f"[CONTEXT_ENGINE+A2A] Injected classification: {' '.join(a2a_parts)[:100]}")
         except ImportError:
             pass
         except Exception as e:

@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-11 16:21*
+*Auto-generated: 2026-02-12 10:56*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,10 +13,11 @@
 
 | Date | Commits |
 |------|---------|
+| 2026-02-12 | 1 |
 | 2026-02-11 | 5 |
 | 2026-02-10 | 12 |
 | 2026-02-09 | 19 |
-| 2026-02-08 | 14 |
+| 2026-02-08 | 13 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
@@ -28,6 +29,38 @@
 
 ## Enriched Commit Log
 
+### 2026-02-12
+
+#### 🐛 fix: PWS Consultant crash — replace undefined MAIN_MODEL with current API
+
+- **Hash:** `8342dcf2e826a7a430a6edd0163afe4f457460a1`
+- **Short:** `8342dcf2`
+- **Parent:** `1bd5c045`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-12 10:56:52
+- **Risk:** medium
+- **Diff:** +163 / -137
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 22 | 22 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 75 | 64 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 22 | 25 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 22 | 25 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 22 | 1 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** MAIN_MODEL was referenced in 3 places but never defined, causing NameError
+
+
 ### 2026-02-11
 
 #### ✨ feat: Add interactive QA feedback form with contextual questions
@@ -36,7 +69,6 @@
 - **Short:** `1bd5c045`
 - **Parent:** `fe50f946`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-11 16:21:50
 - **Risk:** high
@@ -1588,33 +1620,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** The PostgreSQL database was empty - Chainlit's users, threads, steps,
-
-
-#### 🐛 fix: EntryPointSelector - clickable cards + side-by-side layout
-
-- **Hash:** `a97ba57b7b99d17ef4ef279e3c5be2f6528fbc31`
-- **Short:** `a97ba57b`
-- **Parent:** `306188c3`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-08 12:59:25
-- **Risk:** medium
-- **Diff:** +94 / -106
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `public/elements/EntryPointSelector.jsx` | 32 | 20 |
-  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 35 | 47 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 13 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 13 |
-
-  **File Operations:**
-  - ✏️ Modified: `public/elements/EntryPointSelector.jsx`
-  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** 1. Fix click handler to use window.Chainlit.callAction (not global)
 

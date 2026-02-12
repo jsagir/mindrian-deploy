@@ -1,8 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-11 16:21*
+*Auto-generated: 2026-02-12 10:56*
 
 ---
+
+## 2026-02-12
+
+### 🐛 fix: PWS Consultant crash — replace undefined MAIN_MODEL with current API
+
+- **Commit:** `8342dcf2`
+- **Author:** jsagir
+- **Files changed:** 5
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** MAIN_MODEL was referenced in 3 places but never defined, causing NameError
 
 ## 2026-02-11
 
@@ -585,15 +599,3 @@
   - skills/_knowledge/QA_RELEVANT_CHANGES.md
   - skills/_knowledge/RECENT_CHANGES.md
 - **Details:** The PostgreSQL database was empty - Chainlit's users, threads, steps,
-
-### 🐛 fix: EntryPointSelector - clickable cards + side-by-side layout
-
-- **Commit:** `a97ba57b`
-- **Author:** jsagir
-- **Files changed:** 5
-  - public/elements/EntryPointSelector.jsx
-  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** 1. Fix click handler to use window.Chainlit.callAction (not global)
