@@ -683,6 +683,166 @@ python upload_new_workshop.py
 15. **GraphRAG Lite** - Neo4j + vector hybrid for relationship-aware context enrichment
 16. **Mermaid Diagrams** - Mindmaps and flowcharts via custom element + utils/diagrams.py
 
+## Recent Changes (v3.2) - Context Engine + KG-RAG + Prompt Revert
+
+### What Changed and Why
+
+**1. Larry System Prompt Reverted to v1 (Natural Conversational Style)**
+
+File: `prompts/larry_core.py`
+
+Users disliked the v2.0/v2.1 Larry prompt changes that were introduced in commits `53f9058` (v2.0) and `eb23e56` (v2.1). Those versions added micro-tics, energy states (TIRED/INTRIGUED), strict insight language hard-bans, a rigid 7-stage arc (HOOK > DIAGNOSE > FRAME > DEEPEN > CONNECT > CHALLENGE > CONVERGENCE), and lines like "You do NOT: Praise the question. Validate feelings. Reassure."
+
+The prompt was reverted to the original natural conversational style (170 lines) with:
+- Signature patterns ("Very simply...", "Think about it like this...")
+- Organic framework introduction after 2-3 exchanges
+- Action button suggestions woven into conversation
+- Convergence awareness at turn 8+
+- No rigid personality mechanics
+
+**This applies to both Lawrence and Larry Playground bots** since they share the same prompt file.
+
+**2. Context Engine Added (`tools/context_engine.py`) - Applies to ALL Bots**
+
+A budget-aware layered context assembly system for ALL Mindrian bots (Lawrence, Larry Playground, TTA, JTBD, S-Curve, Ackoff, Red Team, Validation, and any future agents).
+
+Key functions:
+```python
+from tools.context_engine import assemble_context, classify_query_intent
+
+# Fast regex-based query classification (<1ms, no LLM call)
+# Returns: 'factual' | 'analytical' | 'exploratory' | 'convergent'
+intent = classify_query_intent(user_message, turn_count)
+
+# Main entry point - assembles context layers with budget enforcement
+context_result = assemble_context(
+    user_message=message.content,
+    history=history,
+    turn_count=turn_count,
+    bot_id=bot_id,
+    graphrag_hint=graphrag_hint,
+    extraction_signals=extraction_signals,
+    methodology_injection=methodology_injection,
+    journey_context=journey_context,
+    a2a_context=a2a_pre_result,
+)
+# context_result.enriched_message  -> user message + invisible context
+# context_result.system_addendum   -> additions to system prompt
+# context_result.layers_used       -> which layers contributed
+# context_result.retrieval_strategy -> e.g. "exploratory:5k:2hop"
+```
+
+**Context layers by priority:**
+
+| Priority | Layer | Source |
+|----------|-------|--------|
+| 1 | GraphRAG hints (vector + graph) | `graphrag_lite.py` |
+| 1.5 | A2A classification + routing | `a2a_orchestrator` |
+| 2 | Methodology injection | `invisible_router.py` |
+| 3 | Extraction signals | `langextract.py` |
+| 3 | Saturation detection (turn 8+) | `smart_phase_tracker.py` |
+| 5 | Journey memory (cross-session) | `journey_memory` |
+
+**Dynamic retrieval depth per intent:**
+
+| Intent | vector_k | max_hops | budget_fraction |
+|--------|----------|----------|-----------------|
+| convergent | 2 | 0 | 30% |
+| analytical | 3 | 2 | 50% |
+| factual | 5 | 1 | 50% |
+| exploratory | 5 | 2 | 70% |
+
+Default token budget: 6000 tokens. Session-aware deduplication removes context that has >60% overlap with last 3 conversation exchanges.
+
+**3. A2A Protocol Wired into Context Engine**
+
+The context engine integrates with A2A orchestration for cross-bot handoffs:
+- A2A classification (Cynefin + PWS) injected as context layer priority 1.5
+- Phase awareness and routing suggestions included
+- `_ce_last_strategy` persisted in session state for handoff continuity
+- After A2A `pre_process_message`, classification is injected into `system_instruction`
+
+**4. KG-RAG Retrieval Patterns (`docs/KG_RAG_RETRIEVAL_PATTERNS.md`)**
+
+Reference documentation for 5 retrieval patterns:
+1. Vector-First with Graph Expansion (implemented in context engine)
+2. Text-to-Cypher (structured query generation)
+3. Agent-Based Multi-Strategy Retrieval
+4. Definition-Aware Retrieval (implemented in context engine)
+5. Proximity-Based Expansion
+
+Also includes context engineering principles, anti-patterns table, and common pitfalls.
+
+**5. Ontology Designer (`tools/ontology_designer.py`)**
+
+Standalone CLI tool for generating graph schemas:
+```bash
+python tools/ontology_designer.py --domain legal --format cypher
+python tools/ontology_designer.py --domain web_crawl --format markdown
+python tools/ontology_designer.py --domain support_tickets --format json
+```
+
+3 built-in domain ontologies (legal, web_crawl, support_tickets) with dataclasses for `NodeType`, `RelationshipType`, and `GraphOntology`. Outputs Cypher constraints, Markdown docs, or JSON.
+
+### Pipeline Flow (After v3.2)
+
+```
+User Message
+    |
+    v
+LangExtract (instant_extract) --> extraction_signals
+    |
+    v
+GraphRAG Lite (enrich_for_bot) --> graphrag_hint
+    |
+    v
+Journey Memory (if enabled) --> journey_context
+    |
+    v
+Invisible Router (detect_methodology) --> methodology_injection
+    |
+    v
+Context Engine (assemble_context) <-- all of the above
+    |   - classify_query_intent()
+    |   - select_retrieval_depth()
+    |   - deduplicate_context()
+    |   - budget enforcement
+    |
+    v
+A2A Pre-Process (if enabled) --> classification injected into system_instruction
+    |
+    v
+System Instruction assembly (base prompt + context engine addendum + A2A)
+    |
+    v
+Gemini API call (gemini-2.5-flash / gemini-3-flash-preview)
+```
+
+### Key Files Modified/Created
+
+| File | Action | Purpose |
+|------|--------|---------|
+| `tools/context_engine.py` | **NEW** (489 lines) | Budget-aware context assembly, query classification, deduplication |
+| `tools/ontology_designer.py` | **NEW** (293 lines) | Graph schema generator for KG-RAG domains |
+| `docs/KG_RAG_RETRIEVAL_PATTERNS.md` | **NEW** | Reference doc for retrieval patterns |
+| `prompts/larry_core.py` | **REVERTED** | Back to v1 natural conversational style |
+| `mindrian_chat.py` | **MODIFIED** | Context engine wired into on_message handler |
+
+### Integration Points in mindrian_chat.py
+
+1. **Import block (~line 459):** Context engine imported with `CONTEXT_ENGINE_ENABLED` flag and graceful fallback
+2. **on_message handler (~line 14081):** Context engine call after GraphRAG/LangExtract/Journey. Extracts `ce_layers` and appends to `full_user_message`. Falls back to legacy injection on error.
+3. **System addendum (~line 14384):** After invisible router, reads `_ce_system_addendum` from session and appends to `system_instruction`
+4. **A2A second pass (~line 14430):** After A2A `pre_process_message`, injects Cynefin/PWS classification into `system_instruction`
+5. **A2A handoff state (~line 8440):** Carries `_ce_last_strategy` through bot switches
+
+### Important: Backwards Compatibility
+
+- Context engine is **opt-in** via `CONTEXT_ENGINE_ENABLED` flag
+- If `tools/context_engine.py` fails to import, everything falls back to legacy direct injection
+- The context engine **appends** to `full_user_message` (doesn't replace it), preserving `file_context`, `phase_context`, and `detail_instruction`
+- All existing GraphRAG, LangExtract, and invisible router code continues to work independently
+
 ---
 
 ## Mermaid Diagrams - Idea Visualization
@@ -1418,6 +1578,38 @@ system_prompt = inject_handoff_context(handoff, TTA_PROMPT)
 - `protocols/context_journal.py` - Living document management
 - `journals/` - Session journal files
 - `handoffs/` - Handoff MD files
+
+---
+
+## Graph Expansion Utilities (Context Engine)
+
+The context engine includes two graph expansion utilities for deeper Neo4j integration:
+
+### N-Hop Expansion
+
+```python
+from tools.context_engine import expand_from_hits
+
+# Expand from vector search hits via Neo4j graph traversal
+results = expand_from_hits(
+    hit_ids=["4:abc123:0", "4:def456:0"],  # Neo4j element IDs
+    max_hops=2,
+    follow_rels=["CONTAINS", "REFERENCES", "DEFINES", "HAS_COMPONENT"]
+)
+# Returns: [{"name": "...", "label": "Concept", "description": "..."}]
+```
+
+### Definition-Aware Retrieval
+
+```python
+from tools.context_engine import resolve_definitions
+
+# Find defined terms in text and look them up in the knowledge graph
+definitions = resolve_definitions("The Jobs to Be Done framework suggests...")
+# Returns: [{"term": "Jobs to Be Done", "definition": "A framework for..."}]
+```
+
+Both utilities use the existing Neo4j driver from `graphrag_lite.py` and fail gracefully if Neo4j is unavailable.
 
 ---
 
