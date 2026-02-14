@@ -1,8 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-12 21:57*
+*Auto-generated: 2026-02-14 17:45*
 
 ---
+
+## 2026-02-14
+
+### ✨ feat: Ask-Tell Dial refactor + Claude Sonnet 4.5 for Lawrence
+
+- **Commit:** `de39dc9b`
+- **Author:** jsagir
+- **Files changed:** 15
+  - mindrian_chat.py
+  - prompts/larry_core.py
+  - prompts/larry_skill/FRAMEWORK_CHAINS.md
+  - prompts/larry_skill/INSIGHT_MODE.md
+  - prompts/larry_skill/INVESTIGATIVE_MODE.md
+- **Details:** Replace Larry's monolithic 170-line system prompt with a multi-file
 
 ## 2026-02-12
 

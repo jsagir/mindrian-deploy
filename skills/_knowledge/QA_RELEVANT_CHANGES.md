@@ -1,6 +1,6 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-12 21:57*
+*Auto-generated: 2026-02-14 17:45*
 
 ---
 
@@ -399,15 +399,3 @@
   - skills/_knowledge/QA_RELEVANT_CHANGES.md
   - skills/_knowledge/RECENT_CHANGES.md
 - **Details:** Chainlit doesn't export a Base class from sql_alchemy, so we can't use
-
-### 🐛 fix: Remove await from sync get_data_layer() call
-
-- **Commit:** `9b90ac28`
-- **Author:** jsagir
-- **Files changed:** 5
-  - mindrian_chat.py
-  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>

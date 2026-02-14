@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-12 21:57*
+*Auto-generated: 2026-02-14 17:45*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,21 +13,69 @@
 
 | Date | Commits |
 |------|---------|
+| 2026-02-14 | 1 |
 | 2026-02-12 | 3 |
 | 2026-02-11 | 5 |
 | 2026-02-10 | 12 |
 | 2026-02-09 | 19 |
-| 2026-02-08 | 11 |
+| 2026-02-08 | 10 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 7 |
+| `mindrian_chat.py` | 8 |
 
 ---
 
 ## Enriched Commit Log
+
+### 2026-02-14
+
+#### ✨ feat: Ask-Tell Dial refactor + Claude Sonnet 4.5 for Lawrence
+
+- **Hash:** `de39dc9b84a95c5834464ac0939a2cf224aacc5b`
+- **Short:** `de39dc9b`
+- **Parent:** `2cb93852`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-14 17:45:29
+- **Risk:** high
+- **Diff:** +2118 / -300
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 244 | 46 |
+  | `prompts/larry_core.py` | 26 | 125 |
+  | `prompts/larry_skill/FRAMEWORK_CHAINS.md` | 261 | 0 |
+  | `prompts/larry_skill/INSIGHT_MODE.md` | 207 | 0 |
+  | `prompts/larry_skill/INVESTIGATIVE_MODE.md` | 189 | 0 |
+  | `prompts/larry_skill/LEXICON.md` | 95 | 0 |
+  | `prompts/larry_skill/MODE_CALIBRATION.md` | 137 | 0 |
+  | `prompts/larry_skill/SKILL.md` | 159 | 0 |
+  | `prompts/larry_skill/STYLE_GUIDE.md` | 117 | 0 |
+  | `prompts/larry_skill/SYSTEM_PROMPT_V2.md` | 218 | 0 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `prompts/larry_core.py`
+  - ➕ Added: `prompts/larry_skill/FRAMEWORK_CHAINS.md`
+  - ➕ Added: `prompts/larry_skill/INSIGHT_MODE.md`
+  - ➕ Added: `prompts/larry_skill/INVESTIGATIVE_MODE.md`
+  - ➕ Added: `prompts/larry_skill/LEXICON.md`
+  - ➕ Added: `prompts/larry_skill/MODE_CALIBRATION.md`
+  - ➕ Added: `prompts/larry_skill/SKILL.md`
+  - ➕ Added: `prompts/larry_skill/STYLE_GUIDE.md`
+  - ➕ Added: `prompts/larry_skill/SYSTEM_PROMPT_V2.md`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+  - ➕ Added: `tools/larry_mode_engine.py`
+
+- **Body:** Replace Larry's monolithic 170-line system prompt with a multi-file
+
 
 ### 2026-02-12
 
@@ -37,7 +85,7 @@
 - **Short:** `2cb93852`
 - **Parent:** `7281c2df`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-12 21:57:24
 - **Risk:** low
@@ -59,7 +107,7 @@
 - **Short:** `7281c2df`
 - **Parent:** `8342dcf2`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT, origin/COPILOT-UI, COPILOT-UI
+- **Refs:** origin/COPILOT-UI, COPILOT-UI
 - **Author:** jsagir
 - **Date:** 2026-02-12 21:36:09
 - **Risk:** high
@@ -1580,35 +1628,6 @@
   | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
   | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 12 |
   | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 12 |
-
-  **File Operations:**
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-
-
-#### 🐛 fix: Remove await from sync get_data_layer() call
-
-- **Hash:** `9b90ac28cae3c69066ca95086081e398979b2fce`
-- **Short:** `9b90ac28`
-- **Parent:** `ddce8741`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-08 13:03:02
-- **Risk:** medium
-- **Diff:** +63 / -80
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `mindrian_chat.py` | 2 | 1 |
-  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 34 | 40 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 13 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 13 |
 
   **File Operations:**
   - ✏️ Modified: `mindrian_chat.py`

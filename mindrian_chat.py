@@ -14657,6 +14657,8 @@ The user expects you to be responsive to what they JUST said, not to lecture fro
         full_response = ""
         stopped = False
 
+        print(f"[LARRY_MODE] Guard check: bot_id={bot_id}, CLAUDE_ENABLED={CLAUDE_ENABLED}, MODE_ENGINE={LARRY_MODE_ENGINE_ENABLED}")
+
         if bot_id == "lawrence" and CLAUDE_ENABLED and LARRY_MODE_ENGINE_ENABLED:
             # 1. Compute mode position from existing signals
             turn_count = len(history) // 2
@@ -14748,16 +14750,21 @@ The user expects you to be responsive to what they JUST said, not to lecture fro
                         full_response += text
                         await msg.stream_token(text)
             except Exception as claude_err:
-                logger.error(f"[LARRY_MODE] Claude API error: {claude_err}")
+                print(f"[LARRY_MODE] Claude API error: {type(claude_err).__name__}: {claude_err}")
+                logger.error(f"[LARRY_MODE] Claude API error: {type(claude_err).__name__}: {claude_err}")
                 # Fall through to Gemini fallback below
                 full_response = ""
                 stopped = False
 
             if full_response:
+                print(f"[LARRY_MODE] ✅ Claude response | position={mode_pos:.2f}, intent={intent}, turn={turn_count}")
                 logger.info(f"[LARRY_MODE] position={mode_pos:.2f}, intent={intent}, turn={turn_count}, model=claude-sonnet-4.5")
+            else:
+                print(f"[LARRY_MODE] ⚠️ Claude produced no response, falling back to Gemini")
 
         # === ALL OTHER BOTS (or Lawrence fallback): Existing Gemini path ===
         if not full_response and not stopped:
+            print(f"[LLM_PATH] Using Gemini for bot_id={bot_id}")
             # Build File Search tool for RAG
             file_search_tool = None
             if FILE_SEARCH_ENABLED:

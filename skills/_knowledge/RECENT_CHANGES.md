@@ -1,8 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-12 21:57*
+*Auto-generated: 2026-02-14 17:45*
 
 ---
+
+## 2026-02-14
+
+### ✨ feat: Ask-Tell Dial refactor + Claude Sonnet 4.5 for Lawrence
+
+- **Commit:** `de39dc9b`
+- **Author:** jsagir
+- **Files changed:** 15
+  - mindrian_chat.py
+  - prompts/larry_core.py
+  - prompts/larry_skill/FRAMEWORK_CHAINS.md
+  - prompts/larry_skill/INSIGHT_MODE.md
+  - prompts/larry_skill/INVESTIGATIVE_MODE.md
+- **Details:** Replace Larry's monolithic 170-line system prompt with a multi-file
 
 ## 2026-02-12
 
@@ -575,18 +589,6 @@
 ### ✨ feat: Add /api/init-db endpoint to manually create tables
 
 - **Commit:** `ea7f9a71`
-- **Author:** jsagir
-- **Files changed:** 5
-  - mindrian_chat.py
-  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-
-### 🐛 fix: Remove await from sync get_data_layer() call
-
-- **Commit:** `9b90ac28`
 - **Author:** jsagir
 - **Files changed:** 5
   - mindrian_chat.py
