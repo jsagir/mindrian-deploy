@@ -1,6 +1,6 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-12 10:56*
+*Auto-generated: 2026-02-12 21:57*
 
 ---
 
@@ -411,15 +411,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-
-### 🐛 fix: Add database initialization to create Chainlit tables
-
-- **Commit:** `de2a5fc6`
-- **Author:** jsagir
-- **Files changed:** 6
-  - build.sh
-  - scripts/init_database.py
-  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-- **Details:** The PostgreSQL database was empty - Chainlit's users, threads, steps,

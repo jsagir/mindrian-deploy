@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-12 10:56*
+*Auto-generated: 2026-02-12 21:57*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,17 +13,17 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-12 | 1 |
+| 2026-02-12 | 3 |
 | 2026-02-11 | 5 |
 | 2026-02-10 | 12 |
 | 2026-02-09 | 19 |
-| 2026-02-08 | 13 |
+| 2026-02-08 | 11 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 8 |
+| `mindrian_chat.py` | 7 |
 
 ---
 
@@ -31,13 +31,72 @@
 
 ### 2026-02-12
 
+#### 📝 docs: Add v3.2 changelog - Context Engine, KG-RAG patterns, prompt revert
+
+- **Hash:** `2cb938524d3b9ccc075f9e430389a5ca9c5b4cf4`
+- **Short:** `2cb93852`
+- **Parent:** `7281c2df`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-12 21:57:24
+- **Risk:** low
+- **Diff:** +192 / -0
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `CLAUDE.md` | 192 | 0 |
+
+  **File Operations:**
+  - ✏️ Modified: `CLAUDE.md`
+
+- **Body:** Documents all recent changes so new Claude Code sessions understand:
+
+
+#### ✨ feat: Revert Larry prompt to v1 + add Context Engine with KG-RAG patterns
+
+- **Hash:** `7281c2df51570d996af4498846712bd56fa8060a`
+- **Short:** `7281c2df`
+- **Parent:** `8342dcf2`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT, origin/COPILOT-UI, COPILOT-UI
+- **Author:** jsagir
+- **Date:** 2026-02-12 21:36:09
+- **Risk:** high
+- **Diff:** +1160 / -226
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `docs/KG_RAG_RETRIEVAL_PATTERNS.md` | 87 | 0 |
+  | `mindrian_chat.py` | 116 | 28 |
+  | `prompts/larry_core.py` | 109 | 139 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 35 | 32 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 15 | 13 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 15 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 1 |
+  | `tools/context_engine.py` | 489 | 0 |
+  | `tools/ontology_designer.py` | 293 | 0 |
+
+  **File Operations:**
+  - ➕ Added: `docs/KG_RAG_RETRIEVAL_PATTERNS.md`
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `prompts/larry_core.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+  - ➕ Added: `tools/context_engine.py`
+  - ➕ Added: `tools/ontology_designer.py`
+
+- **Body:** - Revert prompts/larry_core.py to pre-v2.0 (users preferred the natural
+
+
 #### 🐛 fix: PWS Consultant crash — replace undefined MAIN_MODEL with current API
 
 - **Hash:** `8342dcf2e826a7a430a6edd0163afe4f457460a1`
 - **Short:** `8342dcf2`
 - **Parent:** `1bd5c045`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-12 10:56:52
 - **Risk:** medium
@@ -92,7 +151,6 @@
 - **Short:** `fe50f946`
 - **Parent:** `d27afb52`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-11 15:14:54
 - **Risk:** high
@@ -1560,64 +1618,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-
-
-#### ✨ feat: Add tables list to /api/health endpoint
-
-- **Hash:** `ddce8741db2e7d4ab53ee3d35285487b684af8e6`
-- **Short:** `ddce8741`
-- **Parent:** `de2a5fc6`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-08 13:01:59
-- **Risk:** high
-- **Diff:** +88 / -54
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `mindrian_chat.py` | 13 | 1 |
-  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 36 | 30 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 11 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 11 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 1 |
-
-  **File Operations:**
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-
-
-#### 🐛 fix: Add database initialization to create Chainlit tables
-
-- **Hash:** `de2a5fc6bab43b6b8e0029456f938224a5994fdd`
-- **Short:** `de2a5fc6`
-- **Parent:** `a97ba57b`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-08 13:00:51
-- **Risk:** medium
-- **Diff:** +131 / -68
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `build.sh` | 8 | 0 |
-  | `scripts/init_database.py` | 62 | 0 |
-  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 34 | 32 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 12 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 12 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 12 |
-
-  **File Operations:**
-  - ✏️ Modified: `build.sh`
-  - ➕ Added: `scripts/init_database.py`
-  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** The PostgreSQL database was empty - Chainlit's users, threads, steps,
 

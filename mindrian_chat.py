@@ -463,6 +463,38 @@ except ImportError:
     CONTEXT_ENGINE_ENABLED = False
     print("Context Engine not available")
 
+# === Claude Opus 4.5 for Lawrence ===
+try:
+    import anthropic
+    ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+    if ANTHROPIC_API_KEY:
+        anthropic_client = anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
+        CLAUDE_ENABLED = True
+        print("Claude Opus 4.5 enabled for Lawrence")
+    else:
+        anthropic_client = None
+        CLAUDE_ENABLED = False
+        print("Claude Opus 4.5 not configured (no ANTHROPIC_API_KEY)")
+except ImportError:
+    anthropic_client = None
+    CLAUDE_ENABLED = False
+    print("Claude Opus 4.5 not available (anthropic package not installed)")
+
+# === Larry Mode Engine - Ask-Tell Dial ===
+try:
+    from tools.larry_mode_engine import (
+        compute_mode_position,
+        mode_instruction,
+        assemble_larry_prompt,
+        classify_mode_intent,
+        INTENT_MODE_MAP,
+    )
+    LARRY_MODE_ENGINE_ENABLED = True
+    print("Larry Mode Engine enabled (Ask-Tell Dial)")
+except ImportError:
+    LARRY_MODE_ENGINE_ENABLED = False
+    print("Larry Mode Engine not available")
+
 # === Smart Phase Tracker - LLM-based phase detection ===
 try:
     from tools.smart_phase_tracker import (
@@ -1430,6 +1462,13 @@ AGENT_TRIGGERS = {
                       "knowledge graph", "explore domains", "innovation bridge"],
         "description": "Cross-domain bridge detection & innovation discovery"
     },
+    "erik": {
+        "keywords": ["orchestration", "pipeline", "multi-agent", "langgraph", "coagent", "agent graph",
+                      "state machine", "validation gate", "plan files", "eric pattern", "a2a",
+                      "copilotkit", "ag-ui", "pipeline design", "agent coordination", "state graph",
+                      "langchain agent", "crew ai", "swarm", "tool calling", "agent loop"],
+        "description": "AI orchestration & pipeline design"
+    },
 }
 
 # === Data Persistence Setup with Native Feedback System ===
@@ -1495,6 +1534,9 @@ from prompts import (
     POST_GRADING_LAWRENCE_CONTEXT,
     calculate_minto_score,
     get_minto_letter_grade,
+    # Erik - AI Orchestration
+    ERIK_ORCHESTRATOR_PROMPT,
+    ERIK_ORCHESTRATOR_PHASES,
     # PWS Consultant
     PWS_CONSULTANT_PROMPT,
     PWS_CONSULTANT_PHASES,
@@ -1680,6 +1722,14 @@ WORKSHOP_PHASES = {
         {"name": "Gap Analysis & Root Causes", "status": "pending"},
         {"name": "Barrier Identification", "status": "pending"},
         {"name": "Opportunity Synthesis", "status": "pending"},
+    ],
+    "erik": [
+        {"name": "Problem Scoping", "status": "ready"},
+        {"name": "Architecture Design", "status": "pending"},
+        {"name": "Step Planning", "status": "pending"},
+        {"name": "Validation Strategy", "status": "pending"},
+        {"name": "Orchestration Wiring", "status": "pending"},
+        {"name": "Review & Iterate", "status": "pending"},
     ],
 }
 
@@ -2077,6 +2127,26 @@ Along the way, I'll bring in domain-specific perspectives — think of them as c
 **What's the challenge you're wrestling with?**
 
 Don't worry about being precise — that's what we'll work on together."""
+    },
+    "erik": {
+        "name": "Erik - AI Orchestration",
+        "icon": "/public/icons/tech.svg",
+        "emoji": "\U0001f527",
+        "description": "Design AI pipelines, agent graphs, and orchestration patterns",
+        "system_prompt": ERIK_ORCHESTRATOR_PROMPT,
+        "has_phases": True,
+        "welcome": """\U0001f527 **AI Orchestration Workshop**
+### Design Pipelines That Actually Work
+
+Hello, I'm Erik.
+
+Most people start building multi-agent systems by wiring things together and hoping for the best. That's not engineering — that's improvisation.
+
+I help you design orchestration that works: the right agents, the right graph topology, the right validation gates, and the right amount of complexity (which is usually less than you think).
+
+**What are you building?**
+
+Tell me about the system, pipeline, or agent architecture you're working on — or the problem you're trying to automate."""
     }
 }
 
@@ -3309,6 +3379,28 @@ STARTERS = {
             label="❓ Not sure yet",
             message="I'm not sure where to start. Can you help me figure out what I need?",
             icon="/public/icons/challenge.svg",
+        ),
+    ],
+    "erik": [
+        cl.Starter(
+            label="Design an agent pipeline",
+            message="I need to design a multi-step AI pipeline. Help me architect it from scratch.",
+            icon="/public/icons/tech.svg",
+        ),
+        cl.Starter(
+            label="Plan my implementation",
+            message="I have an AI system in mind and need help planning the execution steps and validation gates.",
+            icon="/public/icons/map.svg",
+        ),
+        cl.Starter(
+            label="Multi-agent orchestration",
+            message="I'm building a system with multiple AI agents that need to coordinate. Help me design the graph.",
+            icon="/public/icons/multi.svg",
+        ),
+        cl.Starter(
+            label="What is ERIC?",
+            message="Explain the ERIC orchestration pattern and how it automates multi-step AI projects.",
+            icon="/public/icons/info.svg",
         ),
     ],
 }
@@ -14336,6 +14428,10 @@ Your insights help us improve Mindrian!"""
         }
         methodology = methodology_map.get(bot_id)
 
+        # Lawrence with mode engine: show Ask-Tell Dial position
+        if bot_id == "lawrence" and LARRY_MODE_ENGINE_ENABLED:
+            methodology = "Ask-Tell Dial"
+
         # Only show thinking panel if we actually have steps to display
         # QA FIX: Don't show empty "0/0 - Waiting for reasoning steps" panels
         if thinking_steps and len(thinking_steps) > 0:
@@ -14557,59 +14653,161 @@ The user expects you to be responsive to what they JUST said, not to lecture fro
 """
             system_instruction = system_instruction + handoff_addendum
 
-        # Build File Search tool for RAG
-        file_search_tool = None
-        if FILE_SEARCH_ENABLED:
-            file_search_tool = types.Tool(
-                file_search=types.FileSearch(
-                    file_search_store_names=[FILE_SEARCH_STORE]
-                )
-            )
-
-        if cache_name:
-            # Use cached context with RAG materials + File Search
-            config = types.GenerateContentConfig(
-                cached_content=cache_name,
-                tools=[file_search_tool] if file_search_tool else None,
-            )
-            print(f"Using RAG cache: {cache_name} + File Search")
-        else:
-            # Use system instruction + File Search for all bots
-            config = types.GenerateContentConfig(
-                system_instruction=system_instruction,
-                tools=[file_search_tool] if file_search_tool else None,
-            )
-            if file_search_tool:
-                print(f"Using File Search: {FILE_SEARCH_STORE}")
-
-        # Use filesearch_client when FileSearch tool is active (store ownership)
-        # FileSearch store requires gemini-2.5-flash (store owner's key)
-        if file_search_tool:
-            active_client = filesearch_client
-            active_model = "gemini-2.5-flash"
-        else:
-            active_client = client
-            active_model = "gemini-3-flash-preview"
-        response_stream = active_client.models.generate_content_stream(
-            model=active_model,
-            contents=contents,
-            config=config,
-        )
-
+        # === LAWRENCE: Claude Opus 4.5 with Ask-Tell Dial ===
         full_response = ""
         stopped = False
 
-        for chunk in response_stream:
-            # Check if user requested stop
-            if session_id and session_id in stop_events and stop_events[session_id].is_set():
-                full_response += "\n\n*[Response stopped by user]*"
-                await msg.stream_token("\n\n*[Response stopped by user]*")
-                stopped = True
-                break
+        if bot_id == "lawrence" and CLAUDE_ENABLED and LARRY_MODE_ENGINE_ENABLED:
+            # 1. Compute mode position from existing signals
+            turn_count = len(history) // 2
+            intent = "exploratory"  # default
+            if CONTEXT_ENGINE_ENABLED:
+                try:
+                    intent = classify_query_intent(message.content, turn_count)
+                except Exception:
+                    pass
+            intent_signal = INTENT_MODE_MAP.get(intent, 0.25)
 
-            if chunk.text:
-                full_response += chunk.text
-                await msg.stream_token(chunk.text)
+            # Check for explicit mode override from user's words
+            explicit = classify_mode_intent(message.content)
+
+            # Saturation from smart_phase_tracker
+            sat_detected = False
+            if SMART_PHASE_ENABLED:
+                try:
+                    from tools.smart_phase_tracker import detect_saturation
+                    sat = detect_saturation(history)
+                    sat_detected = sat.get("saturated", False) if sat else False
+                except Exception:
+                    pass
+
+            # Journey memory (returning user)
+            has_prior = bool(journey_context_str)
+
+            # Problem type from GraphRAG hint
+            problem_type = ""
+            if graphrag_hint and "problem_type" in str(graphrag_hint).lower():
+                for pt in ["un-defined", "ill-defined", "well-defined", "wicked"]:
+                    if pt in str(graphrag_hint).lower():
+                        problem_type = pt
+                        break
+
+            mode_pos = compute_mode_position(
+                intent_signal=intent_signal,
+                turn_count=turn_count,
+                problem_type=problem_type,
+                has_prior_sessions=has_prior,
+                saturation_detected=sat_detected,
+                explicit_override=explicit,
+            )
+
+            # 2. Assemble mode-aware system prompt
+            larry_system = assemble_larry_prompt(
+                mode_position=mode_pos,
+                turn_count=turn_count,
+                problem_type=problem_type,
+                saturation=sat_detected,
+                has_prior_sessions=has_prior,
+            )
+
+            # 3. Build Claude system prompt with all existing addenda
+            #    Replace only the base prompt portion, keep everything else
+            claude_system = larry_system + language_enforcement
+            # Append everything that was added after the base prompt + language enforcement
+            base_end = len(bot["system_prompt"] + language_enforcement)
+            if len(system_instruction) > base_end:
+                additional_context = system_instruction[base_end:]
+                claude_system += additional_context
+
+            # 4. Convert history to Claude format (Gemini uses "model", Claude uses "assistant")
+            claude_messages = []
+            for hist_msg in history:
+                role = hist_msg.get("role", "user")
+                if role == "model":
+                    role = "assistant"
+                content = hist_msg.get("content", "")
+                if content:
+                    claude_messages.append({"role": role, "content": content})
+            # Add current user message
+            claude_messages.append({"role": "user", "content": full_user_message})
+
+            # 5. Stream from Claude Opus 4.5
+            try:
+                async with anthropic_client.messages.stream(
+                    model="claude-sonnet-4-5-20250929",
+                    max_tokens=1024,
+                    system=claude_system,
+                    messages=claude_messages,
+                ) as stream:
+                    async for text in stream.text_stream:
+                        if session_id and session_id in stop_events and stop_events[session_id].is_set():
+                            full_response += "\n\n*[Response stopped by user]*"
+                            await msg.stream_token("\n\n*[Response stopped by user]*")
+                            stopped = True
+                            break
+                        full_response += text
+                        await msg.stream_token(text)
+            except Exception as claude_err:
+                logger.error(f"[LARRY_MODE] Claude API error: {claude_err}")
+                # Fall through to Gemini fallback below
+                full_response = ""
+                stopped = False
+
+            if full_response:
+                logger.info(f"[LARRY_MODE] position={mode_pos:.2f}, intent={intent}, turn={turn_count}, model=claude-sonnet-4.5")
+
+        # === ALL OTHER BOTS (or Lawrence fallback): Existing Gemini path ===
+        if not full_response and not stopped:
+            # Build File Search tool for RAG
+            file_search_tool = None
+            if FILE_SEARCH_ENABLED:
+                file_search_tool = types.Tool(
+                    file_search=types.FileSearch(
+                        file_search_store_names=[FILE_SEARCH_STORE]
+                    )
+                )
+
+            if cache_name:
+                # Use cached context with RAG materials + File Search
+                config = types.GenerateContentConfig(
+                    cached_content=cache_name,
+                    tools=[file_search_tool] if file_search_tool else None,
+                )
+                print(f"Using RAG cache: {cache_name} + File Search")
+            else:
+                # Use system instruction + File Search for all bots
+                config = types.GenerateContentConfig(
+                    system_instruction=system_instruction,
+                    tools=[file_search_tool] if file_search_tool else None,
+                )
+                if file_search_tool:
+                    print(f"Using File Search: {FILE_SEARCH_STORE}")
+
+            # Use filesearch_client when FileSearch tool is active (store ownership)
+            # FileSearch store requires gemini-2.5-flash (store owner's key)
+            if file_search_tool:
+                active_client = filesearch_client
+                active_model = "gemini-2.5-flash"
+            else:
+                active_client = client
+                active_model = "gemini-3-flash-preview"
+            response_stream = active_client.models.generate_content_stream(
+                model=active_model,
+                contents=contents,
+                config=config,
+            )
+
+            for chunk in response_stream:
+                # Check if user requested stop
+                if session_id and session_id in stop_events and stop_events[session_id].is_set():
+                    full_response += "\n\n*[Response stopped by user]*"
+                    await msg.stream_token("\n\n*[Response stopped by user]*")
+                    stopped = True
+                    break
+
+                if chunk.text:
+                    full_response += chunk.text
+                    await msg.stream_token(chunk.text)
 
         # Add action buttons to EVERY response (key actions always visible)
         actions = []
