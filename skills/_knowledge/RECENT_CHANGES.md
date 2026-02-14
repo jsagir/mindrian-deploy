@@ -1,10 +1,22 @@
 # Recent Repository Changes
 
-*Auto-generated: 2026-02-14 18:42*
+*Auto-generated: 2026-02-14 18:54*
 
 ---
 
 ## 2026-02-14
+
+### 🐛 fix: Add missing Erik orchestrator prompt (fixes deploy crash)
+
+- **Commit:** `7cdba349`
+- **Author:** jsagir
+- **Files changed:** 6
+  - prompts/__init__.py
+  - prompts/erik_orchestrator.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+- **Details:** prompts/__init__.py was importing erik_orchestrator but the file
 
 ### 🔧 debug: Add verbose logging for Larry Mode + Claude guard checks
 
@@ -585,15 +597,3 @@
   - skills/_knowledge/QA_RELEVANT_CHANGES.md
   - skills/_knowledge/RECENT_CHANGES.md
 - **Details:** asyncpg doesn't support multiple statements in a single execute() call.
-
-### 🐛 fix: Use raw SQL for Chainlit database table creation
-
-- **Commit:** `4c7d8e07`
-- **Author:** jsagir
-- **Files changed:** 6
-  - mindrian_chat.py
-  - scripts/init_database.py
-  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-- **Details:** Chainlit doesn't export a Base class from sql_alchemy, so we can't use

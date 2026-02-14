@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-14 18:42*
+*Auto-generated: 2026-02-14 18:54*
 
 ---
 
 ## 2026-02-14
+
+### 🐛 fix: Add missing Erik orchestrator prompt (fixes deploy crash)
+
+- **Commit:** `7cdba349`
+- **Author:** jsagir
+- **Files changed:** 6
+  - prompts/__init__.py
+  - prompts/erik_orchestrator.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+- **Details:** prompts/__init__.py was importing erik_orchestrator but the file
 
 ### 🔧 debug: Add verbose logging for Larry Mode + Claude guard checks
 

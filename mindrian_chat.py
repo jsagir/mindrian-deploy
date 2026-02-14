@@ -14395,22 +14395,23 @@ Your insights help us improve Mindrian!"""
     ))
 
     # === Extended Thinking UI ===
-    # Show thinking panel for non-simple bots or when explicitly enabled
+    # Show thinking panel for workshop bots only (not Lawrence/simple_mode)
+    # Lawrence is a conversational thinking partner — the Ask-Tell Dial handles
+    # intelligence behind the scenes. The ThinkingPanel adds visual noise and
+    # shows a generic "Analyzing..." placeholder that confuses users.
     settings = cl.user_session.get("settings", {})
-    show_thinking = settings.get("show_thinking", True)  # Default to showing thinking
+    show_thinking = settings.get("show_thinking", True)
     # BUG FIX: Use chat_profile as source of truth (Chainlit sets this), then fall back to bot_id
     bot_id = cl.user_session.get("chat_profile") or cl.user_session.get("bot_id", "lawrence")
 
-    # QA FIX: Show thinking panel for ALL bots (including simple_mode Lawrence)
-    # User feedback: "LETS MAKE IT WORK INSTEAD OF HIDING IT"
-    # The thinking panel helps users understand the AI's reasoning process
-    if show_thinking:
+    # Skip thinking panel for simple_mode bots (Lawrence, larry_playground)
+    # These are conversational partners, not multi-step workshop pipelines
+    is_simple_mode = BOTS.get(bot_id, {}).get("simple_mode", False)
+
+    if show_thinking and not is_simple_mode:
         # Capture reasoning steps before generating response
         thinking_steps = await capture_reasoning_steps(message.content, bot_id, history)
 
-        # ENHANCEMENT: Use ThinkingPanel custom element for rich visual display
-        # This provides a collapsible panel with progress bar, bot-specific colors,
-        # and expandable step details - much better UX than raw text
         methodology_map = {
             "tta": "Trending to the Absurd",
             "jtbd": "Jobs to Be Done",
@@ -14428,21 +14429,14 @@ Your insights help us improve Mindrian!"""
         }
         methodology = methodology_map.get(bot_id)
 
-        # Lawrence with mode engine: show Ask-Tell Dial position
-        if bot_id == "lawrence" and LARRY_MODE_ENGINE_ENABLED:
-            methodology = "Ask-Tell Dial"
-
-        # Only show thinking panel if we actually have steps to display
-        # QA FIX: Don't show empty "0/0 - Waiting for reasoning steps" panels
+        # Only show thinking panel if we actually have completed steps
         if thinking_steps and len(thinking_steps) > 0:
-            # Use the helper function to create the thinking panel element
             thinking_element = await show_thinking_panel(
                 bot_id=bot_id,
                 steps=thinking_steps,
                 methodology=methodology
             )
 
-            # Send thinking panel before the response
             await cl.Message(
                 content="",
                 elements=[thinking_element]

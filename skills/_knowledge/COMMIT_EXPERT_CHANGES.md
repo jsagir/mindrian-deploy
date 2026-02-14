@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-14 18:42*
+*Auto-generated: 2026-02-14 18:54*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,18 +13,18 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-14 | 2 |
+| 2026-02-14 | 3 |
 | 2026-02-12 | 3 |
 | 2026-02-11 | 5 |
 | 2026-02-10 | 12 |
 | 2026-02-09 | 19 |
-| 2026-02-08 | 9 |
+| 2026-02-08 | 8 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 9 |
+| `mindrian_chat.py` | 8 |
 
 ---
 
@@ -32,13 +32,45 @@
 
 ### 2026-02-14
 
+#### 🐛 fix: Add missing Erik orchestrator prompt (fixes deploy crash)
+
+- **Hash:** `7cdba34979a9cca632ada4862389fb8f12271326`
+- **Short:** `7cdba349`
+- **Parent:** `31cb5e06`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-14 18:54:25
+- **Risk:** medium
+- **Diff:** +554 / -62
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `prompts/__init__.py` | 8 | 0 |
+  | `prompts/erik_orchestrator.py` | 470 | 0 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 35 | 35 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 15 | 1 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 13 |
+
+  **File Operations:**
+  - ✏️ Modified: `prompts/__init__.py`
+  - ➕ Added: `prompts/erik_orchestrator.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** prompts/__init__.py was importing erik_orchestrator but the file
+
+
 #### 🔧 debug: Add verbose logging for Larry Mode + Claude guard checks
 
 - **Hash:** `31cb5e061f18f617deffae2058d53d00a51c748a`
 - **Short:** `31cb5e06`
 - **Parent:** `de39dc9b`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-14 18:42:41
 - **Risk:** medium
@@ -68,7 +100,6 @@
 - **Short:** `de39dc9b`
 - **Parent:** `2cb93852`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-14 17:45:29
 - **Risk:** high
@@ -1606,35 +1637,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** asyncpg doesn't support multiple statements in a single execute() call.
-
-
-#### 🐛 fix: Use raw SQL for Chainlit database table creation
-
-- **Hash:** `4c7d8e076b2286df3411ba2742d1b0ad17547586`
-- **Short:** `4c7d8e07`
-- **Parent:** `ea7f9a71`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-08 20:41:13
-- **Risk:** medium
-- **Diff:** +248 / -93
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `mindrian_chat.py` | 78 | 3 |
-  | `scripts/init_database.py` | 108 | 21 |
-  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 35 | 33 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 12 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 12 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 13 | 12 |
-
-  **File Operations:**
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `scripts/init_database.py`
-  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** Chainlit doesn't export a Base class from sql_alchemy, so we can't use
 
