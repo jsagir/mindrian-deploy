@@ -1,10 +1,22 @@
 # R&D-Relevant Changes
 
-*Auto-generated: 2026-02-14 17:45*
+*Auto-generated: 2026-02-14 18:42*
 
 ---
 
 ## 2026-02-14
+
+### 🔧 debug: Add verbose logging for Larry Mode + Claude guard checks
+
+- **Commit:** `31cb5e06`
+- **Author:** jsagir
+- **Files changed:** 5
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Adds print statements to diagnose whether Claude code path activates
 
 ### ✨ feat: Ask-Tell Dial refactor + Claude Sonnet 4.5 for Lawrence
 
@@ -425,15 +437,3 @@
   - skills/_knowledge/RECENT_CHANGES.md
   - skills/_knowledge/RND_RELEVANT_CHANGES.md
 - **Details:** Helps diagnose why button clicks aren't working.
-
-### ✨ feat: Add /api/init-db endpoint to manually create tables
-
-- **Commit:** `ea7f9a71`
-- **Author:** jsagir
-- **Files changed:** 5
-  - mindrian_chat.py
-  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
-  - skills/_knowledge/QA_RELEVANT_CHANGES.md
-  - skills/_knowledge/RECENT_CHANGES.md
-  - skills/_knowledge/RND_RELEVANT_CHANGES.md
-- **Details:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>

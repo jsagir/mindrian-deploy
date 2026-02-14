@@ -1,6 +1,6 @@
 # Commit Expert Intelligence
 
-*Auto-generated: 2026-02-14 17:45*
+*Auto-generated: 2026-02-14 18:42*
 
 **Current Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
 
@@ -13,18 +13,18 @@
 
 | Date | Commits |
 |------|---------|
-| 2026-02-14 | 1 |
+| 2026-02-14 | 2 |
 | 2026-02-12 | 3 |
 | 2026-02-11 | 5 |
 | 2026-02-10 | 12 |
 | 2026-02-09 | 19 |
-| 2026-02-08 | 10 |
+| 2026-02-08 | 9 |
 
 ## Hot Files (Changed 3+ Times in Last 10 Commits)
 
 | File | Changes |
 |------|---------|
-| `mindrian_chat.py` | 8 |
+| `mindrian_chat.py` | 9 |
 
 ---
 
@@ -32,13 +32,43 @@
 
 ### 2026-02-14
 
+#### 🔧 debug: Add verbose logging for Larry Mode + Claude guard checks
+
+- **Hash:** `31cb5e061f18f617deffae2058d53d00a51c748a`
+- **Short:** `31cb5e06`
+- **Parent:** `de39dc9b`
+- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
+- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Author:** jsagir
+- **Date:** 2026-02-14 18:42:41
+- **Risk:** medium
+- **Diff:** +92 / -62
+
+  | File | +Lines | -Lines |
+  |------|--------|--------|
+  | `mindrian_chat.py` | 8 | 1 |
+  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 53 | 34 |
+  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 1 | 13 |
+  | `skills/_knowledge/RECENT_CHANGES.md` | 15 | 13 |
+  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 15 | 1 |
+
+  **File Operations:**
+  - ✏️ Modified: `mindrian_chat.py`
+  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
+  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
+
+- **Body:** Adds print statements to diagnose whether Claude code path activates
+
+
 #### ✨ feat: Ask-Tell Dial refactor + Claude Sonnet 4.5 for Lawrence
 
 - **Hash:** `de39dc9b84a95c5834464ac0939a2cf224aacc5b`
 - **Short:** `de39dc9b`
 - **Parent:** `2cb93852`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** HEAD -> Triple-mode-v1---RENDER_DEPLOYMENT
+- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-14 17:45:29
 - **Risk:** high
@@ -85,7 +115,6 @@
 - **Short:** `2cb93852`
 - **Parent:** `7281c2df`
 - **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Refs:** origin/Triple-mode-v1---RENDER_DEPLOYMENT
 - **Author:** jsagir
 - **Date:** 2026-02-12 21:57:24
 - **Risk:** low
@@ -1608,33 +1637,4 @@
   - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
 
 - **Body:** Chainlit doesn't export a Base class from sql_alchemy, so we can't use
-
-
-#### ✨ feat: Add /api/init-db endpoint to manually create tables
-
-- **Hash:** `ea7f9a71738ddcb313f361edadb2cccd37fa4ef4`
-- **Short:** `ea7f9a71`
-- **Parent:** `9b90ac28`
-- **Branch:** `Triple-mode-v1---RENDER_DEPLOYMENT`
-- **Author:** jsagir
-- **Date:** 2026-02-08 13:08:53
-- **Risk:** high
-- **Diff:** +96 / -57
-
-  | File | +Lines | -Lines |
-  |------|--------|--------|
-  | `mindrian_chat.py` | 35 | 0 |
-  | `skills/_knowledge/COMMIT_EXPERT_CHANGES.md` | 34 | 32 |
-  | `skills/_knowledge/QA_RELEVANT_CHANGES.md` | 13 | 1 |
-  | `skills/_knowledge/RECENT_CHANGES.md` | 13 | 12 |
-  | `skills/_knowledge/RND_RELEVANT_CHANGES.md` | 1 | 12 |
-
-  **File Operations:**
-  - ✏️ Modified: `mindrian_chat.py`
-  - ✏️ Modified: `skills/_knowledge/COMMIT_EXPERT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/QA_RELEVANT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RECENT_CHANGES.md`
-  - ✏️ Modified: `skills/_knowledge/RND_RELEVANT_CHANGES.md`
-
-- **Body:** Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 

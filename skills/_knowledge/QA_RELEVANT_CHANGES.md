@@ -1,8 +1,22 @@
 # QA-Relevant Changes
 
-*Auto-generated: 2026-02-14 17:45*
+*Auto-generated: 2026-02-14 18:42*
 
 ---
+
+## 2026-02-14
+
+### 🔧 debug: Add verbose logging for Larry Mode + Claude guard checks
+
+- **Commit:** `31cb5e06`
+- **Author:** jsagir
+- **Files changed:** 5
+  - mindrian_chat.py
+  - skills/_knowledge/COMMIT_EXPERT_CHANGES.md
+  - skills/_knowledge/QA_RELEVANT_CHANGES.md
+  - skills/_knowledge/RECENT_CHANGES.md
+  - skills/_knowledge/RND_RELEVANT_CHANGES.md
+- **Details:** Adds print statements to diagnose whether Claude code path activates
 
 ## 2026-02-12
 

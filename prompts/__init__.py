@@ -96,6 +96,11 @@ from .user_needs import (
     USER_NEEDS_PHASES,
 )
 
+from .erik_orchestrator import (
+    ERIK_ORCHESTRATOR_PROMPT,
+    ERIK_ORCHESTRATOR_PHASES,
+)
+
 from .pws_consultant import (
     PWS_CONSULTANT_PROMPT,
     PWS_CONSULTANT_PHASES,
@@ -191,4 +196,7 @@ __all__ = [
     # Understanding User Needs
     "USER_NEEDS_PROMPT",
     "USER_NEEDS_PHASES",
+    # Erik - AI Orchestration
+    "ERIK_ORCHESTRATOR_PROMPT",
+    "ERIK_ORCHESTRATOR_PHASES",
 ]
